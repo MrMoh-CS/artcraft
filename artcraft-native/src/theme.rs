@@ -156,7 +156,7 @@ fn visuals() -> Visuals {
 
 /// Installs the fonts, colours and spacing. The app is dark only, like the webapp.
 pub fn apply(ctx: &egui::Context) {
-  install_fonts(ctx);
+  setup_arabic_fonts(ctx);
   ctx.set_visuals_of(egui::Theme::Dark, visuals());
   ctx.set_theme(egui::ThemePreference::Dark);
   ctx.all_styles_mut(|style| {
@@ -190,4 +190,19 @@ fn install_fonts(ctx: &egui::Context) {
     fonts.families.insert(family, stack);
   }
   ctx.set_fonts(fonts);
+}
+
+
+pub fn setup_arabic_fonts(ctx: &egui::Context) {
+    let mut fonts = egui::FontDefinitions::default();
+    fonts.font_data.insert(
+        "Cairo".to_owned(),
+        egui::FontData::from_static(include_bytes!("../assets/fonts/Archivo-Variable.ttf")),
+    );
+    fonts
+        .families
+        .entry(egui::FontFamily::Proportional)
+        .or_default()
+        .insert(0, "Cairo".to_owned());
+    ctx.set_fonts(fonts);
 }
