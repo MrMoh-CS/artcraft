@@ -206,3 +206,4 @@ pub fn setup_arabic_fonts(ctx: &egui::Context) {
         .insert(0, "Cairo".to_owned());
     ctx.set_fonts(fonts);
 }
+// تم تعريب الواجهة بواسطة عبد الله
