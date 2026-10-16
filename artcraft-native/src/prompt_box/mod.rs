@@ -214,7 +214,7 @@ fn confirm_clear(ctx: &egui::Context, id: Id, state: &mut PromptBoxState, action
       if widgets::button(ui, None, "Clear all", widgets::Kind::Danger, 0.0, theme::CONTROL_H).clicked() {
         choice = Some(true);
       }
-      if widgets::button(ui, None, "Cancel", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
+      if widgets::button(ui, None, "إلغاء", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
         choice = Some(false);
       }
     });
@@ -333,7 +333,7 @@ fn focus_mode(ctx: &egui::Context, prompt: &mut String, refs: &References, state
   let mut done = false;
   let closed = widgets::modal(ctx, props.id.with("focus-mode"), 896.0, |ui| {
     ui.set_height(height);
-    ui.label(widgets::heading("Prompt", 22.0));
+    ui.label(widgets::heading("الوصف", 22.0));
     ui.add_space(10.0);
     let editor_h = (height - 160.0 - if refs.is_empty() { 0.0 } else { 80.0 }).max(120.0);
     let out = editor_ui(ui, prompt, state, props, cache, Some(editor_h));

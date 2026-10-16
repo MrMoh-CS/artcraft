@@ -45,7 +45,7 @@ fn build(state: State) -> Harness<'static, State> {
         return;
       }
       let mentions = if s.with_mentions { mention_items(MentionKind::Image, [None, None].into_iter()) } else { Vec::new() };
-      let props = PromptBoxProps { id: egui::Id::new("test-box"), placeholder: "اكتب وصف الصورة التي تريد إنشاءها...", enter_to_generate: s.enter_to_generate, mentions: &mentions, max_length: Some(Some(1000)), deck: DeckMode::References(DeckLimits { max_images: 4, max_videos: 0, max_video_secs: None, max_audios: 0, max_audio_secs: None, library: false }), accepts: &[RefKind::Image], credits: Some(15), generate_enabled: !s.prompt.trim().is_empty(), generating: false, generate_tooltip: "Generate", warning: None, banner: None, extra_input: false };
+      let props = PromptBoxProps { id: egui::Id::new("test-box"), placeholder: "اكتب وصف الصورة التي تريد إنشاءها...", enter_to_generate: s.enter_to_generate, mentions: &mentions, max_length: Some(Some(1000)), deck: DeckMode::References(DeckLimits { max_images: 4, max_videos: 0, max_video_secs: None, max_audios: 0, max_audio_secs: None, library: false }), accepts: &[RefKind::Image], credits: Some(15), generate_enabled: !s.prompt.trim().is_empty(), generating: false, generate_tooltip: "توليد", warning: None, banner: None, extra_input: false };
       let (model, aspect) = (&s.model, &mut s.aspect);
       let mut slots = |ui: &mut egui::Ui, slot: Slot| {
         if slot == Slot::ToolbarLeft {
@@ -70,15 +70,15 @@ fn editor<'h>(harness: &'h Harness<'_, State>) -> egui_kittest::Node<'h> {
 #[test]
 fn generate_needs_a_prompt() {
   let mut harness = build(state());
-  harness.get_by_label("Generate").click();
+  harness.get_by_label("توليد").click();
   harness.run();
   assert!(harness.state().actions.is_empty(), "disabled without a prompt");
 
   harness.state_mut().prompt = "a red knight".into();
   harness.run();
-  harness.get_by_label("Generate").click();
+  harness.get_by_label("توليد").click();
   harness.run();
-  assert_eq!(harness.state().actions, ["Generate"]);
+  assert_eq!(harness.state().actions, ["توليد"]);
 }
 
 #[test]
@@ -101,7 +101,7 @@ fn enter_generates_only_when_the_setting_is_on() {
   harness.key_press(egui::Key::Enter);
   harness.run();
   assert_eq!(harness.state().prompt, "hello");
-  assert_eq!(harness.state().actions, ["Generate"]);
+  assert_eq!(harness.state().actions, ["توليد"]);
 }
 
 #[test]

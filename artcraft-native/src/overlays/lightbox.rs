@@ -166,7 +166,7 @@ impl Lightbox {
     ui.horizontal(|ui| {
       widgets::hud(ui, item.kind.label(), theme::MUTED);
       ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-        if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+        if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
           actions.push(LightboxAction::Close);
         }
       });
@@ -174,10 +174,10 @@ impl Lightbox {
     ui.add_space(8.0);
     let text = prompt.and_then(|p| p.maybe_positive_prompt.clone()).filter(|t| !t.is_empty());
     ui.horizontal(|ui| {
-      widgets::hud(ui, "Prompt", theme::FAINT);
+      widgets::hud(ui, "الوصف", theme::FAINT);
       if let Some(t) = &text {
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-          if ui.add(egui::Button::new(egui::RichText::new("Copy").size(11.0)).frame(false)).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+          if ui.add(egui::Button::new(egui::RichText::new("نسخ").size(11.0)).frame(false)).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
             actions.push(LightboxAction::CopyPrompt(t.clone()));
           }
         });
@@ -211,7 +211,7 @@ impl Lightbox {
     widgets::hud(ui, "Information", theme::FAINT);
     ui.add_space(4.0);
     if let Some(model) = item.model_id.as_deref() {
-      info_row(ui, "Model", |ui| {
+      info_row(ui, "النموذج", |ui| {
         let tex = creator_icons::texture(ui.ctx(), &names.creator(model));
         ui.add(egui::Image::new(&tex).tint(theme::INK).fit_to_exact_size(vec2(13.0, 13.0)));
         ui.label(egui::RichText::new(names.display_name(model)).size(12.5));
@@ -219,18 +219,18 @@ impl Lightbox {
     }
     if let Some(p) = prompt {
       if let Some(ar) = &p.maybe_aspect_ratio {
-        info_row(ui, "Aspect Ratio", |ui| {
+        info_row(ui, "الأبعاد", |ui| {
           ui.label(egui::RichText::new(crate::models::aspect_label(ar)).size(12.5));
         });
       }
       if let Some(res) = &p.maybe_resolution {
-        info_row(ui, "Resolution", |ui| {
+        info_row(ui, "الدقة", |ui| {
           ui.label(egui::RichText::new(crate::models::resolution_label(res)).size(12.5));
         });
       }
     }
     if let Some(d) = item.duration_secs {
-      info_row(ui, "Duration", |ui| {
+      info_row(ui, "المدة", |ui| {
         ui.label(egui::RichText::new(format!("{d:.1}s")).size(12.5));
       });
     }
@@ -258,13 +258,13 @@ impl Lightbox {
       if item.kind == MediaKind::Image && widgets::button(ui, Some(Icon::Video), "Make Video", widgets::Kind::Accent, w, theme::CONTROL_H).clicked() {
         actions.push(LightboxAction::MakeVideo);
       }
-      if widgets::button(ui, Some(Icon::Download), "Download", widgets::Kind::Secondary, w, theme::CONTROL_H).clicked() {
+      if widgets::button(ui, Some(Icon::Download), "تحميل", widgets::Kind::Secondary, w, theme::CONTROL_H).clicked() {
         actions.push(LightboxAction::Download);
       }
       if widgets::button(ui, Some(Icon::Link), "Share", widgets::Kind::Secondary, w, theme::CONTROL_H).clicked() {
         actions.push(LightboxAction::Share);
       }
-      if widgets::button(ui, Some(Icon::Trash), "Delete", widgets::Kind::Danger, w, theme::CONTROL_H).clicked() {
+      if widgets::button(ui, Some(Icon::Trash), "حذف", widgets::Kind::Danger, w, theme::CONTROL_H).clicked() {
         self.confirm_delete = true;
       }
     });
@@ -278,10 +278,10 @@ impl Lightbox {
       ui.label(egui::RichText::new("This will permanently remove the media from your library. This action cannot be undone.").color(theme::MUTED));
       ui.add_space(16.0);
       ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-        if widgets::button(ui, None, "Delete", widgets::Kind::Danger, 0.0, theme::CONTROL_H).clicked() {
+        if widgets::button(ui, None, "حذف", widgets::Kind::Danger, 0.0, theme::CONTROL_H).clicked() {
           choice = Some(true);
         }
-        if widgets::button(ui, None, "Cancel", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
+        if widgets::button(ui, None, "إلغاء", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
           choice = Some(false);
         }
       });

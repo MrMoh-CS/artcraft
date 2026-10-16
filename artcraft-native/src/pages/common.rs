@@ -199,7 +199,7 @@ pub fn selection_bar(ui: &Ui, area: Rect, bottom: f32, feed: &mut FeedStore, kin
         ui.add_space(6.0);
         ui.label(egui::RichText::new(format!("{} selected", feed.selected.len())).size(13.0).family(theme::medium()));
         let any = !feed.selected.is_empty();
-        if ui.add_enabled_ui(any, |ui| widgets::button(ui, Some(crate::ui::icons::Icon::Download), "Download", widgets::Kind::Secondary, 0.0, 30.0)).inner.clicked() {
+        if ui.add_enabled_ui(any, |ui| widgets::button(ui, Some(crate::ui::icons::Icon::Download), "تحميل", widgets::Kind::Secondary, 0.0, 30.0)).inner.clicked() {
           requests.push(AppRequest::Download(feed.selected.iter().cloned().collect()));
         }
         if widgets::ghost(ui, crate::ui::icons::Icon::X, None, "Exit selection", false).clicked() {

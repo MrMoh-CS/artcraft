@@ -33,7 +33,7 @@ impl LoginDialog {
       ui.horizontal(|ui| {
         ui.label(widgets::heading("Sign in to ArtCraft", 24.0));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-          if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+          if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
             action = Some(LoginAction::Close);
           }
         });
@@ -54,7 +54,7 @@ impl LoginDialog {
             if widgets::button(ui, Some(Icon::ExternalLink), "Open page again", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
               ui.ctx().open_url(egui::OpenUrl::new_tab(url));
             }
-            if widgets::button(ui, None, "Cancel", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
+            if widgets::button(ui, None, "إلغاء", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
               action = Some(LoginAction::CancelBrowser);
             }
           });
@@ -117,7 +117,7 @@ pub fn settings_dialog(ctx: &egui::Context, enter_to_generate: &mut bool, userna
     ui.horizontal(|ui| {
       ui.label(widgets::heading("الإعدادات", 24.0));
       ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-        if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+        if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
           action = Some(SettingsAction::Close);
         }
       });
@@ -138,7 +138,7 @@ pub fn settings_dialog(ctx: &egui::Context, enter_to_generate: &mut bool, userna
       });
     });
     ui.add_space(18.0);
-    widgets::hud(ui, "Account", theme::FAINT);
+    widgets::hud(ui, "الحساب", theme::FAINT);
     ui.add_space(6.0);
     match username {
       Some(user) => {

@@ -168,7 +168,7 @@ pub fn generate_button(ui: &mut Ui, enabled: bool, loading: bool, tip: &str) -> 
   } else {
     icons::paint(ui.painter(), inner, Icon::ArrowUp, ink);
   }
-  resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled, "Generate"));
+  resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled, "توليد"));
   let resp = resp.on_hover_text(tip);
   if enabled {
     resp.on_hover_cursor(egui::CursorIcon::PointingHand)

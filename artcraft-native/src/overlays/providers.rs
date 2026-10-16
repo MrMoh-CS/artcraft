@@ -43,7 +43,7 @@ pub fn setup_dialog(ctx: &egui::Context, provider: Provider, fal_key: &mut Strin
     ui.horizontal(|ui| {
       widgets::hud(ui, "Connect account", theme::FAINT);
       ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-        if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+        if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
           action = Some(SetupAction::Close);
         }
       });
@@ -116,7 +116,7 @@ pub fn accounts_section(ui: &mut Ui, view: &AccountsView, fal_key: &mut String) 
         let save_w = 90.0;
         ui.allocate_ui(vec2(ui.available_width() - save_w - 8.0, theme::CONTROL_H), |ui| text_field(ui, fal_key, true, "Paste your FAL API key"));
         let enabled = !fal_key.trim().is_empty();
-        if ui.add_enabled_ui(enabled, |ui| widgets::button(ui, None, "Save", widgets::Kind::Secondary, save_w, theme::CONTROL_H)).inner.clicked() {
+        if ui.add_enabled_ui(enabled, |ui| widgets::button(ui, None, "حفظ", widgets::Kind::Secondary, save_w, theme::CONTROL_H)).inner.clicked() {
           action = Some(AccountAction::SaveFalKey);
         }
       });
@@ -167,7 +167,7 @@ impl MidjourneyLogin {
       ui.horizontal(|ui| {
         ui.label(widgets::heading("Login to Midjourney", 22.0));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-          if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+          if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
             closed = true;
           }
         });

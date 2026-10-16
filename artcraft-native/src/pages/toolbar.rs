@@ -17,7 +17,7 @@ pub fn aspect_ratio(ui: &mut Ui, id: Id, model: &ModelInfo, current: &str) -> Op
     Some(ratio) => Leading::Aspect(Some(ratio)),
     None => Leading::Icon(Icon::Wand),
   };
-  pickers::option_picker(ui, id, Trigger::Pill(lead), "Aspect Ratio", "Aspect Ratio", &current.to_owned(), &options)
+  pickers::option_picker(ui, id, Trigger::Pill(lead), "الأبعاد", "الأبعاد", &current.to_owned(), &options)
 }
 
 fn aspect_lead(value: &str) -> OptionLead {
@@ -34,7 +34,7 @@ pub fn resolution(ui: &mut Ui, id: Id, model: &ModelInfo, current: &str) -> Opti
   }
   let options: Vec<PickOption<String>> = model.resolutions.iter().map(|v| PickOption::new(v.clone(), models::resolution_label(v))).collect();
   let caption = if models::resolution_is_hd(current) { "HD" } else { "SD" };
-  pickers::option_picker(ui, id, Trigger::Pill(Leading::Caption(caption)), "Resolution", "Resolution", &current.to_owned(), &options)
+  pickers::option_picker(ui, id, Trigger::Pill(Leading::Caption(caption)), "الدقة", "الدقة", &current.to_owned(), &options)
 }
 
 /// The quality picker (`QualityPicker`).
@@ -43,7 +43,7 @@ pub fn quality(ui: &mut Ui, id: Id, model: &ModelInfo, current: &str) -> Option<
     return None;
   }
   let options: Vec<PickOption<String>> = model.qualities.iter().map(|v| PickOption::new(v.clone(), models::quality_label(v))).collect();
-  pickers::option_picker(ui, id, Trigger::Pill(Leading::Icon(Icon::Gem)), "Quality", "Quality", &current.to_owned(), &options)
+  pickers::option_picker(ui, id, Trigger::Pill(Leading::Icon(Icon::Gem)), "الجودة", "الجودة", &current.to_owned(), &options)
 }
 
 /// The number of generations (`GenerationCountPicker`): a quiet copy-icon button.

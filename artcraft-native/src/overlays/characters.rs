@@ -108,10 +108,10 @@ impl CharactersModal {
         ui.label(egui::RichText::new(format!("\u{201c}{name}\u{201d} will be removed from your characters.")).color(theme::MUTED));
         ui.add_space(16.0);
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-          if widgets::button(ui, None, "Delete", widgets::Kind::Danger, 0.0, theme::CONTROL_H).clicked() {
+          if widgets::button(ui, None, "حذف", widgets::Kind::Danger, 0.0, theme::CONTROL_H).clicked() {
             choice = Some(true);
           }
-          if widgets::button(ui, None, "Cancel", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
+          if widgets::button(ui, None, "إلغاء", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
             choice = Some(false);
           }
         });
@@ -133,7 +133,7 @@ impl CharactersModal {
       }
       ui.label(widgets::heading(title, 22.0));
       ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-        if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+        if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
           actions.push(CharactersAction::Close);
         }
       });
@@ -221,7 +221,7 @@ impl CharactersModal {
         fields(ui, &mut self.name, &mut self.description);
         ui.add_space(16.0);
         ui.horizontal(|ui| {
-          if widgets::button(ui, None, "Save", widgets::Kind::Primary, 0.0, theme::CONTROL_H).clicked() {
+          if widgets::button(ui, None, "حفظ", widgets::Kind::Primary, 0.0, theme::CONTROL_H).clicked() {
             if self.name.trim().is_empty() {
               actions.push(CharactersAction::Toast("Name cannot be empty".to_owned()));
             } else {
@@ -229,7 +229,7 @@ impl CharactersModal {
               self.view = View::List;
             }
           }
-          if widgets::button(ui, None, "Cancel", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
+          if widgets::button(ui, None, "إلغاء", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
             self.view = View::List;
           }
         });
@@ -292,7 +292,7 @@ impl CharactersModal {
               },
             }
           }
-          if widgets::button(ui, None, "Cancel", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
+          if widgets::button(ui, None, "إلغاء", widgets::Kind::Secondary, 0.0, theme::CONTROL_H).clicked() {
             self.view = View::List;
           }
         });

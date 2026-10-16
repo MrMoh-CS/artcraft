@@ -16,7 +16,7 @@ const GROUP_THRESHOLD: usize = 8;
 /// Audio models that work from exactly one audio track (`AUDIO_MODELS_REQUIRING_AUDIO_REF`).
 const AUDIO_MODELS_REQUIRING_AUDIO_REF: [&str; 2] = ["suno_remix", "suno_sample"];
 /// The musical keys (`SoundsSettingsPopover`; there are no E keys): value, label, short label.
-pub const MUSICAL_KEYS: [(&str, &str, &str); 13] = [("auto", "Auto", "Auto"), ("c_major", "C Major", "C"), ("c_minor", "C Minor", "Cm"), ("d_major", "D Major", "D"), ("d_minor", "D Minor", "Dm"), ("f_major", "F Major", "F"), ("f_minor", "F Minor", "Fm"), ("g_major", "G Major", "G"), ("g_minor", "G Minor", "Gm"), ("a_major", "A Major", "A"), ("a_minor", "A Minor", "Am"), ("b_major", "B Major", "B"), ("b_minor", "B Minor", "Bm")];
+pub const MUSICAL_KEYS: [(&str, &str, &str); 13] = [("auto", "تلقائي", "تلقائي"), ("c_major", "C Major", "C"), ("c_minor", "C Minor", "Cm"), ("d_major", "D Major", "D"), ("d_minor", "D Minor", "Dm"), ("f_major", "F Major", "F"), ("f_minor", "F Minor", "Fm"), ("g_major", "G Major", "G"), ("g_minor", "G Minor", "Gm"), ("a_major", "A Major", "A"), ("a_minor", "A Minor", "Am"), ("b_major", "B Major", "B"), ("b_minor", "B Minor", "Bm")];
 
 /// One generation model and what it accepts.
 #[derive(Clone, Debug, Default)]
@@ -307,7 +307,7 @@ pub fn display_name(id: &str) -> String {
         "gpt" => "GPT".to_owned(),
         "veo" => "Google Veo".to_owned(),
         "u" => "Ultra".to_owned(),
-        "q" => "Quality".to_owned(),
+        "q" => "الجودة".to_owned(),
         _ => {
           let mut c = w.chars();
           c.next().map_or_else(String::new, |f| f.to_uppercase().chain(c).collect())
@@ -341,7 +341,7 @@ fn description(id: &str) -> &'static str {
     "gpt_image_2" => "Smart with great text support",
     "gpt_image_2p5_flare" => "Precise edits, keeps subjects intact",
     "gpt_image_2p5_sunburst" => "Premium detail, slower",
-    "seedream_4" | "seedream_4p5" | "seedream_5_lite" => "Fast",
+    "seedream_4" | "seedream_4p5" | "seedream_5_lite" => "سريع",
     "grok_video" | "grok_imagine_video" => "Fastest video model",
     "sora_2" => "Smart video model",
     "veo_3" => "Slow, high-quality model",
@@ -494,7 +494,7 @@ impl ModelNames for Catalog {
 /// Aspect ratio labels (`AspectRatioPicker`).
 pub fn aspect_label(value: &str) -> String {
   match value {
-    "auto" => "Auto",
+    "auto" => "تلقائي",
     "square" => "مربع",
     "wide_five_by_four" => "5:4 (Wide)",
     "wide_four_by_three" => "4:3 (Wide)",
@@ -510,8 +510,8 @@ pub fn aspect_label(value: &str) -> String {
     "auto_3k" => "Auto (3K)",
     "auto_4k" => "Auto (4K)",
     "square_hd" => "Square (HD)",
-    "wide" => "Wide",
-    "tall" => "Tall",
+    "wide" => "عريض",
+    "tall" => "طويل",
     other => other,
   }
   .to_owned()
@@ -561,12 +561,12 @@ pub fn resolution_is_hd(value: &str) -> bool {
 /// Quality labels (`QualityPicker`).
 pub fn quality_label(value: &str) -> String {
   match value {
-    "auto" => "Auto",
+    "auto" => "تلقائي",
     "max" => "Max",
     "xhigh" => "Extra high",
-    "high" => "High",
-    "medium" => "Medium",
-    "low" => "Low",
+    "high" => "عالية",
+    "medium" => "متوسطة",
+    "low" => "منخفضة",
     other => other,
   }
   .to_owned()
@@ -585,7 +585,7 @@ pub fn sample_rate_label(hz: u32) -> String {
 pub fn bitrate_label(value: &str) -> String {
   match value {
     "normal" => "Normal".to_owned(),
-    "high" => "High".to_owned(),
+    "high" => "عالية".to_owned(),
     other => other.to_owned(),
   }
 }

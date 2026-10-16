@@ -83,7 +83,7 @@ impl LibraryPicker {
         ui.add_space(8.0);
         widgets::hud(ui, noun, theme::MUTED);
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-          if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
+          if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
             actions.push(PickerAction::Close);
           }
         });

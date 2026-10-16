@@ -103,7 +103,7 @@ fn caption_button(ui: &mut Ui, button: Caption, height: f32) -> Response {
     Caption::Close => {
       p.line_segment([c + vec2(-s, -s), c + vec2(s, s)], stroke);
       p.line_segment([c + vec2(-s, s), c + vec2(s, -s)], stroke);
-      "Close"
+      "إغلاق"
     },
   };
   resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, label));

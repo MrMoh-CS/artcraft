@@ -282,7 +282,7 @@ fn account_row(ui: &mut Ui, name: &str, credits: Option<u64>) -> egui::Response 
   let initial = name.chars().next().map(|c| c.to_uppercase().to_string()).unwrap_or_default();
   p.text(avatar.center(), Align2::CENTER_CENTER, initial, FontId::new(13.0, theme::semibold()), Color32::WHITE);
   p.text(pos2(avatar.right() + 10.0, rect.center().y - 8.0), Align2::LEFT_CENTER, name, FontId::new(13.5, theme::medium()), theme::INK);
-  let sub = credits.map_or_else(|| "Account".to_owned(), |c| format!("{} credits", group_thousands(c)));
+  let sub = credits.map_or_else(|| "الحساب".to_owned(), |c| format!("{} credits", group_thousands(c)));
   p.text(pos2(avatar.right() + 10.0, rect.center().y + 9.0), Align2::LEFT_CENTER, sub, FontId::new(11.5, egui::FontFamily::Proportional), theme::MUTED);
   icons::paint(p, Rect::from_center_size(pos2(rect.right() - 16.0, rect.center().y), vec2(14.0, 14.0)), Icon::Settings, theme::DIM);
   resp.on_hover_cursor(egui::CursorIcon::PointingHand).on_hover_text("الإعدادات")
@@ -344,7 +344,7 @@ fn credits_pill(ui: &mut Ui, credits: u64) -> egui::Response {
 }
 
 fn account_menu(ui: &mut Ui, account: &Account<'_>) -> Option<ShellAction> {
-  let name = account.display_name.or(account.username).unwrap_or("Account");
+  let name = account.display_name.or(account.username).unwrap_or("الحساب");
   let (rect, resp) = ui.allocate_exact_size(vec2(30.0, 30.0), Sense::click());
   ui.painter().circle(rect.center(), 15.0, theme::ACCENT, Stroke::new(if resp.hovered() { 2.0 } else { 0.0 }, Color32::WHITE));
   let initial = name.chars().next().map(|c| c.to_uppercase().to_string()).unwrap_or_default();

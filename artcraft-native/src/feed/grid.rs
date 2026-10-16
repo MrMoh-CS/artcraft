@@ -361,7 +361,7 @@ fn item_actions<'a>(view: &FeedView<'_>, item: &FeedItem, prompt: Option<&String
     buttons.push((Icon::Video, "Make Video", FeedAction::MakeVideo(item.token.clone())));
   }
   buttons.push((Icon::Link, "Share", FeedAction::Share(item.token.clone())));
-  buttons.push((Icon::Download, "Download", FeedAction::Download(item.token.clone())));
+  buttons.push((Icon::Download, "تحميل", FeedAction::Download(item.token.clone())));
   buttons
 }
 

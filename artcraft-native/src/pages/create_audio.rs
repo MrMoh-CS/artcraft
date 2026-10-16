@@ -111,7 +111,7 @@ impl CreateAudioPage {
   fn prompt_box(&mut self, ui: &mut Ui, env: &mut Env<'_>, model: Option<&ModelInfo>) {
     let missing_ref = model.is_some_and(|m| self.missing_required_ref(m));
     let accepts: Vec<RefKind> = model.map_or_else(Vec::new, |m| [(RefKind::Audio, m.audio_refs_max), (RefKind::Image, m.image_refs_max)].into_iter().filter(|(_, n)| *n > 0).map(|(k, _)| k).collect());
-    let props = PromptBoxProps { id: Id::new("audio-prompt-box"), placeholder: PLACEHOLDER, enter_to_generate: env.enter_to_generate, mentions: &[], max_length: None, deck: DeckMode::None, accepts: &accepts, credits: self.cost.credits, generate_enabled: !self.settings.prompt.trim().is_empty() && model.is_some() && !missing_ref, generating: self.generating, generate_tooltip: "Generate", warning: missing_ref.then_some("Audio track required"), banner: None, extra_input: !self.settings.style_prompt.is_empty() };
+    let props = PromptBoxProps { id: Id::new("audio-prompt-box"), placeholder: PLACEHOLDER, enter_to_generate: env.enter_to_generate, mentions: &[], max_length: None, deck: DeckMode::None, accepts: &accepts, credits: self.cost.credits, generate_enabled: !self.settings.prompt.trim().is_empty() && model.is_some() && !missing_ref, generating: self.generating, generate_tooltip: "توليد", warning: missing_ref.then_some("Audio track required"), banner: None, extra_input: !self.settings.style_prompt.is_empty() };
 
     let playing = self.refs.audios.iter().map(|r| r.id).find(|id| env.audio.is_playing(&ref_key(*id)));
     let image = self.refs.images.first().and_then(|r| r.preview.as_deref()).and_then(|key| match env.cache.get(&env.ctx, key) {
@@ -424,8 +424,8 @@ fn beat_and_key(ui: &mut Ui, caps: &AudioCaps, s: &mut AudioSettings) {
         ui.horizontal(|ui| {
           setting_name(ui, "BPM");
           ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            setting_value(ui, &s.bpm.map_or_else(|| "Auto".to_owned(), |b| b.to_string()));
-            if s.bpm.is_some() && ui.add(egui::Button::new(egui::RichText::new("Auto").size(11.5).color(theme::ACCENT_INK)).frame(false)).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+            setting_value(ui, &s.bpm.map_or_else(|| "تلقائي".to_owned(), |b| b.to_string()));
+            if s.bpm.is_some() && ui.add(egui::Button::new(egui::RichText::new("تلقائي").size(11.5).color(theme::ACCENT_INK)).frame(false)).on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
               s.bpm = None;
             }
           });

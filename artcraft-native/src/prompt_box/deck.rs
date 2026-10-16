@@ -406,7 +406,7 @@ pub fn cover_uv(size: Vec2) -> Rect {
   }
 }
 
-/// One kind's group in an add menu: its "Upload" / "From library" rows and a usage hint.
+/// One kind's group in an add menu: its "رفع ملف" / "From library" rows and a usage hint.
 struct MenuGroup {
   kind: RefKind,
   hint: Option<String>,
@@ -430,7 +430,7 @@ fn add_menu_entries(refs: &References, limits: &DeckLimits, open_kinds: &[RefKin
 
 /// The add menu that appears above a trigger after a short hover (the webapp's `DeckAddMenu`).
 fn hover_menu(ui: &Ui, id: Id, trigger: &Response, groups: &[MenuGroup], actions: &mut Vec<DeckAction>) {
-  // A lone "Upload" is what clicking does already: no menu (the webapp's `enabledActions > 1`).
+  // A lone "رفع ملف" is what clicking does already: no menu (the webapp's `enabledActions > 1`).
   let entries: usize = groups.iter().map(|g| 1 + usize::from(g.library)).sum();
   if entries <= 1 {
     return;
@@ -455,7 +455,7 @@ fn hover_menu(ui: &Ui, id: Id, trigger: &Response, groups: &[MenuGroup], actions
             }
           });
         }
-        if menu_entry(ui, Icon::Upload, "Upload") {
+        if menu_entry(ui, Icon::Upload, "رفع ملف") {
           actions.push(DeckAction::Upload { kinds: vec![group.kind], slot: group.slot });
           latch.close(ui);
         }
