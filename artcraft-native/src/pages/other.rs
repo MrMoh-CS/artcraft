@@ -27,7 +27,7 @@ pub fn home(ui: &mut Ui, signed_in: bool, requests: &mut Vec<AppRequest>) -> Opt
   ui.add_space(28.0);
   ui.horizontal(|ui| {
     ui.spacing_mut().item_spacing.x = 16.0;
-    let cards = [(Page::CreateImage, Icon::Image, "إنشاء صورة", "Describe anything. See it in seconds."), (Page::CreateVideo, Icon::Video, "إنشاء فيديو", "Describe a scene. See it in motion."), (Page::CreateAudio, Icon::Music, "إنشاء صوت", "Describe a song, a sound, or a sample.")];
+    let cards = [(Page::إنشاءImage, Icon::Image, "إنشاء صورة", "Describe anything. See it in seconds."), (Page::إنشاءVideo, Icon::Video, "إنشاء فيديو", "Describe a scene. See it in motion."), (Page::إنشاءAudio, Icon::Music, "إنشاء صوت", "Describe a song, a sound, or a sample.")];
     let card_w = (width - 16.0 * (cards.len() - 1) as f32) / cards.len() as f32;
     for (page, icon, title, text) in cards {
       if card(ui, card_w, icon, title, text) {
@@ -37,7 +37,7 @@ pub fn home(ui: &mut Ui, signed_in: bool, requests: &mut Vec<AppRequest>) -> Opt
   });
   if !signed_in {
     ui.add_space(24.0);
-    if widgets::button(ui, Some(Icon::LogIn), "Sign in to start", widgets::Kind::Primary, 0.0, 44.0).clicked() {
+    if widgets::button(ui, Some(Icon::LogIn), "تسجيل الدخول to start", widgets::Kind::Primary, 0.0, 44.0).clicked() {
       requests.push(AppRequest::SignIn);
     }
   }
@@ -64,7 +64,7 @@ fn card(ui: &mut Ui, width: f32, icon: Icon, title: &str, text: &str) -> bool {
 pub fn library(ui: &mut Ui, env: &mut Env<'_>, feed: &mut FeedStore) {
   let area = ui.max_rect();
   if !env.signed_in {
-    placeholder(ui, area, "المكتبة", "Sign in to see everything you've generated.", None);
+    placeholder(ui, area, "المكتبة", "تسجيل الدخول to see everything you've generated.", None);
     return;
   }
   if !feed.library_started() {

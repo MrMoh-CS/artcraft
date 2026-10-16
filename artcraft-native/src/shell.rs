@@ -17,7 +17,7 @@ pub const PANEL_RADIUS: u8 = 8;
 const ROW_HEIGHT: f32 = 32.0;
 pub const DISCORD_URL: &str = "https://discord.gg/artcraft";
 pub const GITHUB_URL: &str = "https://github.com/storytold/artcraft";
-pub const TUTORIALS_URL: &str = "https://www.youtube.com/@OfficialArtCraftStudios";
+pub const TUTORIALS_URL: &str = "https://www.youtube.com/@OfficialArtCraftالاستوديوs";
 pub const WEB_APP_URL: &str = "https://app.getartcraft.com";
 
 /// Every page in the navigation.
@@ -25,9 +25,9 @@ pub const WEB_APP_URL: &str = "https://app.getartcraft.com";
 pub enum Page {
   Home,
   #[default]
-  CreateImage,
-  CreateVideo,
-  CreateAudio,
+  إنشاءImage,
+  إنشاءVideo,
+  إنشاءAudio,
   Object3d,
   World3d,
   EditImage,
@@ -42,9 +42,9 @@ impl Page {
   pub fn label(self) -> &'static str {
     match self {
       Page::Home => "الرئيسية",
-      Page::CreateImage => "صورة",
-      Page::CreateVideo => "فيديو",
-      Page::CreateAudio => "صوت",
+      Page::إنشاءImage => "صورة",
+      Page::إنشاءVideo => "فيديو",
+      Page::إنشاءAudio => "صوت",
       Page::Object3d => "مجسم 3D",
       Page::World3d => "عالم 3D",
       Page::EditImage => "تعديل صورة",
@@ -59,9 +59,9 @@ impl Page {
   fn icon(self) -> Icon {
     match self {
       Page::Home => Icon::Home,
-      Page::CreateImage => Icon::Image,
-      Page::CreateVideo => Icon::Video,
-      Page::CreateAudio => Icon::Music,
+      Page::إنشاءImage => Icon::Image,
+      Page::إنشاءVideo => Icon::Video,
+      Page::إنشاءAudio => Icon::Music,
       Page::Object3d | Page::Stage3d => Icon::Box,
       Page::World3d => Icon::Globe,
       Page::EditImage => Icon::Pencil,
@@ -71,13 +71,13 @@ impl Page {
     }
   }
 
-  /// The breadcrumb trail (`Create › Image`).
+  /// The breadcrumb trail (`إنشاء › Image`).
   pub fn crumbs(self) -> (&'static str, &'static str) {
     match self {
       Page::Home => ("ArtCraft", "الرئيسية"),
-      Page::CreateImage | Page::CreateVideo | Page::CreateAudio | Page::Object3d | Page::World3d => ("Create", self.label()),
-      Page::Library => ("Assets", "المكتبة"),
-      _ => ("Studio", self.label()),
+      Page::إنشاءImage | Page::إنشاءVideo | Page::إنشاءAudio | Page::Object3d | Page::World3d => ("إنشاء", self.label()),
+      Page::Library => ("الأصول", "المكتبة"),
+      _ => ("الاستوديو", self.label()),
     }
   }
 
@@ -85,9 +85,9 @@ impl Page {
   pub fn from_slug(slug: &str) -> Option<Self> {
     Some(match slug {
       "home" => Page::Home,
-      "create-image" | "image" => Page::CreateImage,
-      "create-video" | "video" => Page::CreateVideo,
-      "create-audio" | "audio" => Page::CreateAudio,
+      "create-image" | "image" => Page::إنشاءImage,
+      "create-video" | "video" => Page::إنشاءVideo,
+      "create-audio" | "audio" => Page::إنشاءAudio,
       "library" => Page::Library,
       _ => return None,
     })
@@ -95,13 +95,13 @@ impl Page {
 
   /// Pages the native app has; the rest open a "coming soon" page.
   pub fn is_ready(self) -> bool {
-    matches!(self, Page::Home | Page::CreateImage | Page::CreateVideo | Page::CreateAudio | Page::Library)
+    matches!(self, Page::Home | Page::إنشاءImage | Page::إنشاءVideo | Page::إنشاءAudio | Page::Library)
   }
 
   /// The same tool in the web app.
   pub fn web_path(self) -> &'static str {
     match self {
-      Page::CreateAudio => "/create-audio",
+      Page::إنشاءAudio => "/create-audio",
       Page::Object3d => "/create-object",
       Page::World3d => "/create-world",
       Page::EditImage => "/pagedraw",
@@ -109,14 +109,14 @@ impl Page {
       Page::VideoEditor => "/video-editor",
       Page::RemoveBackground => "/create-vfx",
       Page::FrameExtractor => "/frame-extractor",
-      Page::CreateVideo => "/create-video",
+      Page::إنشاءVideo => "/create-video",
       Page::Library => "/library",
       _ => "/create-image",
     }
   }
 }
 
-const SECTIONS: [(&str, &[Page]); 3] = [("Create", &[Page::CreateImage, Page::CreateVideo, Page::CreateAudio, Page::Object3d, Page::World3d]), ("Studio", &[Page::EditImage, Page::Stage3d, Page::VideoEditor, Page::RemoveBackground, Page::FrameExtractor]), ("Assets", &[Page::Library])];
+const SECTIONS: [(&str, &[Page]); 3] = [("إنشاء", &[Page::إنشاءImage, Page::إنشاءVideo, Page::إنشاءAudio, Page::Object3d, Page::World3d]), ("الاستوديو", &[Page::EditImage, Page::Stage3d, Page::VideoEditor, Page::RemoveBackground, Page::FrameExtractor]), ("الأصول", &[Page::Library])];
 
 /// Who's signed in, for the sidebar and top bar.
 pub struct Account<'a> {
@@ -211,8 +211,8 @@ pub fn sidebar(ui: &mut Ui, page: Page, account: &Account<'_>) -> Option<ShellAc
     }
   }
   ui.add_space(10.0);
-  widgets::section_label(ui, "Resources", theme::SIDEBAR_INK);
-  for (label, icon, url) in [("الشروحات", Icon::Play, TUTORIALS_URL), ("Discord", Icon::Globe, DISCORD_URL), ("GitHub", Icon::ExternalLink, GITHUB_URL)] {
+  widgets::section_label(ui, "المصادر", theme::SIDEBAR_INK);
+  for (label, icon, url) in [("الشروحات", Icon::Play, TUTORIALS_URL), ("ديسكورد", Icon::Globe, DISCORD_URL), ("جيت هب", Icon::ExternalLink, GITHUB_URL)] {
     if link_row(ui, label, icon) {
       ui.ctx().open_url(egui::OpenUrl::new_tab(url));
     }

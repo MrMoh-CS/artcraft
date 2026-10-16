@@ -1,4 +1,4 @@
-//! Create Video (`ImageToVideo` + `PromptBoxVideo`): keyframe or omni-reference input, the
+//! إنشاء Video (`ImageToVideo` + `PromptBoxVideo`): keyframe or omni-reference input, the
 //! model's pickers (aspect ratio, resolution, bitrate, format, duration, sound, count), the cost,
 //! and the video feed.
 
@@ -60,7 +60,7 @@ impl Default for VideoSettings {
 }
 
 #[derive(Default)]
-pub struct CreateVideoPage {
+pub struct إنشاءVideoPage {
   pub settings: VideoSettings,
   pub refs: References,
   pub feed: FeedStore,
@@ -72,7 +72,7 @@ pub struct CreateVideoPage {
   character_picks: std::collections::HashMap<String, String>,
 }
 
-impl CreateVideoPage {
+impl إنشاءVideoPage {
   pub fn new(settings: VideoSettings) -> Self {
     let mut page = Self { settings, box_height: 140.0, ..Default::default() };
     page.box_state.editor.focus_requested = true;

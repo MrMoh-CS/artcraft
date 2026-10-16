@@ -190,7 +190,7 @@ pub enum Kind {
   Danger,
 }
 
-/// A block button with a mono upper-case label (`SIGN UP TO CREATE`, `DOWNLOAD`), at least `width`
+/// A block button with a mono upper-case label (`SIGN UP TO إنشاء`, `DOWNLOAD`), at least `width`
 /// wide and `height` tall.
 pub fn button(ui: &mut Ui, icon: Option<Icon>, text: &str, kind: Kind, width: f32, height: f32) -> Response {
   let enabled = ui.is_enabled();

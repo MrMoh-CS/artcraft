@@ -31,7 +31,7 @@ impl LoginDialog {
     let mut action = None;
     let close = widgets::modal(ctx, Id::new("login"), 420.0, |ui| {
       ui.horizontal(|ui| {
-        ui.label(widgets::heading("Sign in to ArtCraft", 24.0));
+        ui.label(widgets::heading("تسجيل الدخول to ArtCraft", 24.0));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
           if widgets::ghost(ui, Icon::X, None, "إغلاق", false).clicked() {
             action = Some(LoginAction::Close);
@@ -60,7 +60,7 @@ impl LoginDialog {
           });
         },
         None => {
-          if ui.add_enabled_ui(!self.busy, |ui| widgets::button(ui, Some(Icon::Globe), "Sign in with browser", widgets::Kind::Primary, width, 40.0)).inner.clicked() {
+          if ui.add_enabled_ui(!self.busy, |ui| widgets::button(ui, Some(Icon::Globe), "تسجيل الدخول with browser", widgets::Kind::Primary, width, 40.0)).inner.clicked() {
             action = Some(LoginAction::Browser);
           }
           ui.add_space(14.0);
@@ -88,7 +88,7 @@ impl LoginDialog {
       }
       ui.add_space(16.0);
       ui.horizontal(|ui| {
-        widgets::hud_link(ui, "Create account", &format!("{WEB_APP_URL}/signup"));
+        widgets::hud_link(ui, "إنشاء account", &format!("{WEB_APP_URL}/signup"));
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
           widgets::hud_link(ui, "Forgot password", &format!("{WEB_APP_URL}/forgot-password"));
         });

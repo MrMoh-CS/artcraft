@@ -242,7 +242,7 @@ impl Lightbox {
     }
     if let Some(created) = chrono::DateTime::from_timestamp(item.created_at, 0) {
       let local = created.with_timezone(&chrono::Local);
-      info_row(ui, "Created", |ui| {
+      info_row(ui, "إنشاءd", |ui| {
         ui.label(egui::RichText::new(local.format("%b %-d, %Y %-I:%M:%S %p").to_string()).size(12.5));
       });
     }

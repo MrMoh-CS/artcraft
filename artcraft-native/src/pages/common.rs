@@ -1,4 +1,4 @@
-//! What the create pages share: the page shell (`DesktopCreatePageShell`), uploading references,
+//! What the create pages share: the page shell (`DesktopإنشاءPageShell`), uploading references,
 //! cost-estimate bookkeeping and the app-level requests pages make.
 
 use std::path::{Path, PathBuf};
@@ -212,7 +212,7 @@ pub fn selection_bar(ui: &Ui, area: Rect, bottom: f32, feed: &mut FeedStore, kin
 }
 
 /// The splash: a bordered section with corner marks, the page title and a sign-in prompt for
-/// visitors (`CreateEmptyState`).
+/// visitors (`إنشاءEmptyState`).
 fn empty_state(ui: &mut Ui, env: &mut Env<'_>, area: Rect, bottom_offset: f32, title: &str, subtitle: &str) {
   let usable = Rect::from_min_max(area.min, pos2(area.right(), area.bottom() - bottom_offset));
   let width = (usable.width() - 64.0).min(768.0);
@@ -227,7 +227,7 @@ fn empty_state(ui: &mut Ui, env: &mut Env<'_>, area: Rect, bottom_offset: f32, t
   child.label(egui::RichText::new(subtitle).size(16.0).color(theme::MUTED));
   if !env.signed_in {
     child.add_space(24.0);
-    if widgets::button(&mut child, Some(crate::ui::icons::Icon::Sparkles), "Sign in to create", widgets::Kind::Primary, 0.0, 44.0).clicked() {
+    if widgets::button(&mut child, Some(crate::ui::icons::Icon::Sparkles), "سجل الدخول للإنشاء", widgets::Kind::Primary, 0.0, 44.0).clicked() {
       env.requests.push(AppRequest::SignIn);
     }
   }

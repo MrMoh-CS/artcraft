@@ -23,9 +23,9 @@ use crate::overlays::library_picker::{LibraryPicker, PickerAction};
 use crate::overlays::lightbox::{Lightbox, LightboxAction, fit_inside};
 use crate::overlays::providers::{AccountAction, AccountsView, LoginEvent, MidjourneyLogin, SetupAction, setup_dialog};
 use crate::pages::common::{self, AppRequest, Env, FeedKey};
-use crate::pages::create_audio::{AudioSettings, CreateAudioPage};
-use crate::pages::create_image::{CreateImagePage, ImageSettings};
-use crate::pages::create_video::{CreateVideoPage, VideoSettings};
+use crate::pages::create_audio::{AudioSettings, إنشاءAudioPage};
+use crate::pages::create_image::{إنشاءImagePage, ImageSettings};
+use crate::pages::create_video::{إنشاءVideoPage, VideoSettings};
 use crate::pages::other;
 use crate::prompt_box::refs::{RefKind, RefMedia, References};
 use crate::shell::{self, Account, FeedToggles, Page, ShellAction};
@@ -66,7 +66,7 @@ struct Saved {
 
 impl Default for Saved {
   fn default() -> Self {
-    Self { page: Page::CreateImage, enter_to_generate: false, view_mode: ViewMode::Grid, autoplay: true, sidebar_open: true, image: ImageSettings { count: 1, ..Default::default() }, video: VideoSettings::default(), audio: AudioSettings::default() }
+    Self { page: Page::إنشاءImage, enter_to_generate: false, view_mode: ViewMode::Grid, autoplay: true, sidebar_open: true, image: ImageSettings { count: 1, ..Default::default() }, video: VideoSettings::default(), audio: AudioSettings::default() }
   }
 }
 
@@ -83,9 +83,9 @@ pub struct ArtcraftApp {
   view_mode: ViewMode,
   autoplay: bool,
   sidebar_open: bool,
-  image: CreateImagePage,
-  video: CreateVideoPage,
-  audio: CreateAudioPage,
+  image: إنشاءImagePage,
+  video: إنشاءVideoPage,
+  audio: إنشاءAudioPage,
   library: FeedStore,
   ratios: RatioCache,
   /// Prompt texts by prompt token (list view, lightbox).
@@ -132,7 +132,7 @@ impl ArtcraftApp {
       backend.load_models(modality);
     }
     backend.refresh_session();
-    let mut app = Self { cache, player, toasts: Toasts::default(), catalog: Catalog::default(), user: None, credits: None, page: saved.page, enter_to_generate: saved.enter_to_generate, view_mode: saved.view_mode, autoplay: saved.autoplay, sidebar_open: saved.sidebar_open, image: CreateImagePage::new(saved.image), video: CreateVideoPage::new(saved.video), audio: CreateAudioPage::new(saved.audio), library: FeedStore::default(), ratios: RatioCache::default(), prompts: HashMap::new(), prompt_records: HashMap::new(), requested_prompts: HashSet::new(), pending_recreate: None, batch_kinds: HashMap::new(), lightbox: None, picker: None, login: None, characters_modal: None, characters: Vec::new(), pending_characters: Vec::new(), settings_open: false, provider_setup: None, midjourney_login: None, fal_key_input: String::new(), preview: None, requests: Vec::new(), screenshot: ScreenshotRequest::from_env(), next_poll: 0.0, next_credits: CREDITS_INTERVAL, models_retry_at: None, backend };
+    let mut app = Self { cache, player, toasts: Toasts::default(), catalog: Catalog::default(), user: None, credits: None, page: saved.page, enter_to_generate: saved.enter_to_generate, view_mode: saved.view_mode, autoplay: saved.autoplay, sidebar_open: saved.sidebar_open, image: إنشاءImagePage::new(saved.image), video: إنشاءVideoPage::new(saved.video), audio: إنشاءAudioPage::new(saved.audio), library: FeedStore::default(), ratios: RatioCache::default(), prompts: HashMap::new(), prompt_records: HashMap::new(), requested_prompts: HashSet::new(), pending_recreate: None, batch_kinds: HashMap::new(), lightbox: None, picker: None, login: None, characters_modal: None, characters: Vec::new(), pending_characters: Vec::new(), settings_open: false, provider_setup: None, midjourney_login: None, fal_key_input: String::new(), preview: None, requests: Vec::new(), screenshot: ScreenshotRequest::from_env(), next_poll: 0.0, next_credits: CREDITS_INTERVAL, models_retry_at: None, backend };
     app.restore_provider_jobs();
     // Diagnostics: `ARTCRAFT_OPEN=settings` or `midjourney-login` opens that dialog at launch.
     match std::env::var("ARTCRAFT_OPEN").as_deref() {
@@ -381,7 +381,7 @@ impl ArtcraftApp {
         };
         let image = RefMedia::from_library(RefKind::Image, item.token.clone(), item.thumbnail.clone(), Some(item.full_url.clone()), 0.0);
         self.video.set_start_image(image);
-        self.navigate(Page::CreateVideo);
+        self.navigate(Page::إنشاءVideo);
       },
       AppRequest::Recreate { kind, token } => {
         let Some(prompt_token) = self.find_item(&token).and_then(|i| i.prompt_token.clone()) else {
@@ -437,11 +437,11 @@ impl ArtcraftApp {
     match kind {
       MediaKind::Image => {
         self.image.apply_prompt(prompt);
-        self.navigate(Page::CreateImage);
+        self.navigate(Page::إنشاءImage);
       },
       MediaKind::Video => {
         self.video.apply_prompt(prompt);
-        self.navigate(Page::CreateVideo);
+        self.navigate(Page::إنشاءVideo);
       },
       // Audio isn't recreated yet (no Recreate button offers it).
       MediaKind::Audio => {},
@@ -538,9 +538,9 @@ impl ArtcraftApp {
   /// The feed the page shows (and the top bar's toggles act on).
   fn page_feed(&self) -> Option<FeedKey> {
     match self.page {
-      Page::CreateImage => Some(FeedKey::Image),
-      Page::CreateVideo => Some(FeedKey::Video),
-      Page::CreateAudio => Some(FeedKey::Audio),
+      Page::إنشاءImage => Some(FeedKey::Image),
+      Page::إنشاءVideo => Some(FeedKey::Video),
+      Page::إنشاءAudio => Some(FeedKey::Audio),
       Page::Library => Some(FeedKey::Library),
       _ => None,
     }
@@ -631,9 +631,9 @@ impl ArtcraftApp {
           let mut env = env!(self, ctx);
           match self.page {
             Page::Home => open_page = other::home(ui, env.signed_in, env.requests),
-            Page::CreateImage => self.image.ui(ui, &mut env),
-            Page::CreateVideo => self.video.ui(ui, &mut env),
-            Page::CreateAudio => self.audio.ui(ui, &mut env),
+            Page::إنشاءImage => self.image.ui(ui, &mut env),
+            Page::إنشاءVideo => self.video.ui(ui, &mut env),
+            Page::إنشاءAudio => self.audio.ui(ui, &mut env),
             Page::Library => other::library(ui, &mut env, &mut self.library),
             page => other::coming_soon(ui, page),
           }
@@ -733,7 +733,7 @@ impl ArtcraftApp {
             self.characters_modal = None;
           },
           CharactersAction::Upload { ref_id, path } => self.backend.upload_file(ref_id, RefKind::Image, path),
-          CharactersAction::Create { image_token, name, description } => self.backend.create_character(image_token, name, description),
+          CharactersAction::إنشاء { image_token, name, description } => self.backend.create_character(image_token, name, description),
           CharactersAction::Edit { token, name, description } => self.backend.edit_character(token, name, description),
           CharactersAction::Delete { token, name } => self.backend.delete_character(token, name),
           CharactersAction::Preview(url) => self.preview = Some(url),

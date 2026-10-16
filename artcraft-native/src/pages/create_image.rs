@@ -1,4 +1,4 @@
-//! Create Image (`TextToImage` + `PromptBoxImage`): prompt, reference images, model (and the
+//! إنشاء Image (`TextToImage` + `PromptBoxImage`): prompt, reference images, model (and the
 //! provider it runs on), aspect ratio, resolution, quality and count; the cost; and the image
 //! feed.
 
@@ -38,7 +38,7 @@ pub struct ImageSettings {
 }
 
 #[derive(Default)]
-pub struct CreateImagePage {
+pub struct إنشاءImagePage {
   pub settings: ImageSettings,
   pub refs: References,
   pub feed: FeedStore,
@@ -48,7 +48,7 @@ pub struct CreateImagePage {
   box_height: f32,
 }
 
-impl CreateImagePage {
+impl إنشاءImagePage {
   pub fn new(settings: ImageSettings) -> Self {
     let mut page = Self { settings, box_height: 140.0, ..Default::default() };
     page.box_state.editor.focus_requested = true;

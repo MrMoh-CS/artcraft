@@ -1,4 +1,4 @@
-//! Create Audio (`CreateAudio` + `PromptBoxAudio`): a song, sound or sample from a prompt, with
+//! إنشاء Audio (`إنشاءAudio` + `PromptBoxAudio`): a song, sound or sample from a prompt, with
 //! the model's options (style, instrumental, lyrics, loop, beat & key, tuning), audio or image
 //! references, the cost, and the audio feed.
 
@@ -68,7 +68,7 @@ impl Default for AudioSettings {
 }
 
 #[derive(Default)]
-pub struct CreateAudioPage {
+pub struct إنشاءAudioPage {
   pub settings: AudioSettings,
   pub refs: References,
   pub feed: FeedStore,
@@ -88,7 +88,7 @@ enum RowAction {
   Toggle(u64),
 }
 
-impl CreateAudioPage {
+impl إنشاءAudioPage {
   pub fn new(settings: AudioSettings) -> Self {
     let mut page = Self { settings, box_height: 138.0, ..Default::default() };
     page.box_state.editor.focus_requested = true;
@@ -730,8 +730,8 @@ mod tests {
     model(json!({ "model": "seed_audio_1p0", "audio_references_supported": true, "audio_references_max": 3, "image_references_supported": true, "image_references_max": 1, "sample_rate_hz_options": [8000, 16000, 24000, 32000, 44100, 48000], "sample_rate_hz_default": 24000, "speed_supported": true, "volume_supported": true, "pitch_supported": true }))
   }
 
-  fn page(settings: AudioSettings) -> CreateAudioPage {
-    CreateAudioPage { settings, ..Default::default() }
+  fn page(settings: AudioSettings) -> إنشاءAudioPage {
+    إنشاءAudioPage { settings, ..Default::default() }
   }
 
   fn audio_ref(token: &str, secs: f32) -> RefMedia {

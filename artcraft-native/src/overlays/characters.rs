@@ -22,7 +22,7 @@ const GAP: f32 = 12.0;
 enum View {
   List,
   Edit(String),
-  Create,
+  إنشاء,
 }
 
 pub struct CharactersModal {
@@ -46,7 +46,7 @@ pub enum CharactersAction {
     ref_id: u64,
     path: PathBuf,
   },
-  Create {
+  إنشاء {
     image_token: String,
     name: String,
     description: Option<String>,
@@ -95,7 +95,7 @@ impl CharactersModal {
         Some(c) => self.edit(ui, c, cache, &mut actions),
         None => self.view = View::List,
       },
-      View::Create => self.create(ui, cache, &mut actions),
+      View::إنشاء => self.create(ui, cache, &mut actions),
     });
     if close && self.confirm_delete.is_none() {
       actions.push(CharactersAction::Close);
@@ -151,19 +151,19 @@ impl CharactersModal {
       let origin = ui.cursor().min;
       ui.allocate_exact_size(vec2(ui.available_width(), rows as f32 * (tile + 30.0 + GAP)), Sense::hover());
       let cell = |i: usize| Rect::from_min_size(origin + vec2((i % COLUMNS) as f32 * (tile + GAP), (i / COLUMNS) as f32 * (tile + 30.0 + GAP)), vec2(tile, tile));
-      // "Create New" first.
+      // "إنشاء New" first.
       let create = cell(0);
       let resp = ui.interact(create, Id::new("character-create"), Sense::click()).on_hover_cursor(egui::CursorIcon::PointingHand);
-      resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "Create New"));
+      resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Button, true, "إنشاء New"));
       ui.painter().rect_filled(create, theme::RADIUS, theme::fade(theme::CONTROLS, if resp.hovered() { 0.7 } else { 0.4 }));
       icons::dashed_rect(ui.painter(), create.shrink(1.0), Stroke::new(1.5, theme::LINE_DASHED), 5.0, 4.0);
       icons::paint(ui.painter(), Rect::from_center_size(create.center() - vec2(0.0, 10.0), vec2(22.0, 22.0)), Icon::Plus, theme::INK);
-      ui.painter().text(create.center() + vec2(0.0, 16.0), Align2::CENTER_CENTER, "Create New", FontId::new(13.0, theme::medium()), theme::INK);
+      ui.painter().text(create.center() + vec2(0.0, 16.0), Align2::CENTER_CENTER, "إنشاء New", FontId::new(13.0, theme::medium()), theme::INK);
       if resp.clicked() {
         self.name.clear();
         self.description.clear();
         self.image = None;
-        self.view = View::Create;
+        self.view = View::إنشاء;
       }
       for (i, name) in pending.iter().enumerate() {
         let r = cell(1 + i);
@@ -281,13 +281,13 @@ impl CharactersModal {
         ui.add_space(16.0);
         let uploading = self.image.as_ref().is_some_and(|i| i.status == RefStatus::Uploading);
         ui.horizontal(|ui| {
-          if ui.add_enabled_ui(!uploading, |ui| widgets::button(ui, Some(Icon::Sparkles), "Create", widgets::Kind::Primary, 0.0, theme::CONTROL_H)).inner.clicked() {
+          if ui.add_enabled_ui(!uploading, |ui| widgets::button(ui, Some(Icon::Sparkles), "إنشاء", widgets::Kind::Primary, 0.0, theme::CONTROL_H)).inner.clicked() {
             match (self.name.trim(), self.image.as_ref().and_then(|i| i.token.clone())) {
               ("", _) => actions.push(CharactersAction::Toast("Please enter a character name".to_owned())),
               (_, None) => actions.push(CharactersAction::Toast("Please upload a reference image".to_owned())),
               (name, Some(image_token)) => {
                 let description = Some(self.description.trim().to_owned()).filter(|d| !d.is_empty());
-                actions.push(CharactersAction::Create { image_token, name: name.to_owned(), description });
+                actions.push(CharactersAction::إنشاء { image_token, name: name.to_owned(), description });
                 self.view = View::List;
               },
             }
@@ -386,16 +386,16 @@ mod tests {
   #[test]
   fn creating_needs_a_name_and_a_reference() {
     let mut harness = harness();
-    harness.get_by_label("Create New").click();
+    harness.get_by_label("إنشاء New").click();
     harness.run();
-    harness.get_by_label("Create").click();
+    harness.get_by_label("إنشاء").click();
     harness.run();
     assert_eq!(harness.state().actions, [r#"Toast("Please enter a character name")"#]);
     harness.get_by_role(egui::accesskit::Role::TextInput).focus();
     harness.run();
     harness.get_by_role(egui::accesskit::Role::TextInput).type_text("Mira");
     harness.run();
-    harness.get_by_label("Create").click();
+    harness.get_by_label("إنشاء").click();
     harness.run();
     assert_eq!(harness.state().actions.last().map(String::as_str), Some(r#"Toast("Please upload a reference image")"#));
   }
