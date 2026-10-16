@@ -338,7 +338,7 @@ pub fn pick_files(kinds: &[RefKind], multiple: bool) -> Vec<PathBuf> {
     let (name, exts): (&str, &[&str]) = match kind {
       RefKind::Image => ("Images", &["png", "jpg", "jpeg", "webp", "gif", "bmp", "avif"]),
       RefKind::Video => ("Videos (MP4)", &["mp4"]),
-      RefKind::Audio => ("Audio", &["mp3", "wav", "ogg", "flac", "aac", "m4a", "opus"]),
+      RefKind::Audio => ("صوت", &["mp3", "wav", "ogg", "flac", "aac", "m4a", "opus"]),
     };
     dialog = dialog.add_filter(name, exts);
   }

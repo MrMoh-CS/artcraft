@@ -21,7 +21,7 @@ use crate::prompt_box::model_selector::model_selector;
 use crate::prompt_box::refs::{ImageSlot, RefKind, RefMedia, References};
 use crate::prompt_box::{self, DeckMode, PromptBoxAction, PromptBoxProps, PromptBoxState, Slot, editor};
 
-const PLACEHOLDER: &str = "Describe what you want in the image...";
+const PLACEHOLDER: &str = "اكتب وصف الصورة التي تريد إنشاءها...";
 
 /// What the page remembers between launches.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -72,7 +72,7 @@ impl CreateImagePage {
     }
     let mut feed = std::mem::take(&mut self.feed);
     let mut box_height = self.box_height;
-    common::create_shell(ui, env, MediaKind::Image, "Create Image", "Add a prompt, then generate", &mut feed, &mut box_height, |ui, env| self.prompt_box(ui, env, model.as_ref(), provider));
+    common::create_shell(ui, env, MediaKind::Image, "إنشاء صورة", "أضف وصفاً، ثم ابدأ التوليد", &mut feed, &mut box_height, |ui, env| self.prompt_box(ui, env, model.as_ref(), provider));
     self.feed = feed;
     self.box_height = box_height;
   }
@@ -187,8 +187,8 @@ impl CreateImagePage {
     if has_video || has_audio {
       let what = match (has_video, has_audio) {
         (true, true) => "Video or audio",
-        (true, false) => "Video",
-        _ => "Audio",
+        (true, false) => "فيديو",
+        _ => "صوت",
       };
       env.toasts.error(format!("{what} references aren't available here"));
     } else if images.is_empty() {

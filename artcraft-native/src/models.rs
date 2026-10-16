@@ -495,7 +495,7 @@ impl ModelNames for Catalog {
 pub fn aspect_label(value: &str) -> String {
   match value {
     "auto" => "Auto",
-    "square" => "Square",
+    "square" => "مربع",
     "wide_five_by_four" => "5:4 (Wide)",
     "wide_four_by_three" => "4:3 (Wide)",
     "wide_three_by_two" => "3:2 (Wide)",

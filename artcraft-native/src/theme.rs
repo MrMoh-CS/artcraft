@@ -156,7 +156,7 @@ fn visuals() -> Visuals {
 
 /// Installs the fonts, colours and spacing. The app is dark only, like the webapp.
 pub fn apply(ctx: &egui::Context) {
-  setup_arabic_fonts(ctx);
+  install_fonts(ctx);
   ctx.set_visuals_of(egui::Theme::Dark, visuals());
   ctx.set_theme(egui::ThemePreference::Dark);
   ctx.all_styles_mut(|style| {
@@ -180,7 +180,7 @@ fn install_fonts(ctx: &egui::Context) {
   const GEIST_MONO: &[u8] = include_bytes!("../assets/fonts/GeistMono-Variable.ttf");
   let mut fonts = FontDefinitions::default();
   // egui's own fonts stay behind ours, for symbols and emoji ours don't have.
-  let fallback = fonts.families.get(&FontFamily::Proportional).cloned().unwrap_or_default();
+  let mut fallback = fonts.families.get(&FontFamily::Proportional).cloned().unwrap_or_default(); fonts.font_data.insert("tahoma".to_owned(), Arc::new(FontData::from_static(include_bytes!("../assets/fonts/tahoma.ttf")))); fallback.insert(0, "tahoma".to_owned());
   let faces: [Face<'_>; 7] = [("Inter", INTER, &[(*b"wght", 400.0), (*b"opsz", 14.0)], FontFamily::Proportional), ("Inter-Medium", INTER, &[(*b"wght", 500.0), (*b"opsz", 14.0)], medium()), ("Inter-SemiBold", INTER, &[(*b"wght", 600.0), (*b"opsz", 14.0)], semibold()), ("Archivo-Display", ARCHIVO, &[(*b"wght", 620.0), (*b"wdth", 118.0)], display()), ("GeistMono", GEIST_MONO, &[(*b"wght", 400.0)], FontFamily::Monospace), ("GeistMono-Medium", GEIST_MONO, &[(*b"wght", 500.0)], mono()), ("GeistMono-SemiBold", GEIST_MONO, &[(*b"wght", 650.0)], mono_bold())];
   for (name, bytes, coords, family) in faces {
     let tweak = FontTweak { coords: VariationCoords::new(coords.iter().copied()), ..Default::default() };
@@ -192,18 +192,3 @@ fn install_fonts(ctx: &egui::Context) {
   ctx.set_fonts(fonts);
 }
 
-
-pub fn setup_arabic_fonts(ctx: &egui::Context) {
-    let mut fonts = egui::FontDefinitions::default();
-    fonts.font_data.insert(
-        "Cairo".to_owned(),
-        egui::FontData::from_static(include_bytes!("../assets/fonts/Archivo-Variable.ttf")),
-    );
-    fonts
-        .families
-        .entry(egui::FontFamily::Proportional)
-        .or_default()
-        .insert(0, "Cairo".to_owned());
-    ctx.set_fonts(fonts);
-}
-// تم تعريب الواجهة بواسطة عبد الله

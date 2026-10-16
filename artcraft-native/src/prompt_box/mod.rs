@@ -287,7 +287,7 @@ fn drop_target(ui: &mut Ui, props: &PromptBoxProps<'_>, rect: Rect, actions: &mu
     .map(|k| match k {
       RefKind::Image => "Images",
       RefKind::Video => "Videos",
-      RefKind::Audio => "Audio",
+      RefKind::Audio => "صوت",
     })
     .collect();
   let (title, subtitle) = if !accepted {

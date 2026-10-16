@@ -76,7 +76,7 @@ impl LoginDialog {
           let submitted = (user_resp.lost_focus() || pass_resp.lost_focus()) && ui.input(|i| i.key_pressed(egui::Key::Enter));
           ui.add_space(14.0);
           let ready = !self.username.trim().is_empty() && !self.password.is_empty() && !self.busy;
-          let clicked = ui.add_enabled_ui(ready, |ui| widgets::button(ui, if self.busy { None } else { Some(Icon::LogIn) }, if self.busy { "Signing in\u{2026}" } else { "Sign in" }, widgets::Kind::Secondary, width, 40.0)).inner.clicked();
+          let clicked = ui.add_enabled_ui(ready, |ui| widgets::button(ui, if self.busy { None } else { Some(Icon::LogIn) }, if self.busy { "Signing in\u{2026}" } else { "تسجيل الدخول" }, widgets::Kind::Secondary, width, 40.0)).inner.clicked();
           if ready && (clicked || submitted) {
             action = Some(LoginAction::Password);
           }
@@ -115,7 +115,7 @@ pub fn settings_dialog(ctx: &egui::Context, enter_to_generate: &mut bool, userna
   let mut action = None;
   let close = widgets::modal(ctx, Id::new("settings"), 520.0, |ui| {
     ui.horizontal(|ui| {
-      ui.label(widgets::heading("Settings", 24.0));
+      ui.label(widgets::heading("الإعدادات", 24.0));
       ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
         if widgets::ghost(ui, Icon::X, None, "Close", false).clicked() {
           action = Some(SettingsAction::Close);
@@ -157,7 +157,7 @@ pub fn settings_dialog(ctx: &egui::Context, enter_to_generate: &mut bool, userna
         });
       },
       None => {
-        if widgets::button(ui, Some(Icon::LogIn), "Sign in", widgets::Kind::Primary, 0.0, theme::CONTROL_H).clicked() {
+        if widgets::button(ui, Some(Icon::LogIn), "تسجيل الدخول", widgets::Kind::Primary, 0.0, theme::CONTROL_H).clicked() {
           action = Some(SettingsAction::SignIn);
         }
       },

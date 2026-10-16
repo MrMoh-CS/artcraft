@@ -197,7 +197,7 @@ fn provider_flyout(ui: &Ui, id: Id, row: Rect, allowed: &[Provider], current: Pr
   picked
 }
 
-/// The video picker's capability badges ("Audio Support", "Start/End", "Reference").
+/// The video picker's capability badges ("Audio Support", "Start/End", "مرجع").
 fn capability_badges(m: &ModelInfo) -> String {
   let mut badges = Vec::new();
   if m.sound_toggle {
@@ -207,7 +207,7 @@ fn capability_badges(m: &ModelInfo) -> String {
     badges.push("Start/End");
   }
   if m.supports_reference_mode() {
-    badges.push("Reference");
+    badges.push("مرجع");
   }
   badges.join(" \u{b7} ")
 }

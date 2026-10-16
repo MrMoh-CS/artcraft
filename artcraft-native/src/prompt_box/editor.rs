@@ -402,9 +402,9 @@ pub fn character_mentions<'a>(characters: impl Iterator<Item = (&'a str, &'a str
 /// Mention labels for `n` items of `kind` (`@Image1`, `@Image2`, …).
 pub fn mention_items(kind: MentionKind, previews: impl Iterator<Item = Option<String>>) -> Vec<MentionItem> {
   let name = match kind {
-    MentionKind::Image => "Image",
-    MentionKind::Video => "Video",
-    MentionKind::Audio => "Audio",
+    MentionKind::Image => "صورة",
+    MentionKind::Video => "فيديو",
+    MentionKind::Audio => "صوت",
     MentionKind::Character => "Character",
   };
   previews.enumerate().map(|(i, preview)| MentionItem { label: format!("@{name}{}", i + 1), kind, index: i + 1, preview, token: None }).collect()

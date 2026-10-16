@@ -10,9 +10,9 @@ pub enum MediaKind {
 impl MediaKind {
   pub fn label(self) -> &'static str {
     match self {
-      MediaKind::Image => "Image",
-      MediaKind::Video => "Video",
-      MediaKind::Audio => "Audio",
+      MediaKind::Image => "صورة",
+      MediaKind::Video => "فيديو",
+      MediaKind::Audio => "صوت",
     }
   }
 

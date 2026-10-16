@@ -241,7 +241,7 @@ impl CharactersModal {
     self.header(ui, "New Character", true, actions);
     ui.horizontal_top(|ui| {
       ui.vertical(|ui| {
-        widgets::hud(ui, "Reference", theme::FAINT);
+        widgets::hud(ui, "مرجع", theme::FAINT);
         ui.add_space(6.0);
         let (r, resp) = ui.allocate_exact_size(vec2(240.0, 240.0), Sense::click());
         match &self.image {

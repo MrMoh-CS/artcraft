@@ -41,18 +41,18 @@ pub enum Page {
 impl Page {
   pub fn label(self) -> &'static str {
     match self {
-      Page::Home => "Home",
-      Page::CreateImage => "Image",
-      Page::CreateVideo => "Video",
-      Page::CreateAudio => "Audio",
-      Page::Object3d => "3D Object",
-      Page::World3d => "3D World",
-      Page::EditImage => "Edit Image",
-      Page::Stage3d => "3D Stage",
-      Page::VideoEditor => "Edit Video",
-      Page::RemoveBackground => "BG Remove",
-      Page::FrameExtractor => "Frame Extract",
-      Page::Library => "Library",
+      Page::Home => "الرئيسية",
+      Page::CreateImage => "صورة",
+      Page::CreateVideo => "فيديو",
+      Page::CreateAudio => "صوت",
+      Page::Object3d => "مجسم 3D",
+      Page::World3d => "عالم 3D",
+      Page::EditImage => "تعديل صورة",
+      Page::Stage3d => "منصة 3D",
+      Page::VideoEditor => "تعديل فيديو",
+      Page::RemoveBackground => "إزالة الخلفية",
+      Page::FrameExtractor => "استخراج إطارات",
+      Page::Library => "المكتبة",
     }
   }
 
@@ -74,9 +74,9 @@ impl Page {
   /// The breadcrumb trail (`Create › Image`).
   pub fn crumbs(self) -> (&'static str, &'static str) {
     match self {
-      Page::Home => ("ArtCraft", "Home"),
+      Page::Home => ("ArtCraft", "الرئيسية"),
       Page::CreateImage | Page::CreateVideo | Page::CreateAudio | Page::Object3d | Page::World3d => ("Create", self.label()),
-      Page::Library => ("Assets", "Library"),
+      Page::Library => ("Assets", "المكتبة"),
       _ => ("Studio", self.label()),
     }
   }
@@ -154,7 +154,7 @@ pub fn titlebar(ui: &mut Ui, account: &Account<'_>, mark: &egui::TextureHandle) 
     ui.painter().rect_filled(mark_rect, theme::RADIUS, theme::WASH);
   }
   ui.painter().image(mark.id(), Rect::from_center_size(mark_rect.center(), vec2(18.0, 16.0)), Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)), theme::ACCENT);
-  if mark_resp.on_hover_text("Home").on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
+  if mark_resp.on_hover_text("الرئيسية").on_hover_cursor(egui::CursorIcon::PointingHand).clicked() {
     action = Some(ShellAction::Navigate(Page::Home));
   }
   if widgets::ghost(ui, Icon::PanelLeft, None, "Toggle Sidebar", false).clicked() {
@@ -182,7 +182,7 @@ pub fn titlebar(ui: &mut Ui, account: &Account<'_>, mark: &egui::TextureHandle) 
         }
       },
       None => {
-        if widgets::button(ui, None, "Sign in", widgets::Kind::Primary, 0.0, 28.0).clicked() {
+        if widgets::button(ui, None, "تسجيل الدخول", widgets::Kind::Primary, 0.0, 28.0).clicked() {
           action = Some(ShellAction::SignIn);
         }
       },
@@ -212,7 +212,7 @@ pub fn sidebar(ui: &mut Ui, page: Page, account: &Account<'_>) -> Option<ShellAc
   }
   ui.add_space(10.0);
   widgets::section_label(ui, "Resources", theme::SIDEBAR_INK);
-  for (label, icon, url) in [("Tutorials", Icon::Play, TUTORIALS_URL), ("Discord", Icon::Globe, DISCORD_URL), ("GitHub", Icon::ExternalLink, GITHUB_URL)] {
+  for (label, icon, url) in [("الشروحات", Icon::Play, TUTORIALS_URL), ("Discord", Icon::Globe, DISCORD_URL), ("GitHub", Icon::ExternalLink, GITHUB_URL)] {
     if link_row(ui, label, icon) {
       ui.ctx().open_url(egui::OpenUrl::new_tab(url));
     }
@@ -228,7 +228,7 @@ pub fn sidebar(ui: &mut Ui, page: Page, account: &Account<'_>) -> Option<ShellAc
       }
     },
     None => {
-      if widgets::button(&mut foot, Some(Icon::LogIn), "Sign in", widgets::Kind::Primary, bottom.width(), 40.0).clicked() {
+      if widgets::button(&mut foot, Some(Icon::LogIn), "تسجيل الدخول", widgets::Kind::Primary, bottom.width(), 40.0).clicked() {
         action = Some(ShellAction::SignIn);
       }
     },
@@ -285,7 +285,7 @@ fn account_row(ui: &mut Ui, name: &str, credits: Option<u64>) -> egui::Response 
   let sub = credits.map_or_else(|| "Account".to_owned(), |c| format!("{} credits", group_thousands(c)));
   p.text(pos2(avatar.right() + 10.0, rect.center().y + 9.0), Align2::LEFT_CENTER, sub, FontId::new(11.5, egui::FontFamily::Proportional), theme::MUTED);
   icons::paint(p, Rect::from_center_size(pos2(rect.right() - 16.0, rect.center().y), vec2(14.0, 14.0)), Icon::Settings, theme::DIM);
-  resp.on_hover_cursor(egui::CursorIcon::PointingHand).on_hover_text("Settings")
+  resp.on_hover_cursor(egui::CursorIcon::PointingHand).on_hover_text("الإعدادات")
 }
 
 /// The feed toggles a page's header shows.
@@ -358,7 +358,7 @@ fn account_menu(ui: &mut Ui, account: &Account<'_>) -> Option<ShellAction> {
       ui.label(egui::RichText::new(format!("@{u}")).size(11.5).color(theme::MUTED));
     }
     ui.add_space(4.0);
-    if widgets::menu_row(ui, widgets::RowLead::Icon(Icon::Settings), "Settings", None, false, false, false).clicked() {
+    if widgets::menu_row(ui, widgets::RowLead::Icon(Icon::Settings), "الإعدادات", None, false, false, false).clicked() {
       action = Some(ShellAction::OpenSettings);
     }
     if widgets::menu_row(ui, widgets::RowLead::Icon(Icon::LogOut), "Log out", None, false, false, false).clicked() {

@@ -92,7 +92,7 @@ pub fn reference_deck(ui: &mut Ui, id: Id, refs: &References, limits: &DeckLimit
   }
 
   if items.is_empty() {
-    let resp = add_tile(ui, id.with("empty"), "Reference", -6.0);
+    let resp = add_tile(ui, id.with("empty"), "مرجع", -6.0);
     if resp.clicked() {
       actions.push(DeckAction::Upload { kinds: open_kinds.clone(), slot: ImageSlot::Reference });
     }

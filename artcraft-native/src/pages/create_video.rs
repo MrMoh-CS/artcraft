@@ -88,7 +88,7 @@ impl CreateVideoPage {
     }
     let mut feed = std::mem::take(&mut self.feed);
     let mut box_height = self.box_height;
-    common::create_shell(ui, env, MediaKind::Video, "Create Video", "Choose an image, add a prompt, then generate", &mut feed, &mut box_height, |ui, env| self.prompt_box(ui, env, model.as_ref()));
+    common::create_shell(ui, env, MediaKind::Video, "إنشاء فيديو", "Choose an image, add a prompt, then generate", &mut feed, &mut box_height, |ui, env| self.prompt_box(ui, env, model.as_ref()));
     self.feed = feed;
     self.box_height = box_height;
   }
@@ -247,7 +247,7 @@ impl CreateVideoPage {
             None => env.toasts.error(frames_full_message(model.as_ref())),
           }
         },
-        (InputMode::Keyframe, _) => env.toasts.error(format!("{} references aren't available here", if kind == RefKind::Video { "Video" } else { "Audio" })),
+        (InputMode::Keyframe, _) => env.toasts.error(format!("{} references aren't available here", if kind == RefKind::Video { "فيديو" } else { "صوت" })),
         (InputMode::Reference, _) => {
           let Some(l) = limits else {
             continue;
