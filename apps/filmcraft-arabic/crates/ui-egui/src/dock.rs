@@ -177,7 +177,7 @@ fn vsplit(size: SplitSize, a: DockNode, b: DockNode) -> DockNode {
     DockNode::Split { vertical: true, size, a: Box::new(a), b: Box::new(b) }
 }
 
-pub const WORKSPACES: [&str; 9] = ["Editing", "Assembly", "Color", "المؤثرات", "الصوت", "Captions and Graphics", "Learning", "Review", "All Panels"];
+pub const WORKSPACES: [&str; 9] = ["التحرير", "Assembly", "Color", "المؤثرات", "الصوت", "Captions and Graphics", "Learning", "Review", "All Panels"];
 
 /// The user's workspaces file, beside `preferences.json` in the data directory.
 pub const WORKSPACES_FILE: &str = "workspaces.json";
@@ -932,7 +932,7 @@ mod tests {
 
     #[test]
     fn close_and_open() {
-        let mut d = workspace("Editing");
+        let mut d = workspace("التحرير");
         d.close(PanelKind::Metadata);
         assert!(!d.contains(PanelKind::Metadata));
         d.open_near(PanelKind::LumetriColor, PanelKind::Program);
@@ -945,7 +945,7 @@ mod tests {
     /// #284: with Project and Program closed (or every panel closed) a panel still opens.
     #[test]
     fn open_near_falls_back_to_the_first_group() {
-        let mut d = workspace("Editing");
+        let mut d = workspace("التحرير");
         let mut all = Vec::new();
         d.panels(&mut all);
         for p in all {

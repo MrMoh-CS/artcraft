@@ -54,8 +54,8 @@ const CHANNEL_IDS: [&str; 6] = ["left", "right", "center", "lfe", "left_surround
 
 impl ChannelVolume {
     pub const PARAMS: &'static [ParamSpec] = &[
-        ParamSpec::new("left", "يسار", -96.0, 24.0, 0.0, Unit::Decibels),
-        ParamSpec::new("right", "يمين", -96.0, 24.0, 0.0, Unit::Decibels),
+        ParamSpec::new("left", "Left", -96.0, 24.0, 0.0, Unit::Decibels),
+        ParamSpec::new("right", "Right", -96.0, 24.0, 0.0, Unit::Decibels),
         ParamSpec::new("center", "Center", -96.0, 24.0, 0.0, Unit::Decibels),
         ParamSpec::new("lfe", "LFE", -96.0, 24.0, 0.0, Unit::Decibels),
         ParamSpec::new("left_surround", "Left Surround", -96.0, 24.0, 0.0, Unit::Decibels),
@@ -188,7 +188,7 @@ pub struct Invert {
 }
 
 impl Invert {
-    pub const PARAMS: &'static [ParamSpec] = &[ParamSpec::choice("channels", "القنوات", &["All", "يسار", "يمين"], 0)];
+    pub const PARAMS: &'static [ParamSpec] = &[ParamSpec::choice("channels", "Channels", &["All", "Left", "Right"], 0)];
     pub fn new(_sample_rate: f32, _channels: usize) -> Self {
         Invert { pv: ParamValues::new(Self::PARAMS) }
     }

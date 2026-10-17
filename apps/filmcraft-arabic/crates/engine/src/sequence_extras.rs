@@ -50,11 +50,11 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             has_clips_or_edit_points,
             apply_default_transitions,
         ),
-        spec("sequence.normalizeMixTrack", "Normalize Mix Track…", &["تسلسل"], None, r#"{"db":f64=0}"#, has_audio_clips, normalize_mix),
+        spec("sequence.normalizeMixTrack", "Normalize Mix Track…", &["Sequence"], None, r#"{"db":f64=0}"#, has_audio_clips, normalize_mix),
         spec(
             "sequence.transcribe",
             "Transcribe Sequence…",
-            &["تسلسل"],
+            &["Sequence"],
             None,
             r#"{"track":"mix"|"A1"|id?,"language":"en|auto"?,"diarize":bool?,"maxSpeakers":n?,"model":str?}"#,
             can_transcribe_sequence,
@@ -63,7 +63,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "sequence.simplify",
             "Simplify Sequence…",
-            &["تسلسل"],
+            &["Sequence"],
             None,
             r#"{"name":str?,"removeDisabled":bool=true,"removeEmptyTracks":bool=true,"closeGaps":bool=false,"moveClipsDown":bool=false,"removeVideoEffects":bool=false,"removeAudioEffects":bool=false,"removeText":bool=false,"keep":"both|video|audio"}"#,
             has_seq,
@@ -72,7 +72,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "captions.showActiveOnly",
             "Show Active Caption Tracks Only",
-            &["تسلسل", "الترجمة النصية"],
+            &["Sequence", "Captions"],
             None,
             r#"{"track":id|"C1"?}"#,
             has_caption_track,
@@ -81,7 +81,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "markers.addFlashCue",
             "Add Flash Cue Marker…",
-            &["العلامات"],
+            &["Markers"],
             None,
             r#"{"time":ticks?,"name":str?,"comment":str?,"color":label?}"#,
             has_seq,

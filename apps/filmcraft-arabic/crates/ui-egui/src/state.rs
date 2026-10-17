@@ -155,7 +155,7 @@ impl PlaybackRes {
     }
     pub fn label(self) -> &'static str {
         match self {
-            PlaybackRes::Full => "Full",
+            PlaybackRes::Full => "كامل",
             PlaybackRes::Half => "1/2",
             PlaybackRes::Quarter => "1/4",
             PlaybackRes::Eighth => "1/8",
@@ -958,9 +958,9 @@ impl Default for UiState {
             language: crate::i18n::Language::default(),
             tool: Tool::Selection,
             mode: Mode::Edit,
-            workspace: "Editing".into(),
+            workspace: "التحرير".into(),
             floating: vec![],
-            dock: crate::dock::workspace("Editing"),
+            dock: crate::dock::workspace("التحرير"),
             focused: PanelKind::Timeline,
             timeline: TimelineView::default(),
             program: MonitorView::default(),

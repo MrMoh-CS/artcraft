@@ -68,7 +68,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "file.newSearchBin",
             "Search Bin",
-            &["ملف", "جديد"],
+            &["File", "New"],
             None,
             r#"{"name":str?,"column":str?,"operator":str?,"text":str?,"rows":[..]?,"matchAll":bool?,"caseSensitive":bool?}"#,
             always,
@@ -85,12 +85,12 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             edit_search_bin,
         ),
         spec("project.deleteSearchBin", "Delete Search Bin", &[], None, r#"{"bin":id}"#, always, delete_search_bin),
-        spec("file.close", "إغلاق", &["ملف"], Some("Cmd+W"), r#"{"item":id?}"#, has_seq, |s, p| s.execute("sequence.close", p.clone())),
-        spec("file.closeAllProjects", "Close All Projects", &["ملف"], None, r#"{"force":bool?}"#, always, |s, p| s.execute("file.closeProject", p.clone())),
-        spec("file.closeAllOtherProjects", "Close All Other Projects", &["ملف"], None, "{}", only_one_project, |_, _| {
+        spec("file.close", "Close", &["File"], Some("Cmd+W"), r#"{"item":id?}"#, has_seq, |s, p| s.execute("sequence.close", p.clone())),
+        spec("file.closeAllProjects", "Close All Projects", &["File"], None, r#"{"force":bool?}"#, always, |s, p| s.execute("file.closeProject", p.clone())),
+        spec("file.closeAllOtherProjects", "Close All Other Projects", &["File"], None, "{}", only_one_project, |_, _| {
             Err(EngineError::Other("only one project is open".into()))
         }),
-        spec("file.saveAsTemplate", "Save as Template…", &["ملف"], None, r#"{"name":str?,"path":str?}"#, always, save_as_template),
+        spec("file.saveAsTemplate", "Save as Template…", &["File"], None, r#"{"name":str?,"path":str?}"#, always, save_as_template),
         query("file.templates", "List Project Templates", &[], None, "{}", always, list_templates),
         spec("file.newProjectFromTemplate", "New Project from Template", &[], None, r#"{"template":name|path,"name":str?}"#, always, new_from_template),
         spec(
@@ -125,18 +125,18 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "file.exportSelectionProject",
             "Selection as FilmCraft Project…",
-            &["ملف", "تصدير"],
+            &["File", "Export"],
             None,
             r#"{"path":str,"items":[id]?}"#,
             has_project_selection,
             export_selection,
         ),
-        spec("file.exportAle", "Avid Log Exchange…", &["ملف", "تصدير"], None, r#"{"path":str,"items":[id]?}"#, has_loggable, export_ale),
-        query("file.mediaPropertiesFile", "ملف…", &["ملف", "Get Media File Properties for"], None, r#"{"path":str}"#, always, media_properties_file),
+        spec("file.exportAle", "Avid Log Exchange…", &["File", "Export"], None, r#"{"path":str,"items":[id]?}"#, has_loggable, export_ale),
+        query("file.mediaPropertiesFile", "File…", &["File", "Get Media File Properties for"], None, r#"{"path":str}"#, always, media_properties_file),
         query(
             "file.mediaProperties",
             "Selection…",
-            &["ملف", "Get Media File Properties for"],
+            &["File", "Get Media File Properties for"],
             Some("Cmd+Shift+H"),
             r#"{"items":[id]?}"#,
             has_media_selection,
@@ -145,7 +145,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "file.projectSettings.general",
             "General…",
-            &["ملف", "Project Settings"],
+            &["File", "Project Settings"],
             None,
             r#"{"renderer":"gpu|software"?,"videoDisplay":"timecode|feet35|feet16|frames"?,"audioDisplay":"samples|milliseconds"?,"captureFormat":"DV|HDV"?,"titleSafe":[h,v]?,"actionSafe":[h,v]?}"#,
             always,
@@ -154,38 +154,38 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "file.projectSettings.scratchDisks",
             "Scratch Disks…",
-            &["ملف", "Project Settings"],
+            &["File", "Project Settings"],
             None,
             r#"{"captured":path|null?,"videoPreviews":path|null?,"audioPreviews":path|null?,"autoSave":path|null?}"#,
             always,
             project_settings_scratch,
         ),
         // ---------------- Edit ----------------
-        spec("edit.find", "Find…", &["تحرير"], Some("Cmd+F"), FIND_PARAMS, always, find),
-        spec("edit.findNext", "Find Next", &["تحرير"], None, "{}", has_find, find_next),
-        spec("edit.editOriginal", "تحرير الأصلي", &["تحرير"], Some("Cmd+E"), r#"{"items":[id]?}"#, has_original, edit_original),
+        spec("edit.find", "Find…", &["Edit"], Some("Cmd+F"), FIND_PARAMS, always, find),
+        spec("edit.findNext", "Find Next", &["Edit"], None, "{}", has_find, find_next),
+        spec("edit.editOriginal", "Edit Original", &["Edit"], Some("Cmd+E"), r#"{"items":[id]?}"#, has_original, edit_original),
         // Project panel context menu (not in the File menu): reveal the clip's media file.
         query("file.reveal", "Reveal in Finder", &[], None, r#"{"items":[id]?}"#, has_file_selection, edit_original),
         // ---------------- Clip ----------------
         spec(
             "clip.editOffline",
             "Edit Offline…",
-            &["مقطع"],
+            &["Clip"],
             None,
             r#"{"item":id?,"mediaName":str?,"tapeName":str?,"description":str?,"scene":str?,"shot":str?,"logNote":str?}"#,
             has_offline_selection,
             edit_offline,
         ),
-        query("clip.sourceSettings", "Source Settings…", &["مقطع"], None, r#"{"item":id?}"#, has_media_selection, source_settings),
-        spec("clip.restoreCaptionsFromSource", "Restore Captions from Source Clip", &["مقطع"], None, "{}", no_embedded_captions, |_, _| {
+        query("clip.sourceSettings", "Source Settings…", &["Clip"], None, r#"{"item":id?}"#, has_media_selection, source_settings),
+        spec("clip.restoreCaptionsFromSource", "Restore Captions from Source Clip", &["Clip"], None, "{}", no_embedded_captions, |_, _| {
             Err(EngineError::Other(NO_CAPTIONS.into()))
         }),
-        spec("clip.updateMetadata", "Update Metadata…", &["مقطع"], None, r#"{"items":[id]?}"#, has_file_selection, update_metadata),
-        query("clip.generateAudioWaveform", "Generate Audio Waveform", &["مقطع"], None, r#"{"items":[id]?}"#, has_audio_selection, generate_waveform),
+        spec("clip.updateMetadata", "Update Metadata…", &["Clip"], None, r#"{"items":[id]?}"#, has_file_selection, update_metadata),
+        query("clip.generateAudioWaveform", "Generate Audio Waveform", &["Clip"], None, r#"{"items":[id]?}"#, has_audio_selection, generate_waveform),
         spec(
             "clip.automateToSequence",
             "Automate to Sequence…",
-            &["مقطع"],
+            &["Clip"],
             None,
             r#"{"items":[id]?,"ordering":"sort|selection","placement":"sequentially|unnumberedMarkers","method":"insert|overwrite","overlapFrames":n=30,"stillFrames":n?,"videoTransition":bool=true,"audioTransition":bool=true,"ignoreAudio":bool=false,"ignoreVideo":bool=false}"#,
             can_automate,
@@ -223,7 +223,7 @@ pub(crate) fn apply_layout(v: &mut Vec<CommandSpec>) {
     }
     // Project Settings ▸ Ingest Settings…
     if let Some(c) = v.iter_mut().find(|c| c.id == "project.ingestSettings") {
-        c.menu = &["ملف", "Project Settings"];
+        c.menu = &["File", "Project Settings"];
     }
     let layout: Vec<(At, Vec<&'static str>)> = vec![
         (At::After("file.newBinFromSelection"), vec!["file.newSearchBin"]),

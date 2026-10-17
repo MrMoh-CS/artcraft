@@ -72,7 +72,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
     vec![
         (
             "sequence.matchFrame",
-            vec![spec("sequence.reverseMatchFrame", "Reverse Match Frame", &["تسلسل"], Some("Shift+R"), "{}", has_source, |s, _| reverse_match_frame(s))],
+            vec![spec("sequence.reverseMatchFrame", "Reverse Match Frame", &["Sequence"], Some("Shift+R"), "{}", has_source, |s, _| reverse_match_frame(s))],
         ),
         (
             "sequence.closeGap",
@@ -86,7 +86,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
                 spec("sequence.goToNextGapInTrack", "Next in Track", &["تسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
                     go_to_gap(s, p, true, true)
                 }),
-                spec("sequence.goToPrevGapInTrack", "Previous in Track", &["تسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
+                spec("sequence.goToPrevGapInTrack", "Previous in Track", &["Sequence", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
                     go_to_gap(s, p, false, true)
                 }),
             ],
@@ -94,20 +94,20 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
         (
             "sequence.linkedSelection",
             vec![
-                spec("sequence.selectionFollowsPlayhead", "Selection Follows Playhead", &["تسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
+                spec("sequence.selectionFollowsPlayhead", "Selection Follows Playhead", &["Sequence"], None, r#"{"on":bool?}"#, always, |s, p| {
                     s.state.selection_follows_playhead = bool_p(p, "on").unwrap_or(!s.state.selection_follows_playhead);
                     if s.state.selection_follows_playhead {
                         select_under_playhead(s);
                     }
                     Ok(json!({"selectionFollowsPlayhead": s.state.selection_follows_playhead}))
                 }),
-                spec("sequence.showThroughEdits", "Show Through Edits", &["تسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
+                spec("sequence.showThroughEdits", "Show Through Edits", &["Sequence"], None, r#"{"on":bool?}"#, always, |s, p| {
                     s.state.show_through_edits = bool_p(p, "on").unwrap_or(!s.state.show_through_edits);
                     Ok(json!({"showThroughEdits": s.state.show_through_edits}))
                 }),
                 spec(
                     "sequence.joinThroughEdits",
-                    "دمج عبر نقاط القطع",
+                    "Join Through Edits",
                     &[],
                     None,
                     r#"{"clips":[id]?,"cut":[id,id]?,"all":bool?}"#,
@@ -123,7 +123,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
                             .collect(),
                     ))
                 }),
-                spec("sequence.makeSubsequence", "إنشاء تسلسل فرعي", &["تسلسل"], Some("Shift+U"), r#"{"name":str?}"#, has_seq, make_subsequence),
+                spec("sequence.makeSubsequence", "Make Subsequence", &["Sequence"], Some("Shift+U"), r#"{"name":str?}"#, has_seq, make_subsequence),
             ],
         ),
         (
@@ -131,7 +131,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
             vec![spec(
                 "sequence.deleteTracks",
                 "Delete Tracks…",
-                &["تسلسل"],
+                &["Sequence"],
                 None,
                 r#"{"video":"empty"|"V2"|id?,"audio":"empty"|"A2"|id?,"captions":"empty"|"C2"|id?}"#,
                 has_seq,
@@ -141,25 +141,25 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
         (
             "markers.markSelection",
             vec![
-                spec("markers.markSplitVideoIn", "Video In", &["العلامات", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::VideoIn)),
-                spec("markers.markSplitVideoOut", "Video Out", &["العلامات", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::VideoOut)),
-                spec("markers.markSplitAudioIn", "Audio In", &["العلامات", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::AudioIn)),
-                spec("markers.markSplitAudioOut", "Audio Out", &["العلامات", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::AudioOut)),
+                spec("markers.markSplitVideoIn", "Video In", &["Markers", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::VideoIn)),
+                spec("markers.markSplitVideoOut", "Video Out", &["Markers", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::VideoOut)),
+                spec("markers.markSplitAudioIn", "Audio In", &["Markers", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::AudioIn)),
+                spec("markers.markSplitAudioOut", "Audio Out", &["Markers", "Mark Split"], None, SPLIT, always, |s, p| mark_split(s, p, Side::AudioOut)),
             ],
         ),
         (
             "markers.goToOut",
             vec![
-                spec("markers.goToSplitVideoIn", "Video In", &["العلامات", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
+                spec("markers.goToSplitVideoIn", "Video In", &["Markers", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
                     go_to_split(s, p, Side::VideoIn)
                 }),
-                spec("markers.goToSplitVideoOut", "Video Out", &["العلامات", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
+                spec("markers.goToSplitVideoOut", "Video Out", &["Markers", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
                     go_to_split(s, p, Side::VideoOut)
                 }),
-                spec("markers.goToSplitAudioIn", "Audio In", &["العلامات", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
+                spec("markers.goToSplitAudioIn", "Audio In", &["Markers", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
                     go_to_split(s, p, Side::AudioIn)
                 }),
-                spec("markers.goToSplitAudioOut", "Audio Out", &["العلامات", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
+                spec("markers.goToSplitAudioOut", "Audio Out", &["Markers", "Go to Split"], None, r#"{"target":"program|source"}"#, has_split, |s, p| {
                     go_to_split(s, p, Side::AudioOut)
                 }),
             ],
@@ -179,7 +179,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
                 spec(
                     "markers.addRangeInOut",
                     "Add Range Marker to In and Out",
-                    &["العلامات"],
+                    &["Markers"],
                     Some("Ctrl+M"),
                     r#"{"name":str?,"comment":str?,"color":label?}"#,
                     has_in_and_out,
@@ -190,7 +190,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
         (
             "markers.clearAll",
             vec![
-                spec("markers.showAllMarkerColors", "Show All Marker Colors", &["العلامات"], None, "{}", has_hidden_colors, |s, _| {
+                spec("markers.showAllMarkerColors", "Show All Marker Colors", &["Markers"], None, "{}", has_hidden_colors, |s, _| {
                     s.state.hidden_marker_colors.clear();
                     Ok(json!({"hidden": []}))
                 }),
@@ -222,7 +222,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
                 spec(
                     "markers.copyPasteIncludesSequenceMarkers",
                     "Copy Paste Includes Sequence Markers",
-                    &["العلامات"],
+                    &["Markers"],
                     None,
                     r#"{"on":bool?}"#,
                     always,

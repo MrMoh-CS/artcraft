@@ -681,7 +681,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             r#"{"fileTypes":"all|video|audio|image|project|caption|<ext>"?,"view":"list|thumbnails"?,"columns":[str]?,"importAsImageSequence":bool?,"hoverScrub":bool?,"thumbnailSize":f32?}"#,
             settings,
         ),
-        c("mediaBrowser.import", "استيراد", r#"{"paths":[str]?,"bin":binId?,"imageSequence":bool?}"#, import),
+        c("mediaBrowser.import", "Import", r#"{"paths":[str]?,"bin":binId?,"imageSequence":bool?}"#, import),
         CommandSpec {
             id: "mediaBrowser.openInSource",
             label: "Open In Source Monitor",
@@ -745,7 +745,7 @@ pub fn std_volumes() -> Vec<Volume> {
             v.push(Volume { name: "/".into(), path: "/".into(), kind: VolumeKind::Local });
         }
         if std::path::Path::new("/Network").is_dir() {
-            v.push(Volume { name: "الشبكة".into(), path: "/Network".into(), kind: VolumeKind::Network });
+            v.push(Volume { name: "Network".into(), path: "/Network".into(), kind: VolumeKind::Network });
         }
         return v;
     }

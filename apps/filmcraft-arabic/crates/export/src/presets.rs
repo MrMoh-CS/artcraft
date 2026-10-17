@@ -32,7 +32,7 @@ pub fn preset_key(name: &str) -> String {
 }
 
 /// The default preset (Quick Export, a fresh Export mode).
-pub const DEFAULT_PRESET: &str = "مطابقة المصدر – معدل بت عالٍ متكيف";
+pub const DEFAULT_PRESET: &str = "مطابقة المصدر - معدل بت عالٍ متكيف";
 
 fn h264(size: Option<(u32, u32)>, kbps: u32, max_kbps: u32) -> ExportSettings {
     ExportSettings {
@@ -99,8 +99,8 @@ pub fn builtin_presets() -> Vec<ExportPreset> {
     let vertical = ExportSettings { scaling: Scaling::ScaleToFill, ..h264(Some((1080, 1920)), 12_000, 16_000) };
     vec![
         p(DEFAULT_PRESET, ms, "H.264 at the sequence's frame size and rate; bitrate adapts to the frame size (0.2 bits per pixel)", adaptive(0.2)),
-        p("مطابقة المصدر – معدل بت متوسط متكيف", ms, "H.264 at the sequence's frame size and rate; 0.1 bits per pixel", adaptive(0.1)),
-        p("مطابقة المصدر – معدل بت منخفض متكيف", ms, "H.264 at the sequence's frame size and rate; 0.05 bits per pixel", adaptive(0.05)),
+        p("مطابقة المصدر - معدل بت متوسط متكيف", ms, "H.264 at the sequence's frame size and rate; 0.1 bits per pixel", adaptive(0.1)),
+        p("مطابقة المصدر - معدل بت منخفض متكيف", ms, "H.264 at the sequence's frame size and rate; 0.05 bits per pixel", adaptive(0.05)),
         p("High Quality 1080p HD", web, "H.264 1920×1080, VBR 1 pass, 20 Mbps target, AAC 320 kbps", h264(Some((1920, 1080)), 20_000, 24_000)),
         p("High Quality 2160p 4K", web, "H.264 3840×2160, VBR 1 pass, 60 Mbps target, AAC 320 kbps", h264(Some((3840, 2160)), 60_000, 72_000)),
         p("YouTube 1080p Full HD", web, "H.264 1920×1080 for video sharing sites, VBR 1 pass, 16 Mbps", h264(Some((1920, 1080)), 16_000, 20_000)),

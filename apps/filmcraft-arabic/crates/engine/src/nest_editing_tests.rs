@@ -112,7 +112,7 @@ fn source_tracks_with_clips_go_to_consecutive_tracks_and_missing_tracks_are_adde
     q.check().unwrap();
     assert_eq!(q.video_tracks.len(), 4);
     assert_eq!((q.video_tracks[2].items.len(), q.video_tracks[3].items.len()), (2, 1));
-    assert_eq!(q.video_tracks[3].name, "Video 4");
+    assert_eq!(q.video_tracks[3].name, "فيديو 4");
     // one undo removes the clips and the track again
     s.execute("edit.undo", json!({})).unwrap();
     assert_eq!(s.active_sequence().unwrap().video_tracks.len(), 3);

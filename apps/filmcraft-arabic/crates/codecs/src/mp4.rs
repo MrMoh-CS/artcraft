@@ -570,7 +570,7 @@ fn codec_label(c: &CodecConfig) -> String {
             match a.profile {
                 66 => "Baseline",
                 77 => "Main",
-                100 => "عالي",
+                100 => "High",
                 110 => "High 10",
                 122 => "High 4:2:2",
                 244 => "High 4:4:4",
@@ -580,7 +580,7 @@ fn codec_label(c: &CodecConfig) -> String {
         CodecConfig::Hevc(_) => "HEVC".into(),
         CodecConfig::Vp9(c) => format!("VP9 (Profile {})", c.profile),
         CodecConfig::Unknown { fourcc, .. } if fourcc.0 == *b"vp08" => "VP8".into(),
-        CodecConfig::Av1(c) => format!("AV1 ({} Profile)", ["Main", "عالي", "Professional"].get(c.seq_profile as usize).unwrap_or(&"Main")),
+        CodecConfig::Av1(c) => format!("AV1 ({} Profile)", ["Main", "High", "Professional"].get(c.seq_profile as usize).unwrap_or(&"Main")),
         CodecConfig::Apv(a) => match filmcraft_apv::Profile::from_idc(a.profile_idc) {
             Some(p) => p.name().into(),
             None => "APV".into(),

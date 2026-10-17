@@ -1330,7 +1330,7 @@ mod gapless_tests {
         let header = [0xFF, 0xFB, 0x90, 0xC0];
         let mut info = vec![0u8; FRAME_LEN];
         info[..4].copy_from_slice(&header);
-        info[21..25].copy_from_slice(b"معلومات");
+        info[21..25].copy_from_slice(b"Info");
         info[25..29].copy_from_slice(&0x0Fu32.to_be_bytes());
         info[29..33].copy_from_slice(&(AUDIO_FRAMES as u32).to_be_bytes());
         info[33..37].copy_from_slice(&((FRAME_LEN * (AUDIO_FRAMES + 1)) as u32).to_be_bytes());

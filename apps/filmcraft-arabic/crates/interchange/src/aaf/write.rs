@@ -593,7 +593,7 @@ fn event_slot(w: &mut W, id: u32, rate: (i64, i64), markers: &[CMarker]) -> Obj 
         .map(|m| {
             let pos = w.u(m.start, rate);
             let len = w.u(m.start + m.duration, rate) - pos;
-            let mut tags = vec![tagged("الاسم", &m.name), tagged("Comment", &m.comment)];
+            let mut tags = vec![tagged("Name", &m.name), tagged("Comment", &m.comment)];
             if let Some(c) = &m.color {
                 tags.push(tagged("Color", c));
             }

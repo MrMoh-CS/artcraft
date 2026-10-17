@@ -18,7 +18,7 @@ pub(super) const OBSOLETE: &[&str] = &["Video Effects", "Obsolete"];
 pub(super) const LEGACY: &[&str] = &["Legacy", "Video Effects"];
 
 /// Track choices for effects that read another video track (Track Matte Key, Compound Blur…).
-pub const TRACK_CHOICES: &[&str] = &["None", "فيديو 1", "فيديو 2", "فيديو 3", "Video 4", "Video 5", "Video 6", "Video 7", "Video 8"];
+pub const TRACK_CHOICES: &[&str] = &["None", "فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4", "فيديو 5", "فيديو 6", "فيديو 7", "فيديو 8"];
 /// Equirectangular frame layouts for the Immersive Video effects.
 pub const FRAME_LAYOUTS: &[&str] = &["Monoscopic", "Stereoscopic - Over/Under", "Stereoscopic - Side by Side"];
 /// Easing for the animated Transform presets (Grow, Shrink, Move, Spin).

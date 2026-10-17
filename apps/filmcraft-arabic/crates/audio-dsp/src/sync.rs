@@ -1,5 +1,5 @@
 //! Synchronising recordings of the same event by their audio (Synchronize, Merge Clips and
-//! Create Multi-Camera Source Sequence "الصوت").
+//! Create Multi-Camera Source Sequence "Audio").
 //!
 //! [`find_offset`] returns the lag `L` (in samples) for which `b[n] ≈ g · a[n + L]`: when `b`
 //! started recording two seconds after `a`, `L = 2 · sample_rate`. It works in two passes:

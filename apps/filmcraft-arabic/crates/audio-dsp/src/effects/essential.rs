@@ -352,7 +352,7 @@ pub struct SpeechEnhance {
 
 impl SpeechEnhance {
     pub const PARAMS: &'static [ParamSpec] =
-        &[ParamSpec::new("mix", "المزج", 0.0, 100.0, 100.0, Unit::Percent), ParamSpec::choice("tone", "Tone", &["Low Tone", "High Tone"], 0)];
+        &[ParamSpec::new("mix", "Mix", 0.0, 100.0, 100.0, Unit::Percent), ParamSpec::choice("tone", "Tone", &["Low Tone", "High Tone"], 0)];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {
         let sr = sample_rate as f64;

@@ -203,7 +203,7 @@ macro_rules! eq_params {
         &[
             $(
                 ParamSpec::toggle(concat!("b", $n, ".on"), concat!("Band ", $n, " On"), $on),
-                ParamSpec::choice(concat!("b", $n, ".type"), concat!("Band ", $n, " النوع"), FILTER_TYPE_NAMES, $ty),
+                ParamSpec::choice(concat!("b", $n, ".type"), concat!("Band ", $n, " Type"), FILTER_TYPE_NAMES, $ty),
                 ParamSpec::log(concat!("b", $n, ".freq"), concat!("Band ", $n, " Frequency"), 20.0, 20000.0, $f, Unit::Hertz),
                 ParamSpec::new(concat!("b", $n, ".gain"), concat!("Band ", $n, " Gain"), -30.0, 30.0, 0.0, Unit::Decibels),
                 ParamSpec::log(concat!("b", $n, ".q"), concat!("Band ", $n, " Q"), 0.1, 30.0, $q, Unit::Q),
@@ -308,7 +308,7 @@ impl SimpleEq {
         ParamSpec::new("mid", "Mid", -24.0, 24.0, 0.0, Unit::Decibels),
         ParamSpec::log("mid_freq", "Mid Frequency", 100.0, 10000.0, 1000.0, Unit::Hertz),
         ParamSpec::log("mid_q", "Mid Q", 0.1, 10.0, 0.7, Unit::Q),
-        ParamSpec::new("high", "عالي", -24.0, 24.0, 0.0, Unit::Decibels),
+        ParamSpec::new("high", "High", -24.0, 24.0, 0.0, Unit::Decibels),
         ParamSpec::log("high_freq", "High Frequency", 1000.0, 20000.0, 5000.0, Unit::Hertz),
         ParamSpec::new("output", "Output Gain", -24.0, 24.0, 0.0, Unit::Decibels),
     ];

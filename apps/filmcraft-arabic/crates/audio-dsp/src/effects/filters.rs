@@ -433,7 +433,7 @@ pub struct ScientificFilter {
 
 impl ScientificFilter {
     pub const PARAMS: &'static [ParamSpec] = &[
-        ParamSpec::choice("type", "النوع", SCI_TYPES, 1),
+        ParamSpec::choice("type", "Type", SCI_TYPES, 1),
         ParamSpec::choice("mode", "Mode", SCI_MODES, 0),
         ParamSpec::new("order", "Order", 1.0, design::MAX_ORDER as f32, 6.0, Unit::None),
         ParamSpec::log("cutoff", "Cutoff", 20.0, 20000.0, 1000.0, Unit::Hertz),

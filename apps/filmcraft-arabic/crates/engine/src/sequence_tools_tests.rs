@@ -240,14 +240,14 @@ fn add_tracks_places_and_types_them() {
     // without a place: after the last track (and one video track when nothing is said, as before)
     let r = s.execute("sequence.addTracks", json!({})).unwrap();
     assert_eq!((r["video"].as_array().unwrap().len(), r["audio"].as_array().unwrap().len(), r["submix"].as_array().unwrap().len()), (1, 0, 0));
-    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "Video 4"]);
+    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4"]);
     assert_eq!(s.active_sequence().unwrap().video_tracks[3].id.0, r["video"][0].as_u64().unwrap());
     s.execute("edit.undo", json!({})).unwrap();
 
     // after Video 1: two new empty tracks there, the tracks above move up and are numbered again
     s.execute("sequence.addTracks", json!({"video": 2, "videoAfter": "V1"})).unwrap();
     let q = s.active_sequence().unwrap();
-    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "Video 4", "Video 5"]);
+    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4", "فيديو 5"]);
     assert!(q.video_tracks[1].items.is_empty() && q.video_tracks[2].items.is_empty());
     assert_eq!(q.video_tracks[3].id, before.video_tracks[1].id);
     assert_eq!(q.video_tracks[3].items[0].id, on_v2, "what was on Video 2 is on Video 4");
@@ -263,7 +263,7 @@ fn add_tracks_places_and_types_them() {
     })
     .unwrap();
     s.execute("sequence.addTracks", json!({"video": 0, "audio": 1, "audioAfter": "first", "audioType": "mono"})).unwrap();
-    assert_eq!(names(&s, TrackKind::Audio), ["صوت 1", "صوت 2", "Music", "Audio 4"]);
+    assert_eq!(names(&s, TrackKind::Audio), ["صوت 1", "صوت 2", "Music", "صوت 4"]);
     let q = s.active_sequence().unwrap();
     assert_eq!(q.audio_tracks[0].channels, AudioChannels::Mono);
     assert_eq!(q.audio_tracks[1].id, before.audio_tracks[0].id);

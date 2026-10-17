@@ -502,7 +502,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "media.attachProxies",
             label: "Attach Proxies…",
-            menu: &["مقطع", "Proxy"],
+            menu: &["Clip", "Proxy"],
             shortcut: None,
             params: r#"{"item":id,"path":str}|{"items":[id],"paths":[str]},"force":bool=false"#,
             enabled: has_file_media,
@@ -521,7 +521,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "media.detachProxies",
             label: "Detach Proxies",
-            menu: &["مقطع", "Proxy"],
+            menu: &["Clip", "Proxy"],
             shortcut: None,
             params: r#"{"items":[id]?}"#,
             enabled: has_file_media,
@@ -545,7 +545,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "media.reconnectFullRes",
             label: "Reconnect Full Resolution Media…",
-            menu: &["مقطع", "Proxy"],
+            menu: &["Clip", "Proxy"],
             shortcut: None,
             params: r#"{"item":id,"path":str}"#,
             enabled: has_file_media,
@@ -564,7 +564,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "media.toggleProxies",
             label: "Toggle Proxies",
-            menu: &["عرض"],
+            menu: &["View"],
             shortcut: None,
             params: r#"{"enabled":bool?}"#,
             enabled: always,

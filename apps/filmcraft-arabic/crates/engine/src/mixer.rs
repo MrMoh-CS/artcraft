@@ -1336,7 +1336,7 @@ pub fn commands() -> Vec<CommandSpec> {
             set_default_transition,
             true,
         ),
-        spec("mixer.addSubmix", "Add Audio Submix Track", &["تسلسل"], None, r#"{"name":str?,"channels":"Mono|Stereo|5.1"?}"#, has_seq, add_submix, true),
+        spec("mixer.addSubmix", "Add Audio Submix Track", &["Sequence"], None, r#"{"name":str?,"channels":"Mono|Stereo|5.1"?}"#, has_seq, add_submix, true),
         spec("mixer.deleteSubmix", "Delete Submix Track", &[], None, r#"{"strip":"S1"|id}"#, has_seq, delete_submix, true),
         spec(
             "mixer.addInsert",

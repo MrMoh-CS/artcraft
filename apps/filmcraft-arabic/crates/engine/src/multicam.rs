@@ -138,8 +138,8 @@ fn base_commands() -> Vec<CommandSpec> {
     vec![
         spec(
             "clip.synchronize",
-            "مزامنة…",
-            &["مقطع"],
+            "Synchronize…",
+            &["Clip"],
             r#"{"method":"in|out|timecode|marker|audio","clips":[id]?,"reference":clip?,"track":"V1"|"A1"?,"ignoreHours":bool?,"marker":str?,"offset":frames?}"#,
             can_synchronize,
             synchronize,
@@ -147,8 +147,8 @@ fn base_commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.mergeClips",
-            "دمج المقاطع…",
-            &["مقطع"],
+            "Merge Clips…",
+            &["Clip"],
             r#"{"items":[id]?,"method":"in|out|timecode|marker|audio","name":str?,"removeVideoAudio":bool?,"ignoreHours":bool?,"marker":str?,"offset":frames?}"#,
             has_two_items,
             merge_clips,
@@ -157,14 +157,14 @@ fn base_commands() -> Vec<CommandSpec> {
         spec(
             "clip.createMulticam",
             "Create Multi-Camera Source Sequence…",
-            &["مقطع"],
+            &["Clip"],
             r#"{"items":[id]?,"name":str?,"method":"in|out|timecode|marker|audio","ignoreHours":bool?,"marker":str?,"offset":frames?,"audio":"camera1|all|switch","cameraNames":"clip|track|metadata","processedBin":bool?,"reference":item?}"#,
             has_items,
             create_multicam,
             true,
         ),
-        spec("clip.multicamEnable", "تفعيل", &["مقطع", "متعدد الكاميرات"], r#"{"clips":[id]?,"enabled":bool?}"#, has_selection, enable, true),
-        spec("clip.multicamFlatten", "Flatten", &["مقطع", "متعدد الكاميرات"], r#"{"clips":[id]?}"#, has_selection, flatten, true),
+        spec("clip.multicamEnable", "Enable", &["Clip", "Multi-Camera"], r#"{"clips":[id]?,"enabled":bool?}"#, has_selection, enable, true),
+        spec("clip.multicamFlatten", "Flatten", &["Clip", "Multi-Camera"], r#"{"clips":[id]?}"#, has_selection, flatten, true),
         spec(
             "multicam.switchAngle",
             "Switch Multi-Camera Angle",
@@ -530,7 +530,7 @@ fn merge_clips(s: &mut Session, p: &Value) -> Result<Value> {
     let n_audio = audio_items.len() + vid_audio as usize;
     let rep = sync::report(&clips, &anchors, &starts, rate);
     let bin = s.project.root.parent_of(clips[0].item).filter(|b| *b != s.project.root.id);
-    let id = s.edit("دمج المقاطع", |pr, st| {
+    let id = s.edit("Merge Clips", |pr, st| {
         let sid = pr.new_sequence(&name, settings.clone(), video.is_some() as usize, n_audio, bin);
         let mut v_items = Vec::new();
         let mut a_items = Vec::new();
@@ -805,7 +805,7 @@ fn flatten(s: &mut Session, p: &Value) -> Result<Value> {
         for k in have..need_a {
             let id = TrackId(pr.alloc_id());
             if let Some(q) = pr.sequence_mut(seq_id) {
-                q.audio_tracks.push(Track::new(id, TrackKind::Audio, format!("صوت {}", k + 1)));
+                q.audio_tracks.push(Track::new(id, TrackKind::Audio, format!("Audio {}", k + 1)));
             }
         }
         let new_ids = seq_edit(pr, seq_id, &media, |seq, ctx| {

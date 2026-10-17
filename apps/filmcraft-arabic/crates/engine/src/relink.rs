@@ -632,7 +632,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "media.linkMedia",
             label: "Link Media…",
-            menu: &["ملف"],
+            menu: &["File"],
             shortcut: None,
             params: r#"{}  (opens the Link Media dialog; agents use media.relink / media.autoRelink)"#,
             enabled: always,
@@ -701,7 +701,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "media.makeOffline",
             label: "Make Offline…",
-            menu: &["ملف"],
+            menu: &["File"],
             shortcut: None,
             params: r#"{"items":[id]?,"deleteFiles":bool=false}"#,
             enabled: |s| {

@@ -175,7 +175,7 @@ impl Gate {
     pub const PARAMS: &'static [ParamSpec] = &[
         ParamSpec::new("threshold", "Threshold", -90.0, 0.0, -40.0, Unit::Decibels),
         ParamSpec::log("ratio", "Ratio", 1.0, 100.0, 10.0, Unit::Ratio),
-        ParamSpec::new("range", "النطاق", 0.0, 90.0, 60.0, Unit::Decibels),
+        ParamSpec::new("range", "Range", 0.0, 90.0, 60.0, Unit::Decibels),
         ParamSpec::log("attack", "Attack", 0.01, 100.0, 1.0, Unit::Milliseconds),
         ParamSpec::new("hold", "Hold", 0.0, 2000.0, 50.0, Unit::Milliseconds),
         ParamSpec::log("release", "Release", 1.0, 3000.0, 150.0, Unit::Milliseconds),

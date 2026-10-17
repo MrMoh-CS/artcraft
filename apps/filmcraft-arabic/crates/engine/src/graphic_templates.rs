@@ -1151,7 +1151,7 @@ pub fn commands() -> Vec<CommandSpec> {
             has_graphic,
             export_template,
         ),
-        spec("file.exportGraphicsTemplate", "Motion Graphics Template…", &["ملف", "تصدير"], r#"as graphics.template.export"#, has_graphic, export_template),
+        spec("file.exportGraphicsTemplate", "Motion Graphics Template…", &["File", "Export"], r#"as graphics.template.export"#, has_graphic, export_template),
         spec(
             "graphics.template.install",
             "Install Motion Graphics Template…",

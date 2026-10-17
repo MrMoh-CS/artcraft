@@ -121,7 +121,7 @@ pub fn markers(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             }
             let c = m.color.marker_rgb();
             ui.painter().rect_filled(Rect::from_min_size(r.min + vec2(4.0, 6.0), vec2(4.0, 26.0)), 2.0, Color32::from_rgb(c[0], c[1], c[2]));
-            let name = if m.name.is_empty() { tl!("Marker") } else { &m.name };
+            let name = if m.name.is_empty() { tl!("علامة") } else { &m.name };
             ui.painter().text(pos2(r.min.x + 16.0, r.min.y + 12.0), Align2::LEFT_CENTER, name, Tokens::ui(12.0), t.text);
             let mut tc = format_time(m.start, seq.settings.frame_rate, seq.settings.drop_frame, TimeDisplay::Timecode, 48000);
             if m.duration > filmcraft_time::Tick::ZERO {
@@ -195,11 +195,11 @@ pub fn info(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         line(ui, tl!("مؤشر التشغيل:"), format_time(app.session.playhead(), seq.settings.frame_rate, seq.settings.drop_frame, TimeDisplay::Timecode, 48000));
         for (i, tr) in seq.video_tracks.iter().enumerate().rev() {
             let at = tr.item_at(app.session.playhead()).map(|x| x.name.clone()).unwrap_or_default();
-            line(ui, &tlf!("فيديو {n}:", n = i + 1), at);
+            line(ui, &tlf!("Video {n}:", n = i + 1), at);
         }
         for (i, tr) in seq.audio_tracks.iter().enumerate() {
             let at = tr.item_at(app.session.playhead()).map(|x| x.name.clone()).unwrap_or_default();
-            line(ui, &tlf!("صوت {n}:", n = i + 1), at);
+            line(ui, &tlf!("Audio {n}:", n = i + 1), at);
         }
     }
     ui.separator();

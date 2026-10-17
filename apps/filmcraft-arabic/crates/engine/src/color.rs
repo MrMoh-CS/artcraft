@@ -39,7 +39,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.interpretFootage",
             "Interpret Footage…",
-            &["مقطع", "Modify"],
+            &["Clip", "Modify"],
             r#"{"items":[id]?,"colorSpace":"auto"|"<color space id>"?,"pixelAspect":[num,den]|"file"?}"#,
             has_footage,
             interpret,

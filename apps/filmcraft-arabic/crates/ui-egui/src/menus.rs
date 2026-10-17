@@ -53,12 +53,12 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("view.zoomIn", "Zoom In", ["عرض"], Some("=")),
     uic!("view.zoomOut", "Zoom Out", ["عرض"], Some("-")),
     uic!("view.zoomToSequence", "Zoom to Sequence", ["عرض"], Some("\\")),
-    uic!("view.playbackRes.full", "Full", ["عرض", "Playback Resolution"], None),
+    uic!("view.playbackRes.full", "كامل", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.half", "1/2", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.quarter", "1/4", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.eighth", "1/8", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.sixteenth", "1/16", ["عرض", "Playback Resolution"], None),
-    uic!("view.pausedRes.full", "Full", ["عرض", "Paused Resolution"], None),
+    uic!("view.pausedRes.full", "كامل", ["عرض", "Paused Resolution"], None),
     uic!("view.pausedRes.half", "1/2", ["عرض", "Paused Resolution"], None),
     uic!("view.pausedRes.quarter", "1/4", ["عرض", "Paused Resolution"], None),
     uic!("view.pausedRes.eighth", "1/8", ["عرض", "Paused Resolution"], None),
@@ -107,7 +107,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("view.theme.medium", "Dark", ["عرض", "Appearance"], None),
     uic!("view.theme.light", "Light", ["عرض", "Appearance"], None),
     uic!("view.appearanceMode.next", "Next Appearance Mode", ["عرض", "Appearance"], None),
-    uic!("window.workspace.editing", "Editing", ["نافذة", "Workspaces"], Some("Alt+Shift+1")),
+    uic!("window.workspace.editing", "التحرير", ["نافذة", "Workspaces"], Some("Alt+Shift+1")),
     uic!("window.workspace.assembly", "Assembly", ["نافذة", "Workspaces"], Some("Alt+Shift+2")),
     uic!("window.workspace.color", "Color", ["نافذة", "Workspaces"], Some("Alt+Shift+3")),
     uic!("window.workspace.effects", "المؤثرات", ["نافذة", "Workspaces"], Some("Alt+Shift+4")),
@@ -1077,7 +1077,7 @@ mod tests {
         for name in crate::dock::WORKSPACES {
             assert!(ws.iter().any(|it| it.label == name && it.checked.is_none()), "no workspace {name}");
         }
-        let editing = ws.iter().position(|it| it.label == "Editing");
+        let editing = ws.iter().position(|it| it.label == "التحرير");
         let reset = ws.iter().position(|it| it.id == "window.workspace.reset");
         assert!(matches!((editing, reset), (Some(e), Some(r)) if e < r), "workspaces come before the layout commands");
         assert!(items.iter().any(|it| it.id == "file.save" && it.path == ["ملف"]));

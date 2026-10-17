@@ -317,7 +317,7 @@ fn h264_presets_hit_their_bitrates() {
     let mut s = demo();
     let dir = Scratch::new("bitrate");
     for (preset, target_kbps, max_kbps) in [
-        ("مطابقة المصدر – معدل بت عالٍ متكيف", 1920.0 * 1080.0 * (24000.0 / 1001.0) * 0.2 / 1000.0, 1.5),
+        ("Match Source – Adaptive High Bitrate", 1920.0 * 1080.0 * (24000.0 / 1001.0) * 0.2 / 1000.0, 1.5),
         ("YouTube 1080p Full HD", 16_000.0, 20.0 / 16.0),
         ("Vimeo 1080p Full HD", 18_000.0, 24.0 / 18.0),
     ] {
@@ -402,10 +402,10 @@ fn queue_orders_cancels_and_retries() {
             s.execute("export.queue.add", json!({"preset": preset, "path": dir.path(name), "range": "custom", "startSeconds": 0, "endSeconds": 0.25})).unwrap();
         r["added"][0].as_u64().unwrap()
     };
-    let a = add(&mut s, "a.mp4", "مطابقة المصدر – معدل بت منخفض متكيف");
+    let a = add(&mut s, "a.mp4", "Match Source – Adaptive Low Bitrate");
     let b = add(&mut s, "b.mov", "Apple ProRes 422 Proxy");
     let c = add(&mut s, "c.wav", "Waveform Audio 48 kHz 16-bit");
-    let d = add(&mut s, "d.mp4", "مطابقة المصدر – معدل بت منخفض متكيف");
+    let d = add(&mut s, "d.mp4", "Match Source – Adaptive Low Bitrate");
     assert!(queue(&mut s).iter().all(|i| i["status"] == "ready"));
     // reorder: c to the front, a one down
     s.execute("export.queue.move", json!({"id": c, "to": 0})).unwrap();

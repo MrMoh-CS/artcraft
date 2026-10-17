@@ -58,11 +58,11 @@ macro_rules! label_cmd {
 pub(crate) fn commands() -> Vec<CommandSpec> {
     vec![
         // ---------------- File ----------------
-        spec("file.newSequenceFromClip", "Sequence From Clip", &["ملف", "جديد"], None, r#"{"items":[id]?}"#, has_clip_items, sequence_from_clip),
+        spec("file.newSequenceFromClip", "Sequence From Clip", &["File", "New"], None, r#"{"items":[id]?}"#, has_clip_items, sequence_from_clip),
         spec(
             "file.newBinFromSelection",
             "Bin From Selection",
-            &["ملف", "جديد"],
+            &["File", "New"],
             Some("Shift+B"),
             r#"{"items":[id]?,"name":str?}"#,
             has_project_selection,
@@ -71,19 +71,19 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "file.newOfflineFile",
             "Offline File…",
-            &["ملف", "جديد"],
+            &["File", "New"],
             None,
             r#"{"name":str?,"fileName":str?,"tapeName":str?,"video":bool=true,"audio":bool=true,"width":u32?,"height":u32?,"fps":f64?,"sampleRate":u32=48000,"channels":u32=2,"timecode":"HH:MM:SS:FF"?,"seconds":f64=10,"description":str?}"#,
             always,
             offline_file,
         ),
-        spec("file.closeProject", "Close Project", &["ملف"], Some("Cmd+Shift+W"), r#"{"force":bool?}"#, always, close_project),
-        spec("file.saveAll", "Save All", &["ملف"], None, "{}", always, |s, _| s.execute("file.save", json!({}))),
+        spec("file.closeProject", "Close Project", &["File"], Some("Cmd+Shift+W"), r#"{"force":bool?}"#, always, close_project),
+        spec("file.saveAll", "Save All", &["File"], None, "{}", always, |s, _| s.execute("file.save", json!({}))),
         // ---------------- Edit ----------------
         spec(
             "edit.pasteAttributes",
-            "لصق الخصائص…",
-            &["تحرير"],
+            "Paste Attributes…",
+            &["Edit"],
             Some("Cmd+Alt+V"),
             r#"{"clips":[id]?,"motion":bool=true,"opacity":bool=true,"timeRemapping":bool=true,"volume":bool=true,"channelVolume":bool=true,"panner":bool=true,"effects":bool|[effectId]=true,"scaleTimes":bool=true}"#,
             can_paste_attributes,
@@ -91,15 +91,15 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "edit.removeAttributes",
-            "إزالة الخصائص…",
-            &["تحرير"],
+            "Remove Attributes…",
+            &["Edit"],
             None,
             r#"{"clips":[id]?,"motion":bool=true,"opacity":bool=true,"timeRemapping":bool=true,"volume":bool=true,"channelVolume":bool=true,"panner":bool=true,"effects":bool|[effectId]=true}"#,
             has_selection,
             remove_attributes,
         ),
-        spec("edit.selectAllMatching", "Select All Matching", &["تحرير"], None, r#"{"clips":[id]?}"#, has_selection, select_all_matching),
-        spec("edit.selectLabelGroup", "Select Label Group", &["تحرير", "لون التسمية"], None, "{}", can_label, select_label_group),
+        spec("edit.selectAllMatching", "Select All Matching", &["Edit"], None, r#"{"clips":[id]?}"#, has_selection, select_all_matching),
+        spec("edit.selectLabelGroup", "Select Label Group", &["Edit", "Label"], None, "{}", can_label, select_label_group),
         label_cmd!("edit.label.violet", "Violet", Label::Violet),
         label_cmd!("edit.label.iris", "Iris", Label::Iris),
         label_cmd!("edit.label.caribbean", "Caribbean", Label::Caribbean),
@@ -131,7 +131,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.editSubclip",
             "Edit Subclip…",
-            &["مقطع"],
+            &["Clip"],
             None,
             r#"{"item":id?,"start":ticks?,"end":ticks?,"startFrame":i64?,"endFrame":i64?,"restrictTrims":bool?,"convertToMaster":bool?}"#,
             has_subclip,
@@ -140,7 +140,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.audioChannels",
             "Audio Channels…",
-            &["مقطع", "Modify"],
+            &["Clip", "Modify"],
             Some("Shift+G"),
             r#"{"items":[id]?,"format":"mono|stereo|5.1|adaptive","clips":[[channel]]?,"channels":[channel]?}"#,
             has_audio_target,
@@ -149,7 +149,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.modifyTimecode",
             "Timecode…",
-            &["مقطع", "Modify"],
+            &["Clip", "Modify"],
             None,
             r#"{"item":id?,"timecode":"HH:MM:SS:FF"?,"frame":i64?,"tapeName":str?,"reset":bool?}"#,
             has_media_selection,
@@ -157,8 +157,8 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.frameHoldOptions",
-            "خيارات تجميد الإطار…",
-            &["مقطع", "Video Options"],
+            "Frame Hold Options…",
+            &["Clip", "Video Options"],
             None,
             r#"{"clips":[id]?,"enabled":bool=true,"holdOn":"sourceTimecode|sequenceTime|in|out|playhead","time":ticks?,"timecode":str?,"holdFilters":bool=false}"#,
             has_selection,
@@ -166,8 +166,8 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.insertFrameHoldSegment",
-            "إدراج مقطع إطار مجمّد",
-            &["مقطع", "Video Options"],
+            "Insert Frame Hold Segment",
+            &["Clip", "Video Options"],
             None,
             r#"{"clip":id?,"time":ticks?,"seconds":f64=2}"#,
             has_seq,
@@ -175,8 +175,8 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.fieldOptions",
-            "خيارات الحقول…",
-            &["مقطع", "Video Options"],
+            "Field Options…",
+            &["Clip", "Video Options"],
             None,
             r#"{"clips":[id]?,"reverseFieldDominance":bool=false,"processing":"none|alwaysDeinterlace|flickerRemoval"}"#,
             has_selection,
@@ -185,7 +185,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.timeInterpolation.frameSampling",
             "Frame Sampling",
-            &["مقطع", "Video Options", "Time Interpolation"],
+            &["Clip", "Video Options", "Time Interpolation"],
             None,
             r#"{"clips":[id]?}"#,
             has_selection,
@@ -194,7 +194,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.timeInterpolation.frameBlending",
             "Frame Blending",
-            &["مقطع", "Video Options", "Time Interpolation"],
+            &["Clip", "Video Options", "Time Interpolation"],
             None,
             r#"{"clips":[id]?}"#,
             has_selection,
@@ -203,7 +203,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.timeInterpolation.opticalFlow",
             "Optical Flow",
-            &["مقطع", "Video Options", "Time Interpolation"],
+            &["Clip", "Video Options", "Time Interpolation"],
             None,
             r#"{"clips":[id]?}"#,
             has_selection,
@@ -221,17 +221,17 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 set_interpolation(s, p, m)
             },
         ),
-        spec("clip.fitToFrame", "ملاءمة للإطار", &["مقطع", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, false)),
-        spec("clip.fillFrame", "ملء الإطار", &["مقطع", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, true)),
-        spec("clip.breakoutToMono", "Breakout to Mono", &["مقطع", "Audio Options"], None, r#"{"items":[id]?}"#, has_audio_items, breakout_to_mono),
-        spec("clip.extractAudio", "Extract Audio", &["مقطع", "Audio Options"], None, r#"{"items":[id]?,"dir":str?}"#, has_extractable, extract_audio),
+        spec("clip.fitToFrame", "Fit to frame", &["Clip", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, false)),
+        spec("clip.fillFrame", "Fill frame", &["Clip", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, true)),
+        spec("clip.breakoutToMono", "Breakout to Mono", &["Clip", "Audio Options"], None, r#"{"items":[id]?}"#, has_audio_items, breakout_to_mono),
+        spec("clip.extractAudio", "Extract Audio", &["Clip", "Audio Options"], None, r#"{"items":[id]?,"dir":str?}"#, has_extractable, extract_audio),
         spec("clip.replaceFromSource", "From Source Monitor", &["مقطع", "Replace With Clip"], None, r#"{"clips":[id]?}"#, can_replace_from_source, |s, p| {
             replace_with(s, p, Replace::Source)
         }),
         spec(
             "clip.replaceFromSourceMatchFrame",
             "From Source Monitor, Match Frame",
-            &["مقطع", "Replace With Clip"],
+            &["Clip", "Replace With Clip"],
             None,
             r#"{"clips":[id]?}"#,
             can_replace_from_source,
@@ -240,7 +240,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "clip.replaceFromBin",
             "From Bin",
-            &["مقطع", "Replace With Clip"],
+            &["Clip", "Replace With Clip"],
             None,
             r#"{"clips":[id]?,"item":id?,"keepSourceIn":bool=false}"#,
             can_replace_from_bin,

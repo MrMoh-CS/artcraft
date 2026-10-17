@@ -295,7 +295,7 @@ mod tests {
     #[test]
     fn plain() {
         assert_eq!(plain_text("<i>Hello</i> &amp; <b>bye</b>"), "Hello & bye");
-        assert_eq!(plain_text("{\\an8}Top"), "أعلى");
+        assert_eq!(plain_text("{\\an8}Top"), "Top");
         assert_eq!(plain_text("a < b"), "a < b");
         assert_eq!(plain_text("<v Bob>Hi</v>"), "Hi");
     }

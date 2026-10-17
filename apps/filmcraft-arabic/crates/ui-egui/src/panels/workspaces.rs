@@ -126,7 +126,7 @@ fn delete(app: &mut FilmcraftApp, name: &str) -> Result<Value, String> {
     }
     app.set_workspaces(next)?;
     if app.ui.workspace == name {
-        app.set_workspace(if is_builtin(name) { name } else { "Editing" });
+        app.set_workspace(if is_builtin(name) { name } else { "التحرير" });
     }
     Ok(if is_builtin(name) { json!({"restored": name}) } else { json!({"deleted": name}) })
 }

@@ -374,7 +374,7 @@ fn reveal_nested_sequence_opens_it_at_the_matching_frame() {
     let outer = s.state.active_sequence.unwrap();
     let v = items(&s, TrackKind::Video, 0)[1];
     s.execute("timeline.select", json!({"clips": [v.0]})).unwrap();
-    s.execute("clip.nest", json!({"name": "تضمين"})).unwrap();
+    s.execute("clip.nest", json!({"name": "Nest"})).unwrap();
     let nest_clip = s.active_sequence().unwrap().video_tracks[0].items.iter().find(|i| s.project.sequence(i.item).is_some()).unwrap().clone();
     let rate = s.sequence_rate();
     s.set_playhead(nest_clip.start + rate.tick_of(7));
@@ -390,7 +390,7 @@ fn keyboard_slide_keeps_linked_partners_aligned_at_a_neighbour_limit() {
     // #712: a three-frame sound-only follower limits only the sound partner
     let mut s = Session::default();
     s.execute("file.newProject", json!({"name": "Slide"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newSequence", json!({"name": "Sequence", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
     let r = s.execute("file.newOfflineFile", json!({"name": "Media", "seconds": 4, "fps": 25, "video": true, "audio": true})).unwrap();
     let item = r["item"].as_u64().unwrap();
     let fr = s.sequence_rate().tick_of(1);

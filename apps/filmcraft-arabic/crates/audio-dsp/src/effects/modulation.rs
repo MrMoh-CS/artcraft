@@ -31,7 +31,7 @@ impl ChorusFlanger {
         ParamSpec::new("width", "Width", 0.0, 100.0, 50.0, Unit::Percent),
         ParamSpec::new("intensity", "Intensity", 0.0, 100.0, 30.0, Unit::Percent),
         ParamSpec::new("transience", "Transience", 0.0, 100.0, 0.0, Unit::Percent),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 50.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 50.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {
@@ -152,7 +152,7 @@ impl Flanger {
         ParamSpec::toggle("inverted", "Inverted", false),
         ParamSpec::toggle("special", "Special Effects", false),
         ParamSpec::toggle("sinusoidal", "Sinusoidal", true),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 50.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 50.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {
@@ -253,7 +253,7 @@ impl Phaser {
         ParamSpec::new("phase_diff", "Phase Difference", 0.0, 180.0, 90.0, Unit::None),
         ParamSpec::log("upper_freq", "Upper Frequency", 100.0, 20000.0, 2500.0, Unit::Hertz),
         ParamSpec::new("feedback", "Feedback", -100.0, 100.0, 0.0, Unit::Percent),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 50.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 50.0, Unit::Percent),
         ParamSpec::new("output", "Output Gain", -24.0, 24.0, 0.0, Unit::Decibels),
     ];
 
@@ -475,7 +475,7 @@ impl MultitapDelay {
         ParamSpec::log("delay4", "Delay 4", 1.0, 4000.0, 1000.0, Unit::Milliseconds),
         ParamSpec::new("feedback4", "Feedback 4", 0.0, 95.0, 0.0, Unit::Percent),
         ParamSpec::new("level4", "Level 4", -96.0, 0.0, -15.0, Unit::Decibels),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 50.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 50.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {

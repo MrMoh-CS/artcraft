@@ -260,7 +260,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "clip.remix.enable",
             label: "Enable Remix",
-            menu: &["مقطع", "Remix"],
+            menu: &["Clip", "Remix"],
             shortcut: None,
             params: r#"{"clip":id?}"#,
             enabled: can_enable,
@@ -270,7 +270,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "clip.remix.properties",
             label: "Remix Properties…",
-            menu: &["مقطع", "Remix"],
+            menu: &["Clip", "Remix"],
             shortcut: None,
             params: PARAMS,
             enabled: is_remixed,
@@ -280,7 +280,7 @@ pub fn commands() -> Vec<CommandSpec> {
         CommandSpec {
             id: "clip.remix.revert",
             label: "Revert Remix",
-            menu: &["مقطع", "Remix"],
+            menu: &["Clip", "Remix"],
             shortcut: None,
             params: r#"{"clip":id?}"#,
             enabled: is_remixed,

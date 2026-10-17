@@ -709,7 +709,7 @@ fn build_effects() -> Vec<EffectDef> {
             "Track Matte Key",
             KEYING,
             vec![
-                ch("matte", "Matte", &["None", "فيديو 1", "فيديو 2", "فيديو 3", "Video 4"], 0),
+                ch("matte", "Matte", &["None", "فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4"], 0),
                 ch("composite", "Composite Using", &["Matte Alpha", "Matte Luma"], 0),
                 b("reverse", "Reverse", false),
             ],

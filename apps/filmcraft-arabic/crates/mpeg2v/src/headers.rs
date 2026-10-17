@@ -411,7 +411,7 @@ pub fn profile_level_name(pli: u8) -> String {
         };
     }
     let profile = match (pli >> 4) & 7 {
-        1 => "عالي",
+        1 => "High",
         2 => "Spatially Scalable",
         3 => "SNR Scalable",
         4 => "Main",
@@ -419,7 +419,7 @@ pub fn profile_level_name(pli: u8) -> String {
         _ => "Reserved",
     };
     let level = match pli & 15 {
-        4 => "عالي",
+        4 => "High",
         6 => "High-1440",
         8 => "Main",
         10 => "Low",

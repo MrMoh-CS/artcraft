@@ -130,7 +130,7 @@ impl Distortion {
         ParamSpec::new("symmetry", "Asymmetry", -100.0, 100.0, 0.0, Unit::Percent),
         ParamSpec::log("tone", "Tone", 500.0, 20000.0, 20000.0, Unit::Hertz),
         ParamSpec::new("output", "Output Gain", -48.0, 12.0, 0.0, Unit::Decibels),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 100.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 100.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {
@@ -223,7 +223,7 @@ impl GuitarSuite {
         ParamSpec::choice("filter", "Filter", GS_FILTERS, 0),
         ParamSpec::log("filter_freq", "Filter Frequency", 100.0, 10000.0, 2000.0, Unit::Hertz),
         ParamSpec::new("filter_res", "Filter Resonance", 0.0, 100.0, 20.0, Unit::Percent),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 100.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 100.0, Unit::Percent),
         ParamSpec::new("output", "Output Gain", -24.0, 12.0, 0.0, Unit::Decibels),
     ];
 
@@ -702,7 +702,7 @@ impl Binauralizer {
     pub const PARAMS: &'static [ParamSpec] = &[
         ParamSpec::new("angle", "Speaker Angle", 0.0, 90.0, 30.0, Unit::None),
         ParamSpec::new("head_size", "Head Size", 12.0, 24.0, 17.5, Unit::None),
-        ParamSpec::new("mix", "المزج", 0.0, 100.0, 100.0, Unit::Percent),
+        ParamSpec::new("mix", "Mix", 0.0, 100.0, 100.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, _channels: usize) -> Self {
