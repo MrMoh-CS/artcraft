@@ -185,7 +185,7 @@ fn native_options(agent: bool) -> eframe::NativeOptions {
 }
 
 /// Creates the app once eframe has its window and graphics device; sets `created` when it runs,
-/// and confirms the graphics mode once two frames have painted.
+/// and confirms the graphics mode once two إطار have painted.
 fn app_creator(launch: Launch, graphics: graphics::GraphicsStart, created: Arc<AtomicBool>) -> eframe::AppCreator<'static> {
     let Launch { control_port, control_input_only, files, demo, startup_flag, recover, data_dir, graphics: _ } = launch;
     Box::new(move |cc| {
@@ -262,7 +262,7 @@ fn app_creator(launch: Launch, graphics: graphics::GraphicsStart, created: Arc<A
         app.audio = Some(Box::new(audio::CpalOut::new()));
         app.hooks.pick_files = Some(Box::new(|exts: &[&str]| {
             rfd::FileDialog::new()
-                .add_filter(filmcraft_ui_egui::i18n::t("الوسائط"), &file_filters::extensions(exts))
+                .add_filter(filmcraft_ui_egui::i18n::t("Media"), &file_filters::extensions(exts))
                 .pick_files()
                 .unwrap_or_default()
                 .into_iter()
@@ -272,7 +272,7 @@ fn app_creator(launch: Launch, graphics: graphics::GraphicsStart, created: Arc<A
         // Link Media ▸ Locate…, Attach Proxies, Reconnect Full Resolution: one path, not imported.
         app.hooks.pick_file_for_relink = Some(Box::new(|exts: &[&str], _hint| {
             rfd::FileDialog::new()
-                .add_filter(filmcraft_ui_egui::i18n::t("الوسائط"), &file_filters::extensions(exts))
+                .add_filter(filmcraft_ui_egui::i18n::t("Media"), &file_filters::extensions(exts))
                 .pick_file()
                 .map(|p| p.to_string_lossy().to_string())
         }));
@@ -445,7 +445,7 @@ fn agent_event_loop(agent: bool) -> Option<eframe::EventLoopBuilderHook> {
 fn run_dialog_off_thread(dialog: filmcraft_ui_egui::native_dialogs::FileDialog) -> std::sync::mpsc::Receiver<Vec<String>> {
     use filmcraft_ui_egui::native_dialogs::FileDialog;
     let t = |s: &str| filmcraft_ui_egui::i18n::t(s).to_string();
-    let media = t("الوسائط");
+    let media = t("Media");
     let project = t("FilmCraft Project");
     let project_exts = project_patterns();
     let dialog = prepare_dialog(dialog);
@@ -537,8 +537,8 @@ mod tests {
         let hint = RelinkHint { command: "media.relink".into(), params: serde_json::json!({}) };
         for dialog in [
             FileDialog::OpenFiles { exts: mp4() },
-            FileDialog::OpenFile { filter: "الوسائط".into(), exts: mp4() },
-            FileDialog::SaveAs { filter: "الوسائط".into(), exts: mp4(), name: "clip.mp4".into() },
+            FileDialog::OpenFile { filter: "Media".into(), exts: mp4() },
+            FileDialog::SaveAs { filter: "Media".into(), exts: mp4(), name: "clip.mp4".into() },
             FileDialog::Relink { exts: mp4(), hint },
         ] {
             let exts = match super::prepare_dialog(dialog) {

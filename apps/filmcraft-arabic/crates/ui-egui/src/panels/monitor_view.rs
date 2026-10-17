@@ -680,7 +680,7 @@ pub fn compare_bar(app: &mut FilmcraftApp, ui: &mut egui::Ui, bar: Rect, rate: f
     ui.painter().text(pos2(bar.min.x + 4.0, bar.center().y), Align2::LEFT_CENTER, tlf!("Reference  {tc}", tc), Tokens::ui(11.0), t.text_dim);
     let mut x = bar.max.x;
     for (key, label, tip) in [
-        ("set", tl!("Set"), tl!("Set the reference to the playhead")),
+        ("set", tl!("تعيين"), tl!("Set the reference to the playhead")),
         ("next", "▶", tl!("Reference: next frame")),
         ("prev", "◀", tl!("Reference: previous frame")),
     ] {
@@ -769,7 +769,7 @@ pub fn zoom_menu(app: &mut FilmcraftApp, resp: &egui::Response, w: Which) {
     let mut out: Picks = Vec::new();
     egui::Popup::menu(resp).show(|ui| {
         ui.set_min_width(80.0);
-        pick(ui, &mut out, "fit", tl!("Fit"), zoom.is_none());
+        pick(ui, &mut out, "fit", tl!("ملاءمة"), zoom.is_none());
         ui.separator();
         for (k, z) in ZOOMS {
             pick(ui, &mut out, k, &format!("{k}%"), zoom == Some(z));
@@ -831,11 +831,11 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     push(&mut elems, "guides.add.position", &r, "Position");
                 });
                 ui.horizontal(|ui| {
-                    let r = ui.button(tl!("Cancel"));
-                    push(&mut elems, "guides.add.cancel", &r, "Cancel");
+                    let r = ui.button(tl!("إلغاء"));
+                    push(&mut elems, "guides.add.cancel", &r, "إلغاء");
                     close |= r.clicked();
-                    let r = ui.button(tl!("OK"));
-                    push(&mut elems, "guides.add.ok", &r, "OK");
+                    let r = ui.button(tl!("موافق"));
+                    push(&mut elems, "guides.add.ok", &r, "موافق");
                     if r.clicked() {
                         act = Some((
                             "view.addGuide".into(),
@@ -849,14 +849,14 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal(|ui| {
                     ui.label(tl!("Name:"));
                     let r = ui.text_edit_singleline(name);
-                    push(&mut elems, "guides.save.name", &r, "Name");
+                    push(&mut elems, "guides.save.name", &r, "الاسم");
                 });
                 ui.horizontal(|ui| {
-                    let r = ui.button(tl!("Cancel"));
-                    push(&mut elems, "guides.save.cancel", &r, "Cancel");
+                    let r = ui.button(tl!("إلغاء"));
+                    push(&mut elems, "guides.save.cancel", &r, "إلغاء");
                     close |= r.clicked();
-                    let r = ui.button(tl!("OK"));
-                    push(&mut elems, "guides.save.ok", &r, "OK");
+                    let r = ui.button(tl!("موافق"));
+                    push(&mut elems, "guides.save.ok", &r, "موافق");
                     if r.clicked() {
                         act = Some(("view.guideTemplates.save".into(), json!({"monitor": m, "name": name.clone()})));
                     }
@@ -877,23 +877,23 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.separator();
                 ui.horizontal(|ui| {
                     let sel = selected.and_then(|i| templates.get(i)).cloned();
-                    let r = ui.add_enabled(sel.is_some(), egui::Button::new(tl!("Apply")));
-                    push(&mut elems, "guides.manage.apply", &r, "Apply");
+                    let r = ui.add_enabled(sel.is_some(), egui::Button::new(tl!("تطبيق")));
+                    push(&mut elems, "guides.manage.apply", &r, "تطبيق");
                     if r.clicked()
                         && let Some(n) = &sel
                     {
                         act = Some(("view.guideTemplates.apply".into(), json!({"monitor": m, "name": n})));
                     }
-                    let r = ui.add_enabled(sel.is_some(), egui::Button::new(tl!("Delete")));
-                    push(&mut elems, "guides.manage.delete", &r, "Delete");
+                    let r = ui.add_enabled(sel.is_some(), egui::Button::new(tl!("حذف")));
+                    push(&mut elems, "guides.manage.delete", &r, "حذف");
                     if r.clicked()
                         && let Some(n) = &sel
                     {
                         act = Some(("view.guideTemplates.delete".into(), json!({"name": n})));
                         *selected = None;
                     }
-                    let r = ui.button(tl!("Close"));
-                    push(&mut elems, "guides.manage.close", &r, "Close");
+                    let r = ui.button(tl!("إغلاق"));
+                    push(&mut elems, "guides.manage.close", &r, "إغلاق");
                     close |= r.clicked();
                 });
             }

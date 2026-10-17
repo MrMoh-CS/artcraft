@@ -34,7 +34,7 @@ impl VocalPitch {
             VocalPitch::ExtraLow => "Extra low",
             VocalPitch::Low => "Low",
             VocalPitch::Default => "Default",
-            VocalPitch::High => "High",
+            VocalPitch::High => "عالي",
             VocalPitch::ExtraHigh => "Extra high",
         }
     }

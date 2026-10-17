@@ -1,6 +1,6 @@
 //! What differs between the codecs the Windows decoder takes: which streams the GPU's DXVA decoders
 //! can do, how the decoder MFT is asked for them, and how a container sample becomes the MFT's
-//! input. H.264 / HEVC (`avcC` / `hvcC`) go in as Annex B; VP9 frames and AV1 temporal units go in
+//! input. H.264 / HEVC (`avcC` / `hvcC`) go in as Annex B; VP9 إطار and AV1 temporal units go in
 //! as they are in the container. Safe code, with the unit tests of what is declined.
 
 use filmcraft_codecs::hw::{FrameCodec, FrameStreamInfo, NalCodec, NalStreamInfo, StreamInfo};

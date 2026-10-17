@@ -140,8 +140,8 @@ pub(crate) struct Pipeline {
 
 impl Drop for Pipeline {
     /// The export is over, however it ended (done, failed, cancelled, dropped half way). The float
-    /// images its frames left on the `filmcraft_frame::pool` float shelf are the size of its
-    /// frames, which nothing else asks for, so free them instead of holding up to 320 MiB idle. A
+    /// images its إطار left on the `filmcraft_frame::pool` float shelf are the size of its
+    /// إطار, which nothing else asks for, so free them instead of holding up to 320 MiB idle. A
     /// job still rendering at that moment allocates a few images again; the pool is only a cache.
     /// Parts of a larger job (render-preview segments, proxies) keep them for the next part.
     fn drop(&mut self) {
@@ -232,7 +232,7 @@ impl Pipeline {
         // draw, any internal error) falls back to the CPU reference renderer below. A frame the
         // planner hands back as one CPU image anyway (an adjustment layer, a complex transition,
         // HDR) does not take a pooled renderer: it would render on the CPU inside the pool, as
-        // many frames at a time as there are renderers instead of one per export thread.
+        // many إطار at a time as there are renderers instead of one per export thread.
         let pool = self.renderer.as_ref().filter(|_| !filmcraft_render::plan::is_cpu_frame(&self.project, self.seq, t));
         let gpu = match pool {
             Some(pool) => {

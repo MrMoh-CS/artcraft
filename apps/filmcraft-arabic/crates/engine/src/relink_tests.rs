@@ -16,13 +16,13 @@ const H: u32 = 90;
 
 /// A saved project at `<root>/Project/p.fcproj` using `<root>/Media/{a,b}.mov`.
 fn saved_project(root: &std::path::Path) -> (String, Vec<ItemId>) {
-    let media = root.join("الوسائط");
+    let media = root.join("Media");
     std::fs::create_dir_all(&media).unwrap();
     let (a, b) = (media.join("a.mov"), media.join("b.mov"));
     make_movie(&a, DemoScene::Aurora, W, H, 12);
     make_movie(&b, DemoScene::CityNight, W, H, 12);
     let (mut s, items, _) = session_with(&[&a, &b]);
-    let proj = root.join("Project");
+    let proj = root.join("المشروع");
     std::fs::create_dir_all(&proj).unwrap();
     let path = proj.join("p.fcproj").to_string_lossy().into_owned();
     s.execute("file.save", json!({"path": path})).unwrap();
@@ -55,9 +55,9 @@ fn moved_media_opens_offline_and_relinks_others_by_folder() {
     let (path, items) = saved_project(&root);
     let online = frame_rgba(&mut open(&path), 3, 1.0).2;
     // move the media folder
-    let moved = root.join("Moved").join("الوسائط");
+    let moved = root.join("Moved").join("Media");
     std::fs::create_dir_all(moved.parent().unwrap()).unwrap();
-    std::fs::rename(root.join("الوسائط"), &moved).unwrap();
+    std::fs::rename(root.join("Media"), &moved).unwrap();
 
     let mut s = Session::default();
     let r = s.execute("file.open", json!({"path": path})).unwrap();
@@ -92,9 +92,9 @@ fn auto_relink_by_prefix_and_by_folder_search() {
     let (path, items) = saved_project(&root);
     let dest = root.join("Archive").join("2026");
     std::fs::create_dir_all(&dest).unwrap();
-    std::fs::rename(root.join("الوسائط"), dest.join("الوسائط")).unwrap();
+    std::fs::rename(root.join("Media"), dest.join("Media")).unwrap();
     let mut s = open(&path);
-    let r = s.execute("media.autoRelink", json!({"from": root.join("الوسائط").to_string_lossy(), "to": dest.join("الوسائط").to_string_lossy()})).unwrap();
+    let r = s.execute("media.autoRelink", json!({"from": root.join("Media").to_string_lossy(), "to": dest.join("Media").to_string_lossy()})).unwrap();
     assert_eq!(r["relinked"].as_array().unwrap().len(), 2, "{r}");
     assert!(s.execute("media.findMissing", json!({})).unwrap()["missing"].as_array().unwrap().is_empty());
 
@@ -112,7 +112,7 @@ fn auto_relink_by_prefix_and_by_folder_search() {
 fn fingerprint_mismatch_is_refused_unless_forced() {
     let root = tmp_dir("relink-mismatch");
     let (path, items) = saved_project(&root);
-    std::fs::remove_dir_all(root.join("الوسائط")).unwrap();
+    std::fs::remove_dir_all(root.join("Media")).unwrap();
     // same name, duration, size and rate — different pictures
     let other = root.join("Other");
     std::fs::create_dir_all(&other).unwrap();
@@ -132,7 +132,7 @@ fn fingerprint_mismatch_is_refused_unless_forced() {
 fn forced_relink_takes_the_new_files_properties() {
     let root = tmp_dir("relink-forced-info");
     let (path, items) = saved_project(&root);
-    std::fs::remove_dir_all(root.join("الوسائط")).unwrap();
+    std::fs::remove_dir_all(root.join("Media")).unwrap();
     // same name, different pictures and a different size
     let other = root.join("Other");
     std::fs::create_dir_all(&other).unwrap();
@@ -203,7 +203,7 @@ fn explicit_folder_remaps_normalize_both_prefixes_and_respect_boundaries() {
 }
 
 /// #1054: an export (or a rendered frame) that draws the offline slate names the offline items it
-/// used, with their status, so a headless caller can tell placeholder frames from real ones. Media
+/// used, with their status, so a headless caller can tell placeholder إطار from real ones. Media
 /// outside the exported range is not reported.
 #[test]
 fn export_names_the_offline_media_it_rendered() {

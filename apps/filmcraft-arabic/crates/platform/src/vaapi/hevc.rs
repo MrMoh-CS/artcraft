@@ -6,7 +6,7 @@
 //!
 //! What the hardware path does not take is an error, so the hybrid decoder replays the run in
 //! software: missing reference pictures (the software decoder conceals them), more than 15
-//! reference frames, stream changes the surfaces were not made for, range extensions.
+//! reference إطار, stream changes the surfaces were not made for, range extensions.
 //!
 //! Safe code; compiled on every target so its logic is tested everywhere.
 
@@ -99,9 +99,9 @@ impl<A: Accel> Front<A> {
             skip_rasl: false,
             after_eos: false,
         };
-        let mut frames = Vec::new();
+        let mut إطار = Vec::new();
         for nal in parameter_sets {
-            f.handle_nal(nal, 0, &mut frames)?;
+            f.handle_nal(nal, 0, &mut إطار)?;
         }
         Ok(f)
     }
@@ -113,22 +113,22 @@ impl<A: Accel> Front<A> {
     /// Decode one access unit; pictures that left the DPB come back in output order.
     pub fn decode(&mut self, sample: &[u8], pts: i64) -> Result<Vec<DecodedFrame>> {
         let nals = length_prefixed_nals(sample, self.length_size).map_err(decode_err)?;
-        let mut frames = Vec::new();
+        let mut إطار = Vec::new();
         for nal in nals {
-            self.handle_nal(nal, pts, &mut frames)?;
+            self.handle_nal(nal, pts, &mut إطار)?;
         }
-        self.submit_pending(&mut frames)?;
+        self.submit_pending(&mut إطار)?;
         Ok(frames)
     }
 
     /// Output every picture still held for reordering; what follows starts like a new stream
     /// (a CRA's RASL pictures are left out), as in software.
     pub fn flush(&mut self) -> Result<Vec<DecodedFrame>> {
-        let mut frames = Vec::new();
-        self.submit_pending(&mut frames)?;
+        let mut إطار = Vec::new();
+        self.submit_pending(&mut إطار)?;
         let mut outs = Vec::new();
         self.dpb.flush(&mut outs);
-        self.read_out(outs, &mut frames)?;
+        self.read_out(outs, &mut إطار)?;
         self.first_picture = true;
         Ok(frames)
     }
@@ -145,15 +145,15 @@ impl<A: Accel> Front<A> {
     }
 
     /// Read back the pictures the DPB output, right away: a surface leaving the DPB is reused.
-    fn read_out(&mut self, outs: Vec<Output<Surface>>, frames: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn read_out(&mut self, outs: Vec<Output<Surface>>, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
         for o in outs {
             let frame = self.accel.read(o.frame.index).map_err(decode_err)?;
-            frames.push(DecodedFrame { pts: o.meta.pts, frame, draft: false });
+            إطار.push(DecodedFrame { pts: o.meta.pts, frame, draft: false });
         }
         Ok(())
     }
 
-    fn handle_nal(&mut self, nal: &[u8], pts: i64, frames: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn handle_nal(&mut self, nal: &[u8], pts: i64, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
         if nal.len() < 2 {
             return Ok(());
         }
@@ -177,14 +177,14 @@ impl<A: Accel> Front<A> {
                 self.submit_pending(frames)?;
                 self.after_eos = true;
             }
-            0..=9 | 16..=21 => self.handle_slice(nal, hdr, pts, frames)?,
+            0..=9 | 16..=21 => self.handle_slice(nal, hdr, pts, إطار)?,
             // VPS, AUD, SEI, filler, reserved: nothing to decode
             _ => {}
         }
         Ok(())
     }
 
-    fn handle_slice(&mut self, nal: &[u8], hdr: NalHeader, pts: i64, frames: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn handle_slice(&mut self, nal: &[u8], hdr: NalHeader, pts: i64, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
         let rbsp = unescape_rbsp(nal.get(2..).unwrap_or_default());
         let first = rbsp.first().is_some_and(|b| b & 0x80 != 0);
         if first {
@@ -210,7 +210,7 @@ impl<A: Accel> Front<A> {
         sps.check_supported().map_err(decode_err)?;
         pps.check_supported().map_err(decode_err)?;
         if first {
-            self.start_picture(&sh, &sps, &pps, pts, frames)?;
+            self.start_picture(&sh, &sps, &pps, pts, إطار)?;
         }
         let Some(p) = self.pending.as_mut() else { return Err(decode_err("slice segment without the first slice of its picture")) };
         if !Arc::ptr_eq(&p.pps, &pps) {
@@ -227,7 +227,7 @@ impl<A: Accel> Front<A> {
         Ok(())
     }
 
-    fn start_picture(&mut self, sh: &SliceHeader, sps: &Arc<Sps>, pps: &Arc<Pps>, pts: i64, frames: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn start_picture(&mut self, sh: &SliceHeader, sps: &Arc<Sps>, pps: &Arc<Pps>, pts: i64, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
         if !sh.first_slice_segment_in_pic || sh.dependent {
             return Err(decode_err("invalid first slice segment"));
         }
@@ -268,13 +268,13 @@ impl<A: Accel> Front<A> {
         } else {
             self.dpb.bump_before_decode(&mut outs);
         }
-        self.read_out(outs, frames)?;
+        self.read_out(outs, إطار)?;
         let surfaces = self.accel.surfaces();
         let target = (0..surfaces.len()).find(|&i| !self.dpb.entries.iter().any(|e| e.frame.index == i)).ok_or_else(|| decode_err("no free surface"))?;
         let target_id = surfaces.get(target).copied().ok_or_else(|| decode_err("surface out of range"))?;
         let mut pic = picture_params(sps, pps, sh)?;
         pic.CurrPic = VAPictureHEVC { picture_id: target_id, pic_order_cnt: poc, flags: 0, va_reserved: [0; ffi::VA_PADDING_LOW] };
-        // the reference frames: every picture the RPS kept, flagged with its part of the RPS
+        // the reference إطار: every picture the RPS kept, flagged with its part of the RPS
         let rps_flag = |index: usize| {
             let in_list = |l: &[Ref<Surface>]| l.iter().any(|r| r.frame.index == index);
             if in_list(&rps.st_curr_before) {
@@ -289,7 +289,7 @@ impl<A: Accel> Front<A> {
         };
         let refs: Vec<_> = self.dpb.entries.iter().filter(|e| e.marking != Marking::Unused).collect();
         if refs.len() > pic.ReferenceFrames.len() {
-            return Err(unsupported("more than 15 reference frames"));
+            return Err(unsupported("more than 15 reference إطار"));
         }
         let mut ref_frames = Vec::with_capacity(refs.len());
         for (slot, e) in pic.ReferenceFrames.iter_mut().zip(&refs) {
@@ -322,7 +322,7 @@ impl<A: Accel> Front<A> {
     }
 
     /// Decode the collected picture, then insert it into the DPB.
-    fn submit_pending(&mut self, frames: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn submit_pending(&mut self, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
         let Some(mut p) = self.pending.take() else { return Ok(()) };
         let Some(last) = p.slices.last_mut() else { return Err(decode_err("a picture without slices")) };
         last.0.LongSliceFlags |= 1 << hevc_slice_bits::LAST_SLICE_OF_PIC;
@@ -333,7 +333,7 @@ impl<A: Accel> Front<A> {
         self.poc_state.update(&p.first, p.poc);
         let mut outs = Vec::new();
         self.dpb.insert(Surface { index: p.target }, p.poc, p.output, p.meta, &mut outs);
-        self.read_out(outs, frames)
+        self.read_out(outs, إطار)
     }
 }
 
@@ -584,7 +584,7 @@ pub fn slice_params(sh: &SliceHeader, nal: &[u8], refs: &[Vec<Ref<Surface>>; 2],
             return Err(decode_err("reference list longer than 15"));
         }
         for (i, r) in list.iter().enumerate() {
-            let idx = ref_frames.iter().position(|&f| f == r.frame.index).ok_or_else(|| decode_err("a reference is not among the reference frames"))?;
+            let idx = ref_frames.iter().position(|&f| f == r.frame.index).ok_or_else(|| decode_err("a reference is not among the reference إطار"))?;
             s.RefPicList[l][i] = u8::try_from(idx).unwrap_or(0xFF);
         }
     }

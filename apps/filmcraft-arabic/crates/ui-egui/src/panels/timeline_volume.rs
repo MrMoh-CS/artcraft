@@ -10,7 +10,7 @@
 
 use egui::{Color32, CursorIcon, Pos2, Rect, Sense, Stroke, pos2, vec2};
 use filmcraft_project::mixer::{FADER_MAX_DB, FADER_MIN_DB};
-use filmcraft_project::{ClipId, Param, Sequence, TrackItem, TrackKind};
+use filmcraft_project::{ClipId, Param, تسلسل، TrackItem, TrackKind};
 use filmcraft_time::Tick;
 use serde_json::{Value, json};
 
@@ -118,7 +118,7 @@ impl LineDrag {
     }
 }
 
-fn find<'a>(seq: &'a Sequence, layout: &'a Layout, clip: ClipId) -> Option<(&'a Row, &'a TrackItem)> {
+fn find<'a>(seq: &'a تسلسل، layout: &'a Layout, clip: ClipId) -> Option<(&'a Row, &'a TrackItem)> {
     let (tid, it) = seq.find_item(clip)?;
     Some((layout.rows.iter().find(|r| r.track == tid)?, it))
 }
@@ -128,7 +128,7 @@ fn body(layout: &Layout, r: &Row, it: &TrackItem) -> Rect {
 }
 
 /// Whether `pos` is on `clip`'s Volume line, within 4 px.
-pub fn on_line(seq: &Sequence, layout: &Layout, clip: ClipId, pos: Pos2) -> bool {
+pub fn on_line(seq: &تسلسل، layout: &Layout, clip: ClipId, pos: Pos2) -> bool {
     let Some((r, it)) = find(seq, layout, clip) else { return false };
     if r.kind != TrackKind::Audio || r.lane || seq.track(r.track).is_none_or(|t| t.locked) {
         return false;
@@ -138,7 +138,7 @@ pub fn on_line(seq: &Sequence, layout: &Layout, clip: ClipId, pos: Pos2) -> bool
 }
 
 /// A press on `clip`'s line at `at` that became a drag.
-pub fn start(seq: &Sequence, layout: &Layout, clip: ClipId, at: Pos2) -> Option<LineDrag> {
+pub fn start(seq: &تسلسل، layout: &Layout, clip: ClipId, at: Pos2) -> Option<LineDrag> {
     let (r, it) = find(seq, layout, clip)?;
     let t = t_at(it, body(layout, r, it), at.x);
     let m = it.source_time_at(t);
@@ -151,7 +151,7 @@ pub fn start(seq: &Sequence, layout: &Layout, clip: ClipId, at: Pos2) -> Option<
 }
 
 /// Follow the pointer, now at height `y`. The clip changes as the line moves, so it is heard.
-pub fn drag(app: &mut FilmcraftApp, ui: &egui::Ui, seq: &Sequence, layout: &Layout, mut d: LineDrag, y: f32) -> LineDrag {
+pub fn drag(app: &mut FilmcraftApp, ui: &egui::Ui, seq: &تسلسل، layout: &Layout, mut d: LineDrag, y: f32) -> LineDrag {
     let Some((r, it)) = find(seq, layout, d.clip) else { return d };
     let db = pos_to_db(db_to_pos(d.from) + (d.y - y) / band(body(layout, r, it)).height().max(1.0));
     tip(ui, db);
@@ -174,7 +174,7 @@ pub fn drag(app: &mut FilmcraftApp, ui: &egui::Ui, seq: &Sequence, layout: &Layo
 }
 
 /// The Pen tool or a Cmd/Ctrl-click on `clip`'s line at `x`: a keyframe there.
-pub fn add_keyframe(app: &mut FilmcraftApp, seq: &Sequence, layout: &Layout, clip: ClipId, x: f32) {
+pub fn add_keyframe(app: &mut FilmcraftApp, seq: &تسلسل، layout: &Layout, clip: ClipId, x: f32) {
     let Some((r, it)) = find(seq, layout, clip) else { return };
     let t = seq.settings.frame_rate.snap_nearest(t_at(it, body(layout, r, it), x));
     run(app, vec![("effects.addKeyframe", json!({"clip": clip.0, "effect": "volume", "param": "level", "time": t.0}))]);
@@ -211,7 +211,7 @@ fn key_drag_id() -> egui::Id {
 
 /// The keyframes on the lines of the audio clips in view: drag one in time and level, right-click
 /// it to delete it. Runs after the timeline's own interaction, so they are above the clip.
-pub fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, layout: &Layout, aclip: Rect) {
+pub fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، layout: &Layout, aclip: Rect) {
     let held: Option<KeyDrag> = ui.data(|d| d.get_temp(key_drag_id()));
     if held.is_some() && ui.input(|i| i.key_pressed(egui::Key::Escape)) {
         if let Some(h) = held
@@ -297,8 +297,8 @@ pub fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, layou
                     tip(ui, db);
                 }
                 resp.context_menu(|ui| {
-                    let b = ui.button(tl!("Delete"));
-                    app.auto.add(&format!("timeline.clip.{}.volume.kf.{i}.delete", it.id.0), b.rect, "Delete");
+                    let b = ui.button(tl!("حذف"));
+                    app.auto.add(&format!("timeline.clip.{}.volume.kf.{i}.delete", it.id.0), b.rect, "حذف");
                     if b.clicked() {
                         acts.push(("effects.deleteKeyframe", json!({"clip": it.id.0, "effect": "volume", "param": "level", "mediaTime": time.0})));
                         ui.close();

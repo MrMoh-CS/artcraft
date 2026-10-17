@@ -1,4 +1,4 @@
-//! Uncompressed still formats written directly from RGBA8 frames: Targa, DPX and OpenEXR.
+//! Uncompressed still formats written directly from RGBA8 إطار: Targa, DPX and OpenEXR.
 //!
 //! Targa follows the Truevision TGA File Format Specification 2.0 (image type 2, uncompressed
 //! true-colour, bottom-left origin, the layout every reader accepts). DPX follows SMPTE ST 268
@@ -32,7 +32,7 @@ pub(crate) fn tga(rgba: &[u8], w: u32, h: u32, alpha: bool) -> Result<Vec<u8>> {
     checked_len(rgba, w, h)?;
     let (tw, th) = match (u16::try_from(w), u16::try_from(h)) {
         (Ok(tw), Ok(th)) => (tw, th),
-        _ => return Err(ExportError::Unsupported(format!("Targa frames are at most 65535×65535 (got {w}×{h})"))),
+        _ => return Err(ExportError::Unsupported(format!("Targa إطار are at most 65535×65535 (got {w}×{h})"))),
     };
     let bpp: usize = if alpha { 4 } else { 3 };
     let row = w as usize * 4;

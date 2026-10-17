@@ -23,7 +23,7 @@ pub(crate) fn export(s: &mut Session, p: &Value) -> Result<Value> {
         .ok_or_else(|| bad(CMD, "need a non-empty `path` without NUL characters"))?;
     let seq = s.active_sequence().ok_or(EngineError::NoSequence)?;
     seq.settings.validate().map_err(|e| bad(CMD, e))?;
-    let name = s.state.active_sequence.and_then(|id| s.project.item(id)).map(|i| i.name.as_str()).unwrap_or("تسلسل");
+    let name = s.state.active_sequence.and_then(|id| s.project.item(id)).map(|i| i.name.as_str()).unwrap_or("التسلسل");
     if seq.markers.len() > MAX_MARKERS {
         return Err(bad(CMD, "too many markers (maximum 100000)"));
     }
@@ -197,7 +197,7 @@ mod tests {
             m.comment = text.into();
             set_markers(&mut s, vec![m]);
             let id = s.state.active_sequence.unwrap();
-            s.edit("Name", |p, _| {
+            s.edit("الاسم", |p, _| {
                 p.items.get_mut(&id).unwrap().name = text.into();
                 Ok(())
             })

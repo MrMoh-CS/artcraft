@@ -43,7 +43,7 @@ use self::mft::{MfApi, Mft, Poll};
 use self::stream::Stream;
 use crate::biplanar::{self, Geometry};
 
-/// Pictures the decoder may hold back (a DPB is at most 16 frames; more means it lost track).
+/// Pictures the decoder may hold back (a DPB is at most 16 إطار; more means it lost track).
 const MAX_IN_FLIGHT: usize = 64;
 /// Upper bound on the outputs taken per call: a misbehaving MFT cannot make a decode call loop.
 const MAX_OUTPUTS_PER_CALL: usize = 4096;
@@ -99,7 +99,7 @@ pub fn capabilities() -> String {
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Timings {
     /// Pictures returned.
-    pub frames: u64,
+    pub إطار: u64,
     /// Feeding the MFT and waiting for its pictures (the DXVA decode itself).
     pub decode: Duration,
     /// GPU to CPU: copy of the picture to the staging texture and its mapping.

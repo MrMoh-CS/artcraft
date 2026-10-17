@@ -1,6 +1,6 @@
 //! The Project panel's three views: List (columns from Metadata Display, sortable and resizable
 //! headers, inline rename, label column, optional thumbnails), Icon (thumbnail cards with hover
-//! scrub, In/Out bar, poster frames, Sort Icons) and Freeform (clip cards placed freely, stacks,
+//! scrub, In/Out bar, poster إطار, Sort Icons) and Freeform (clip cards placed freely, stacks,
 //! grid).
 
 use egui::{Align2, Color32, Rect, Sense, Stroke, StrokeKind, pos2, vec2};
@@ -847,7 +847,7 @@ fn card(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, id: ItemId, pre: &st
         let b = fx(marks.1.map(|o| o + it.frame_rate().frame_duration()).unwrap_or(dur));
         let bar = Rect::from_min_max(pos2(a, th.max.y - 4.0), pos2(b.max(a + 2.0), th.max.y));
         ui.painter().rect_filled(bar, 0.0, Color32::from_rgb(0x5a, 0x9b, 0xf0));
-        app.auto.add(&format!("{pre}.item.{}.inOut", id.0), bar, "In/Out");
+        app.auto.add(&format!("{pre}.item.{}.inOut", id.0), bar, "البداية/النهاية");
     }
     // hover scrub playhead
     if let Some(ht) = at

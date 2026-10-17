@@ -97,7 +97,7 @@ fn file_edit_clip_menu_order_and_shortcuts_match_premiere() {
 #[test]
 fn search_bins_update_live() {
     let mut s = demo();
-    let r = s.execute("file.newSearchBin", json!({"column": "Name", "operator": "contains", "text": "ocean"})).unwrap();
+    let r = s.execute("file.newSearchBin", json!({"column": "الاسم", "operator": "contains", "text": "ocean"})).unwrap();
     let bin = r["bin"].as_u64().unwrap();
     assert_eq!(r["name"], "ocean");
     let ocean = item_named(&s, "Ocean_Sunset.mp4");
@@ -129,7 +129,7 @@ fn search_bins_update_live() {
 fn find_and_find_next_in_the_project_and_timeline() {
     let mut s = demo();
     assert!(!s.is_enabled("edit.findNext"));
-    let r = s.execute("edit.find", json!({"column": "Name", "operator": "endsWith", "text": ".mp4"})).unwrap();
+    let r = s.execute("edit.find", json!({"column": "الاسم", "operator": "endsWith", "text": ".mp4"})).unwrap();
     let n = r["matches"].as_u64().unwrap();
     assert_eq!(n, 5, "{r}");
     let first = r["item"].as_u64().unwrap();
@@ -144,7 +144,7 @@ fn find_and_find_next_in_the_project_and_timeline() {
     let r = s
         .execute(
             "edit.find",
-            json!({"rows": [{"column": "Name", "operator": "beginsWith", "text": "Neon"}, {"column": "Label", "operator": "matches", "text": "Caribbean"}], "matchAll": false}),
+            json!({"rows": [{"column": "الاسم", "operator": "beginsWith", "text": "Neon"}, {"column": "Label", "operator": "matches", "text": "Caribbean"}], "matchAll": false}),
         )
         .unwrap();
     assert_eq!(r["matches"], 2);
@@ -180,7 +180,7 @@ fn close_commands_and_templates() {
     s.execute("file.closeAllProjects", json!({"force": true})).unwrap();
     assert!(s.project.items.is_empty());
     s.execute("file.newProjectFromTemplate", json!({"template": path, "name": "Ep 2"})).unwrap();
-    assert!(s.project.items.values().any(|i| i.name == "Main Edit"));
+    assert!(s.project.items.values().any(|i| i.name == "التحرير الرئيسي"));
     assert_eq!(s.project.items.len(), n);
     assert_eq!(s.project.name, "Ep 2");
     assert!(s.path.is_none() && !s.is_dirty());
@@ -201,7 +201,7 @@ fn export_selection_project_and_ale() {
     for n in ["Ocean_Sunset.mp4", "Neon_Loop.mov", "Misty_Forest.mp4"] {
         assert!(p.items.values().any(|i| i.name == n), "{n}");
     }
-    for n in ["Rough Cut", "Bars and Tone", "Color Matte"] {
+    for n in ["Rough Cut", "أشرطة الألوان والنغمة", "Color Matte"] {
         assert!(!p.items.values().any(|i| i.name == n), "{n}");
     }
     assert_eq!(r["items"].as_array().unwrap().len(), p.items.len());
@@ -396,7 +396,7 @@ fn edit_offline_sets_the_log_fields() {
 #[test]
 fn automate_to_sequence_places_clips_with_overlap_and_transitions() {
     let mut s = demo();
-    s.execute("file.newSequence", json!({"name": "Auto", "fps": 23.976})).unwrap();
+    s.execute("file.newSequence", json!({"name": "تلقائي", "fps": 23.976})).unwrap();
     let rate = s.sequence_rate();
     let names = ["Misty_Forest.mp4", "Ocean_Sunset.mp4", "Aurora_Timelapse.mp4"];
     let ids: Vec<ItemId> = names.iter().map(|n| item_named(&s, n)).collect();
@@ -413,7 +413,7 @@ fn automate_to_sequence_places_clips_with_overlap_and_transitions() {
     let q = s.active_sequence().unwrap();
     let v1 = &q.video_tracks[0].items;
     assert_eq!(v1.len(), 3);
-    // selection order; each clip starts 12 frames before the previous one ends
+    // selection order; each clip starts 12 إطار before the previous one ends
     assert_eq!(v1.iter().map(|i| i.item).collect::<Vec<_>>(), ids);
     assert_eq!(v1[0].start, Tick::ZERO);
     assert_eq!(v1[1].start, rate.tick_of(72 - 12));
@@ -462,7 +462,7 @@ fn automate_to_sequence_places_clips_with_overlap_and_transitions() {
 #[test]
 fn automate_to_sequence_clamps_transition_to_overlap() {
     let mut s = demo();
-    s.execute("file.newSequence", json!({"name": "Auto", "fps": 23.976})).unwrap();
+    s.execute("file.newSequence", json!({"name": "تلقائي", "fps": 23.976})).unwrap();
     let rate = s.sequence_rate();
     let names = ["Misty_Forest.mp4", "Ocean_Sunset.mp4"];
     let ids: Vec<ItemId> = names.iter().map(|n| item_named(&s, n)).collect();

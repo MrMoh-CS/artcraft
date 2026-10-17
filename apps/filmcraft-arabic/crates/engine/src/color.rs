@@ -31,7 +31,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "sequence.colorSettings",
             "Color Management…",
-            &["تسلسل"],
+            &["التسلسل"],
             r#"{"workingSpace":"rec709"|"rec2100-pq"|"rec2100-hlg"?,"wideGamut":bool?,"autoToneMap":bool?}"#,
             has_seq,
             color_settings,

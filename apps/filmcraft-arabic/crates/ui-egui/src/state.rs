@@ -50,21 +50,21 @@ impl Tool {
     ];
     pub fn label(self) -> &'static str {
         match self {
-            Tool::Selection => "أداة التحديد",
+            Tool::Selection => "Selection Tool",
             Tool::TrackSelectForward => "Track Select Forward Tool",
             Tool::TrackSelectBackward => "Track Select Backward Tool",
             Tool::Ripple => "Ripple Edit Tool",
             Tool::Rolling => "Rolling Edit Tool",
             Tool::RateStretch => "Rate Stretch Tool",
             Tool::Remix => "Remix Tool",
-            Tool::Razor => "أداة الشفرة (القص)",
-            Tool::Slip => "أداة الانزلاق",
-            Tool::Slide => "أداة الإزاحة",
-            Tool::Pen => "أداة القلم",
+            Tool::Razor => "Razor Tool",
+            Tool::Slip => "Slip Tool",
+            Tool::Slide => "Slide Tool",
+            Tool::Pen => "Pen Tool",
             Tool::Rectangle => "Rectangle Tool",
             Tool::Ellipse => "Ellipse Tool",
-            Tool::Hand => "أداة اليد",
-            Tool::Zoom => "أداة التقريب",
+            Tool::Hand => "Hand Tool",
+            Tool::Zoom => "Zoom Tool",
             Tool::Type => "Type Tool",
             Tool::VerticalType => "Vertical Type Tool",
         }
@@ -155,7 +155,7 @@ impl PlaybackRes {
     }
     pub fn label(self) -> &'static str {
         match self {
-            PlaybackRes::Full => "Full",
+            PlaybackRes::Full => "كامل",
             PlaybackRes::Half => "1/2",
             PlaybackRes::Quarter => "1/4",
             PlaybackRes::Eighth => "1/8",
@@ -190,7 +190,7 @@ pub struct TimelineView {
     pub audio_track_h: f32,
     pub header_w: f32,
     pub show_thumbnails: bool,
-    /// Which frames a video clip shows while `show_thumbnails` is on (the wrench menu).
+    /// Which إطار a video clip shows while `show_thumbnails` is on (the wrench menu).
     #[serde(default)]
     pub thumbnail_mode: ThumbnailMode,
     pub show_waveforms: bool,
@@ -358,7 +358,7 @@ impl Default for MonitorView {
 }
 
 impl MonitorView {
-    /// The resolution frames are rendered at: Playback Resolution while playing (or the higher
+    /// The resolution إطار are rendered at: Playback Resolution while playing (or the higher
     /// of it and Paused Resolution with High Quality Playback), Paused Resolution when stopped.
     pub fn effective_res(&self, playing: bool) -> PlaybackRes {
         if !playing || (self.high_quality && self.paused_res.scale() > self.res.scale()) { self.paused_res } else { self.res }
@@ -488,7 +488,7 @@ pub struct UiState {
     /// Export mode: settings, preset, destination, range, the Preset Manager and Quick Export.
     #[serde(default)]
     pub export: crate::panels::export_mode::ExportUi,
-    /// Text panel: active tab ("Transcript" / "التسميات التوضيحية" / "الرسوميات").
+    /// Text panel: active tab ("Transcript" / "الترجمة النصية" / "Graphics").
     #[serde(default = "captions_tab")]
     pub text_tab: String,
     /// Text panel: caption search filter.
@@ -835,12 +835,12 @@ impl Default for AddTracksDraft {
 }
 
 /// The Set Transition Duration dialog (double-click a transition in the Timeline): which
-/// transition, and its duration in frames.
+/// transition, and its duration in إطار.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TransitionDurationDraft {
     pub transition: u64,
-    pub frames: i64,
+    pub إطار: i64,
 }
 
 /// The Sequence Settings dialog (Sequence ▸ Sequence Settings…), filled from the active sequence
@@ -887,7 +887,7 @@ impl Default for SequenceSettingsDraft {
             height: 1080,
             scale_motion: true,
             drop_frame: false,
-            mix: "Stereo".into(),
+            mix: "ستيريو".into(),
             sample_rate: 48_000,
             max_render_quality: false,
             working_space: "rec709".into(),
@@ -945,7 +945,7 @@ fn shown() -> bool {
 }
 
 fn captions_tab() -> String {
-    "التسميات التوضيحية".into()
+    "الترجمة النصية".into()
 }
 
 fn yes() -> bool {
@@ -958,9 +958,9 @@ impl Default for UiState {
             language: crate::i18n::Language::default(),
             tool: Tool::Selection,
             mode: Mode::Edit,
-            workspace: "Editing".into(),
+            workspace: "التحرير".into(),
             floating: vec![],
-            dock: crate::dock::workspace("Editing"),
+            dock: crate::dock::workspace("التحرير"),
             focused: PanelKind::Timeline,
             timeline: TimelineView::default(),
             program: MonitorView::default(),

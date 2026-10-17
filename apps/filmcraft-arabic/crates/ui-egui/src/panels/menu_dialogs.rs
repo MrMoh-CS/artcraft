@@ -1,7 +1,7 @@
 //! Menu long tail (M3.11): the dialogs of Find, Create Search Bin, Project Settings (General /
 //! Scratch Disks / Ingest Settings), Get Media File Properties, Edit Offline, Source Settings,
-//! Update Metadata, Automate to Sequence, Scene Edit Detection, Normalize Mix Track, Simplify
-//! Sequence, Transcribe Sequence, Save as Template, Add Flash Cue Marker and the System
+//! Update Metadata, Automate to تسلسل، Scene Edit Detection, Normalize Mix Track, Simplify
+//! تسلسل، Transcribe تسلسل، Save as Template, Add Flash Cue Marker and the System
 //! Compatibility Report; plus the frontend side of Edit Original / Reveal Log Files (the OS
 //! opener), Reveal in Finder, Generate Audio Waveform (the timeline's peak cache), Import from
 //! Media Browser (the Media Browser selection) and View ▸ Dynamic Audio Waveforms.
@@ -55,22 +55,22 @@ fn push(elems: &mut Elems, id: impl Into<String>, r: &egui::Response, label: imp
 fn meta(command: &str) -> Option<(&'static str, &'static str, &'static str)> {
     Some(match command {
         "edit.find" => (tl!("Find"), "find", tl!("Find")),
-        "file.newSearchBin" => (tl!("Create Search Bin"), "searchBin", tl!("OK")),
-        "project.settings" => (tl!("Project Settings"), "projectSettings", tl!("OK")),
-        "file.mediaProperties" => (tl!("Properties"), "properties", tl!("Close")),
-        "clip.editOffline" => (tl!("Edit Offline File"), "editOffline", tl!("OK")),
-        "clip.sourceSettings" => (tl!("Source Settings"), "sourceSettings", tl!("OK")),
-        "clip.updateMetadata" => (tl!("Update Metadata"), "updateMetadata", tl!("OK")),
-        "clip.automateToSequence" => (tl!("Automate To Sequence"), "automate", tl!("OK")),
+        "file.newSearchBin" => (tl!("Create Search Bin"), "searchBin", tl!("موافق")),
+        "project.settings" => (tl!("Project Settings"), "projectSettings", tl!("موافق")),
+        "file.mediaProperties" => (tl!("الخصائص"), "properties", tl!("إغلاق")),
+        "clip.editOffline" => (tl!("Edit Offline File"), "editOffline", tl!("موافق")),
+        "clip.sourceSettings" => (tl!("Source Settings"), "sourceSettings", tl!("موافق")),
+        "clip.updateMetadata" => (tl!("Update Metadata"), "updateMetadata", tl!("موافق")),
+        "clip.automateToSequence" => (tl!("Automate To Sequence"), "automate", tl!("موافق")),
         "clip.sceneEditDetection" => (tl!("Scene Edit Detection"), "sceneDetect", tl!("Analyze")),
-        "sequence.normalizeMixTrack" => (tl!("Normalize Mix Track"), "normalizeMix", tl!("OK")),
+        "sequence.normalizeMixTrack" => (tl!("Normalize Mix Track"), "normalizeMix", tl!("موافق")),
         "sequence.simplify" => (tl!("Simplify Sequence"), "simplify", tl!("Simplify")),
         "sequence.transcribe" => (tl!("Transcribe Sequence"), "transcribe", tl!("Transcribe")),
-        "file.saveAsTemplate" => (tl!("Save as Template"), "saveTemplate", tl!("Save")),
-        "markers.addFlashCue" => (tl!("Flash Cue Marker"), "flashCue", tl!("OK")),
-        "help.systemCompatibilityReport" => (tl!("System Compatibility Report"), "systemReport", tl!("Close")),
-        "file.newColorMatte" => (tl!("New Color Matte"), "colorMatte", tl!("OK")),
-        "project.matteColor" => (tl!("Color Matte Color"), "matteColor", tl!("OK")),
+        "file.saveAsTemplate" => (tl!("Save as Template"), "saveTemplate", tl!("حفظ")),
+        "markers.addFlashCue" => (tl!("Flash Cue Marker"), "flashCue", tl!("موافق")),
+        "help.systemCompatibilityReport" => (tl!("System Compatibility Report"), "systemReport", tl!("إغلاق")),
+        "file.newColorMatte" => (tl!("New Color Matte"), "colorMatte", tl!("موافق")),
+        "project.matteColor" => (tl!("Color Matte Color"), "matteColor", tl!("موافق")),
         _ => return None,
     })
 }
@@ -271,11 +271,11 @@ fn defaults(app: &mut FilmcraftApp, cmd: &str, id: &str) -> Result<(Value, Value
                 Some(f) if f.scope == "project" => {
                     f.query.rows.iter().map(|r| json!({"column": r.column, "operator": r.op.name(), "text": r.text})).collect::<Vec<_>>()
                 }
-                _ => vec![json!({"column": "Name", "operator": "contains", "text": ""})],
+                _ => vec![json!({"column": "الاسم", "operator": "contains", "text": ""})],
             };
             let mut rows = rows;
             while rows.len() < 2 {
-                rows.push(json!({"column": "Name", "operator": "contains", "text": ""}));
+                rows.push(json!({"column": "الاسم", "operator": "contains", "text": ""}));
             }
             (json!({"scope": if timeline { "timeline" } else { "project" }, "rows": rows, "matchAll": true, "caseSensitive": false, "in": "all"}), json!({}))
         }
@@ -468,7 +468,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         let p = &mut d.params;
         match d.command.as_str() {
             "edit.find" => {
-                radios(ui, &mut elems, pre, p, "scope", tl!("Find in:"), &[("project", tl!("Project")), ("timeline", tl!("Timeline"))]);
+                radios(ui, &mut elems, pre, p, "scope", tl!("Find in:"), &[("project", tl!("المشروع")), ("timeline", tl!("الخط الزمني"))]);
                 ui.separator();
                 if p["scope"] == "timeline" {
                     let mut t = p["rows"][0]["text"].as_str().unwrap_or_default().to_string();
@@ -485,7 +485,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                         p,
                         "in",
                         tl!("Search:"),
-                        &[("all", tl!("Clip Names and Markers")), ("clips", tl!("Clip Names")), ("markers", tl!("Markers"))],
+                        &[("all", tl!("Clip Names and Markers")), ("clips", tl!("Clip Names")), ("markers", tl!("العلامات"))],
                     );
                 } else {
                     let cols = pairs(&COLUMNS);
@@ -571,11 +571,11 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     "ingest" => {
                         let mut ing = p["ingest"].clone();
                         let mut on = ing["enabled"].as_bool().unwrap_or(false);
-                        let r = ui.checkbox(&mut on, tl!("Ingest"));
-                        push(&mut elems, "projectSettings.ingest.enabled", &r, "Ingest");
+                        let r = ui.checkbox(&mut on, tl!("استيعاب"));
+                        push(&mut elems, "projectSettings.ingest.enabled", &r, "استيعاب");
                         ing["enabled"] = json!(on);
                         let actions = vec![
-                            ("copy".to_string(), tl!("Copy").to_string()),
+                            ("copy".to_string(), tl!("نسخ").to_string()),
                             ("transcode".to_string(), tl!("Transcode").to_string()),
                             ("createProxies".to_string(), tl!("Create Proxies").to_string()),
                             ("copyAndCreateProxies".to_string(), tl!("Copy and Create Proxies").to_string()),
@@ -599,11 +599,11 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                             (filmcraft_engine::project_tools::RENDERER_SOFTWARE.to_string(), filmcraft_engine::project_tools::RENDERER_SOFTWARE.to_string()),
                         ];
                         combo(ui, &mut elems, "projectSettings.renderer", tl!("Renderer:"), &mut p["renderer"], &rs);
-                        ui.label(RichText::new(tl!("Video")).strong());
+                        ui.label(RichText::new(tl!("الفيديو")).strong());
                         let vd: Vec<(String, String)> =
                             filmcraft_time::TimeDisplay::ALL.iter().map(|t| (t.label().to_string(), t.label().to_string())).collect();
                         combo(ui, &mut elems, "projectSettings.videoDisplay", tl!("Display Format:"), &mut p["videoDisplay"], &vd);
-                        ui.label(RichText::new(tl!("Audio")).strong());
+                        ui.label(RichText::new(tl!("الصوت")).strong());
                         combo(
                             ui,
                             &mut elems,
@@ -650,7 +650,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                             let x = &v["video"];
                             line(
                                 ui,
-                                tl!("Video"),
+                                tl!("الفيديو"),
                                 format!(
                                     "{} · {} x {} ({}) · {} fps · {}",
                                     s(&x["codec"]),
@@ -667,7 +667,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                             let x = &v["audio"];
                             line(
                                 ui,
-                                tl!("Audio"),
+                                tl!("الصوت"),
                                 tlf!("{codec} · {rate} Hz · {n} channel(s)", codec = s(&x["codec"]), rate = x["sampleRate"], n = x["channels"]),
                             );
                         }
@@ -704,8 +704,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     &[("sequentially", tl!("Sequentially")), ("unnumberedMarkers", tl!("At Unnumbered Markers"))],
                 );
                 radios(ui, &mut elems, pre, p, "method", tl!("Method:"), &[("insert", tl!("Insert Edit")), ("overwrite", tl!("Overwrite Edit"))]);
-                number(ui, &mut elems, pre, p, "overlapFrames", tl!("Clip Overlap:"), 0.0..=600.0, " frames");
-                number(ui, &mut elems, pre, p, "stillFrames", tl!("Frames per Still:"), 1.0..=100_000.0, " frames");
+                number(ui, &mut elems, pre, p, "overlapFrames", tl!("Clip Overlap:"), 0.0..=600.0, " إطار");
+                number(ui, &mut elems, pre, p, "stillFrames", tl!("Frames per Still:"), 1.0..=100_000.0, " إطار");
                 ui.label(RichText::new(tl!("Transitions")).strong());
                 check(ui, &mut elems, pre, p, "audioTransition", tl!("Apply Default Audio Transition"));
                 check(ui, &mut elems, pre, p, "videoTransition", tl!("Apply Default Video Transition"));
@@ -750,7 +750,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             "sequence.transcribe" => {
                 let langs = pairs(&["auto", "en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh", "nl", "ru"]);
                 combo(ui, &mut elems, "transcribe.language", tl!("Language:"), &mut p["language"], &langs);
-                let mut tracks: Vec<(String, String)> = vec![("mix".into(), tl!("Mix").into())];
+                let mut tracks: Vec<(String, String)> = vec![("mix".into(), tl!("المزج").into())];
                 tracks.extend(
                     d.info["tracks"]
                         .as_array()
@@ -815,8 +815,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         ui.add_space(6.0);
         ui.horizontal(|ui| {
             if !info_only {
-                let r = ui.button(if d.command == "edit.find" { tl!("Done") } else { tl!("Cancel") });
-                push(&mut elems, format!("{pre}.cancel"), &r, "Cancel");
+                let r = ui.button(if d.command == "edit.find" { tl!("Done") } else { tl!("إلغاء") });
+                push(&mut elems, format!("{pre}.cancel"), &r, "إلغاء");
                 if r.clicked() {
                     action = Some("cancel");
                 }

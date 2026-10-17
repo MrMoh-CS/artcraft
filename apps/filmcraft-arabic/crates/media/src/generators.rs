@@ -60,7 +60,7 @@ pub enum Generator {
 impl Generator {
     pub fn label(&self) -> String {
         match self {
-            Generator::BarsAndTone => "Bars and Tone".into(),
+            Generator::BarsAndTone => "أشرطة الألوان والنغمة".into(),
             Generator::ColorMatte { .. } => "Color Matte".into(),
             Generator::BlackVideo => "Black Video".into(),
             Generator::TransparentVideo => "Transparent Video".into(),
@@ -155,11 +155,11 @@ impl MediaSource for GeneratorSource {
         })
     }
 
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer> {
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer> {
         if !self.generator.has_audio() {
             return Err(MediaError::NoStream("audio"));
         }
-        let mut out = AudioBuffer::silence(sample_rate, 2, frames);
+        let mut out = AudioBuffer::silence(sample_rate, 2, إطار);
         let sr = sample_rate as f32;
         let total = self.info.duration.to_units_floor(sample_rate as i64);
         for i in 0..frames {

@@ -137,7 +137,7 @@ fn presets_with_masks_and_intrinsics_round_trip_through_files() {
     let dir = std::env::temp_dir().join(format!("filmcraft-presets-{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();
     let path = dir.join("p.json").to_string_lossy().to_string();
-    let r = s.execute("presets.export", json!({"path": path, "names": ["masked bw", "تلاشي للداخل"]})).unwrap();
+    let r = s.execute("presets.export", json!({"path": path, "names": ["masked bw", "Fade In"]})).unwrap();
     assert_eq!(r["count"], 2);
     let text = std::fs::read_to_string(&path).unwrap();
     assert!(text.contains("filmcraft.effect-presets"));
@@ -174,7 +174,7 @@ fn builtins_apply_and_user_presets_persist() {
     let it = item(&s, clips[0]);
     let op = it.effect("opacity").unwrap().param("opacity").unwrap();
     assert_eq!(op.keyframes.last().unwrap().time, it.source_in + media_len(&it));
-    assert!(s.execute("presets.delete", json!({"name": "تلاشي للداخل"})).is_err(), "built-ins stay");
+    assert!(s.execute("presets.delete", json!({"name": "Fade In"})).is_err(), "built-ins stay");
     // persistence through the data directory
     let dir = std::env::temp_dir().join(format!("filmcraft-presets-lib-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&dir);
@@ -199,8 +199,8 @@ fn builtins_apply_and_user_presets_persist() {
 fn fade_in_and_fade_out_add_up_on_one_clip() {
     let (mut s, clips) = demo();
     let c = clips[0];
-    s.execute("presets.apply", json!({"preset": "تلاشي للداخل", "clips": [c.0]})).unwrap();
-    s.execute("presets.apply", json!({"preset": "تلاشي للخارج", "clips": [c.0]})).unwrap();
+    s.execute("presets.apply", json!({"preset": "Fade In", "clips": [c.0]})).unwrap();
+    s.execute("presets.apply", json!({"preset": "Fade Out", "clips": [c.0]})).unwrap();
     let it = item(&s, c);
     let op = it.effect("opacity").unwrap().param("opacity").unwrap();
     let keys: Vec<(Tick, ParamValue)> = op.keyframes.iter().map(|k| (k.time, k.value.clone())).collect();
@@ -208,7 +208,7 @@ fn fade_in_and_fade_out_add_up_on_one_clip() {
     let f = ParamValue::Float;
     assert_eq!(keys, vec![(tin, f(0.0)), (tin + secs(1.0), f(100.0)), (tout - secs(1.0), f(100.0)), (tout, f(0.0))], "both fades survive");
     // re-applying Fade In replaces its own ramp, not the Fade Out one
-    s.execute("presets.apply", json!({"preset": "تلاشي للداخل", "clips": [c.0]})).unwrap();
+    s.execute("presets.apply", json!({"preset": "Fade In", "clips": [c.0]})).unwrap();
     let it = item(&s, c);
     assert_eq!(it.effect("opacity").unwrap().param("opacity").unwrap().keyframes.len(), 4);
 }
@@ -246,14 +246,14 @@ fn export_and_import_go_through_host_services() {
     let fs = Arc::new(MemFs::default());
     let mut s = Session::new(fs.clone());
     let path = "/exports/owned-preset.prfpset";
-    let r = s.execute("presets.export", json!({"path": path, "names": ["تلاشي للداخل"]})).unwrap();
+    let r = s.execute("presets.export", json!({"path": path, "names": ["Fade In"]})).unwrap();
     assert_eq!(r["count"], 1);
     let bytes = fs.read_file(path).unwrap();
     assert!(String::from_utf8_lossy(&bytes).contains("filmcraft.effect-presets"));
     // a second session on the same host imports it from there
     let mut s2 = Session::new(fs);
     let r = s2.execute("presets.import", json!({"path": path})).unwrap();
-    assert_eq!(r["imported"], json!(["تلاشي للداخل"]));
+    assert_eq!(r["imported"], json!(["Fade In"]));
     assert_eq!(s2.presets.user.len(), 1);
     assert!(s2.execute("presets.import", json!({"path": "/exports/missing.prfpset"})).is_err());
 }

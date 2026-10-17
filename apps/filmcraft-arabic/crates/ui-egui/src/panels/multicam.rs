@@ -87,7 +87,7 @@ fn push(elems: &mut Elems, id: impl Into<String>, r: &egui::Response, label: imp
 
 /// Synchronize Point choices: (key, label).
 fn methods() -> [(&'static str, &'static str); 5] {
-    [("in", tl!("In Points")), ("out", tl!("Out Points")), ("timecode", tl!("Timecode")), ("marker", tl!("Clip Marker")), ("audio", tl!("Audio"))]
+    [("in", tl!("In Points")), ("out", tl!("Out Points")), ("timecode", tl!("Timecode")), ("marker", tl!("Clip Marker")), ("audio", tl!("الصوت"))]
 }
 
 /// Draw the open Synchronize / Merge Clips / Create Multi-Camera dialog.
@@ -151,7 +151,7 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 }
                 ui.horizontal(|ui| {
                     ui.label(if pre == "merge" { tl!("Offset Audio by:") } else { tl!("Offset:") });
-                    let r = ui.add(crate::widgets::number_drag(&mut d.offset).range(-100_000..=100_000).suffix(tl!(" frames")));
+                    let r = ui.add(crate::widgets::number_drag(&mut d.offset).range(-100_000..=100_000).suffix(tl!(" إطار")));
                     push(&mut elems, format!("{pre}.offset"), &r, "offset");
                 });
             });
@@ -170,7 +170,7 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 _ => {
                     ui.group(|ui| {
                         ui.set_min_width(400.0);
-                        ui.label(RichText::new(tl!("Audio")).strong());
+                        ui.label(RichText::new(tl!("الصوت")).strong());
                         ui.horizontal(|ui| {
                             for (a, label) in [("camera1", tl!("Camera 1")), ("all", tl!("All Cameras")), ("switch", tl!("Switch Audio"))] {
                                 let r = ui.radio(d.audio == a, label);
@@ -200,13 +200,13 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
             }
             ui.add_space(6.0);
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Cancel"));
-                push(&mut elems, format!("{pre}.cancel"), &r, "Cancel");
+                let r = ui.button(tl!("إلغاء"));
+                push(&mut elems, format!("{pre}.cancel"), &r, "إلغاء");
                 if r.clicked() {
                     action = Some("cancel");
                 }
-                let r = ui.add(egui::Button::new(RichText::new(tl!("OK")).color(Color32::WHITE)).fill(accent));
-                push(&mut elems, format!("{pre}.ok"), &r, "OK");
+                let r = ui.add(egui::Button::new(RichText::new(tl!("موافق")).color(Color32::WHITE)).fill(accent));
+                push(&mut elems, format!("{pre}.ok"), &r, "موافق");
                 if r.clicked() {
                     action = Some("ok");
                 }
@@ -272,7 +272,7 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
     app.ui.sync_dialog = Some(d);
 }
 
-/// A revision for grid frames: changes when the multi-camera source (or its cameras' media)
+/// A revision for grid إطار: changes when the multi-camera source (or its cameras' media)
 /// changes, not with every edit of the cut (cuts recorded live must not throw away the grid).
 fn grid_revision(app: &FilmcraftApp, src: ItemId) -> u64 {
     use std::hash::{Hash, Hasher};
@@ -473,7 +473,7 @@ pub fn show_edit_cameras(app: &mut FilmcraftApp, ctx: &egui::Context) {
                                 ui.painter().image(tex, tr, Rect::from_min_max(pos2(0.0, 0.0), pos2(1.0, 1.0)), Color32::WHITE);
                             }
                             (false, None) => {
-                                ui.painter().text(tr.center(), Align2::CENTER_CENTER, tl!("Audio"), Tokens::ui(10.0), tokens.text_dim);
+                                ui.painter().text(tr.center(), Align2::CENTER_CENTER, tl!("الصوت"), Tokens::ui(10.0), tokens.text_dim);
                             }
                             _ => {}
                         }
@@ -486,13 +486,13 @@ pub fn show_edit_cameras(app: &mut FilmcraftApp, ctx: &egui::Context) {
             });
             ui.add_space(6.0);
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Cancel"));
-                push(&mut elems, "editCameras.cancel", &r, "Cancel");
+                let r = ui.button(tl!("إلغاء"));
+                push(&mut elems, "editCameras.cancel", &r, "إلغاء");
                 if r.clicked() {
                     action = Some("cancel");
                 }
-                let r = ui.add(egui::Button::new(RichText::new(tl!("OK")).color(Color32::WHITE)).fill(tokens.accent));
-                push(&mut elems, "editCameras.ok", &r, "OK");
+                let r = ui.add(egui::Button::new(RichText::new(tl!("موافق")).color(Color32::WHITE)).fill(tokens.accent));
+                push(&mut elems, "editCameras.ok", &r, "موافق");
                 if r.clicked() {
                     action = Some("ok");
                 }

@@ -191,7 +191,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         for (clip, it, kind) in &clips {
             let clip = *clip;
             let (hr, _) = bui.allocate_exact_size(vec2(body.width(), 18.0), Sense::hover());
-            let heading = if *kind == TrackKind::Video { tl!("Video") } else { tl!("Audio") };
+            let heading = if *kind == TrackKind::Video { tl!("الفيديو") } else { tl!("الصوت") };
             bui.painter().text(pos2(hr.min.x + 8.0, hr.center().y), Align2::LEFT_CENTER, heading, Tokens::semibold(11.5), t.text_dim);
             let mt_now = it.source_time_at(ph.clamp(it.start, (it.end() - Tick(1)).max(it.start)));
             // Premiere lists the fixed effects (Motion, Opacity, Time Remapping / Volume…) first.
@@ -829,7 +829,7 @@ pub fn properties_panel(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     let t = app.tokens;
     let clips = selected_clips(app);
     let Some((clip, it, kind)) = clips.first().cloned() else {
-        crate::dock::placeholder(ui, rect, &t, tl!("Select a clip to see its properties"));
+        crate::dock::placeholder(ui, rect, &t, tl!("حدد مقطعاً لعرض خصائصه"));
         return;
     };
     let ph = app.session.playhead();
@@ -963,12 +963,12 @@ pub fn properties_panel(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             }
         }
         if let Some((clip, it, _)) = clips.iter().find(|c| c.2 == TrackKind::Audio)
-            && section(bui, app, "Audio", it.effects.iter().position(|e| e.effect == "volume").map(|i| (i, clip.0)), &mut actions)
+            && section(bui, app, "الصوت", it.effects.iter().position(|e| e.effect == "volume").map(|i| (i, clip.0)), &mut actions)
         {
             let clip = *clip;
             let mt = it.source_time_at(ph.clamp(it.start, (it.end() - Tick(1)).max(it.start)));
             let val = |eid: &str, p: &str| it.effect(eid).and_then(|e| e.param(p)).map(|p| p.value_at(mt));
-            let r = row(bui, tl!("Level"));
+            let r = row(bui, tl!("المستوى"));
             let mut vui = bui.new_child(
                 egui::UiBuilder::new()
                     .max_rect(Rect::from_min_max(pos2(r.min.x + 150.0, r.min.y + 4.0), pos2(r.max.x - PROPS_VALUE_R, r.max.y - 4.0)))
@@ -1013,7 +1013,7 @@ pub(crate) fn row_fill(r: Rect) -> Rect {
 /// while the mouse button is down (a drag) share one undo step, which the first change of each
 /// press begins (#201); typed values and clicks stay separate steps. A drag value only changes once
 /// the mouse moves, after the press frame, so the press that already began a step is remembered by
-/// its start time. That memory is refreshed on every frame the button stays down — including frames
+/// its start time. That memory is refreshed on every frame the button stays down — including إطار
 /// with no value change — so a Scale scrub that pauses between percents is still one undo (#887). A
 /// change that brings its own `merge` key (a Program monitor handle changing several parameters)
 /// keeps it.

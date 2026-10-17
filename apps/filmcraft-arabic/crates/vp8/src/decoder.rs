@@ -59,10 +59,10 @@ struct MbInfo {
     bmv: [Mv; 16],
 }
 
-/// Statistics of the frames decoded so far.
+/// Statistics of the إطار decoded so far.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct DecodeStats {
-    pub frames: u64,
+    pub إطار: u64,
     pub key_frames: u64,
     pub hidden_frames: u64,
 }
@@ -99,7 +99,7 @@ pub struct Decoder {
     height: usize,
     mb_w: usize,
     mb_h: usize,
-    /// Last, golden and altref frames.
+    /// Last, golden and altref إطار.
     refs: [Option<Arc<Frame>>; 3],
     /// `ref_frame_sign_bias`, indexed by reference frame (0 intra, 1 last, 2 golden, 3 altref).
     sign_bias: [bool; 4],
@@ -129,7 +129,7 @@ impl Decoder {
         }
     }
 
-    /// Forget the reference frames (after a seek): decoding resumes at the next key frame.
+    /// Forget the reference إطار (after a seek): decoding resumes at the next key frame.
     pub fn reset(&mut self) {
         self.refs = [None, None, None];
     }
@@ -232,7 +232,7 @@ impl Decoder {
         let stride_info = self.mb_w + 1;
         let mut infos = vec![MbInfo::default(); stride_info * (self.mb_h + 1)];
         let mut lf_info: Vec<(u8, bool)> = vec![(0, false); self.mb_w * self.mb_h];
-        // contexts: B_PRED modes above / left (key frames), non-zero flags above / left
+        // contexts: B_PRED modes above / left (key إطار), non-zero flags above / left
         let mut above_bmodes = vec![[B_DC_PRED; 4]; self.mb_w];
         let mut above_nz = vec![[0u8; 9]; self.mb_w];
         let refs = self.refs.clone();

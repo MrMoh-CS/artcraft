@@ -136,11 +136,11 @@ fn typing_coalesces_into_one_undo_step_and_props_set() {
     let r = s.execute("graphics.newText", json!({"text": ""})).unwrap();
     let clip = ClipId(r["clip"].as_u64().unwrap());
     let before = s.history.undo.len();
-    for (i, t) in ["T", "Ti", "Tit", "Titl", "عنوان"].iter().enumerate() {
+    for (i, t) in ["T", "Ti", "Tit", "Titl", "Title"].iter().enumerate() {
         s.execute("graphics.setText", json!({"clip": clip.0, "layer": 0, "text": t, "merge": i > 0})).unwrap();
     }
     assert_eq!(s.history.undo.len(), before + 1, "one undo step for the typing session");
-    assert_eq!(text_of(&layers(&s, clip)[0]), "عنوان");
+    assert_eq!(text_of(&layers(&s, clip)[0]), "Title");
     s.execute("graphics.set", json!({"clip": clip.0, "props": {"font_style": "Bold", "fontSize": 140, "align": "center", "fill_color": "#ffcc00", "stroke": true, "caps": "small caps"}})).unwrap();
     let l = &layers(&s, clip)[0];
     let LayerContent::Text(t) = &l.content else { panic!() };
@@ -159,7 +159,7 @@ fn typing_coalesces_into_one_undo_step_and_props_set() {
 #[test]
 fn a_property_drag_is_one_undo_step() {
     let mut s = demo();
-    let r = s.execute("graphics.newText", json!({"text": "عنوان"})).unwrap();
+    let r = s.execute("graphics.newText", json!({"text": "Title"})).unwrap();
     let clip = ClipId(r["clip"].as_u64().unwrap());
     s.execute("graphics.set", json!({"clip": clip.0, "layer": 0, "props": {"shadow_color": [0.0, 0.0, 0.0, 1.0]}})).unwrap();
     let color = |s: &Session| -> [f32; 4] {
@@ -319,7 +319,7 @@ fn new_layer_menu_items_make_shapes_and_vertical_text() {
     let b = quad_box(&mut s, v, 0);
     assert!(b[3] - b[1] > 2.5 * (b[2] - b[0]), "vertical text is tall: {b:?}");
     // the menu has the New Layer entries and no generic "Shape"
-    let ids: Vec<&str> = crate::command_specs().iter().filter(|c| c.menu == ["Graphics and Titles", "New Layer"]).map(|c| c.id).collect();
+    let ids: Vec<&str> = crate::command_specs().iter().filter(|c| c.menu == ["الرسوميات والعناوين", "New Layer"]).map(|c| c.id).collect();
     assert_eq!(
         ids,
         ["graphics.newText", "graphics.newVerticalText", "graphics.newRectangle", "graphics.newEllipse", "graphics.newPolygon", "graphics.newFromFile"]
@@ -551,7 +551,7 @@ fn paragraph_text_wraps_in_its_box_and_hides_what_does_not_fit() {
     assert_eq!(s.execute("graphics.list", json!({"clip": clip.0})).unwrap()["layers"][0]["overflow"], true);
 
     // point text has no box, and a vertical layer never gets one
-    let r = s.execute("graphics.newText", json!({"text": "عنوان", "newClip": true, "track": 3})).unwrap();
+    let r = s.execute("graphics.newText", json!({"text": "Title", "newClip": true, "track": 3})).unwrap();
     let point = s.execute("graphics.list", json!({"clip": r["clip"]})).unwrap();
     assert_eq!(point["layers"][0]["textType"], "point");
     assert_eq!(point["layers"][0]["box"], json!(null));
@@ -621,7 +621,7 @@ fn text_type_refuses_what_it_cannot_convert() {
     let mut s = Session::default();
     assert!(s.execute("graphics.setTextType", json!({"type": "point"})).is_err(), "no sequence");
     let mut s = demo();
-    let r = s.execute("graphics.newText", json!({"text": "عنوان"})).unwrap();
+    let r = s.execute("graphics.newText", json!({"text": "Title"})).unwrap();
     let clip = r["clip"].as_u64().unwrap();
     assert!(s.execute("graphics.setTextType", json!({"clip": clip})).is_err(), "no type");
     assert!(s.execute("graphics.setTextType", json!({"clip": clip, "type": "wavy"})).is_err());

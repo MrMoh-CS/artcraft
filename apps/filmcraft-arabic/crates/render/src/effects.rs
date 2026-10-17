@@ -26,7 +26,7 @@ pub struct FxCtx<'a> {
     pub clip_name: &'a str,
     /// The project (LUT library for Lumetri); `None` in isolated effect tests.
     pub project: Option<&'a filmcraft_project::Project>,
-    /// The clip's surroundings (other frames, other tracks, sequence geometry) for temporal,
+    /// The clip's surroundings (other إطار, other tracks, sequence geometry) for temporal,
     /// track-reading and reframing effects; `None` in isolated tests and adjustment layers.
     pub env: Option<&'a dyn crate::vfx::FxEnv>,
     /// Sequence frame rate (shutter-angle motion blur); also known where `env` is `None`.

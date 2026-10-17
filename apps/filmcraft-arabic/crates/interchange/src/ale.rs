@@ -94,7 +94,7 @@ pub fn export_items(p: &Project, items: &[ItemId]) -> AleDoc {
         ("AUDIO_FORMAT".to_string(), if sr == 44_100 { "44khz" } else { "48khz" }.to_string()),
         ("FPS".to_string(), fps_text(rate)),
     ];
-    let mut columns: Vec<String> = ["Name", "Tracks", "Start", "End", "Tape", "Source File"].iter().map(|s| s.to_string()).collect();
+    let mut columns: Vec<String> = ["الاسم", "Tracks", "Start", "End", "Tape", "Source File"].iter().map(|s| s.to_string()).collect();
     columns.extend(EXTRA.iter().map(|s| s.to_string()));
     let mut rows = Vec::new();
     for id in rows_src {
@@ -270,7 +270,7 @@ mod tests {
         let back = parse(&text).unwrap();
         assert_eq!(back, doc);
         assert_eq!(back.rows.len(), 2, "sequences are not logged");
-        assert_eq!(back.get(0, "Name"), Some("Beach Wide.mp4"));
+        assert_eq!(back.get(0, "الاسم"), Some("Beach Wide.mp4"));
         assert_eq!(back.get(0, "Tracks"), Some("VA1A2"));
         assert_eq!(back.get(0, "Start"), Some("01:00:00:00"));
         assert_eq!(back.get(0, "End"), Some("01:00:10:00"));

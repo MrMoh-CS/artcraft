@@ -13,7 +13,7 @@ use crate::{ExportSettings, Format};
 #[serde(rename_all = "camelCase")]
 pub struct ExportPreset {
     pub name: String,
-    /// Browser group: "Match Source", "Web & Social", "Broadcast", "Image Sequence", "Animated
+    /// Browser group: "مطابقة المصدر", "Web & Social", "Broadcast", "Image Sequence", "Animated
     /// GIF", "Audio Only" (user presets default to "User").
     #[serde(default)]
     pub category: String,
@@ -32,7 +32,7 @@ pub fn preset_key(name: &str) -> String {
 }
 
 /// The default preset (Quick Export, a fresh Export mode).
-pub const DEFAULT_PRESET: &str = "Match Source – Adaptive High Bitrate";
+pub const DEFAULT_PRESET: &str = "مطابقة المصدر – معدل بت عالٍ متكيف";
 
 fn h264(size: Option<(u32, u32)>, kbps: u32, max_kbps: u32) -> ExportSettings {
     ExportSettings {
@@ -93,14 +93,14 @@ fn p(name: &str, category: &str, description: &str, settings: ExportSettings) ->
 
 /// Every built-in preset, in browser order.
 pub fn builtin_presets() -> Vec<ExportPreset> {
-    let ms = "Match Source";
+    let ms = "مطابقة المصدر";
     let web = "Web & Social";
     let bc = "Broadcast";
     let vertical = ExportSettings { scaling: Scaling::ScaleToFill, ..h264(Some((1080, 1920)), 12_000, 16_000) };
     vec![
         p(DEFAULT_PRESET, ms, "H.264 at the sequence's frame size and rate; bitrate adapts to the frame size (0.2 bits per pixel)", adaptive(0.2)),
-        p("Match Source – Adaptive Medium Bitrate", ms, "H.264 at the sequence's frame size and rate; 0.1 bits per pixel", adaptive(0.1)),
-        p("Match Source – Adaptive Low Bitrate", ms, "H.264 at the sequence's frame size and rate; 0.05 bits per pixel", adaptive(0.05)),
+        p("مطابقة المصدر – معدل بت متوسط متكيف", ms, "H.264 at the sequence's frame size and rate; 0.1 bits per pixel", adaptive(0.1)),
+        p("مطابقة المصدر – معدل بت منخفض متكيف", ms, "H.264 at the sequence's frame size and rate; 0.05 bits per pixel", adaptive(0.05)),
         p("High Quality 1080p HD", web, "H.264 1920×1080, VBR 1 pass, 20 Mbps target, AAC 320 kbps", h264(Some((1920, 1080)), 20_000, 24_000)),
         p("High Quality 2160p 4K", web, "H.264 3840×2160, VBR 1 pass, 60 Mbps target, AAC 320 kbps", h264(Some((3840, 2160)), 60_000, 72_000)),
         p("YouTube 1080p Full HD", web, "H.264 1920×1080 for video sharing sites, VBR 1 pass, 16 Mbps", h264(Some((1920, 1080)), 16_000, 20_000)),
@@ -148,23 +148,23 @@ pub fn builtin_presets() -> Vec<ExportPreset> {
             "PNG Sequence",
             "Image Sequence",
             "Numbered PNG stills at the sequence's frame size",
-            ExportSettings { format: Format::PngSequence, ..Default::default() },
+            ExportSettings { format: Format::Pngتسلسل، ..Default::default() },
         ),
-        p("TIFF Sequence", "Image Sequence", "Numbered TIFF stills (RGB, 8-bit)", ExportSettings { format: Format::TiffSequence, ..Default::default() }),
-        p("BMP Sequence", "Image Sequence", "Numbered BMP stills (24-bit)", ExportSettings { format: Format::BmpSequence, ..Default::default() }),
-        p("JPEG Sequence", "Image Sequence", "Numbered JPEG stills (quality 90)", ExportSettings { format: Format::JpegSequence, ..Default::default() }),
+        p("TIFF Sequence", "Image Sequence", "Numbered TIFF stills (RGB, 8-bit)", ExportSettings { format: Format::Tiffتسلسل، ..Default::default() }),
+        p("BMP Sequence", "Image Sequence", "Numbered BMP stills (24-bit)", ExportSettings { format: Format::Bmpتسلسل، ..Default::default() }),
+        p("JPEG Sequence", "Image Sequence", "Numbered JPEG stills (quality 90)", ExportSettings { format: Format::Jpegتسلسل، ..Default::default() }),
         p(
             "Targa Sequence",
             "Image Sequence",
             "Numbered Targa stills (24-bit, uncompressed)",
-            ExportSettings { format: Format::TgaSequence, ..Default::default() },
+            ExportSettings { format: Format::Tgaتسلسل، ..Default::default() },
         ),
-        p("DPX Sequence", "Image Sequence", "Numbered DPX stills (10-bit RGB)", ExportSettings { format: Format::DpxSequence, ..Default::default() }),
+        p("DPX Sequence", "Image Sequence", "Numbered DPX stills (10-bit RGB)", ExportSettings { format: Format::Dpxتسلسل، ..Default::default() }),
         p(
             "OpenEXR Sequence",
             "Image Sequence",
             "Numbered OpenEXR stills (half float, linear, uncompressed)",
-            ExportSettings { format: Format::ExrSequence, ..Default::default() },
+            ExportSettings { format: Format::Exrتسلسل، ..Default::default() },
         ),
         p(
             "Animated GIF 640×360",

@@ -106,7 +106,7 @@ mod tests {
         assert_eq!(eta(&[(0.0, 0)], 100), None, "one reading");
         assert_eq!(eta(&[(0.0, 0), (0.5, 20)], 100), None, "less than a second of readings");
         assert_eq!(eta(&[(0.0, 5), (2.0, 5)], 100), None, "nothing done in two seconds (a loudness pass, a seek)");
-        // then, once frames flow
+        // then, once إطار flow
         assert!(eta(&[(0.0, 0), (2.0, 0), (3.0, 30)], 100).is_some());
     }
 

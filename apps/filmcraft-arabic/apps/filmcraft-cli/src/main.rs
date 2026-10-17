@@ -86,7 +86,7 @@ SUBCOMMANDS
                                 half); --quality 0-100 for the formats that take one; --no-audio
                                 leaves the sound out; --queue adds to the export queue and runs it
                                 instead. Offline media (missing, made offline, unreadable) renders
-                                as placeholder frames: the export then lists it in `offlineMedia`,
+                                as placeholder إطار: the export then lists it in `offlineMedia`,
                                 warns on stderr and exits 1, unless --allow-offline accepts it
   export --list-presets [query] list export presets (name, category, format) as JSON
   render --seconds S --out f.png [--scale 0.5] [--allow-offline]
@@ -300,7 +300,7 @@ async fn cli() {
                 src.video_frame(filmcraft_media::FrameRequest::full(rate.tick_of(f))).unwrap_or_else(|e| fail(e));
             }
             let dt = t0.elapsed().as_secs_f64();
-            outln!("{n} frames in {dt:.2}s → {:.1} fps (sequential, via Mp4Source)", n as f64 / dt);
+            outln!("{n} إطار in {dt:.2}s → {:.1} fps (sequential, via Mp4Source)", n as f64 / dt);
             let t1 = std::time::Instant::now();
             let f = src.video_frame(filmcraft_media::FrameRequest::full(rate.tick_of(n / 2))).unwrap_or_else(|e| fail(e));
             let (w, h, _) = f.to_linear_f32_decimated(2);
@@ -528,10 +528,10 @@ fn offline_media(result: &Value) -> Vec<Value> {
     out
 }
 
-/// One stderr line per offline item that rendered as placeholder frames (#1054).
+/// One stderr line per offline item that rendered as placeholder إطار (#1054).
 fn offline_warning(offline: &[Value]) -> String {
     let s = |o: &Value, k: &str| o.get(k).and_then(Value::as_str).unwrap_or("").to_string();
-    let mut msg = format!("filmcraft-cli: warning: {} offline media item(s) rendered as placeholder frames:", offline.len());
+    let mut msg = format!("filmcraft-cli: warning: {} offline media item(s) rendered as placeholder إطار:", offline.len());
     for o in offline {
         let id = o.get("item").and_then(Value::as_u64).map(|i| i.to_string()).unwrap_or_default();
         msg.push_str(&format!("\n  item {id} {} ({}): {}", s(o, "name"), s(o, "status"), s(o, "path")));
@@ -540,14 +540,14 @@ fn offline_warning(offline: &[Value]) -> String {
 }
 
 /// Warn about offline media on stderr; without `--allow-offline` that fails the run (exit 1), after
-/// the output (`what`) was written, so scripts don't take placeholder frames for the real picture.
+/// the output (`what`) was written, so scripts don't take placeholder إطار for the real picture.
 fn check_offline(a: &Args, offline: &[Value], what: &str) {
     if offline.is_empty() {
         return;
     }
     diag(format_args!("{}", offline_warning(offline)));
     if !a.flag("--allow-offline") {
-        fail(format!("{what} has placeholder frames for offline media; relink it (exec media.relink …) or pass --allow-offline"));
+        fail(format!("{what} has placeholder إطار for offline media; relink it (exec media.relink …) or pass --allow-offline"));
     }
 }
 

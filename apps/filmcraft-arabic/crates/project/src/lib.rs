@@ -371,14 +371,14 @@ impl ProjectItem {
         match &self.kind {
             ItemKind::Media(m) => match m.info.kind {
                 filmcraft_media::MediaKind::Movie => "Movie",
-                filmcraft_media::MediaKind::AudioOnly => "Audio",
+                filmcraft_media::MediaKind::AudioOnly => "الصوت",
                 filmcraft_media::MediaKind::Still => "Still Image",
                 filmcraft_media::MediaKind::ImageSequence => "Image Sequence",
                 filmcraft_media::MediaKind::Synthetic => "Synthetic",
             },
             ItemKind::Sequence(s) if s.multicam.is_some() => "Multi-Camera Source Sequence",
             ItemKind::Sequence(s) if s.merged.is_some() => "Merged Clip",
-            ItemKind::Sequence(_) => "Sequence",
+            ItemKind::Sequence(_) => "التسلسل",
             ItemKind::Subclip { .. } => "Subclip",
             ItemKind::AdjustmentLayer { .. } => "Adjustment Layer",
             ItemKind::Graphic { .. } => "Graphic",
@@ -547,14 +547,14 @@ pub struct TrackItem {
     /// Multi-camera clip (a nested multi-camera source sequence): enabled flag and angle.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub multicam: Option<MulticamSel>,
-    /// Video Options ▸ Time Interpolation: how frames are made when the clip's speed is changed.
+    /// Video Options ▸ Time Interpolation: how إطار are made when the clip's speed is changed.
     #[serde(default, skip_serializing_if = "TimeInterpolation::is_default")]
     pub time_interpolation: TimeInterpolation,
     /// Frame Hold Options ▸ Hold Filters: effects are evaluated at the held frame's time instead
     /// of animating through the hold.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub hold_filters: bool,
-    /// Video Options ▸ Field Options… (stored; FilmCraft renders progressive frames).
+    /// Video Options ▸ Field Options… (stored; FilmCraft renders progressive إطار).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub field_options: Option<FieldOptions>,
     /// Audio clips: the source channels this clip plays (0-based; one = mono on both sides, two =
@@ -574,12 +574,12 @@ pub struct TrackItem {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum TimeInterpolation {
-    /// Show the nearest earlier source frame (repeats or drops frames).
+    /// Show the nearest earlier source frame (repeats or drops إطار).
     #[default]
     FrameSampling,
-    /// Cross-fade the two source frames around the exact media time.
+    /// Cross-fade the two source إطار around the exact media time.
     FrameBlending,
-    /// Motion-compensated in-between frames. Rendered as frame blending for now.
+    /// Motion-compensated in-between إطار. Rendered as frame blending for now.
     OpticalFlow,
 }
 
@@ -886,7 +886,7 @@ pub const MAX_FRAME_SIDE: u32 = 32_768;
 /// Largest frame area, in pixels (16384 x 16384: 16K and 16384 x 8192 panoramas fit).
 pub const MAX_FRAME_PIXELS: u64 = 268_435_456;
 
-/// Bound working-frame allocations while retaining 16K and wide panoramic frames.
+/// Bound working-frame allocations while retaining 16K and wide panoramic إطار.
 pub fn validate_frame_size(width: u32, height: u32) -> Result<(), String> {
     if width == 0 || height == 0 || width > MAX_FRAME_SIDE || height > MAX_FRAME_SIDE || u64::from(width) * u64::from(height) > MAX_FRAME_PIXELS {
         return Err(format!("frame size must be positive, at most {MAX_FRAME_SIDE} pixels per side and {MAX_FRAME_PIXELS} pixels total"));
@@ -1525,11 +1525,11 @@ impl Project {
         };
         for i in 0..v {
             let id = TrackId(self.alloc_id());
-            seq.video_tracks.push(Track::new(id, TrackKind::Video, format!("Video {}", i + 1)));
+            seq.video_tracks.push(Track::new(id, TrackKind::Video, format!("فيديو {}", i + 1)));
         }
         for i in 0..a {
             let id = TrackId(self.alloc_id());
-            seq.audio_tracks.push(Track::new(id, TrackKind::Audio, format!("Audio {}", i + 1)));
+            seq.audio_tracks.push(Track::new(id, TrackKind::Audio, format!("صوت {}", i + 1)));
         }
         self.add_item(name, Label::Forest, ItemKind::Sequence(std::sync::Arc::new(seq)), bin)
     }
@@ -1993,7 +1993,7 @@ mod tests {
         // a v1 file has no `caption_tracks` key
         let items = v["items"].as_object_mut().unwrap();
         for it in items.values_mut() {
-            if let Some(s) = it["kind"].get_mut("Sequence") {
+            if let Some(s) = it["kind"].get_mut("التسلسل") {
                 s.as_object_mut().unwrap().remove("caption_tracks");
             }
         }
@@ -2113,7 +2113,7 @@ mod tests {
         let (mut p, clip, a) = demo_project();
         let rate = p.sequence(a).unwrap().settings.frame_rate;
         let f = |n: i64| rate.tick_of(n);
-        // a holds 100 frames of media; b nests a for 150 frames starting at frame 10
+        // a holds 100 إطار of media; b nests a for 150 إطار starting at frame 10
         let media = p.make_track_item(clip, TrackKind::Video, Tick::ZERO, TimeRange::new(Tick::ZERO, f(100)), rate).unwrap();
         assert_eq!(p.nest_overhang(&media), None, "not a nest");
         p.sequence_mut(a).unwrap().video_tracks[0].items.push(media);
@@ -2122,7 +2122,7 @@ mod tests {
         // within the contents, or exactly to their end: none
         nest.duration = f(100);
         assert_eq!(p.nest_overhang(&nest), None);
-        // trimmed in: 60 frames of contents are left
+        // trimmed in: 60 إطار of contents are left
         nest.source_in = f(40);
         assert_eq!(p.nest_overhang(&nest), Some(TimeRange::new(f(70), f(40))));
         // starting past the end: all of it

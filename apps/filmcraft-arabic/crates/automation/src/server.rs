@@ -393,7 +393,7 @@ impl FilmcraftMcp {
 
     #[tool(
         title = "Inspect the active sequence",
-        description = "The active sequence as JSON: settings, tracks, clips (ids, start/duration in ticks and frames, effects), transitions, markers, in/out, playhead, selection. 254016000000 ticks = 1 second.",
+        description = "The active sequence as JSON: settings, tracks, clips (ids, start/duration in ticks and إطار, effects), transitions, markers, in/out, playhead, selection. 254016000000 ticks = 1 second.",
         annotations(read_only_hint = true, destructive_hint = false, idempotent_hint = true, open_world_hint = false)
     )]
     async fn sequence_inspect(&self) -> Result<CallToolResult, McpError> {
@@ -438,7 +438,7 @@ impl FilmcraftMcp {
             }
             Backend::Bridge(b) => {
                 let Some(sec) = p.seconds else {
-                    return self.screenshot(&b.clone(), Some("Program".into()), max).await;
+                    return self.screenshot(&b.clone(), Some("البرنامج".into()), max).await;
                 };
                 // The Program monitor shows the playhead's frame, so the live playhead has to move
                 // for the screenshot; put it (and the selection, which may follow it) back after,
@@ -450,7 +450,7 @@ impl FilmcraftMcp {
                 if let Err(e) = self.run("playhead.set", json!({"seconds": sec})).await {
                     return Ok(fail(e));
                 }
-                let shot = self.screenshot(&b.clone(), Some("Program".into()), max).await;
+                let shot = self.screenshot(&b.clone(), Some("البرنامج".into()), max).await;
                 if let Some(t) = before.get("playhead").and_then(Value::as_i64) {
                     let _ = self.run("playhead.set", json!({"time": t})).await;
                 }
@@ -637,7 +637,7 @@ impl ServerHandler for FilmcraftMcp {
         use rmcp::model::Resource;
         let mut r = rmcp::model::ListResourcesResult::with_all_items(vec![
             Resource::new(DOCUMENT_URI, "document")
-                .with_title("Project")
+                .with_title("المشروع")
                 .with_description("The project tree and the active sequence (same as doc_inspect).")
                 .with_mime_type("application/json"),
             Resource::new(COMMANDS_URI, "commands")

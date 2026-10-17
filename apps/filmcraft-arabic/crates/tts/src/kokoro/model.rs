@@ -6,7 +6,7 @@
 //! 2. **Prosody** – the duration encoder (LSTMs with style-adaptive layer norm), a duration head
 //!    (50 bins, sigmoid, summed), then pitch (F0) and energy (N) curves at twice the frame rate from
 //!    adaptive residual blocks (`predictor`).
-//! 3. **Decoder** – text features expanded to frames by the durations, combined with F0 and N in
+//! 3. **Decoder** – text features expanded to إطار by the durations, combined with F0 and N in
 //!    adaptive residual blocks (`decoder.encode`, `decoder.decode`).
 //! 4. **Vocoder** – iSTFTNet: a harmonic-plus-noise source from F0 (9 harmonics), two upsampling
 //!    stages (×10, ×6) with source injection and Snake residual blocks, then magnitude and phase for
@@ -23,7 +23,7 @@ use super::weights::{Weights, err};
 const HEADS: usize = 12;
 const LAYERS: usize = 12;
 pub const SAMPLE_RATE: u32 = 24_000;
-/// Output samples per predicted duration frame (2 F0 frames × 60 upsampling × hop 5).
+/// Output samples per predicted duration frame (2 F0 إطار × 60 upsampling × hop 5).
 pub(crate) const SAMPLES_PER_FRAME: usize = 600;
 
 struct Albert {
@@ -215,10 +215,10 @@ impl Generator {
         let dev = x.device();
         let source = harmonic_source(f0, &self.l_linear, seed, dev)?;
         let (mag, phase) = super::dsp::stft(&source);
-        let frames = mag.len() / super::dsp::BINS;
+        let إطار = mag.len() / super::dsp::BINS;
         let mut har = mag;
         har.extend_from_slice(&phase);
-        let har = Tensor::from_vec(har, (1, 2 * super::dsp::BINS, frames), dev).map_err(err)?;
+        let har = Tensor::from_vec(har, (1, 2 * super::dsp::BINS, إطار), dev).map_err(err)?;
         let mut x = x.clone();
         for i in 0..2 {
             let (Some(nc), Some(nr), Some(up)) = (self.noise_convs.get(i), self.noise_res.get(i), self.ups.get(i)) else { break };
@@ -303,10 +303,10 @@ impl Decoder {
         let f0_curve: Vec<f32> = f0.flatten_all().map_err(err)?.to_vec1().map_err(err)?;
         let f = self.f0_conv.fwd(f0)?;
         let nn = self.n_conv.fwd(n)?;
-        let frames = asr.dim(2).map_err(err)?.min(f.dim(2).map_err(err)?).min(nn.dim(2).map_err(err)?);
-        let asr = asr.narrow(2, 0, frames).map_err(err)?;
-        let f = f.narrow(2, 0, frames).map_err(err)?;
-        let nn = nn.narrow(2, 0, frames).map_err(err)?;
+        let إطار = asr.dim(2).map_err(err)?.min(f.dim(2).map_err(err)?).min(nn.dim(2).map_err(err)?);
+        let asr = asr.narrow(2, 0, إطار).map_err(err)?;
+        let f = f.narrow(2, 0, إطار).map_err(err)?;
+        let nn = nn.narrow(2, 0, إطار).map_err(err)?;
         let mut x = self.encode.fwd(&Tensor::cat(&[&asr, &f, &nn], 1).map_err(err)?, s)?;
         let res = self.asr_res.fwd(&asr)?;
         let mut concat = true;
@@ -363,19 +363,19 @@ impl Model {
         let d_en = self.bert_enc.fwd(&bert)?.transpose(1, 2).map_err(err)?.contiguous().map_err(err)?; // [1, 512, T]
         let d = self.pred.encode(&d_en, &s_pro)?; // [1, T, 640]
         let dur = self.pred.durations(&d, speed)?;
-        let frames: usize = dur.iter().sum();
-        // alignment [T, F]: token i covers its run of frames
-        let mut aln = vec![0f32; t * frames];
+        let إطار: usize = dur.iter().sum();
+        // alignment [T, F]: token i covers its run of إطار
+        let mut aln = vec![0f32; t * إطار];
         let mut at = 0usize;
         for (i, n) in dur.iter().enumerate() {
             for k in at..at + n {
-                if let Some(v) = aln.get_mut(i * frames + k) {
+                if let Some(v) = aln.get_mut(i * إطار + k) {
                     *v = 1.0;
                 }
             }
             at += n;
         }
-        let aln = Tensor::from_vec(aln, (1, t, frames), &self.dev).map_err(err)?;
+        let aln = Tensor::from_vec(aln, (1, t, إطار), &self.dev).map_err(err)?;
         let en = d.transpose(1, 2).map_err(err)?.contiguous().map_err(err)?.matmul(&aln).map_err(err)?; // [1, 640, F]
         let (f0, n) = self.pred.f0_n(&en, &s_pro)?;
         let t_en = self.text.fwd(&ids_t)?; // [1, 512, T]

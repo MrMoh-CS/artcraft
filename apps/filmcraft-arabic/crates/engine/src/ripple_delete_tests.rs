@@ -25,13 +25,13 @@ fn four_clips(s: &mut Session) -> [(ClipId, ClipId); 4] {
 }
 
 /// Move one sound edge alone, as a split edit does (Linked Selection off for the trim).
-fn trim_sound(s: &mut Session, sound: ClipId, edge: &str, frames: i64) {
+fn trim_sound(s: &mut Session, sound: ClipId, edge: &str, إطار: i64) {
     s.execute("sequence.linkedSelection", json!({"on": false})).unwrap();
-    s.execute("timeline.trim", json!({"clip": sound.0, "edge": edge, "mode": "regular", "deltaFrames": frames})).unwrap();
+    s.execute("timeline.trim", json!({"clip": sound.0, "edge": edge, "mode": "regular", "deltaFrames": إطار})).unwrap();
     s.execute("sequence.linkedSelection", json!({"on": true})).unwrap();
 }
 
-/// The second clip's sound starts 12 frames early (a J cut). Ripple delete was refused: the picture
+/// The second clip's sound starts 12 إطار early (a J cut). Ripple delete was refused: the picture
 /// and the sound have different ranges, each range was closed on its own, and the clips after the
 /// next one were moved up twice, onto it. With a single clip after it the delete went through and
 /// a later marker moved twice.
@@ -43,7 +43,7 @@ fn ripple_delete_of_a_j_cut_clip_closes_one_gap() {
     let (f36, f48, f72, f96, f120, f144) = (f(36), f(48), f(72), f(96), f(120), f(144));
     trim_sound(&mut s, sound1, "out", -12);
     trim_sound(&mut s, sound2, "in", -12);
-    assert_eq!((range(&s, picture2).0, range(&s, sound2).0), (f48, f36), "the sound leads by 12 frames");
+    assert_eq!((range(&s, picture2).0, range(&s, sound2).0), (f48, f36), "the sound leads by 12 إطار");
     s.state.ripple_sequence_markers = true;
     let marker = s.execute("markers.add", json!({"time": f120.0, "name": "Later"})).unwrap()["marker"].clone();
     let before = s.project.clone();
@@ -66,7 +66,7 @@ fn ripple_delete_of_a_j_cut_clip_closes_one_gap() {
     assert_eq!(*s.project, *after);
 }
 
-/// The second clip's sound runs 12 frames under the next picture (an L cut).
+/// The second clip's sound runs 12 إطار under the next picture (an L cut).
 #[test]
 fn ripple_delete_of_an_l_cut_clip_keeps_the_next_clip_in_sync() {
     let mut s = Session::default();
@@ -75,14 +75,14 @@ fn ripple_delete_of_an_l_cut_clip_keeps_the_next_clip_in_sync() {
     let (f48, f60, f96, f108, f144) = (f(48), f(60), f(96), f(108), f(144));
     trim_sound(&mut s, sound3, "in", 12);
     trim_sound(&mut s, sound2, "out", 12);
-    assert_eq!((range(&s, picture2).1, range(&s, sound2).1), (f96, f108), "the sound runs on by 12 frames");
+    assert_eq!((range(&s, picture2).1, range(&s, sound2).1), (f96, f108), "the sound runs on by 12 إطار");
 
     s.execute("edit.rippleDelete", json!({"clips": [picture2.0]})).unwrap();
     let q = s.active_sequence().unwrap();
     q.check().unwrap();
     assert!(q.find_item(sound2).is_none());
     assert_eq!(range(&s, picture3), (f48, f96));
-    assert_eq!(range(&s, sound3), (f60, f96), "the next sound still starts 12 frames after its picture");
+    assert_eq!(range(&s, sound3), (f60, f96), "the next sound still starts 12 إطار after its picture");
     assert_eq!((range(&s, picture4), range(&s, sound4)), ((f96, f144), (f96, f144)));
 }
 
@@ -98,7 +98,7 @@ fn ripple_delete_of_a_straight_cut_clip_is_unchanged() {
 }
 
 /// Two neighbours deleted together, with a split edit between them (the first one's sound runs 12
-/// frames under the second picture): one gap closes, the size of both clips.
+/// إطار under the second picture): one gap closes, the size of both clips.
 #[test]
 fn ripple_delete_of_two_neighbours_with_a_split_edit_between_them() {
     let mut s = Session::default();

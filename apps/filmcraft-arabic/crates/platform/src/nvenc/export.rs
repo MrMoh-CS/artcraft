@@ -74,7 +74,7 @@ impl NvencEncoder {
     }
 }
 
-/// `(pts - dts) × den` as an MP4 composition offset. It is a few frames (the B-frame delay); a
+/// `(pts - dts) × den` as an MP4 composition offset. It is a few إطار (the B-frame delay); a
 /// hostile value saturates instead of wrapping.
 fn composition_offset(pts: i64, dts: i64, den: i64) -> i32 {
     let offset = pts.saturating_sub(dts).saturating_mul(den);
@@ -139,7 +139,7 @@ impl VideoEncoder for NvencEncoder {
     }
 
     fn media_start(&self) -> Option<i64> {
-        // with B-frames the first DTS is `delay` frames before the first PTS
+        // with B-frames the first DTS is `delay` إطار before the first PTS
         (self.enc.delay() > 0).then_some(i64::from(self.enc.delay()).saturating_mul(self.rate.den))
     }
 }
@@ -219,7 +219,7 @@ pub fn factory(format: Format, w: u32, h: u32, rate: FrameRate, s: &ExportSettin
 
 /// Open the encoder for `cfg`. An 8-bit one takes the export's RGBA pictures as they are and converts
 /// them on the GPU, which keeps the RGB → 4:2:0 conversion off the CPU (where it competes with the
-/// render of the next frames); where the driver refuses RGB input, it takes the CPU's 4:2:0 as before.
+/// render of the next إطار); where the driver refuses RGB input, it takes the CPU's 4:2:0 as before.
 /// Main 10 takes its 10-bit planes.
 fn open(cfg: &Config, signal: &Signal) -> std::result::Result<Nvenc, String> {
     if cfg.profile == Profile::HevcMain10 {

@@ -71,7 +71,7 @@ fn strip_settings_undo_redo_and_inspect() {
     s.execute("mixer.setStrip", json!({"strip": "A1", "volumeDb": -6.0, "pan": -30.0, "mode": "Touch", "recordArm": true, "solo": true})).unwrap();
     let t = a1(&s);
     assert_eq!((t.volume_db, t.pan, t.mixer.mode, t.mixer.record_arm, t.solo), (-6.0, -30.0, AutomationMode::Touch, true, true));
-    s.execute("mixer.setStrip", json!({"strip": "Mix", "volumeDb": -3.0})).unwrap();
+    s.execute("mixer.setStrip", json!({"strip": "المزج", "volumeDb": -3.0})).unwrap();
     assert_eq!(s.active_sequence().unwrap().master_volume_db, -3.0);
     s.execute("edit.undo", json!({})).unwrap();
     s.execute("edit.undo", json!({})).unwrap();
@@ -80,18 +80,18 @@ fn strip_settings_undo_redo_and_inspect() {
     assert_eq!(a1(&s).volume_db, -6.0);
     let v = s.execute("mixer.inspect", json!({})).unwrap();
     let strips = v["strips"].as_array().unwrap();
-    assert_eq!(strips.last().unwrap()["ref"], "Mix");
+    assert_eq!(strips.last().unwrap()["ref"], "المزج");
     assert_eq!(strips[0]["ref"], "A1");
     assert_eq!(strips[0]["mode"], "Touch");
     // errors
     assert!(s.execute("mixer.setStrip", json!({"strip": "A99"})).is_err());
-    assert!(s.execute("mixer.setValue", json!({"strip": "Mix", "lane": "pan", "value": 3})).is_err(), "Mix has no pan");
+    assert!(s.execute("mixer.setValue", json!({"strip": "المزج", "lane": "pan", "value": 3})).is_err(), "Mix has no pan");
 }
 
 #[test]
 fn submixes_sends_and_inserts() {
     let mut s = demo();
-    let r = s.execute("mixer.addSubmix", json!({"name": "الصدى"})).unwrap();
+    let r = s.execute("mixer.addSubmix", json!({"name": "Reverb"})).unwrap();
     assert_eq!(r["ref"], "S1");
     s.execute("mixer.addSubmix", json!({})).unwrap();
     s.execute("mixer.addSend", json!({"strip": "A1", "target": "S1", "levelDb": -6.0, "preFader": true})).unwrap();
@@ -276,7 +276,7 @@ fn recorded_pass_plays_back_through_the_mix() {
     let before = filmcraft_render::audio::mix_sequence(&s.project, q, 0, 4_800, &provider);
     assert!(before.channels[0].iter().any(|x| x.abs() > 1e-4), "audible before the move");
     // master strip automation
-    s.execute("mixer.setKeyframe", json!({"strip": "Mix", "time": 0, "value": -6.0})).unwrap();
+    s.execute("mixer.setKeyframe", json!({"strip": "المزج", "time": 0, "value": -6.0})).unwrap();
     assert_eq!(s.active_sequence().unwrap().master_volume_at(Tick(sec(1.0))), -6.0);
     assert!(s.active_sequence().unwrap().strip(MASTER_STRIP).is_some());
 }
@@ -391,7 +391,7 @@ fn clip_mixer_touch_writes_clip_keyframes_and_ramps_back() {
     let base = clip_level(&s, clip, t0);
     let kf0 = clip_level_kfs(&s, clip);
     let mid = Tick((t0.0 + t1.0) / 2);
-    assert!(s.execute("clipMixer.setMode", json!({"track": "Mix", "mode": "Touch"})).is_err(), "audio tracks only");
+    assert!(s.execute("clipMixer.setMode", json!({"track": "المزج", "mode": "Touch"})).is_err(), "audio tracks only");
     s.execute("clipMixer.setMode", json!({"track": "A1", "mode": "Touch"})).unwrap();
     assert_eq!(s.execute("mixer.inspect", json!({})).unwrap()["clipModes"][0]["mode"], "Touch");
     let undo0 = s.history.undo.len();
@@ -498,7 +498,7 @@ fn surround_sequence_settings_and_panner_lanes() {
     let v = s.execute("mixer.inspect", json!({})).unwrap();
     assert_eq!(v["strips"][0]["pan51"]["x"], -50.0);
     assert_eq!(v["strips"][0]["pan51"]["center"], 100.0, "clamped");
-    assert!(s.execute("mixer.setValue", json!({"strip": "Mix", "lane": "pan51.x", "value": 1.0})).is_err());
+    assert!(s.execute("mixer.setValue", json!({"strip": "المزج", "lane": "pan51.x", "value": 1.0})).is_err());
     s.execute("edit.undo", json!({})).unwrap();
     s.execute("edit.undo", json!({})).unwrap();
     assert_eq!(s.execute("mixer.inspect", json!({})).unwrap()["strips"][0]["pan51"]["x"], 0.0);

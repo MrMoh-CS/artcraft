@@ -43,7 +43,7 @@ fn op1a_config(rate: Rational, coding: PictureCoding) -> WriterConfig {
     let mut cfg = WriterConfig::new(Pattern::Op1a, rate, PackageIds::from_seed("test", "Test Clip"));
     cfg.picture = Some(PictureDesc::new(coding, 64, 36));
     cfg.sound = vec![SoundDesc { sample_rate: 48_000, channels: 2, bits: 16 }, SoundDesc { sample_rate: 48_000, channels: 1, bits: 24 }];
-    cfg.timecode = Some(StartTimecode { frames: 90_000, rate, drop_frame: false });
+    cfg.timecode = Some(StartTimecode { إطار: 90_000, rate, drop_frame: false });
     cfg
 }
 
@@ -126,7 +126,7 @@ fn ntsc_sound_follows_the_edit_unit_pattern() {
     let rate = Rational::new(30000, 1001);
     let mut cfg = op1a_config(rate, PictureCoding::Vc3 { cid: 1274 });
     cfg.sound.truncate(1);
-    cfg.timecode = Some(StartTimecode { frames: 107_892, rate, drop_frame: true });
+    cfg.timecode = Some(StartTimecode { إطار: 107_892, rate, drop_frame: true });
     let mut w = MxfWriter::new(Cursor::new(Vec::new()), cfg).unwrap();
     let n = 12;
     let total = (n as u64 * 48_000 * 1001 / 30_000) as usize;
@@ -178,7 +178,7 @@ fn long_gop_index_gives_presentation_order_and_key_frames() {
 fn op_atom_picture_is_clip_wrapped() {
     let mut cfg = WriterConfig::new(Pattern::OpAtom, Rational::new(24, 1), PackageIds::from_seed("atom-v", "Atom V"));
     cfg.picture = Some(PictureDesc::new(PictureCoding::Vc3 { cid: 1272 }, 64, 36));
-    cfg.timecode = Some(StartTimecode { frames: 86_400, rate: Rational::new(24, 1), drop_frame: false });
+    cfg.timecode = Some(StartTimecode { إطار: 86_400, rate: Rational::new(24, 1), drop_frame: false });
     let mut w = MxfWriter::new(Cursor::new(Vec::new()), cfg).unwrap();
     for i in 0..9 {
         w.push_picture(&vc3_like(i), FrameInfo::intra()).unwrap();
@@ -322,20 +322,20 @@ fn truncated_and_mutated_files_never_panic() {
 /// essence are refused.
 #[test]
 fn long_pcm_reads_backed_by_the_file_are_not_capped() {
-    let frames = 200 * 48_000;
+    let إطار = 200 * 48_000;
     let samples: Vec<i32> = (0..frames * 2).map(|k| (k % 60_000) as i32 - 30_000).collect();
     let opts = OpAtomPcm { sample_rate: 48_000, bits: 16, channels: 2, edit_rate: None, ids: PackageIds::from_seed("long", "Long"), timecode: None };
     let f = write_opatom_pcm(&opts, &samples).unwrap();
     let m = open(&f).unwrap();
-    assert_eq!(m.tracks[0].stored_sample_frames(), frames as u64);
+    assert_eq!(m.tracks[0].stored_sample_frames(), إطار as u64);
     // a little past the end is zero padding, as before
-    let pcm = m.read_pcm(&f, 0, 0, frames + 10).unwrap();
-    assert_eq!((pcm.len(), pcm[0].len()), (2, frames + 10));
-    for k in [0, 1, frames / 2, frames - 1] {
+    let pcm = m.read_pcm(&f, 0, 0, إطار + 10).unwrap();
+    assert_eq!((pcm.len(), pcm[0].len()), (2, إطار + 10));
+    for k in [0, 1, إطار / 2, إطار - 1] {
         assert_eq!(pcm[0][k], samples[2 * k] as f32 / 32768.0, "frame {k}");
         assert_eq!(pcm[1][k], samples[2 * k + 1] as f32 / 32768.0, "frame {k}");
     }
     assert_eq!(pcm[0][frames..], [0.0; 10]);
     // a request that is mostly not backed by data is refused before allocating
-    assert!(m.read_pcm(&f, 0, 0, frames + (1 << 24)).is_err());
+    assert!(m.read_pcm(&f, 0, 0, إطار + (1 << 24)).is_err());
 }

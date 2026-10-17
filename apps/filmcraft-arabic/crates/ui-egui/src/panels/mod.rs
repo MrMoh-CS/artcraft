@@ -231,7 +231,7 @@ pub fn drag_ghost(app: &FilmcraftApp, ui: &egui::Ui) {
             },
             DragPayload::Bin(b) => app.session.project.root.find_bin(filmcraft_project::BinId(*b)).map(|x| x.name.clone()).unwrap_or_default(),
             DragPayload::Source(s) => {
-                let name = app.session.project.item(s.item).map(|i| i.name.as_str()).unwrap_or("Source");
+                let name = app.session.project.item(s.item).map(|i| i.name.as_str()).unwrap_or("المصدر");
                 let mode = match (s.video, s.audio) {
                     (true, true) => "video + audio",
                     (true, false) => "video",

@@ -10,11 +10,11 @@ use crate::Session;
 use crate::media_test_util::tmp_dir;
 
 /// A 16×8 animated GIF: frame `i` is red `40 * i` with its left half transparent, 100 ms each.
-fn write_gif(path: &std::path::Path, frames: u8) {
+fn write_gif(path: &std::path::Path, إطار: u8) {
     let mut out = Vec::new();
     {
         let mut e = image::codecs::gif::GifEncoder::new(&mut out);
-        let frames = (0..frames).map(|i| {
+        let إطار = (0..frames).map(|i| {
             let img = image::RgbaImage::from_fn(16, 8, |x, _| image::Rgba([40 * i, 0, 0, if x < 8 { 0 } else { 255 }]));
             image::Frame::from_parts(img, 0, 0, image::Delay::from_numer_denom_ms(100, 1))
         });
@@ -33,7 +33,7 @@ fn pixel_at(s: &Session, item: ItemId, ms: i64, x: usize) -> [u8; 4] {
     let f = src.video_frame(FrameRequest::full(Tick(ms * TICKS_PER_SECOND / 1000))).unwrap();
     match &f.data {
         filmcraft_frame::PixelData::Rgba8(p) => [p[4 * x], p[4 * x + 1], p[4 * x + 2], p[4 * x + 3]],
-        _ => panic!("rgba frames"),
+        _ => panic!("rgba إطار"),
     }
 }
 

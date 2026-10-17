@@ -45,7 +45,7 @@ impl EncoderConfig {
     }
 }
 
-/// ProRes encoder for one stream of same-sized progressive frames.
+/// ProRes encoder for one stream of same-sized progressive إطار.
 #[derive(Debug, Clone)]
 pub struct Encoder {
     cfg: EncoderConfig,

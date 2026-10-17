@@ -14,7 +14,7 @@ use crate::FilmcraftApp;
 use crate::icons::{self, Icon};
 use crate::theme::Tokens;
 
-const TABS: [&str; 3] = ["Transcript", "Captions", "Graphics"];
+const TABS: [&str; 3] = ["Transcript", "الترجمة النصية", "Graphics"];
 
 /// The width a tab label needs: 7 px per character, which the strip was laid out with for Latin
 /// text, or the label as drawn if that is wider (Japanese glyphs are about twice as wide, and a
@@ -55,7 +55,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     }
     let body = Rect::from_min_max(pos2(rect.min.x, rect.min.y + 34.0), rect.max);
     match app.ui.text_tab.as_str() {
-        "Captions" => captions(app, ui, body),
+        "الترجمة النصية" => captions(app, ui, body),
         "Transcript" => transcript(app, ui, body),
         _ => crate::dock::placeholder(ui, body, &t, tl!("Graphics text search arrives with M10.1–M10.2")),
     }
@@ -506,7 +506,7 @@ mod tests {
         if !crate::i18n::install_japanese_font(&ctx) {
             return;
         }
-        let labels = ["Transcript", "Captions", "Graphics", "文字起こし", "キャプション", "グラフィックス"];
+        let labels = ["Transcript", "الترجمة النصية", "Graphics", "文字起こし", "キャプション", "グラフィックス"];
         let mut widths = Vec::new();
         for _ in 0..2 {
             // the added font is in place from the second pass

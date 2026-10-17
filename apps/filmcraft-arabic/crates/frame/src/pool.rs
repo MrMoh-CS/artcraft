@@ -1,9 +1,9 @@
 //! Recycled plane buffers.
 //!
-//! A decoder allocates three planes per picture and the caches free them a few hundred frames
+//! A decoder allocates three planes per picture and the caches free them a few hundred إطار
 //! later. At megabytes per plane that traffic leaves the system allocator holding gigabytes of
 //! freed pages (measured: 2.5 GB retained next to 2.5 GB live after twelve clips). Decoders take
-//! their planes here instead ([`take_u8`], [`take_u16`]) and caches hand evicted frames back
+//! their planes here instead ([`take_u8`], [`take_u16`]) and caches hand evicted إطار back
 //! ([`recycle`]), so steady-state decoding allocates nothing.
 //!
 //! The compositor's working images (premultiplied linear `f32`, 33 MB at 1080p) get the same
@@ -142,9 +142,9 @@ pub fn recycle(frame: Arc<VideoFrame>) {
 }
 
 /// Free the idle float images. A standalone export leaves that shelf full (up to [`F32_MAX_BYTES`]
-/// of images, each the size of that export's frames) and nothing else asks for those sizes again,
+/// of images, each the size of that export's إطار) and nothing else asks for those sizes again,
 /// so they would sit idle until the next export. Images still in use are not touched. The 8- and
-/// 16-bit plane shelves are left alone: playback recycles decoded frames through them all the time.
+/// 16-bit plane shelves are left alone: playback recycles decoded إطار through them all the time.
 pub fn trim_f32() {
     // taken under the lock, freed after it: giving back hundreds of megabytes takes a moment
     let floats = std::mem::take(&mut *F32.lock().unwrap_or_else(PoisonError::into_inner));

@@ -43,10 +43,10 @@ fn ripple_delete_head_closes_the_head_and_shifts_later_clips() {
     assert_eq!(range(&s, snd2), (f(&s, 48), f(&s, 84)), "the linked sound follows");
     assert_eq!(range(&s, pic3), (f(&s, 84), f(&s, 132)), "the next picture closes up by the head length");
     assert_eq!((range(&s, snd3), range(&s, pic4), range(&s, snd4)), ((f(&s, 84), f(&s, 132)), (f(&s, 132), f(&s, 180)), (f(&s, 132), f(&s, 180))));
-    assert_eq!(q.duration(), f(&s, 180), "the sequence is 12 frames shorter");
+    assert_eq!(q.duration(), f(&s, 180), "the sequence is 12 إطار shorter");
 }
 
-/// The trimmed clip's media in point advances by the head length (the head frames are dropped,
+/// The trimmed clip's media in point advances by the head length (the head إطار are dropped,
 /// not hidden).
 #[test]
 fn ripple_delete_head_advances_the_source_in_point() {
@@ -57,8 +57,8 @@ fn ripple_delete_head_advances_the_source_in_point() {
     s.state.selection = vec![pic1];
     s.execute("edit.rippleDeleteHead", json!({})).unwrap();
     let item = s.active_sequence().unwrap().find_item(pic1).unwrap().1;
-    assert_eq!(item.source_in, in_before + f(&s, 12), "the head frames are dropped from the source");
-    assert_eq!((item.start, item.end()), (Tick::ZERO, f(&s, 36)), "the clip starts at zero, 36 frames long");
+    assert_eq!(item.source_in, in_before + f(&s, 12), "the head إطار are dropped from the source");
+    assert_eq!((item.start, item.end()), (Tick::ZERO, f(&s, 36)), "the clip starts at zero, 36 إطار long");
 }
 
 /// The playhead at or before the in point has no head to remove.

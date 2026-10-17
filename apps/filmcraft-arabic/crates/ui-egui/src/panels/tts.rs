@@ -233,7 +233,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             ui.label(egui::RichText::new(mode).color(t.text_dim).size(11.5));
             if editing.is_some() {
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    let b = ui.small_button("New");
+                    let b = ui.small_button("جديد");
                     auto.add("tts.new", visible(ui, b.rect), "New narration");
                     if b.clicked() {
                         actions.push(Action::New);
@@ -277,7 +277,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                     Some((frac, status)) => {
                         ui.label(egui::RichText::new(status).color(t.text).size(11.5));
                         ui.add(egui::ProgressBar::new(*frac).show_percentage());
-                        let b = ui.small_button("Cancel");
+                        let b = ui.small_button("إلغاء");
                         auto.add("tts.download.cancel", visible(ui, b.rect), "Cancel download");
                         if b.clicked() {
                             actions.push(Action::CancelDownload);
@@ -298,7 +298,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                         ui.horizontal(|ui| {
                             let ok = ui.button("Download");
                             auto.add("tts.download.confirm", visible(ui, ok.rect), "Download");
-                            let no = ui.button("Cancel");
+                            let no = ui.button("إلغاء");
                             if ok.clicked() {
                                 actions.push(Action::Download);
                             }
@@ -356,7 +356,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         }
         ui.add_space(12.0);
         ui.horizontal(|ui| {
-            ui.label(egui::RichText::new("Text").color(t.text).size(12.5).strong());
+            ui.label(egui::RichText::new("النص").color(t.text).size(12.5).strong());
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 let (ir, i) = ui.allocate_exact_size(vec2(14.0, 14.0), Sense::hover());
                 icons::paint(ui.painter(), ir, Icon::Info, t.text_faint);
@@ -379,7 +379,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             .desired_rows(8)
             .char_limit(filmcraft_tts::MAX_TEXT_BYTES);
         let r = ui.add(te);
-        auto.add("tts.text", visible(ui, r.rect), "Text");
+        auto.add("tts.text", visible(ui, r.rect), "النص");
     });
 
     // footer: Preview | Save
@@ -394,7 +394,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     auto.add("tts.preview", pr, "Preview");
     let sr = Rect::from_min_size(pos2(pr.max.x + 10.0, fy), vec2(half, 28.0));
     let can_save = can_say && app.session.active_sequence().is_some();
-    if button(ui, &t, sr, Icon::Plus, if editing.is_some() { "Save" } else { "Add to timeline" }, true, can_save, "tts-save").clicked() && can_save {
+    if button(ui, &t, sr, Icon::Plus, if editing.is_some() { "حفظ" } else { "Add to timeline" }, true, can_save, "tts-save").clicked() && can_save {
         let mut p = d.params();
         match editing {
             Some(c) => {
@@ -404,7 +404,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             None => actions.push(Action::Run("tts.create", p, false)),
         }
     }
-    auto.add("tts.save", sr, "Save");
+    auto.add("tts.save", sr, "حفظ");
 
     for a in actions {
         match a {

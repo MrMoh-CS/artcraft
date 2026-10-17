@@ -23,7 +23,7 @@ pub fn history(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             ui.painter().text(pos2(r.min.x + 8.0, r.center().y), Align2::LEFT_CENTER, label, Tokens::ui(12.0), if dim { t.text_faint } else { t.text });
             resp.clicked()
         };
-        if row(ui, tl!("Open"), undo.is_empty(), false) {
+        if row(ui, tl!("فتح"), undo.is_empty(), false) {
             target = Some(-(undo.len() as i64));
         }
         for (i, l) in undo.iter().enumerate() {
@@ -121,7 +121,7 @@ pub fn markers(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             }
             let c = m.color.marker_rgb();
             ui.painter().rect_filled(Rect::from_min_size(r.min + vec2(4.0, 6.0), vec2(4.0, 26.0)), 2.0, Color32::from_rgb(c[0], c[1], c[2]));
-            let name = if m.name.is_empty() { tl!("Marker") } else { &m.name };
+            let name = if m.name.is_empty() { tl!("علامة") } else { &m.name };
             ui.painter().text(pos2(r.min.x + 16.0, r.min.y + 12.0), Align2::LEFT_CENTER, name, Tokens::ui(12.0), t.text);
             let mut tc = format_time(m.start, seq.settings.frame_rate, seq.settings.drop_frame, TimeDisplay::Timecode, 48000);
             if m.duration > filmcraft_time::Tick::ZERO {
@@ -203,5 +203,5 @@ pub fn info(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         }
     }
     ui.separator();
-    line(ui, tl!("UI:"), tlf!("{fps} fps · {n} frames queued", fps = format!("{:.0}", app.fps), n = app.frames.queue_len()));
+    line(ui, tl!("UI:"), tlf!("{fps} fps · {n} إطار queued", fps = format!("{:.0}", app.fps), n = app.frames.queue_len()));
 }

@@ -5,7 +5,7 @@
 //! `GeneratorReference.1`, `LinearTimeWarp.1`, `FreezeFrame.1`, `Effect.1`, `RationalTime.1`,
 //! `TimeRange.1` and `SerializableCollection.1` (several timelines).
 //!
-//! Times are written as frames at the sequence rate (`rate` is the exact rate as a float, e.g.
+//! Times are written as إطار at the sequence rate (`rate` is the exact rate as a float, e.g.
 //! 23.976023976023978) and read back exactly by snapping the rate to its rational form. Fields
 //! OTIO has no schema for (effects and their keyframes, labels, links, groups, clip gain, track
 //! state, sequence settings, media info, generators) round-trip through `metadata.filmcraft`.
@@ -15,7 +15,7 @@ use std::collections::HashMap;
 
 use filmcraft_media::{Generator, MediaInfo};
 use filmcraft_project::{
-    ClipId, EffectInstance, ItemId, ItemKind, Label, Marker, MarkerId, MarkerKind, MediaRef, ParamValue, Project, Sequence, SequenceSettings, Track, TrackItem,
+    ClipId, EffectInstance, ItemId, ItemKind, Label, Marker, MarkerId, MarkerKind, MediaRef, ParamValue, Project, تسلسل، SequenceSettings, Track, TrackItem,
     TrackKind, Transition, TransitionAlign, TransitionId,
 };
 use filmcraft_time::{FrameRate, TICKS_PER_SECOND, Tick};
@@ -195,7 +195,7 @@ impl Exp<'_, '_> {
         json!({
             "OTIO_SCHEMA": "Track.1",
             "name": t.name,
-            "kind": if kind == TrackKind::Video { "Video" } else { "Audio" },
+            "kind": if kind == TrackKind::Video { "الفيديو" } else { "الصوت" },
             "children": children,
             "source_range": null,
             "effects": [],
@@ -391,7 +391,7 @@ pub(crate) fn import(text: &str, opts: &ImportOptions, report: &mut Report) -> R
 
 fn collect_timelines<'v>(v: &'v Value, out: &mut Vec<&'v Value>) {
     match schema_name(v) {
-        "Timeline" | "Stack" => out.push(v),
+        "الخط الزمني" | "Stack" => out.push(v),
         "SerializableCollection" => {
             for c in v.get("children").and_then(Value::as_array).into_iter().flatten() {
                 collect_timelines(c, out);
@@ -412,10 +412,10 @@ fn first_rate(v: &Value) -> Option<FrameRate> {
 impl Imp<'_, '_> {
     fn timeline(&mut self, tl: &Value) -> ItemId {
         let name = name_of(tl);
-        let name = if name.is_empty() { self.opts.name.clone().unwrap_or_else(|| "Timeline".into()) } else { name };
+        let name = if name.is_empty() { self.opts.name.clone().unwrap_or_else(|| "الخط الزمني".into()) } else { name };
         let stack_owned;
         let stack = match schema_name(tl) {
-            "Timeline" => tl.get("tracks").unwrap_or(&Value::Null),
+            "الخط الزمني" => tl.get("tracks").unwrap_or(&Value::Null),
             "Track" => {
                 stack_owned = json!({"OTIO_SCHEMA": "Stack.1", "children": [tl.clone()]});
                 &stack_owned
@@ -452,7 +452,7 @@ impl Imp<'_, '_> {
         for t in stack.get("children").and_then(Value::as_array).into_iter().flatten() {
             match schema_name(t) {
                 "Track" => {
-                    let kind = if t.get("kind").and_then(Value::as_str) == Some("Audio") { TrackKind::Audio } else { TrackKind::Video };
+                    let kind = if t.get("kind").and_then(Value::as_str) == Some("الصوت") { TrackKind::Audio } else { TrackKind::Video };
                     self.track(&mut seq, t, kind);
                 }
                 other => self.report.warn(format!("OTIO {other} directly in a stack is not supported")),
@@ -464,7 +464,7 @@ impl Imp<'_, '_> {
         id
     }
 
-    fn track(&mut self, seq: &mut Sequence, t: &Value, kind: TrackKind) {
+    fn track(&mut self, seq: &mut تسلسل، t: &Value, kind: TrackKind) {
         let idx = seq.tracks(kind).len();
         let mut track = self.b.track(kind, idx);
         let n = name_of(t);
@@ -506,8 +506,8 @@ impl Imp<'_, '_> {
                     slots.push((None, pos, pos + d));
                     pos += d;
                 }
-                "Clip" | "Stack" => {
-                    let item = if schema_name(c) == "Clip" { self.clip(c, kind, pos) } else { self.nested(c, kind, pos) };
+                "مقطع" | "Stack" => {
+                    let item = if schema_name(c) == "مقطع" { self.clip(c, kind, pos) } else { self.nested(c, kind, pos) };
                     match item {
                         Some(ti) => {
                             let (s, e, id) = (ti.start, ti.end(), ti.id);
@@ -637,7 +637,7 @@ impl Imp<'_, '_> {
         let item = self.media(&mref, &name, kind, avail)?;
         // Sources are media time: subtract the media's start time (available_range start).
         let origin = avail.map(|a| a.0).unwrap_or(Tick::ZERO);
-        let mut ti = self.b.clip(item, kind, if name.is_empty() { "Clip" } else { &name }, pos, dur, src_in - origin);
+        let mut ti = self.b.clip(item, kind, if name.is_empty() { "مقطع" } else { &name }, pos, dur, src_in - origin);
         ti.markers = self.markers(c);
         for m in &mut ti.markers {
             m.start -= origin;

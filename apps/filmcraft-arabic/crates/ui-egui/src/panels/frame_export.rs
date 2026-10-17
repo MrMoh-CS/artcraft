@@ -101,9 +101,9 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             ui.ctx().set_cursor_icon(egui::CursorIcon::Grabbing);
         }
         elems.push(("exportFrame.header".into(), header, "Move Export Frame".into()));
-        let response = ui.interact(x, egui::Id::new("export-frame-close"), egui::Sense::click()).on_hover_text("Close");
+        let response = ui.interact(x, egui::Id::new("export-frame-close"), egui::Sense::click()).on_hover_text("إغلاق");
         icons::paint(ui.painter(), x.shrink(7.0), Icon::Close, egui::Color32::from_gray(90));
-        elems.push(("exportFrame.close".to_string(), x, "Close".to_string()));
+        elems.push(("exportFrame.close".to_string(), x, "إغلاق".to_string()));
         close = response.clicked();
         egui::Frame::NONE.inner_margin(14).show(ui, |ui| {
             egui::Grid::new("frame-export-settings").num_columns(2).spacing([12.0, 10.0]).show(ui, |ui| {
@@ -173,20 +173,20 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 });
             } else {
                 ui.allocate_ui_with_layout(egui::vec2(ui.available_width(), 26.0), egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    let r = ui.button("Cancel");
+                    let r = ui.button("إلغاء");
                     close |= r.clicked();
-                    elems.push(("exportFrame.cancel".into(), r.rect, "Cancel".into()));
+                    elems.push(("exportFrame.cancel".into(), r.rect, "إلغاء".into()));
                     let r = ui.add_enabled(
                         !d.name.trim().is_empty() && !d.folder.trim().is_empty(),
-                        egui::Button::new(egui::RichText::new("OK").color(egui::Color32::WHITE)).fill(app.tokens.accent),
+                        egui::Button::new(egui::RichText::new("موافق").color(egui::Color32::WHITE)).fill(app.tokens.accent),
                     );
                     apply = r.clicked();
-                    elems.push(("exportFrame.export".into(), r.rect, "OK".into()));
+                    elems.push(("exportFrame.export".into(), r.rect, "موافق".into()));
                 });
             }
             ui.add_space(12.0);
             ui.separator();
-            ui.label(format!("{} — {} × {}", if d.target.source { "Source" } else { "Program" }, d.target.width, d.target.height));
+            ui.label(format!("{} — {} × {}", if d.target.source { "المصدر" } else { "البرنامج" }, d.target.width, d.target.height));
             ui.label(&d.target.name);
             let r = ui.label(format!("Frame time: {}", d.timecode));
             elems.push(("exportFrame.timecode".into(), r.rect, d.timecode.clone()));
@@ -200,7 +200,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         });
     }
     if shown.is_some() && movement != egui::Vec2::ZERO {
-        // Keep the unrounded requested pivot between drag frames so subpixel deltas cannot accumulate rounding drift.
+        // Keep the unrounded requested pivot between drag إطار so subpixel deltas cannot accumulate rounding drift.
         if let Some(pivot) = position.or_else(|| egui::containers::AreaState::load(ctx, window_id).and_then(|state| state.pivot_pos)) {
             ctx.data_mut(|m| m.insert_temp(position_id, pivot + movement));
         }

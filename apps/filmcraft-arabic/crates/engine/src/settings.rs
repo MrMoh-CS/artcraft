@@ -1,4 +1,4 @@
-//! **Settings** (Premiere: app menu ▸ Settings ▸ <category>; the window is titled "التفضيلات").
+//! **Settings** (Premiere: app menu ▸ Settings ▸ <category>; the window is titled "Preferences").
 //!
 //! The values live in [`crate::autosave::Preferences`] (persisted as `preferences.json` in the
 //! per-user data directory, never in the project). Every value is a dotted camelCase key whose first
@@ -187,7 +187,7 @@ pub struct AudioHardwarePrefs {
     pub default_output: String,
     /// "I/O Buffer Size" (samples).
     pub buffer_size: u32,
-    /// "Sample Rate" (Hz).
+    /// "معدل العينة" (Hz).
     pub sample_rate: u32,
     /// "Attempt to force hardware to document sample rate": open the device at the sequence rate.
     pub force_document_rate: bool,
@@ -457,16 +457,16 @@ const BUILTIN_LABEL_PRESETS: [(&str, [(&str, &str); 16]); 2] = [
             ("B-Roll", "#5b8fd4"),
             ("Footage", "#36a9c9"),
             ("Dialogue", "#4cb87a"),
-            ("الرسوميات", "#e8913a"),
+            ("Graphics", "#e8913a"),
             ("Interview", "#d9c040"),
-            ("تسلسل", "#7f9e3c"),
+            ("التسلسل", "#7f9e3c"),
             ("Visual Effects", "#c95bc4"),
             ("Bin", "#8a94a6"),
-            ("العناوين", "#e86f5c"),
+            ("Titles", "#e86f5c"),
             ("Music", "#8c6fe0"),
             ("Sound Effects", "#e0609a"),
             ("Voice-Over", "#5fd1b5"),
-            ("التسميات التوضيحية", "#c8b48a"),
+            ("الترجمة النصية", "#c8b48a"),
             ("Ambience", "#a8754f"),
             ("Color Grade", "#d64545"),
             ("Stock", "#b5d454"),
@@ -765,7 +765,7 @@ fn duration_in(value: f64, unit: &str, rate: FrameRate) -> Tick {
 }
 
 impl TimelinePrefs {
-    /// "Still Image Default Duration" at a sequence rate (whole frames, at least one).
+    /// "Still Image Default Duration" at a sequence rate (whole إطار, at least one).
     pub fn still_duration(&self, rate: FrameRate) -> Tick {
         duration_in(self.still_image_duration, &self.still_image_unit, rate)
     }
@@ -973,8 +973,8 @@ const CACHE_MGMT: &[(&str, &str)] = &[
 ];
 const AUTO_SCROLL: &[(&str, &str)] = &[("noScroll", "No Scroll"), ("pageScroll", "Page Scroll"), ("smoothScroll", "Smooth Scroll")];
 const MOUSE_SCROLL: &[(&str, &str)] = &[("vertical", "Vertical"), ("horizontal", "Horizontal")];
-const HW_DECODE: &[(&str, &str)] = &[("auto", "Auto"), ("off", "Off")];
-const TRACKS: &[(&str, &str)] = &[("useFile", "Use File"), ("mono", "Mono"), ("stereo", "Stereo"), ("5.1", "5.1"), ("adaptive", "Adaptive")];
+const HW_DECODE: &[(&str, &str)] = &[("auto", "تلقائي"), ("off", "Off")];
+const TRACKS: &[(&str, &str)] = &[("useFile", "Use File"), ("mono", "أحادي"), ("stereo", "ستيريو"), ("5.1", "5.1"), ("adaptive", "Adaptive")];
 pub const DURATION_UNITS: &[(&str, &str)] = &[("frames", "Frames"), ("seconds", "Seconds")];
 
 /// The Settings categories in Premiere's order (Adobe-cloud-only ones are left out; Plugins is a
@@ -1015,7 +1015,7 @@ static CATEGORIES: &[Category] = &[
             f("general.atStartup", "At Startup", Kind::Choice(STARTUP), true),
             f("general.whenOpeningProject", "When Opening a Project", Kind::Choice(OPENING), false),
             Row::Group(
-                "المجلدات",
+                "Bins",
                 &[
                     f("general.binsDoubleClick", "Double-click", Kind::Choice(BIN_OPEN), false),
                     f("general.binsCmdDoubleClick", "+ Cmd", Kind::Choice(BIN_OPEN), false),
@@ -1079,7 +1079,7 @@ static CATEGORIES: &[Category] = &[
                     sub("audio.minimumTimeMs", "Minimum time", int(1.0, 10_000.0, "milliseconds"), "audio.minimumTimeIntervalThinning", true),
                 ],
             ),
-            Row::Group("Render Edit in Audition files to:", &[f("audio.editInAuditionLocation", "Location", Kind::Choice(AUDITION), false)]),
+            Row::Group("Render Edit in Audition files to:", &[f("audio.editInAuditionLocation", "المسار", Kind::Choice(AUDITION), false)]),
         ],
     },
     Category {
@@ -1090,7 +1090,7 @@ static CATEGORIES: &[Category] = &[
             f("audioHardware.defaultInput", "Default Input", Kind::Device(DeviceList::Inputs), false),
             f("audioHardware.defaultOutput", "Default Output", Kind::Device(DeviceList::Outputs), true),
             f("audioHardware.bufferSize", "I/O Buffer Size", Kind::Choice(BUFFERS), true),
-            f("audioHardware.sampleRate", "Sample Rate", Kind::Choice(RATES), true),
+            f("audioHardware.sampleRate", "معدل العينة", Kind::Choice(RATES), true),
             b("audioHardware.forceDocumentRate", "Attempt to force hardware to document sample rate", true),
             Row::Group(
                 "Output Mapping",
@@ -1130,7 +1130,7 @@ static CATEGORIES: &[Category] = &[
     },
     Category {
         id: "color",
-        title: "الألوان",
+        title: "Color",
         rows: &[
             Row::Group(
                 "Display Color Settings",
@@ -1145,10 +1145,10 @@ static CATEGORIES: &[Category] = &[
     },
     Category {
         id: "graphics",
-        title: "الرسوميات",
+        title: "Graphics",
         rows: &[
             Row::Group(
-                "Text",
+                "النص",
                 &[
                     b("graphics.ligatures", "Ligatures", true),
                     b("graphics.hindiDigits", "Hindi digits", false),
@@ -1190,13 +1190,13 @@ static CATEGORIES: &[Category] = &[
                 "Label Defaults",
                 &[
                     f("labels.defaults.movie", "Movie (audio and video)", Kind::Label, true),
-                    f("labels.defaults.video", "Video", Kind::Label, true),
+                    f("labels.defaults.video", "الفيديو", Kind::Label, true),
                     f("labels.defaults.audio", "الصوت", Kind::Label, true),
                     f("labels.defaults.still", "Still", Kind::Label, true),
-                    f("labels.defaults.sequence", "تسلسل", Kind::Label, true),
+                    f("labels.defaults.sequence", "التسلسل", Kind::Label, true),
                     f("labels.defaults.dynamicLink", "Dynamic Link", Kind::Label, false),
                     f("labels.defaults.bin", "Bin", Kind::Label, false),
-                    f("labels.defaults.captions", "التسميات التوضيحية", Kind::Label, false),
+                    f("labels.defaults.captions", "الترجمة النصية", Kind::Label, false),
                 ],
             ),
             Row::Custom("labelPresets"),
@@ -1204,7 +1204,7 @@ static CATEGORIES: &[Category] = &[
     },
     Category {
         id: "media",
-        title: "الوسائط",
+        title: "Media",
         rows: &[
             f("media.indeterminateTimebase", "Indeterminate Media Timebase", Kind::Choice(TIMEBASE), true),
             f("media.timecode", "Timecode", Kind::Choice(TIMECODE), false),
@@ -1261,13 +1261,13 @@ static CATEGORIES: &[Category] = &[
             Row::Group(
                 "Media Cache Files",
                 &[
-                    f("mediaCache.location", "Location", Kind::Path, true),
+                    f("mediaCache.location", "المسار", Kind::Path, true),
                     b("mediaCache.saveNextToMedia", "Save .cfa and .pek media cache files next to original media files when possible", false),
                     Row::Button { id: "mediaCache.clean", label: "Delete…", command: "mediaCache.clean" },
                     Row::Custom("mediaCacheInfo"),
                 ],
             ),
-            Row::Group("Media Cache Database", &[f("mediaCache.databaseLocation", "Location", Kind::Path, false)]),
+            Row::Group("Media Cache Database", &[f("mediaCache.databaseLocation", "المسار", Kind::Path, false)]),
             Row::Group(
                 "Media Cache Management",
                 &[
@@ -1300,7 +1300,7 @@ static CATEGORIES: &[Category] = &[
             b("playback.pauseEncoderQueue", "Pause Media Encoder queue during playback", false),
             b("playback.enableTransmit", "Enable Mercury Transmit", false),
             b("playback.disableVideoInBackground", "Disable video output when in the background", false),
-            b("playback.draftDecode", "Draft decoding at reduced playback resolution (H.264: faster, some frames less filtered)", true),
+            b("playback.draftDecode", "Draft decoding at reduced playback resolution (H.264: faster, some إطار less filtered)", true),
             f("playback.hardwareDecoding", "Hardware decoding", Kind::Choice(HW_DECODE), true),
             Row::Note(
                 "Hardware decoding: Auto uses the system's video decoder (VideoToolbox on macOS, Media Foundation on Windows, VA-API or NVDEC for H.264 and HEVC on Linux) for the streams it supports, and FilmCraft's own decoder for everything else or if the hardware fails. Media that is already open keeps its decoder until it is reopened.",

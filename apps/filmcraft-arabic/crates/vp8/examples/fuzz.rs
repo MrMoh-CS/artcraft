@@ -1,7 +1,7 @@
 //! Decode corrupted variants of IVF files and report panics (`fuzz iterations seed files...`).
 //! Run in a debug build so arithmetic overflow panics too.
 
-fn frames(data: &[u8]) -> Vec<Vec<u8>> {
+fn إطار(data: &[u8]) -> Vec<Vec<u8>> {
     let mut out = Vec::new();
     let Some(h) = data.get(6..8) else { return out };
     let mut pos = usize::from(u16::from_le_bytes([h[0], h[1]]));
@@ -28,7 +28,7 @@ fn main() {
     let mut panics = 0;
     let mut decoded = 0u64;
     for path in &args[3..] {
-        let original = frames(&std::fs::read(path).unwrap_or_default());
+        let original = إطار(&std::fs::read(path).unwrap_or_default());
         for it in 0..iterations {
             let mut fr = original.clone();
             let mode = rnd() % 6;
@@ -62,13 +62,13 @@ fn main() {
                             }
                         }
                     }
-                    // trailing garbage on some frames
+                    // trailing garbage on some إطار
                     4 if rnd() % 3 == 0 => f.extend((0..rnd() % 64).map(|_| rnd() as u8)),
                     _ => {}
                 }
             }
             if mode == 5 {
-                // decode order shuffled: inter frames after the wrong references
+                // decode order shuffled: inter إطار after the wrong references
                 for i in (1..fr.len()).rev() {
                     let j = (rnd() as usize) % (i + 1);
                     fr.swap(i, j);
@@ -96,5 +96,5 @@ fn main() {
             }
         }
     }
-    eprintln!("done: {panics} panics, {decoded} frames decoded");
+    eprintln!("done: {panics} panics, {decoded} إطار decoded");
 }

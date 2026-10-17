@@ -222,7 +222,7 @@ impl Decoder {
     }
 
     /// Logits (1, t, vocab) for `tokens` appended to the cache. With `qk_heads`, also returns the
-    /// cross-attention logits of those (layer, head) pairs: (heads, t, audio frames).
+    /// cross-attention logits of those (layer, head) pairs: (heads, t, audio إطار).
     pub fn forward(&mut self, tokens: &[u32], xa: &Tensor, cached: bool, qk_heads: Option<&[(usize, usize)]>) -> Result<(Tensor, Option<Tensor>)> {
         let dev = xa.device();
         let t = tokens.len();

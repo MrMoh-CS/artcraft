@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-use filmcraft_project::{ClipId, ItemId, MulticamSel, Sequence, Track, TrackId, TrackItem};
+use filmcraft_project::{ClipId, ItemId, MulticamSel, تسلسل، Track, TrackId, TrackItem};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::{EditCtx, EditError, Result, remove_orphan_transitions, split_track_at};
@@ -17,7 +17,7 @@ pub fn is_multicam(it: &TrackItem) -> bool {
 }
 
 /// Set the angle of multi-camera clips. Returns how many changed.
-pub fn set_angle(seq: &mut Sequence, clips: &[ClipId], angle: u32) -> usize {
+pub fn set_angle(seq: &mut تسلسل، clips: &[ClipId], angle: u32) -> usize {
     let mut n = 0;
     for t in seq.all_tracks_mut() {
         if t.locked {
@@ -37,7 +37,7 @@ pub fn set_angle(seq: &mut Sequence, clips: &[ClipId], angle: u32) -> usize {
 
 /// Enable or disable multi-camera behaviour of clips (Multi-Camera ▸ Enable). Clips that are not
 /// multi-camera clips are left alone. Returns how many changed.
-pub fn set_enabled(seq: &mut Sequence, clips: &[ClipId], enabled: bool) -> usize {
+pub fn set_enabled(seq: &mut تسلسل، clips: &[ClipId], enabled: bool) -> usize {
     let mut n = 0;
     for t in seq.all_tracks_mut() {
         for it in t.items.iter_mut().filter(|i| clips.contains(&i.id)) {
@@ -112,7 +112,7 @@ pub struct Cut {
 /// `end`; afterwards through edits inside the recorded range are healed, so pressing the angle that
 /// is already showing adds no edit. Locked tracks are skipped. Returns the number of edit points
 /// in the recorded range after the pass.
-pub fn record(seq: &mut Sequence, tracks: &[TrackId], source: ItemId, cuts: &[Cut], end: Tick, ctx: &mut EditCtx) -> usize {
+pub fn record(seq: &mut تسلسل، tracks: &[TrackId], source: ItemId, cuts: &[Cut], end: Tick, ctx: &mut EditCtx) -> usize {
     let mut cuts: Vec<Cut> = cuts.iter().copied().filter(|c| c.time < end).collect();
     cuts.sort_by_key(|c| c.time);
     // two presses at one time: the later wins
@@ -196,7 +196,7 @@ pub fn flatten_items(outer: &TrackItem, source_track: &Track, ctx: &mut EditCtx,
 
 /// Replace a multi-camera clip on `track` by `pieces` (from [`flatten_items`]); pieces whose
 /// track is not `track` go to the tracks given with them. Returns the new ids.
-pub fn replace_with(seq: &mut Sequence, clip: ClipId, pieces: Vec<(TrackId, TrackItem)>, ctx: &mut EditCtx) -> Result<Vec<ClipId>> {
+pub fn replace_with(seq: &mut تسلسل، clip: ClipId, pieces: Vec<(TrackId, TrackItem)>, ctx: &mut EditCtx) -> Result<Vec<ClipId>> {
     let (tid, _) = seq.find_item(clip).ok_or(EditError::NoItem(clip))?;
     let t = seq.track_mut(tid).ok_or(EditError::NoTrack(tid))?;
     if t.locked {

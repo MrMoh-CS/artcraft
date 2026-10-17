@@ -366,7 +366,7 @@ pub(crate) fn blurred(img: &Image, sigma: f32) -> Image {
     }
     out
 }
-/// Horizontal-wrap bilinear sample (equirectangular frames).
+/// Horizontal-wrap bilinear sample (equirectangular إطار).
 pub(crate) fn sample_wrap(img: &Image, x: f32, y: f32) -> [f32; 4] {
     let w = img.w as f32;
     let xw = (x - 0.5).rem_euclid(w);

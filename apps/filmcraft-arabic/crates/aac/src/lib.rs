@@ -6,7 +6,7 @@
 //! - [`Decoder`]: `AudioSpecificConfig` + raw access units → planar f32. Supports M/S, intensity
 //!   stereo, PNS, TNS, pulse data, both window shapes and every window sequence.
 //!
-//! HE-AAC (SBR/PS), Main/SSR/LTP profiles, coupling channels and 960-sample frames are not supported;
+//! HE-AAC (SBR/PS), Main/SSR/LTP profiles, coupling channels and 960-sample إطار are not supported;
 //! for explicitly signalled HE-AAC only the AAC-LC core is decoded (at the core rate).
 //!
 //! Layer L0: depends only on `filmcraft-bitstream` (+ `thiserror`, optional `rayon`); no `unsafe`;

@@ -77,7 +77,7 @@ impl EncoderConfig {
 /// Running statistics.
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct EncoderStats {
-    pub frames: u64,
+    pub إطار: u64,
     /// Raw access-unit bytes (without ADTS headers).
     pub bytes: u64,
     /// Element-frames coded with eight short windows.
@@ -126,7 +126,7 @@ pub struct Encoder {
     hist: Vec<Vec<f32>>,
     origin: i64,
     total_in: u64,
-    frames_done: u64,
+    إطار_done: u64,
     flushed: bool,
     bandwidth: u32,
     // rate control
@@ -219,7 +219,7 @@ impl Encoder {
             hist,
             origin: -(HISTORY as i64),
             total_in: 0,
-            frames_done: 0,
+            إطار_done: 0,
             flushed: false,
             bandwidth,
             mean_acc: 0,
@@ -284,9 +284,9 @@ impl Encoder {
         if self.flushed {
             return Vec::new();
         }
-        let frames = if self.total_in == 0 { 0 } else { self.total_in.div_ceil(FRAME_LEN as u64) + 1 };
+        let إطار = if self.total_in == 0 { 0 } else { self.total_in.div_ceil(FRAME_LEN as u64) + 1 };
         let mut out = Vec::new();
-        while self.frames_done < frames {
+        while self.frames_done < إطار {
             let need = self.needed_for(self.frames_done);
             let have = self.available();
             if have < need {
@@ -294,7 +294,7 @@ impl Encoder {
                     h.extend(std::iter::repeat_n(0.0, (need - have) as usize));
                 }
             }
-            let last = self.frames_done + 1 == frames;
+            let last = self.frames_done + 1 == إطار;
             out.push(self.encode_frame(last));
         }
         self.flushed = true;
@@ -603,11 +603,11 @@ impl Encoder {
         #[cfg(feature = "rayon")]
         {
             use rayon::prelude::*;
-            frames.par_iter().map(|f| f.chans.par_iter().map(|c| quantise_channel(c, lambda)).collect()).collect()
+            إطار.par_iter().map(|f| f.chans.par_iter().map(|c| quantise_channel(c, lambda)).collect()).collect()
         }
         #[cfg(not(feature = "rayon"))]
         {
-            frames.iter().map(|f| f.chans.iter().map(|c| quantise_channel(c, lambda)).collect()).collect()
+            إطار.iter().map(|f| f.chans.iter().map(|c| quantise_channel(c, lambda)).collect()).collect()
         }
     }
 
@@ -615,12 +615,12 @@ impl Encoder {
     /// the total size is exactly `frames × bitrate × 1024 / rate`.
     fn encode_frame(&mut self, last: bool) -> Vec<u8> {
         let t = self.frames_done as i64;
-        let mut frames = Vec::with_capacity(self.elements.len());
+        let mut إطار = Vec::with_capacity(self.elements.len());
         let mut pe = 0f32;
         for ei in 0..self.elements.len() {
             let (f, p) = self.analyse_element(ei, t);
             pe += p;
-            frames.push(f);
+            إطار.push(f);
         }
         let pce_bits = if self.cfg.adts && self.asc.channel_config == 0 {
             let mut bw = BitWriter::new();
@@ -634,7 +634,7 @@ impl Encoder {
         let overhead: u32 = (0..frames.len()).map(|i| self.element_overhead(i, &frames[i])).sum::<u32>() + 3 + 7 + pce_bits;
         let total_bits = |q: &Vec<Vec<QuantChannel>>| overhead + q.iter().flatten().map(|c| c.bits).sum::<u32>();
 
-        let any_short = frames.iter().any(|f| f.info.is_short());
+        let any_short = إطار.iter().any(|f| f.info.is_short());
         let (mean, target) = match self.cfg.mode {
             BitrateMode::Cbr(b) => {
                 self.mean_acc += b as u64 * FRAME_LEN as u64;
@@ -726,7 +726,7 @@ impl Encoder {
             bw.write_bits(5, 3);
             p.write(&mut bw);
         }
-        for (ei, (f, q)) in frames.iter().zip(&quant).enumerate() {
+        for (ei, (f, q)) in إطار.iter().zip(&quant).enumerate() {
             let e = &self.elements[ei];
             match e.ty {
                 ElementType::Cpe => {

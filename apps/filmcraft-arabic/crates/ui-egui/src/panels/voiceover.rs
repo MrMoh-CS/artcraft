@@ -312,13 +312,13 @@ fn settings_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     discard = true;
                 }
             }
-            let c = ui.button(tl!("Cancel"));
-            elems.push(("voiceover.cancel".into(), c.rect, "Cancel".into()));
+            let c = ui.button(tl!("إلغاء"));
+            elems.push(("voiceover.cancel".into(), c.rect, "إلغاء".into()));
             if c.clicked() {
                 close = true;
             }
-            let o = ui.add(egui::Button::new(RichText::new(tl!("OK")).color(Color32::WHITE)).fill(accent));
-            elems.push(("voiceover.ok".into(), o.rect, "OK".into()));
+            let o = ui.add(egui::Button::new(RichText::new(tl!("موافق")).color(Color32::WHITE)).fill(accent));
+            elems.push(("voiceover.ok".into(), o.rect, "موافق".into()));
             if o.clicked() {
                 apply = true;
             }

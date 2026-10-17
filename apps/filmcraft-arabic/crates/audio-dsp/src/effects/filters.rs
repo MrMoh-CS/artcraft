@@ -602,7 +602,7 @@ pub fn fft_curve_db(points: &[(f32, f32)], freq: f32, smooth: bool) -> f32 {
 }
 
 /// Zero-phase frequency-domain gain curve (8 points), applied with a √Hann STFT at 75 %
-/// overlap (latency = FFT size). Curve changes glide over a few frames.
+/// overlap (latency = FFT size). Curve changes glide over a few إطار.
 pub struct FftFilter {
     pv: ParamValues,
     sr: f32,
@@ -680,7 +680,7 @@ impl AudioEffect for FftFilter {
                 let spec = &mut self.spec;
                 let gains = &mut self.gains;
                 let target = &self.target;
-                // Every channel frames at the same samples; the gains glide once per frame.
+                // Every channel إطار at the same samples; the gains glide once per frame.
                 let first = ch == 0;
                 let mut frame = |input: &[f32], out: &mut [f32]| {
                     if first {

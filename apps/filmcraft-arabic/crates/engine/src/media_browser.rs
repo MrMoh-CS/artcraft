@@ -11,7 +11,7 @@
 //! | `mediaBrowser.select` | the selected files (File ▸ Import from Media Browser uses them) |
 //! | `mediaBrowser.favorite` | Add to / Remove from Favorites |
 //! | `mediaBrowser.clearRecent` | Clear Recent Directories |
-//! | `mediaBrowser.settings` | file types, view (list / thumbnails), columns (Edit Columns…), Import as Image Sequence, Hover Scrub, thumbnail size |
+//! | `mediaBrowser.settings` | file types, view (list / thumbnails), columns (Edit Columns…), Import as Image تسلسل، Hover Scrub, thumbnail size |
 //! | `mediaBrowser.import` | Import (the selection or `paths`; a folder becomes a bin, its sub-folders bins inside it; Project ▸ Ingest settings apply) |
 //! | `mediaBrowser.openInSource` | Open In Source Monitor (Shift+O) |
 //! | `mediaBrowser.probe` | a file's media properties (frame rate, duration, video / audio info), cached |
@@ -60,18 +60,18 @@ pub struct Volume {
 
 /// File types shown (the "File Types Displayed" menu).
 pub const FILE_TYPES: [(&str, &str); 6] = [
-    ("all", "All Supported Files"),
+    ("all", "جميع الملفات المدعومة"),
     ("video", "Video Files"),
     ("audio", "Audio Files"),
     ("image", "Still Images"),
     ("project", "Projects and Interchange"),
-    ("caption", "التسميات التوضيحية"),
+    ("caption", "الترجمة النصية"),
 ];
 
 /// Columns the list view can show (Edit Columns…), in default order.
 pub const ALL_COLUMNS: [&str; 10] =
-    ["Name", "Media Type", "Size", "Date Modified", "معدل الإطارات", "Media Duration", "Video Info", "Audio Info", "Video Codec", "Audio Codec"];
-pub const DEFAULT_COLUMNS: [&str; 5] = ["Name", "معدل الإطارات", "Media Duration", "Video Info", "Size"];
+    ["الاسم", "Media Type", "Size", "Date Modified", "معدل الإطارات", "Media Duration", "Video Info", "Audio Info", "Video Codec", "Audio Codec"];
+pub const DEFAULT_COLUMNS: [&str; 5] = ["الاسم", "معدل الإطارات", "Media Duration", "Video Info", "Size"];
 
 /// Project and interchange files the browser can import. Avid Log Exchange (`.ale`) is left out:
 /// FilmCraft writes it (File ▸ Export) but, like Premiere, does not read it (#1292).
@@ -394,7 +394,7 @@ fn settings(s: &mut Session, p: &Value) -> Result<Value> {
         };
     }
     if let Some(a) = p.get("columns").and_then(Value::as_array) {
-        let mut cols = vec!["Name".to_string()];
+        let mut cols = vec!["الاسم".to_string()];
         for c in a.iter().filter_map(Value::as_str) {
             let c = ALL_COLUMNS.iter().find(|x| x.eq_ignore_ascii_case(c)).ok_or_else(|| bad("mediaBrowser.settings", format!("unknown column `{c}`")))?;
             if !cols.iter().any(|x| x == c) {
@@ -516,7 +516,7 @@ fn import(s: &mut Session, p: &Value) -> Result<Value> {
         if !is_dir {
             files.push(path);
         } else if seq {
-            // an image sequence: the folder's frames
+            // an image sequence: the folder's إطار
             match list(&*s.services, &path, "all") {
                 Ok(entries) => files.extend(entries.into_iter().filter(|e| !e.is_dir).map(|e| e.path)),
                 Err(_) => files.push(path),
@@ -601,7 +601,7 @@ pub fn probe(s: &mut Session, path: &str) -> Option<MediaInfo> {
 /// The text of a list column for an entry (`probe`: its media properties, when known).
 pub fn column_text(e: &Entry, column: &str, probe: Option<&MediaInfo>) -> String {
     match column {
-        "Name" => e.name.clone(),
+        "الاسم" => e.name.clone(),
         "Media Type" => {
             if e.is_dir {
                 "Folder".into()
@@ -745,7 +745,7 @@ pub fn std_volumes() -> Vec<Volume> {
             v.push(Volume { name: "/".into(), path: "/".into(), kind: VolumeKind::Local });
         }
         if std::path::Path::new("/Network").is_dir() {
-            v.push(Volume { name: "Network".into(), path: "/Network".into(), kind: VolumeKind::Network });
+            v.push(Volume { name: "الشبكة".into(), path: "/Network".into(), kind: VolumeKind::Network });
         }
         return v;
     }

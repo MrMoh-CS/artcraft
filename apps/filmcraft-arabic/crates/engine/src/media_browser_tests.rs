@@ -127,7 +127,7 @@ fn file_type_filter() {
     assert!(s.execute("mediaBrowser.settings", json!({"view": "cards"})).is_err());
     s.execute("mediaBrowser.settings", json!({"view": "thumbnails", "columns": ["size", "معدل الإطارات"]})).unwrap();
     assert_eq!(s.prefs.media_browser.view, "thumbnails");
-    assert_eq!(s.prefs.media_browser.columns, ["Name", "Size", "معدل الإطارات"]);
+    assert_eq!(s.prefs.media_browser.columns, ["الاسم", "Size", "معدل الإطارات"]);
 }
 
 #[test]

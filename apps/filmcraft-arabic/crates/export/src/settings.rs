@@ -21,7 +21,7 @@ pub enum Scaling {
     StretchToFill,
 }
 
-/// Field order of the encoded video. FilmCraft's encoders write progressive frames.
+/// Field order of the encoded video. FilmCraft's encoders write progressive إطار.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FieldOrder {
@@ -34,9 +34,9 @@ pub enum FieldOrder {
 impl FieldOrder {
     pub fn label(self) -> &'static str {
         match self {
-            FieldOrder::Progressive => "Progressive",
-            FieldOrder::UpperFirst => "Upper First",
-            FieldOrder::LowerFirst => "Lower First",
+            FieldOrder::Progressive => "تقدمي",
+            FieldOrder::UpperFirst => "العلوي أولاً",
+            FieldOrder::LowerFirst => "السفلي أولاً",
         }
     }
 }
@@ -54,9 +54,9 @@ pub enum H264Profile {
 impl H264Profile {
     pub fn label(self) -> &'static str {
         match self {
-            H264Profile::Baseline => "Baseline",
-            H264Profile::Main => "Main",
-            H264Profile::High => "High",
+            H264Profile::Baseline => "أساسي",
+            H264Profile::Main => "رئيسي",
+            H264Profile::High => "عالي",
         }
     }
 }
@@ -110,9 +110,9 @@ pub enum BitrateMode {
 impl BitrateMode {
     pub fn label(self) -> &'static str {
         match self {
-            BitrateMode::Cbr => "CBR",
-            BitrateMode::Vbr1Pass => "VBR, 1 pass",
-            BitrateMode::Vbr2Pass => "VBR, 2 pass",
+            BitrateMode::Cbr => "معدل بت ثابت",
+            BitrateMode::Vbr1Pass => "معدل بت متغير، تمرير 1",
+            BitrateMode::Vbr2Pass => "معدل بت متغير، تمرير 2",
             BitrateMode::Crf => "CRF (constant quality)",
         }
     }
@@ -514,7 +514,7 @@ impl ExportSettings {
         }
     }
 
-    /// Whether the exported frames keep their alpha channel instead of being flattened over black.
+    /// Whether the exported إطار keep their alpha channel instead of being flattened over black.
     pub fn keeps_alpha(&self) -> bool {
         self.alpha && self.supports_alpha()
     }
@@ -686,7 +686,7 @@ impl ExportSettings {
                         BitrateMode::Crf => format!(" {}", self.crf),
                         _ => format!(", Target {}, Max {}", mbps(r.target_kbps), mbps(r.max_kbps)),
                     };
-                    v += &format!(", keyframe every {} frames", r.keyint);
+                    v += &format!(", إطار مفتاحي كل {} إطار", r.keyint);
                 }
                 Format::Hevc => {
                     // Main 10 only where a registered encoder writes HDR (NVENC); VideoToolbox is 8-bit
@@ -696,7 +696,7 @@ impl ExportSettings {
                         BitrateMode::Cbr => format!(", {}", mbps(r.target_kbps)),
                         _ => format!(", Target {}, Max {}", mbps(r.target_kbps), mbps(r.max_kbps)),
                     };
-                    v += &format!(", keyframe every {} frames", r.keyint);
+                    v += &format!(", إطار مفتاحي كل {} إطار", r.keyint);
                 }
                 Format::Av1 => {
                     v += &format!(", AV1 Main (hardware encoder), {}", self.bitrate_mode.label());
@@ -704,7 +704,7 @@ impl ExportSettings {
                         BitrateMode::Cbr => format!(", {}", mbps(r.target_kbps)),
                         _ => format!(", Target {}, Max {}", mbps(r.target_kbps), mbps(r.max_kbps)),
                     };
-                    v += &format!(", keyframe every {} frames", r.keyint);
+                    v += &format!(", إطار مفتاحي كل {} إطار", r.keyint);
                 }
                 Format::ProRes => {
                     use filmcraft_prores::Profile;
@@ -734,9 +734,9 @@ impl ExportSettings {
         };
         let audio = if self.has_audio() || self.format.is_audio_only() {
             let ch = match r.channels {
-                1 => "Mono",
+                1 => "أحادي",
                 6 => "5.1",
-                _ => "Stereo",
+                _ => "ستيريو",
             };
             match self.audio_codec() {
                 AudioCodec::Aac => format!("AAC, {} kbps, {} Hz, {ch}", self.audio.bitrate_kbps, r.sample_rate),

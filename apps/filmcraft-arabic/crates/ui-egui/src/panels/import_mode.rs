@@ -1,4 +1,4 @@
-//! Import mode (header "Import", also Home): large browser cards for importing media and demo footage,
+//! Import mode (header "استيراد", also Home): large browser cards for importing media and demo footage,
 //! and the recent projects.
 
 use egui::{Align2, Color32, Rect, Sense, pos2, vec2};
@@ -10,20 +10,20 @@ use crate::theme::Tokens;
 pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     let t = app.tokens;
     ui.painter().rect_filled(rect, t.radius, t.panel_bg);
-    ui.painter().text(rect.min + vec2(24.0, 30.0), Align2::LEFT_CENTER, tl!("Import"), Tokens::semibold(22.0), t.text);
+    ui.painter().text(rect.min + vec2(24.0, 30.0), Align2::LEFT_CENTER, tl!("استيراد"), Tokens::semibold(22.0), t.text);
     ui.painter().text(
         rect.min + vec2(24.0, 58.0),
         Align2::LEFT_CENTER,
-        tl!("Add media to your project. Drop files anywhere in the window, or choose a source below."),
+        tl!("أضف وسائط إلى مشروعك. أفلت الملفات في أي مكان بالنافذة، أو اختر مصدراً بالأسفل."),
         Tokens::ui(13.0),
         t.text_dim,
     );
     let ctx = ui.ctx().clone();
     let cards = [
-        (tl!("Browse files…"), "file.import", tl!("Movies, audio and stills from disk")),
-        (tl!("Demo footage"), "file.importDemoFootage", tl!("Six procedural 1080p clips with sound")),
-        (tl!("Demo project"), "file.openDemoProject", tl!("A cut sequence with transitions, effects and music")),
-        (tl!("Bars and Tone"), "file.newBarsAndTone", tl!("SMPTE HD bars with 1 kHz reference tone")),
+        (tl!("Browse files…"), "file.import", tl!("أفلام وصوتيات وصور ثابتة من القرص")),
+        (tl!("مقاطع تجريبية"), "file.importDemoFootage", tl!("ستة مقاطع 1080p جاهزة مع صوت")),
+        (tl!("مشروع تجريبي"), "file.openDemoProject", tl!("تسلسل ممنتج مع انتقالات ومؤثرات وموسيقى")),
+        (tl!("أشرطة الألوان والنغمة"), "file.newBarsAndTone", tl!("أشرطة ألوان قياسية مع نغمة مرجعية 1 كيلوهرتز")),
     ];
     let cw = 260.0;
     for (i, (title, cmd, sub)) in cards.iter().enumerate() {
@@ -36,7 +36,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         crate::icons::paint(
             ui.painter(),
             Rect::from_min_size(r.min + vec2(16.0, 18.0), vec2(56.0, 56.0)),
-            [crate::icons::Icon::Folder, crate::icons::Icon::Film, crate::icons::Icon::Sequence, crate::icons::Icon::Grid][i],
+            [crate::icons::Icon::Folder, crate::icons::Icon::Film, crate::icons::Icon::تسلسل، crate::icons::Icon::Grid][i],
             Color32::from_rgb(140, 150, 255),
         );
         if resp.clicked() {
@@ -49,11 +49,11 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     // ArtCraft wordmark (first-party trademark, docs/brand/), then the section title.
     let logo = crate::brand::paint_wordmark(ui, rect.min + vec2(24.0, y), 15.0, app.ui.dark);
     let tx = logo.map_or(rect.min.x + 24.0, |r| r.max.x + 12.0);
-    ui.painter().text(pos2(tx, rect.min.y + y), Align2::LEFT_CENTER, tl!("Community"), Tokens::semibold(15.0), t.text);
+    ui.painter().text(pos2(tx, rect.min.y + y), Align2::LEFT_CENTER, tl!("المجتمع"), Tokens::semibold(15.0), t.text);
     let mut x = rect.min.x + 24.0;
     for (i, (id, label, url)) in crate::links::ALL.iter().take(4).enumerate() {
         let primary = i == 0;
-        let label = if primary { tl!("Join us on Discord") } else { crate::i18n::t(label) };
+        let label = if primary { tl!("انضم إلينا على ديسكورد") } else { crate::i18n::t(label) };
         let g = ui.painter().layout_no_wrap(label.to_string(), Tokens::ui(13.0), t.text);
         let r = Rect::from_min_size(pos2(x, rect.min.y + y + 18.0), vec2(g.size().x + 44.0, 34.0));
         let resp = ui.interact(r, egui::Id::new(("imp-link", *id)), Sense::click()).on_hover_text(*url);
@@ -98,7 +98,7 @@ fn recent(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, y: f32) -> f32 
             ui.painter().rect_filled(row, 4.0, t.hover);
         }
         let p = ui.painter().with_clip_rect(row);
-        crate::icons::paint(&p, Rect::from_center_size(pos2(row.min.x + 16.0, row.center().y), vec2(14.0, 14.0)), crate::icons::Icon::Sequence, t.text_dim);
+        crate::icons::paint(&p, Rect::from_center_size(pos2(row.min.x + 16.0, row.center().y), vec2(14.0, 14.0)), crate::icons::Icon::تسلسل، t.text_dim);
         let name_r = p.text(pos2(row.min.x + 32.0, row.center().y), Align2::LEFT_CENTER, &name, Tokens::ui(13.0), t.text);
         if let Some(folder) = std::path::Path::new(path).parent() {
             p.text(pos2(name_r.max.x + 12.0, row.center().y), Align2::LEFT_CENTER, folder.to_string_lossy(), Tokens::ui(11.5), t.text_dim);

@@ -6,7 +6,7 @@
 //! device's deadline, heard as static and dropouts that were different on every play. Now a stall
 //! only drains part of the lead; the callback never decodes, allocates or takes a lock.
 //!
-//! When the ring does run dry (an underrun), the callback plays silence for the missing frames and
+//! When the ring does run dry (an underrun), the callback plays silence for the missing إطار and
 //! counts them, and the mixer skips the same span, so sound stays locked to the picture.
 //!
 //! Desktop only: the web build has no threads and keeps mixing in its callback.
@@ -32,7 +32,7 @@ pub struct AudioStats {
     pub underruns: AtomicU64,
     /// Frames played as silence because the ring was empty.
     pub missing_frames: AtomicU64,
-    /// Fewest frames left in the ring after a callback, once it first filled to the lead
+    /// Fewest إطار left in the ring after a callback, once it first filled to the lead
     /// (`u64::MAX` until then).
     pub min_lead_frames: AtomicU64,
 }
@@ -88,9 +88,9 @@ impl Ring {
         n
     }
 
-    /// Consumer: fill `dst` (`dev_ch` interleaved channels) with whole frames of `ch` channels from
+    /// Consumer: fill `dst` (`dev_ch` interleaved channels) with whole إطار of `ch` channels from
     /// the ring: the first `min(ch, dev_ch)` channels copied, any further device channels zeroed.
-    /// Returns the frames copied; the rest of `dst` is left for the caller.
+    /// Returns the إطار copied; the rest of `dst` is left for the caller.
     fn pop(&self, dst: &mut [f32], dev_ch: usize, ch: usize) -> usize {
         let cap = self.slots.len();
         let r = self.read.load(Ordering::Relaxed);
@@ -119,7 +119,7 @@ impl Drop for StopOnDrop {
     }
 }
 
-/// Mixes `mix(cursor, buf, channels)` (interleaved frames from device frame `cursor`) on its own
+/// Mixes `mix(cursor, buf, channels)` (interleaved إطار from device frame `cursor`) on its own
 /// thread, from `start`, and returns the device callback that plays it (`fill(buf, channels)`).
 /// The first block is mixed before this returns, so playback starts with sound. The thread runs
 /// until the returned callback is dropped.
@@ -150,7 +150,7 @@ where
                 block.fill(0.0);
                 mix(cursor, &mut block, ch);
                 cursor += BLOCK_FRAMES as i64;
-                // silence played while this block was mixing: its first frames are already late
+                // silence played while this block was mixing: its first إطار are already late
                 let late = skip.swap(0, Ordering::AcqRel) as usize;
                 let drop = late.min(BLOCK_FRAMES);
                 cursor += (late - drop) as i64;

@@ -18,10 +18,10 @@ pub fn sniff(b: &[u8]) -> bool {
 const MAX_CHUNKS: usize = 1 << 16;
 /// Bytes of an iXML chunk searched for the time reference.
 const IXML_MAX: u64 = 1 << 20;
-/// Output frames converted per read of the data chunk.
+/// Output إطار converted per read of the data chunk.
 const BLOCK_FRAMES: usize = 4096;
 /// Largest single read of the data chunk; a wider span (an extreme resampling ratio) reads the
-/// two frames each output frame needs instead.
+/// two إطار each output frame needs instead.
 const MAX_SPAN_BYTES: u64 = 4 << 20;
 
 /// A WAV file read in place: opening it reads its chunk headers (not its samples), and
@@ -31,8 +31,8 @@ pub struct WavSource {
     info: MediaInfo,
     reader: SharedReader,
     data_off: u64,
-    /// Whole frames only.
-    frames: u64,
+    /// Whole إطار only.
+    إطار: u64,
     channels: usize,
     bits: u16,
     float: bool,
@@ -119,7 +119,7 @@ impl WavSource {
             return Err(MediaError::Unsupported(format!("{name}: WAV format tag {tag}, {bits} bits")));
         }
         let frame_bytes = u64::from(ch) * u64::from(bits / 8);
-        let frames = dlen / frame_bytes;
+        let إطار = dlen / frame_bytes;
         let time_reference = bext_tr.or(ixml_tr);
         let mut info = MediaInfo {
             name: name.into(),
@@ -136,14 +136,14 @@ impl WavSource {
             start_timecode: None,
             file_size: Some(len),
         };
-        // start timecode: frames at the media's frame rate (the default rate for audio-only media)
+        // start timecode: إطار at the media's frame rate (the default rate for audio-only media)
         if let Some(tr) = time_reference.filter(|_| rate > 0) {
             let r = info.frame_rate();
             let n = tr as i128 * r.num as i128;
             let d = rate as i128 * r.den as i128;
             info.start_timecode = (n + d / 2).checked_div(d).and_then(|t| i64::try_from(t).ok());
         }
-        Ok(Self { info, reader, data_off: off, frames, channels: ch as usize, bits, float, rate, time_reference })
+        Ok(Self { info, reader, data_off: off, إطار, channels: ch as usize, bits, float, rate, time_reference })
     }
 
     /// Broadcast Wave start time: samples since midnight.
@@ -155,7 +155,7 @@ impl WavSource {
         self.channels * (self.bits as usize / 8)
     }
 
-    /// Read whole frames `first..=last` of the data chunk.
+    /// Read whole إطار `first..=last` of the data chunk.
     fn read_frames(&self, first: u64, last: u64) -> Result<Vec<u8>> {
         let fb = self.frame_bytes() as u64;
         let n = last.saturating_sub(first).saturating_add(1).saturating_mul(fb);
@@ -165,7 +165,7 @@ impl WavSource {
         Ok(buf)
     }
 
-    /// Sample `ch` of frame `frame` of `block`, a run of whole frames.
+    /// Sample `ch` of frame `frame` of `block`, a run of whole إطار.
     fn sample(&self, block: &[u8], frame: usize, ch: usize) -> f32 {
         let bps = self.bits as usize / 8;
         let o = (frame * self.channels + ch) * bps;
@@ -189,9 +189,9 @@ impl MediaSource for WavSource {
     fn video_frame(&self, _req: FrameRequest) -> Result<Arc<VideoFrame>> {
         Err(MediaError::NoStream("video"))
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer> {
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer> {
         let total = self.frames;
-        let mut out = AudioBuffer::silence(sample_rate, self.channels, frames);
+        let mut out = AudioBuffer::silence(sample_rate, self.channels, إطار);
         if total == 0 || sample_rate == 0 {
             return Ok(out);
         }
@@ -199,8 +199,8 @@ impl MediaSource for WavSource {
         let ratio = self.rate as f64 / sample_rate as f64;
         let src_of = |i: usize| start.saturating_add(i as i64) as f64 * ratio;
         let mut i = 0;
-        while i < frames {
-            let end = frames.min(i + BLOCK_FRAMES);
+        while i < إطار {
+            let end = إطار.min(i + BLOCK_FRAMES);
             let (lo, hi) = (src_of(i), src_of(end - 1));
             if hi < 0.0 {
                 i = end;
@@ -314,7 +314,7 @@ mod tests {
     #[test]
     fn bwf_time_reference_from_bext() {
         let wav = write_wav16(&[0.0; 96], 2, 48_000);
-        // 01:00:00:00 at 23.976 fps: 86 400 frames of 2002 samples
+        // 01:00:00:00 at 23.976 fps: 86 400 إطار of 2002 samples
         let tr: u64 = 86_400 * 2002;
         let mut bext = vec![0u8; 602];
         bext[338..342].copy_from_slice(&(tr as u32).to_le_bytes());

@@ -1,7 +1,7 @@
 //! Lumetri ▸ Color Wheels & Match ▸ **Apply Match**: grade the current clip so its colour matches
 //! a reference frame. A documented, non-ML method:
 //!
-//! 1. Both frames are downsampled (≤ 96 px wide) and converted to **Oklab** (Björn Ottosson, 2020),
+//! 1. Both إطار are downsampled (≤ 96 px wide) and converted to **Oklab** (Björn Ottosson, 2020),
 //!    a perceptual space where L is lightness and (a, b) the colour axes.
 //! 2. Each pixel is weighted into three **tonal ranges** by its L — shadows `smoothstep(0.55, 0.15,
 //!    L)`, highlights `smoothstep(0.45, 0.85, L)`, midtones the rest — and per range we take the
@@ -134,7 +134,7 @@ pub fn stats(img: &Image, skin_protect: bool) -> Stats {
 }
 
 /// Residuals between graded statistics and the reference's (bands weighted by how much of both
-/// frames they cover).
+/// إطار they cover).
 fn residuals(cur: &Stats, refs: &Stats) -> Vec<f32> {
     let mut r = Vec::with_capacity(10);
     for k in 0..3 {

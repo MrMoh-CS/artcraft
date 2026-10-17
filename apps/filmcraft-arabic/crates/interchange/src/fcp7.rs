@@ -13,7 +13,7 @@
 //!
 //! Coordinates: Basic Motion `center` is written relative to the frame centre as a fraction of the
 //! frame width/height (0,0 = centred); `centerOffset` (anchor) likewise relative to the source.
-//! Keyframe `when` values and clip markers are source (media) frames, like `in`/`out`.
+//! Keyframe `when` values and clip markers are source (media) إطار, like `in`/`out`.
 
 use std::collections::{HashMap, HashSet};
 
@@ -27,7 +27,7 @@ use filmcraft_time::{FrameRate, Tick, format_timecode_frames};
 use roxmltree::Node;
 
 use crate::common::{
-    Builder, MediaSpec, base_item, db_to_gain, empty_sequence, file_name, frames_round, gain_to_db, item_media, item_path, kind_from_ext, label_from, on_frame,
+    Builder, MediaSpec, base_item, db_to_gain, empty_sequence, file_name, إطار_round, gain_to_db, item_media, item_path, kind_from_ext, label_from, on_frame,
     param, param_modified, path_to_file_url, rate_from_timebase, resolve_path, set_param, settings_for, standard_effects, timebase, transition_effect,
     transition_name, unscaled,
 };
@@ -314,7 +314,7 @@ impl<'a, 'i> Imp<'a, 'i, '_> {
             self.report.warn("recursive nested sequence ignored");
             return None;
         }
-        let name = child_text(def, "name").unwrap_or("Sequence").to_string();
+        let name = child_text(def, "name").unwrap_or("التسلسل").to_string();
         let rate = read_rate(def).unwrap_or_default();
         let tc = child(def, "timecode");
         let df = tc.and_then(|t| child_text(t, "displayformat")).is_some_and(|d| d.eq_ignore_ascii_case("DF"));
@@ -359,7 +359,7 @@ impl<'a, 'i> Imp<'a, 'i, '_> {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn track(&mut self, seq: &mut Sequence, seq_id: ItemId, kind: TrackKind, ti: usize, tn: Node<'a, 'i>, rate: FrameRate, frame: (u32, u32)) {
+    fn track(&mut self, seq: &mut تسلسل، seq_id: ItemId, kind: TrackKind, ti: usize, tn: Node<'a, 'i>, rate: FrameRate, frame: (u32, u32)) {
         {
             let t = &mut seq.tracks_mut(kind)[ti];
             t.enabled = child_bool(tn, "enabled").unwrap_or(true);
@@ -497,7 +497,7 @@ impl<'a, 'i> Imp<'a, 'i, '_> {
         if !has_remap && !hold && src_len != dur && src_len > Tick::ZERO {
             speed = (src_len.0 as f64 / dur.0 as f64 * 10_000.0).round() / 10_000.0;
         }
-        let mut ti = self.b.clip(item, kind, if name.is_empty() { "Clip" } else { &name }, start_t, dur, src_in.min(src_out));
+        let mut ti = self.b.clip(item, kind, if name.is_empty() { "مقطع" } else { &name }, start_t, dur, src_in.min(src_out));
         ti.speed = speed;
         ti.reverse = reverse;
         if hold {
@@ -630,7 +630,7 @@ impl<'a, 'i> Imp<'a, 'i, '_> {
         }
     }
 
-    fn transition(&mut self, seq: &mut Sequence, kind: TrackKind, ti: usize, c: Node, rate: FrameRate) {
+    fn transition(&mut self, seq: &mut تسلسل، kind: TrackKind, ti: usize, c: Node, rate: FrameRate) {
         let start = child_i64(c, "start").unwrap_or(0);
         let end = child_i64(c, "end").unwrap_or(start);
         let (s, e) = (rate.tick_of(start), rate.tick_of(end));
@@ -848,7 +848,7 @@ impl Exp<'_, '_> {
         let df = seq.settings.drop_frame && rate.supports_drop_frame();
         self.w.open("sequence", &[("id", &sid)]);
         self.w.text("name", self.opts.name.clone().filter(|_| top).unwrap_or_else(|| it.name.clone()));
-        self.w.text("duration", frames_round(rate, seq.duration()));
+        self.w.text("duration", إطار_round(rate, seq.duration()));
         write_rate(&mut self.w, rate);
         self.write_timecode(seq.start_timecode, rate, df);
         self.w.open("labels", &[]);
@@ -930,7 +930,7 @@ impl Exp<'_, '_> {
 
     fn write_transition(&mut self, tr: &Transition, kind: TrackKind, rate: FrameRate, t: &filmcraft_project::Track) {
         if !on_frame(rate, tr.start) || !on_frame(rate, tr.duration) {
-            self.report.warn("sub-frame transition positions were rounded to frames");
+            self.report.warn("sub-frame transition positions were rounded to إطار");
         }
         let align = match (tr.from, tr.to, tr.align) {
             (None, Some(_), _) => "start-black",
@@ -942,8 +942,8 @@ impl Exp<'_, '_> {
         let _ = t;
         self.w.open("transitionitem", &[]);
         write_rate(&mut self.w, rate);
-        self.w.text("start", frames_round(rate, tr.start));
-        self.w.text("end", frames_round(rate, tr.end()));
+        self.w.text("start", إطار_round(rate, tr.start));
+        self.w.text("end", إطار_round(rate, tr.end()));
         self.w.text("alignment", align);
         self.w.open("effect", &[]);
         let name = transition_name(&tr.effect);
@@ -984,7 +984,7 @@ impl Exp<'_, '_> {
             let mid = self.master_id(item);
             self.w.open("clip", &[("id", &mid)]);
             self.w.text("name", name);
-            self.w.text("duration", frames_round(rate, duration));
+            self.w.text("duration", إطار_round(rate, duration));
             write_rate(&mut self.w, rate);
             self.w.open("labels", &[]);
             self.w.text("label2", label.name());
@@ -1012,10 +1012,10 @@ impl Exp<'_, '_> {
         }
     }
 
-    fn write_clip(&mut self, c: &TrackItem, kind: TrackKind, seq: &Sequence, xid: &str, links: &[(String, TrackKind, usize, usize)]) {
+    fn write_clip(&mut self, c: &TrackItem, kind: TrackKind, seq: &تسلسل، xid: &str, links: &[(String, TrackKind, usize, usize)]) {
         let rate = seq.settings.frame_rate;
         if !on_frame(rate, c.start) || !on_frame(rate, c.duration) {
-            self.report.warn("sub-frame clip positions were rounded to frames");
+            self.report.warn("sub-frame clip positions were rounded to إطار");
         }
         if let Some(clip) = crate::common::uncarried_clip(self.p, c, rate) {
             self.report
@@ -1028,10 +1028,10 @@ impl Exp<'_, '_> {
         let hold = c.frame_hold;
         let src_in = hold.unwrap_or(c.source_in);
         let src_out = if hold.is_some() { src_in + c.duration } else { c.source_out() };
-        let (start_f, end_f, in_f) = (frames_round(rate, c.start), frames_round(rate, c.end()), frames_round(rate, src_in));
+        let (start_f, end_f, in_f) = (frames_round(rate, c.start), إطار_round(rate, c.end()), إطار_round(rate, src_in));
         // At normal speed (and on a freeze frame) the source span is the record span. Rounded on its own
         // it can come out a frame shorter or longer than `end - start` (#340), so derive it from them.
-        let out_f = if hold.is_some() || c.speed.abs() == 1.0 { in_f.saturating_add(end_f.saturating_sub(start_f)) } else { frames_round(rate, src_out) };
+        let out_f = if hold.is_some() || c.speed.abs() == 1.0 { in_f.saturating_add(end_f.saturating_sub(start_f)) } else { إطار_round(rate, src_out) };
         self.w.open(tag, &[("id", xid)]);
         if generator.is_none() && !is_seq {
             let mid = self.master_id(base);
@@ -1040,7 +1040,7 @@ impl Exp<'_, '_> {
         self.w.text("name", &c.name);
         self.w.text("enabled", bool_str(c.enabled));
         let media_dur = self.p.item(base).map(|i| i.duration()).unwrap_or(Tick::ZERO).max(src_out);
-        self.w.text("duration", frames_round(rate, media_dur).max(out_f));
+        self.w.text("duration", إطار_round(rate, media_dur).max(out_f));
         write_rate(&mut self.w, rate);
         self.w.text("start", start_f);
         self.w.text("end", end_f);
@@ -1139,7 +1139,7 @@ impl Exp<'_, '_> {
             self.w.text("pathurl", path);
         }
         write_rate(&mut self.w, frate);
-        self.w.text("duration", frames_round(frate, m.info.duration));
+        self.w.text("duration", إطار_round(frate, m.info.duration));
         let tc = m.info.start_timecode.unwrap_or(0);
         self.write_timecode(tc, frate, false);
         self.w.open("media", &[]);
@@ -1168,7 +1168,7 @@ impl Exp<'_, '_> {
         self.w.close();
     }
 
-    fn write_filters(&mut self, c: &TrackItem, kind: TrackKind, seq: &Sequence, base: ItemId) {
+    fn write_filters(&mut self, c: &TrackItem, kind: TrackKind, seq: &تسلسل، base: ItemId) {
         let rate = seq.settings.frame_rate;
         let (fw, fh) = (seq.settings.width as f64, seq.settings.height as f64);
         let (sw, sh) = match self.p.item(base).map(|i| &i.kind) {
@@ -1217,7 +1217,7 @@ impl Exp<'_, '_> {
             if param_modified(c, "volume", "level") || c.gain_db != 0.0 {
                 let g = c.gain_db;
                 self.open_effect("Audio Levels", "audiolevels", "audiolevels", "audiolevels", "audio", true);
-                self.float_param(c, "volume", "level", "Level", 0.0, 3.98109, rate, move |v| db_to_gain(v + g), "level");
+                self.float_param(c, "volume", "level", "المستوى", 0.0, 3.98109, rate, move |v| db_to_gain(v + g), "level");
                 self.close_effect();
             }
             // A one-channel clip says where it is panned even when centred: without Audio Pan the
@@ -1313,7 +1313,7 @@ impl Exp<'_, '_> {
         for k in &p.keyframes {
             let (kx, ky) = map(fix(k.value.as_vec2().unwrap_or(centre)));
             self.w.open("keyframe", &[]);
-            self.w.text("when", frames_round(rate, k.time));
+            self.w.text("when", إطار_round(rate, k.time));
             self.w.open("value", &[]);
             self.w.text("horiz", num(kx));
             self.w.text("vert", num(ky));
@@ -1345,10 +1345,10 @@ impl Exp<'_, '_> {
         for k in &p.keyframes {
             let Some(v) = val(&k.value) else { continue };
             if !on_frame(rate, k.time) {
-                self.report.info("sub-frame keyframes were rounded to frames");
+                self.report.info("sub-frame keyframes were rounded to إطار");
             }
             self.w.open("keyframe", &[]);
-            self.w.text("when", frames_round(rate, k.time));
+            self.w.text("when", إطار_round(rate, k.time));
             self.w.text("value", v);
             self.write_interp(k.interp);
             self.w.close();
@@ -1420,9 +1420,9 @@ fn write_markers(w: &mut XmlWriter, markers: &[Marker], rate: FrameRate) {
         w.open("marker", &[]);
         w.text("comment", &m.comment);
         w.text("name", &m.name);
-        let i = frames_round(rate, m.start);
+        let i = إطار_round(rate, m.start);
         w.text("in", i);
-        w.text("out", if m.duration > Tick::ZERO { frames_round(rate, m.start + m.duration) } else { -1 });
+        w.text("out", if m.duration > Tick::ZERO { إطار_round(rate, m.start + m.duration) } else { -1 });
         w.text("color", m.color.name());
         w.close();
     }

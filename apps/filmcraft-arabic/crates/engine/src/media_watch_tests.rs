@@ -13,9 +13,9 @@ const W: u32 = 160;
 const H: u32 = 90;
 
 /// Write a movie over `path` so its modification time moves even on coarse file systems.
-fn rerender(path: &std::path::Path, scene: DemoScene, frames: i64) {
+fn rerender(path: &std::path::Path, scene: DemoScene, إطار: i64) {
     std::thread::sleep(std::time::Duration::from_millis(30));
-    make_movie(path, scene, W, H, frames);
+    make_movie(path, scene, W, H, إطار);
 }
 
 fn refresh(s: &mut Session) -> serde_json::Value {
@@ -23,10 +23,10 @@ fn refresh(s: &mut Session) -> serde_json::Value {
 }
 
 /// What frame 3 of a fresh import of `scene` looks like.
-fn reference(name: &str, scene: DemoScene, frames: i64) -> Vec<u8> {
+fn reference(name: &str, scene: DemoScene, إطار: i64) -> Vec<u8> {
     let root = tmp_dir(name);
     let f = root.join("ref.mov");
-    make_movie(&f, scene, W, H, frames);
+    make_movie(&f, scene, W, H, إطار);
     let (mut r, _, _) = session_with(&[&f]);
     frame_rgba(&mut r, 3, 1.0).2
 }

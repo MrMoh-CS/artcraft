@@ -1,4 +1,4 @@
-//! Scope maths on generated frames with known values.
+//! Scope maths on generated إطار with known values.
 
 use crate::*;
 use filmcraft_color::rgb_to_ycbcr;

@@ -51,7 +51,7 @@ impl KeyframeMode {
     }
     pub fn label(self) -> &'static str {
         match self {
-            KeyframeMode::Scale => "الحجم",
+            KeyframeMode::Scale => "Scale",
             KeyframeMode::AnchorToIn => "Anchor to In Point",
             KeyframeMode::AnchorToOut => "Anchor to Out Point",
         }
@@ -225,8 +225,8 @@ pub fn builtin_presets() -> Vec<EffectPreset> {
     vec![
         preset("Blur In", "Gaussian Blur from 60 to 0 over the first second", KeyframeMode::AnchorToIn, 10.0, vec![blur_in]),
         preset("Blur Out", "Gaussian Blur from 0 to 60 over the last second", KeyframeMode::AnchorToOut, 10.0, vec![blur_out]),
-        preset("تلاشي للداخل", "Opacity 0 → 100 % over the first second", KeyframeMode::AnchorToIn, 10.0, vec![fade_in]),
-        preset("تلاشي للخارج", "Opacity 100 → 0 % over the last second", KeyframeMode::AnchorToOut, 10.0, vec![fade_out]),
+        preset("Fade In", "Opacity 0 → 100 % over the first second", KeyframeMode::AnchorToIn, 10.0, vec![fade_in]),
+        preset("Fade Out", "Opacity 100 → 0 % over the last second", KeyframeMode::AnchorToOut, 10.0, vec![fade_out]),
         preset("Mosaic In", "Large blocks resolving to the picture over the first second", KeyframeMode::AnchorToIn, 10.0, vec![mosaic_in]),
         preset("Soft Vignette", "Darkens outside a feathered oval mask", KeyframeMode::Scale, 10.0, vec![vignette]),
         preset("Spotlight", "Brightens inside a feathered circular mask", KeyframeMode::Scale, 10.0, vec![spotlight]),

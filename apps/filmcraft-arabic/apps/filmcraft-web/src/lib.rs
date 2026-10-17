@@ -11,7 +11,7 @@
 //! | auto-save + recovery journal (data dir) | OPFS snapshot + media copies ([`recovery`], [`opfs`]) |
 //! | cpal audio output | WebAudio `AudioWorklet`, played-frame clock ([`audio`]) |
 //! | VideoToolbox… | WebCodecs `VideoDecoder` ([`webcodecs`]) |
-//! | frame worker threads | cooperative frame queue pumped between UI frames (`FrameServer::pump`) |
+//! | frame worker threads | cooperative frame queue pumped between UI إطار (`FrameServer::pump`) |
 //! | TCP control channel / MCP | `window.filmcraft` JavaScript API ([`api`]) |
 //!
 //! Everything here is `wasm32`-only; on other targets the crate is empty.
@@ -101,7 +101,7 @@ impl eframe::App for WebApp {
         }
         self.app.logic(ctx, frame);
         api::poll_replies();
-        // exports advance between frames (no threads)
+        // exports advance between إطار (no threads)
         if self.app.session.pump_jobs(std::time::Duration::from_millis(30)) {
             ctx.request_repaint();
         }

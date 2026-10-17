@@ -761,7 +761,7 @@ pub fn path_value(app: &mut FilmcraftApp, ui: &mut egui::Ui, clip: ClipId, effec
     let base = format!("effectControls.{}.mask{k}", e.effect);
     let target = filmcraft_engine::masks::MaskSel { clip, effect, mask: k };
     let running = app.session.mask_jobs.iter().find(|j| j.target == target).map(|j| j.job);
-    for (icon, dir, frames, id, tip) in [
+    for (icon, dir, إطار, id, tip) in [
         (Icon::TrackMaskBack, "backward", None, "back", tl!("Track selected mask backward")),
         (Icon::TrackMaskBackFrame, "backward", Some(1), "backFrame", tl!("Track selected mask backward 1 frame")),
         (Icon::TrackMaskFwdFrame, "forward", Some(1), "fwdFrame", tl!("Track selected mask forward 1 frame")),
@@ -779,7 +779,7 @@ pub fn path_value(app: &mut FilmcraftApp, ui: &mut egui::Ui, clip: ClipId, effec
                 Some(job) => actions.push(("jobs.cancel".into(), json!({"job": job}))),
                 None => {
                     let mut p = json!({"clip": clip.0, "effect": effect, "mask": k, "direction": dir});
-                    if let Some(n) = frames {
+                    if let Some(n) = إطار {
                         p["frames"] = json!(n);
                     }
                     actions.push(("masks.select".into(), json!({"clip": clip.0, "effect": effect, "mask": k})));

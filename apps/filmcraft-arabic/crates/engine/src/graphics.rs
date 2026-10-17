@@ -9,7 +9,7 @@
 
 use filmcraft_geom::Vec2;
 use filmcraft_project::graphic::{self, LayerContent, SHAPE_OPTS, eval_layer, layer_display_name, layer_indices, new_shape_layer, new_text_layer};
-use filmcraft_project::{ClipId, EffectInstance, ItemId, ItemKind, Label, Param, ParamValue, Sequence, TrackKind};
+use filmcraft_project::{ClipId, EffectInstance, ItemId, ItemKind, Label, Param, ParamValue, تسلسل، TrackKind};
 use filmcraft_render::graphic_clip::{item_layer_specs, layer_local_bounds, layer_quad, text_layout};
 use filmcraft_time::{Tick, TimeRange};
 use serde_json::{Value, json};
@@ -36,7 +36,7 @@ fn query(id: &'static str, label: &'static str, params: &'static str, run: Run) 
 }
 
 /// Whether a track item is a graphic clip.
-pub fn is_graphic(s: &Session, seq: &Sequence, c: ClipId) -> bool {
+pub fn is_graphic(s: &Session, seq: &تسلسل، c: ClipId) -> bool {
     seq.find_item(c).and_then(|(_, it)| s.project.item(it.item)).is_some_and(|p| matches!(p.kind, ItemKind::Graphic { .. }))
 }
 
@@ -744,13 +744,13 @@ const ALIGN_PARAMS: &str = r#"{"clip":id?,"layers":[n]? (default: the selected l
 
 macro_rules! align_cmd {
     ($id:literal, $label:literal, $menu:expr, $how:literal, $mode:expr, $en:expr) => {
-        spec($id, $label, &["Graphics and Titles", $menu], None, ALIGN_PARAMS, $en, |s, p| align_layers(s, p, $how, $mode))
+        spec($id, $label, &["الرسوميات والعناوين", $menu], None, ALIGN_PARAMS, $en, |s, p| align_layers(s, p, $how, $mode))
     };
 }
 
 macro_rules! arrange_cmd {
     ($id:literal, $label:literal, $sc:literal, $to:literal) => {
-        spec($id, $label, &["Graphics and Titles", "Arrange"], Some($sc), r#"{"clip":id?,"layer":n?}"#, has_graphic, |s, p| arrange_layer(s, p, json!($to)))
+        spec($id, $label, &["الرسوميات والعناوين", "Arrange"], Some($sc), r#"{"clip":id?,"layer":n?}"#, has_graphic, |s, p| arrange_layer(s, p, json!($to)))
     };
 }
 
@@ -769,13 +769,13 @@ fn menu_commands() -> Vec<CommandSpec> {
     const F: &str = "Align to Video Frame";
     const G: &str = "Align to Video Frame as Group";
     const S: &str = "Align to Selection";
-    const D: &[&str] = &["Graphics and Titles", "Distribute"];
-    const SEL: &[&str] = &["Graphics and Titles", "تحديد"];
+    const D: &[&str] = &["الرسوميات والعناوين", "Distribute"];
+    const SEL: &[&str] = &["الرسوميات والعناوين", "Select"];
     vec![
         spec(
             "graphics.newVerticalText",
             "Vertical Text",
-            &["Graphics and Titles", "New Layer"],
+            &["الرسوميات والعناوين", "New Layer"],
             None,
             r#"{"text":str="New Text","position":[x,y]?,"clip":id?,"size":px=100,"seconds":f64=5,"time":ticks?}"#,
             has_seq,
@@ -788,7 +788,7 @@ fn menu_commands() -> Vec<CommandSpec> {
         spec(
             "graphics.newRectangle",
             "Rectangle",
-            &["Graphics and Titles", "New Layer"],
+            &["الرسوميات والعناوين", "New Layer"],
             Some("Cmd+Alt+R"),
             r#"{"position":[x,y]?,"size":[w,h]=[400,200],"clip":id?,"seconds":f64=5,"track":index?,"time":ticks?}"#,
             has_seq,
@@ -797,7 +797,7 @@ fn menu_commands() -> Vec<CommandSpec> {
         spec(
             "graphics.newEllipse",
             "Ellipse",
-            &["Graphics and Titles", "New Layer"],
+            &["الرسوميات والعناوين", "New Layer"],
             Some("Cmd+Alt+E"),
             r#"{"position":[x,y]?,"size":[w,h]=[400,200],"clip":id?,"seconds":f64=5,"track":index?,"time":ticks?}"#,
             has_seq,
@@ -806,7 +806,7 @@ fn menu_commands() -> Vec<CommandSpec> {
         spec(
             "graphics.newPolygon",
             "Polygon",
-            &["Graphics and Titles", "New Layer"],
+            &["الرسوميات والعناوين", "New Layer"],
             None,
             r#"{"position":[x,y]?,"size":[w,h]=[300,300],"sides":n=6,"clip":id?,"seconds":f64=5,"track":index?,"time":ticks?}"#,
             has_seq,
@@ -835,7 +835,7 @@ fn menu_commands() -> Vec<CommandSpec> {
         spec(
             "graphics.newFromFile",
             "From file…",
-            &["Graphics and Titles", "New Layer"],
+            &["الرسوميات والعناوين", "New Layer"],
             None,
             r#"{"path":str,"time":ticks?,"track":index?} (imports the image or video and places it above the clips at the playhead)"#,
             has_seq,
@@ -897,7 +897,7 @@ fn menu_commands() -> Vec<CommandSpec> {
         spec(
             "graphics.resetAllParameters",
             "Reset All Parameters",
-            &["Graphics and Titles"],
+            &["الرسوميات والعناوين"],
             None,
             r#"{"clip":id?,"layers":[n]? (default: the selected layers, else all)}"#,
             has_graphic,
@@ -926,7 +926,7 @@ fn menu_commands() -> Vec<CommandSpec> {
         spec(
             "graphics.resetDuration",
             "Reset Duration",
-            &["Graphics and Titles"],
+            &["الرسوميات والعناوين"],
             None,
             r#"{"clip":id?,"seconds":f64=5 (the default graphic duration; limited by the next clip on the track)}"#,
             has_graphic,
@@ -954,8 +954,8 @@ pub fn commands() -> Vec<CommandSpec> {
     let mut v = vec![
         spec(
             "graphics.newText",
-            "Text",
-            &["Graphics and Titles", "New Layer"],
+            "النص",
+            &["الرسوميات والعناوين", "New Layer"],
             Some("Cmd+T"),
             r#"{"text":str="New Text","position":[x,y]? (point text: its alignment point on the first baseline; with `box`: the box's top-left corner),"box":[w,h]? (paragraph text wrapped in a box this size),"clip":id?,"newClip":bool?,"vertical":bool=false,"size":px=100,"font":str?,"fontStyle":str?,"seconds":f64=5,"track":index?,"time":ticks?}"#,
             has_seq,

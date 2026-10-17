@@ -23,7 +23,7 @@ pub trait VideoDecoder: Send {
     /// Forget all state (called after seeking to a sync sample).
     fn reset(&mut self);
     fn name(&self) -> &str;
-    /// Every picture is coded independently (no reordering, no references), so frames can be
+    /// Every picture is coded independently (no reordering, no references), so إطار can be
     /// decoded in any order and in parallel by separate decoder instances.
     fn intra_only(&self) -> bool {
         false
@@ -36,7 +36,7 @@ pub trait VideoDecoder: Send {
     }
     /// Whether `sample` can be left out without changing any other picture: a non-reference
     /// picture. Decoding forward to a frame while catching up skips such samples when their
-    /// frames are late ([`filmcraft_media::cancel::catch_up`]). False when unknown.
+    /// إطار are late ([`filmcraft_media::cancel::catch_up`]). False when unknown.
     fn is_disposable(&self, _sample: &[u8]) -> bool {
         false
     }
@@ -369,7 +369,7 @@ impl VideoDecoder for H264Decoder {
     }
 }
 
-/// The H.264 decoder's output planes come from the frames the caches evicted
+/// The H.264 decoder's output planes come from the إطار the caches evicted
 /// (`filmcraft_frame::pool`) instead of the allocator.
 fn recycle_h264_planes() {
     filmcraft_h264::set_plane_allocator(filmcraft_frame::pool::take_u8);
@@ -870,7 +870,7 @@ pub fn apv_factory(e: &SampleEntry) -> Option<Result<Box<dyn VideoDecoder>>> {
 /// Our DNxHD / DNxHR (VC-3) decoder (every frame is intra; macroblock rows decode in parallel).
 pub struct DnxDecoder;
 
-/// Convert a decoded VC-3 frame to a [`VideoFrame`]. RGB (4:4:4) frames are converted to
+/// Convert a decoded VC-3 frame to a [`VideoFrame`]. RGB (4:4:4) إطار are converted to
 /// BT.709 video-range Y'CbCr 4:4:4 at the coded depth.
 pub fn dnx_to_video_frame(f: filmcraft_dnx::Frame) -> VideoFrame {
     use std::sync::Arc;
@@ -1204,7 +1204,7 @@ impl RawFormat {
     }
 }
 
-/// Uncompressed frames (each sample one picture of a [`RawFormat`]).
+/// Uncompressed إطار (each sample one picture of a [`RawFormat`]).
 pub struct RawVideoDecoder {
     format: RawFormat,
     width: u32,

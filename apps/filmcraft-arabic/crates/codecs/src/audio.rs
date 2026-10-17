@@ -37,7 +37,7 @@ enum Inner {
 /// Opus always decodes at 48 kHz (RFC 7845 §5.1: the input rate in the header is informational).
 pub const OPUS_RATE: u32 = 48_000;
 
-/// Opus pre-roll decoded before a random-access target, in 48 kHz frames: 320 ms.
+/// Opus pre-roll decoded before a random-access target, in 48 kHz إطار: 320 ms.
 ///
 /// The containers' 80 ms (RFC 7845 §4.6, Matroska `SeekPreRoll`) is enough to sound right, but the
 /// CELT energy predictor converges only ~24 dB per 80 ms: measured against a continuous decode, a
@@ -89,12 +89,12 @@ fn reorder(mut channels: Vec<Vec<f32>>, order: Option<&[usize]>) -> Vec<Vec<f32>
 /// every stream shares. `None` for an empty or invalid (> 120 ms) packet.
 pub fn opus_packet_samples(data: &[u8]) -> Option<usize> {
     let toc = filmcraft_opus::Toc::parse(*data.first()?);
-    let frames = match data[0] & 3 {
+    let إطار = match data[0] & 3 {
         0 => 1,
         1 | 2 => 2,
         _ => (*data.get(1)? & 0x3F) as usize,
     };
-    let n = toc.frame_samples_48k() * frames;
+    let n = toc.frame_samples_48k() * إطار;
     (n > 0 && n <= 5760).then_some(n)
 }
 
@@ -398,7 +398,7 @@ pub struct PacketTime {
 ///
 /// Container timestamps are coarser than a sample. Matroska stores milliseconds, and a remux to MP4
 /// (OBS's) turns that rounding into uneven sample durations: a 1024-sample AAC frame at 48 kHz lasts
-/// 21.33 ms, so frames are stamped at 0, 1008, 2064, 3072… Placing each decoded packet at its
+/// 21.33 ms, so إطار are stamped at 0, 1008, 2064, 3072… Placing each decoded packet at its
 /// stamp overwrote the end of one packet and left a hole of silence after another, a click every
 /// few packets: crackling throughout playback and export (#236).
 pub fn contiguous_starts(packets: impl IntoIterator<Item = PacketTime>, tolerance: i64) -> Vec<i64> {
@@ -601,8 +601,8 @@ pub fn latm_config(frame: &[u8]) -> Option<LatmConfig> {
 }
 
 /// A LOAS/LATM frame: its AudioSpecificConfig and the AAC payload of the single sub-frame.
-/// `last` is the configuration of earlier frames (used by frames that set useSameStreamMux,
-/// updated by frames that carry one).
+/// `last` is the configuration of earlier إطار (used by إطار that set useSameStreamMux,
+/// updated by إطار that carry one).
 pub fn latm_split(frame: &[u8], last: &mut Option<LatmConfig>) -> Option<(Vec<u8>, Vec<u8>)> {
     if frame.len() < 4 || frame[0] != 0x56 || frame[1] & 0xE0 != 0xE0 {
         return None;
@@ -687,7 +687,7 @@ pub fn decode_bluray_lpcm(p: &[u8]) -> Option<Vec<Vec<f32>>> {
     Some(out)
 }
 
-/// Bytes per two sample frames of DVD LPCM.
+/// Bytes per two sample إطار of DVD LPCM.
 pub fn dvd_lpcm_group_bytes(channels: usize, bits: u32) -> usize {
     match bits {
         16 => 4 * channels,
@@ -697,7 +697,7 @@ pub fn dvd_lpcm_group_bytes(channels: usize, bits: u32) -> usize {
 }
 
 /// Decode DVD-Video LPCM (big-endian). 16-bit samples are interleaved; 20- and 24-bit samples
-/// come in groups of two frames: the upper 16 bits of all the group's samples, then their low
+/// come in groups of two إطار: the upper 16 bits of all the group's samples, then their low
 /// 4 / 8 bits.
 pub fn decode_dvd_lpcm(data: &[u8], channels: usize, bits: u32) -> Vec<Vec<f32>> {
     let ch = channels.max(1);
@@ -764,9 +764,9 @@ pub fn decode_pcm(data: &[u8], cfg: &filmcraft_isobmff::PcmConfig) -> Vec<Vec<f3
 
 /// Resample-read `frames` from planar source audio at `src_rate` into a buffer at `rate`,
 /// starting at output sample `start` (linear interpolation; the audio crate adds sinc later).
-pub fn read_resampled(src: &[Vec<f32>], src_rate: u32, start: i64, frames: usize, rate: u32) -> AudioBuffer {
+pub fn read_resampled(src: &[Vec<f32>], src_rate: u32, start: i64, إطار: usize, rate: u32) -> AudioBuffer {
     let ch = src.len().max(1);
-    let mut out = AudioBuffer::silence(rate, ch, frames);
+    let mut out = AudioBuffer::silence(rate, ch, إطار);
     let total = src.first().map_or(0, Vec::len);
     let ratio = src_rate as f64 / rate as f64;
     for i in 0..frames {
@@ -801,7 +801,7 @@ impl AudioFileSource {
         if matches!(ext.as_str(), "mp2" | "mp3")
             && let Some((layer, rate, samples)) = decode_mpeg_layer12(&bytes)
         {
-            let frames = samples.first().map_or(0, Vec::len);
+            let إطار = samples.first().map_or(0, Vec::len);
             let info = MediaInfo {
                 name: name.to_string(),
                 kind: MediaKind::AudioOnly,
@@ -815,8 +815,8 @@ impl AudioFileSource {
             return Ok(Self { info, rate, samples });
         }
         if ext == "aac" {
-            let (rate, samples) = decode_adts(&bytes)?.ok_or_else(|| CodecError::Decode(format!("{name}: no ADTS AAC frames")))?;
-            let frames = samples.first().map_or(0, Vec::len);
+            let (rate, samples) = decode_adts(&bytes)?.ok_or_else(|| CodecError::Decode(format!("{name}: no ADTS AAC إطار")))?;
+            let إطار = samples.first().map_or(0, Vec::len);
             let info = MediaInfo {
                 name: name.to_string(),
                 kind: MediaKind::AudioOnly,
@@ -864,7 +864,7 @@ impl AudioFileSource {
         if samples.is_empty() {
             return Err(CodecError::Decode("no audio decoded".into()));
         }
-        let frames = samples[0].len();
+        let إطار = samples[0].len();
         let codec_name =
             symphonia::default::get_codecs().get_codec(track.codec_params.codec).map(|d| d.short_name.to_uppercase()).unwrap_or_else(|| ext.to_uppercase());
         let info = MediaInfo {
@@ -916,28 +916,28 @@ fn adts_frame_len(b: &[u8]) -> Option<usize> {
 
 /// A raw ADTS stream (`.aac`) decoded with our AAC decoder: (output sample rate, planar samples).
 /// Frames follow each other from the first header (after an ID3v2 tag); damaged data is skipped
-/// up to the next header, frames with another configuration than the first are skipped, and a
+/// up to the next header, إطار with another configuration than the first are skipped, and a
 /// frame that does not decode keeps its duration as silence. HE-AAC is upsampled to its output
 /// rate. `Ok(None)` when no frame decodes.
 fn decode_adts(bytes: &[u8]) -> Result<Option<(u32, Vec<Vec<f32>>)>> {
-    let mut frames: Vec<(Vec<u8>, &[u8])> = Vec::new();
+    let mut إطار: Vec<(Vec<u8>, &[u8])> = Vec::new();
     let mut p = id3v2_len(bytes);
     while let Some(rest) = bytes.get(p..).filter(|r| r.len() >= 7) {
         match adts_frame_len(rest).and_then(|len| Some((len, adts_split(rest.get(..len)?)?))) {
             Some((len, f)) => {
-                frames.push(f);
+                إطار.push(f);
                 p += len;
             }
             None => p += 1,
         }
     }
-    let Some(asc) = frames.first().map(|f| f.0.clone()) else { return Ok(None) };
-    let Some(rate) = aac_output_rate(&asc, frames.iter().take(8).map(|f| f.1)) else { return Ok(None) };
+    let Some(asc) = إطار.first().map(|f| f.0.clone()) else { return Ok(None) };
+    let Some(rate) = aac_output_rate(&asc, إطار.iter().take(8).map(|f| f.1)) else { return Ok(None) };
     let mut dec = PacketDecoder::aac(&asc, rate)?;
     let mut out: Vec<Vec<f32>> = Vec::new();
     let mut total = 0usize;
     let mut last = 0usize;
-    for (cfg, payload) in frames {
+    for (cfg, payload) in إطار {
         if cfg != asc {
             continue;
         }
@@ -1010,8 +1010,8 @@ impl MediaSource for AudioFileSource {
     fn video_frame(&self, _req: FrameRequest) -> std::result::Result<Arc<VideoFrame>, MediaError> {
         Err(MediaError::NoStream("video"))
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> std::result::Result<AudioBuffer, MediaError> {
-        Ok(read_resampled(&self.samples, self.rate, start, frames, sample_rate))
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> std::result::Result<AudioBuffer, MediaError> {
+        Ok(read_resampled(&self.samples, self.rate, start, إطار, sample_rate))
     }
 }
 
@@ -1042,11 +1042,11 @@ mod mpeg_layer12_tests {
         let mut d = PacketDecoder::mpeg_audio(2, 48_000).unwrap();
         let out = d.decode(&silent_frame(14, 3), 0).unwrap();
         assert_eq!((out.len(), out[0].len(), d.channels), (1, 1152, 1));
-        // a packet of two stereo frames decodes to both
+        // a packet of two stereo إطار decodes to both
         let two = [silent_frame(10, 0), silent_frame(10, 0)].concat();
         let out = d.decode(&two, 1152).unwrap();
         assert_eq!((out.len(), out[0].len()), (2, 2304));
-        // damage: an error for the first frame, the good frames before it otherwise
+        // damage: an error for the first frame, the good إطار before it otherwise
         assert!(d.decode(&[0u8; 8], 0).is_err());
         assert!(d.decode(&silent_frame(10, 0)[..100], 0).is_err());
         let partial = [silent_frame(10, 0), vec![0xFF, 0xFD, 0xA4]].concat();
@@ -1175,7 +1175,7 @@ mod surround_order_tests {
 mod packet_time_tests {
     use super::*;
 
-    /// 1024-sample frames at 48 kHz stamped to the nearest millisecond, then back in samples.
+    /// 1024-sample إطار at 48 kHz stamped to the nearest millisecond, then back in samples.
     fn ms_stamps(count: i64) -> Vec<i64> {
         (0..count).map(|k| (k * 1024 * 1000 + 24_000) / 48_000 * 48).collect()
     }
@@ -1209,7 +1209,7 @@ mod packet_time_tests {
 
     #[test]
     fn unstamped_packets_follow_on_and_unknown_lengths_resynchronise() {
-        // a laced block of three frames that repeat its timestamp
+        // a laced block of three إطار that repeat its timestamp
         let packets = [0, 1024, 1024, 1024, 4096].map(|stamp| PacketTime { stamp, stamped: true, samples: Some(1024) });
         let mut laced = packets;
         laced[2].stamped = false;
@@ -1249,9 +1249,9 @@ mod packet_time_tests {
         assert_eq!(fixed_packet_samples(FixedFrames::Ac3, &[0x0B, 0x77], 48_000), None);
         // E-AC-3 access units: 8-byte syncframes (frmsiz 3) at 48 kHz, stereo. A six-block
         // independent frame with a dependent substream (7.1) is 1536 samples; two one-block
-        // frames are 512
+        // إطار are 512
         let frame = |strmtyp: u8, numblkscod: u8| [0x0B, 0x77, strmtyp << 6, 3, (numblkscod << 4) | (2 << 1), 16 << 3, 0, 0];
-        let au = |frames: &[[u8; 8]]| frames.concat();
+        let au = |frames: &[[u8; 8]]| إطار.concat();
         assert_eq!(fixed_packet_samples(FixedFrames::Eac3, &au(&[frame(0, 3), frame(1, 3)]), 48_000), Some(1536));
         assert_eq!(fixed_packet_samples(FixedFrames::Eac3, &au(&[frame(0, 0), frame(0, 0)]), 48_000), Some(512));
         assert_eq!(fixed_packet_samples(FixedFrames::Eac3, &au(&[frame(0, 3)]), 44_100), None);
@@ -1325,12 +1325,12 @@ mod gapless_tests {
     }
 
     /// Silent mono 44.1 kHz 128 kbps MPEG-1 layer III file: an Info frame carrying a LAME tag with
-    /// an encoder delay of 576 samples and no padding, then ten frames of silence.
+    /// an encoder delay of 576 samples and no padding, then ten إطار of silence.
     fn tagged_mp3() -> Vec<u8> {
         let header = [0xFF, 0xFB, 0x90, 0xC0];
         let mut info = vec![0u8; FRAME_LEN];
         info[..4].copy_from_slice(&header);
-        info[21..25].copy_from_slice(b"Info");
+        info[21..25].copy_from_slice(b"معلومات");
         info[25..29].copy_from_slice(&0x0Fu32.to_be_bytes());
         info[29..33].copy_from_slice(&(AUDIO_FRAMES as u32).to_be_bytes());
         info[33..37].copy_from_slice(&((FRAME_LEN * (AUDIO_FRAMES + 1)) as u32).to_be_bytes());

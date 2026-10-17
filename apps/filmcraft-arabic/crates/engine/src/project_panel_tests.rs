@@ -61,7 +61,7 @@ fn metadata_display_chooses_and_orders_columns() {
     s.execute("metadata.set", json!({"item": ids[0].0, "field": "Mood", "value": "calm"})).unwrap();
     let l = s.execute("project.columns.list", json!({})).unwrap();
     let avail: Vec<&str> = l["available"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap()).collect();
-    for c in ["Name", "Label", "Media Duration", "Video Usage", "Mood"] {
+    for c in ["الاسم", "Label", "Media Duration", "Video Usage", "Mood"] {
         assert!(avail.contains(&c), "{c} missing from {avail:?}");
     }
     // Freeform bookkeeping keys are not offered
@@ -72,7 +72,7 @@ fn metadata_display_chooses_and_orders_columns() {
     // Name stays first; unknown-case names are canonicalised; widths are kept
     s.execute("project.columns.set", json!({"columns": ["media duration", {"name": "Mood", "width": 90}, "Label"]})).unwrap();
     let cols: Vec<String> = s.prefs.project_panel.view.columns.iter().map(|c| c.name.clone()).collect();
-    assert_eq!(cols, ["Name", "Media Duration", "Mood", "Label"]);
+    assert_eq!(cols, ["الاسم", "Media Duration", "Mood", "Label"]);
     assert_eq!(s.prefs.project_panel.view.columns[2].width, 90.0);
     s.execute("project.columns.resize", json!({"column": "Label", "width": 140})).unwrap();
     assert_eq!(s.prefs.project_panel.view.columns[3].width, 140.0);
@@ -114,13 +114,13 @@ fn view_presets_save_restore_and_manage() {
     assert!(s.execute("project.viewPreset.save", json!({})).is_err(), "no current preset yet");
     assert!(s.execute("project.viewPreset.restore", json!({"slot": 1})).is_err(), "none saved");
     s.execute("project.view.set", json!({"view": "list"})).unwrap();
-    s.execute("project.columns.set", json!({"columns": ["Name", "Label"]})).unwrap();
+    s.execute("project.columns.set", json!({"columns": ["الاسم", "Label"]})).unwrap();
     let r = s.execute("project.viewPreset.saveAs", json!({"name": "Logging"})).unwrap();
     assert_eq!(r["current"], 1);
     assert_eq!(r["presets"][0]["name"], "Logging");
     // change the view, then restore preset 1
     s.execute("project.view.set", json!({"view": "freeform"})).unwrap();
-    s.execute("project.columns.set", json!({"columns": ["Name", "معدل الإطارات", "Video Info"]})).unwrap();
+    s.execute("project.columns.set", json!({"columns": ["الاسم", "معدل الإطارات", "Video Info"]})).unwrap();
     s.execute("project.viewPreset.saveAs", json!({})).unwrap();
     assert_eq!(s.prefs.project_panel.presets[1].as_ref().unwrap().name, "Project View Preset 2");
     s.execute("project.viewPreset.restore", json!({"slot": 1})).unwrap();
@@ -152,11 +152,11 @@ fn view_presets_persist_in_the_preferences_file() {
     let path = dir.join("preferences.json");
     let mut s = demo();
     s.prefs_path = Some(path.clone());
-    s.execute("project.columns.set", json!({"columns": ["Name", "Scene", "Shot"]})).unwrap();
+    s.execute("project.columns.set", json!({"columns": ["الاسم", "Scene", "Shot"]})).unwrap();
     s.execute("project.viewPreset.saveAs", json!({"name": "Scenes"})).unwrap();
     let loaded = crate::autosave::Preferences::load(&path);
     assert_eq!(loaded.project_panel.presets[0].as_ref().unwrap().name, "Scenes");
-    assert_eq!(loaded.project_panel.view.columns.iter().map(|c| c.name.as_str()).collect::<Vec<_>>(), ["Name", "Scene", "Shot"]);
+    assert_eq!(loaded.project_panel.view.columns.iter().map(|c| c.name.as_str()).collect::<Vec<_>>(), ["الاسم", "Scene", "Shot"]);
     let _ = std::fs::remove_dir_all(&dir);
 }
 

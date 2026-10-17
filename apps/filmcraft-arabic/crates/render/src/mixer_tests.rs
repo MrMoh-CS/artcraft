@@ -38,16 +38,16 @@ fn audio_clips_from_one_container_mix_distinct_streams() {
         fn video_frame(&self, _: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
             Err(MediaError::NoStream("video"))
         }
-        fn audio(&self, start: i64, frames: usize, sr: u32) -> filmcraft_media::Result<AudioBuffer> {
-            self.audio_stream(0, start, frames, sr)
+        fn audio(&self, start: i64, إطار: usize, sr: u32) -> filmcraft_media::Result<AudioBuffer> {
+            self.audio_stream(0, start, إطار, sr)
         }
-        fn audio_stream(&self, stream: usize, _start: i64, frames: usize, sr: u32) -> filmcraft_media::Result<AudioBuffer> {
+        fn audio_stream(&self, stream: usize, _start: i64, إطار: usize, sr: u32) -> filmcraft_media::Result<AudioBuffer> {
             let v = match stream {
                 0 => 0.25,
                 1 => -0.125,
                 _ => return Err(MediaError::NoStream("audio")),
             };
-            Ok(AudioBuffer { sample_rate: sr, channels: vec![vec![v; frames], vec![v; frames]] })
+            Ok(AudioBuffer { sample_rate: sr, channels: vec![vec![v; إطار], vec![v; إطار]] })
         }
     }
     let mut p = Project::new("streams");
@@ -642,7 +642,7 @@ impl MediaSource for Tone {
     fn video_frame(&self, _: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
         Err(MediaError::Unsupported("audio only".into()))
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
         let ch: Vec<f32> = (0..frames).map(|i| self.at((start + i as i64) as f64 / sample_rate as f64)).collect();
         Ok(AudioBuffer { sample_rate, channels: vec![ch.clone(), ch] })
     }

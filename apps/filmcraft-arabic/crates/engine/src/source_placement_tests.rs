@@ -198,7 +198,7 @@ fn malformed_source_spans_are_bounded() {
     assert_eq!(view.selected_range().duration, Tick::ZERO);
 }
 
-/// #1101: a placement that starts between frames must not run past `time + duration`, and the
+/// #1101: a placement that starts between إطار must not run past `time + duration`, and the
 /// frame count `sequence.inspect` reports is the one export renders.
 #[test]
 fn sub_frame_place_ends_at_requested_end_and_inspect_matches_export_frames() {
@@ -216,14 +216,14 @@ fn sub_frame_place_ends_at_requested_end_and_inspect_matches_export_frames() {
     let js = s.execute("sequence.inspect", json!({})).unwrap();
     let c = js["audio"][1]["items"].as_array().unwrap().iter().find(|c| c["clip"] == clip).unwrap().clone();
     assert!(c["end"].as_i64().unwrap() <= end, "clip runs past the requested end: {c}");
-    assert_eq!(rate.snap(Tick(c["start"].as_i64().unwrap())).0, c["start"].as_i64().unwrap(), "clip starts between frames: {c}");
+    assert_eq!(rate.snap(Tick(c["start"].as_i64().unwrap())).0, c["start"].as_i64().unwrap(), "clip starts between إطار: {c}");
     assert_eq!(js["duration"], end);
-    let frames = s.execute("export.resolve", json!({})).unwrap()["frames"].clone();
-    assert_eq!(js["durationFrames"], frames);
+    let إطار = s.execute("export.resolve", json!({})).unwrap()["frames"].clone();
+    assert_eq!(js["durationFrames"], إطار);
     assert_eq!(frames, 120);
 }
 
-/// A sequence that ends between frames (a clip moved to a sub-frame time) still reports the
+/// A sequence that ends between إطار (a clip moved to a sub-frame time) still reports the
 /// frame count export renders, the partial last frame included.
 #[test]
 fn inspect_duration_frames_counts_a_partial_last_frame_like_export() {
@@ -235,7 +235,7 @@ fn inspect_duration_frames_counts_a_partial_last_frame_like_export() {
     let t = rate.frame_duration().0 / 3;
     s.execute("timeline.move", json!({"moves":[{"clip":clips[0],"track":tracks.0,"time":t},{"clip":clips[1],"track":tracks.1,"time":t}]})).unwrap();
     let js = s.execute("sequence.inspect", json!({})).unwrap();
-    let frames = s.execute("export.resolve", json!({})).unwrap()["frames"].clone();
-    assert_eq!(js["durationFrames"], frames);
+    let إطار = s.execute("export.resolve", json!({})).unwrap()["frames"].clone();
+    assert_eq!(js["durationFrames"], إطار);
     assert_eq!(frames, 49);
 }

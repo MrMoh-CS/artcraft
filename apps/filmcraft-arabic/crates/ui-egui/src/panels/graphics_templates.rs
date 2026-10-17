@@ -145,7 +145,7 @@ pub fn essential_graphics(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect)
     let head = Rect::from_min_size(rect.min, vec2(rect.width(), 30.0));
     ui.painter().line_segment([head.left_bottom(), head.right_bottom()], Stroke::new(1.0, t.separator));
     let mut elems: Elems = Vec::new();
-    for (i, (id, label)) in [("browse", tl!("Browse")), ("edit", tl!("Edit"))].into_iter().enumerate() {
+    for (i, (id, label)) in [("browse", tl!("Browse")), ("edit", tl!("تحرير"))].into_iter().enumerate() {
         let r = Rect::from_min_size(pos2(head.min.x + 8.0 + i as f32 * 80.0, head.min.y), vec2(76.0, 30.0));
         if tab_button(ui, r, label, tab == id, &t).clicked() {
             app.ui.gfx_templates.tab = id.into();
@@ -266,8 +266,8 @@ fn browse(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     b.add_space(4.0);
     let sel_entry = selected.as_ref().and_then(|s| lib.iter().find(|e| &e.template.id == s));
     b.horizontal(|ui| {
-        let r = ui.add_enabled(sel_entry.is_some(), egui::Button::new(tl!("Apply")));
-        elems.push(("gfxTemplates.apply".into(), r.rect, "Apply".into()));
+        let r = ui.add_enabled(sel_entry.is_some(), egui::Button::new(tl!("تطبيق")));
+        elems.push(("gfxTemplates.apply".into(), r.rect, "تطبيق".into()));
         if r.clicked() {
             apply = selected.clone();
         }
@@ -459,10 +459,10 @@ pub fn responsive_time(app: &FilmcraftApp, ui: &mut egui::Ui, clip: ClipId, it: 
     let t = app.tokens;
     let rate = app.session.sequence_rate();
     let m = it.graphic.as_deref().cloned().unwrap_or_default();
-    let frames = |x: Tick| rate.frame_at(rate.snap_nearest(x)) as f64;
+    let إطار = |x: Tick| rate.frame_at(rate.snap_nearest(x)) as f64;
     for (key, label, v) in [("intro", tl!("Intro Duration"), m.intro), ("outro", tl!("Outro Duration"), m.outro)] {
         let mut vui = row_label(ui, label, &t);
-        let mut f = frames(v);
+        let mut f = إطار(v);
         let r = vui.add(crate::widgets::number_drag(&mut f).speed(0.2).range(0.0..=100_000.0).suffix(" fr"));
         autos.push((format!("graphics.time.{key}"), r.rect, label.into()));
         if r.changed() {
@@ -507,7 +507,7 @@ pub fn responsive_time(app: &FilmcraftApp, ui: &mut egui::Ui, clip: ClipId, it: 
         ("postroll", tl!("Postroll"), m.roll.postroll),
     ] {
         let mut vui = row_label(ui, label, &t);
-        let mut f = frames(v);
+        let mut f = إطار(v);
         let r = vui.add(crate::widgets::number_drag(&mut f).speed(0.2).range(0.0..=100_000.0).suffix(" fr"));
         autos.push((format!("graphics.roll.{key}"), r.rect, label.into()));
         if r.changed() {
@@ -656,7 +656,7 @@ fn export_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
             egui::Grid::new("gfx-export-grid").num_columns(2).show(ui, |ui| {
                 ui.label(tl!("Name:"));
                 let r = ui.add(egui::TextEdit::singleline(&mut d.name).desired_width(260.0));
-                elems.push(("exportTemplate.name".into(), r.rect, "Name".into()));
+                elems.push(("exportTemplate.name".into(), r.rect, "الاسم".into()));
                 ui.end_row();
                 ui.label(tl!("Category:"));
                 let r = ui.add(egui::TextEdit::singleline(&mut d.category).desired_width(260.0));
@@ -684,10 +684,10 @@ fn export_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.colored_label(Color32::from_rgb(0xff, 0x80, 0x80), &d.error);
             }
             ui.horizontal(|ui| {
-                let ok = ui.button(tl!("Export"));
-                elems.push(("exportTemplate.ok".into(), ok.rect, "Export".into()));
-                let cancel = ui.button(tl!("Cancel"));
-                elems.push(("exportTemplate.cancel".into(), cancel.rect, "Cancel".into()));
+                let ok = ui.button(tl!("تصدير"));
+                elems.push(("exportTemplate.ok".into(), ok.rect, "تصدير".into()));
+                let cancel = ui.button(tl!("إلغاء"));
+                elems.push(("exportTemplate.cancel".into(), cancel.rect, "إلغاء".into()));
                 if ok.clicked() {
                     action = Some(true);
                 }
@@ -769,10 +769,10 @@ fn replace_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.colored_label(Color32::from_rgb(0xff, 0x80, 0x80), &d.error);
             }
             ui.horizontal(|ui| {
-                let ok = ui.button(tl!("OK"));
-                elems.push(("replaceFonts.ok".into(), ok.rect, "OK".into()));
-                let cancel = ui.button(tl!("Cancel"));
-                elems.push(("replaceFonts.cancel".into(), cancel.rect, "Cancel".into()));
+                let ok = ui.button(tl!("موافق"));
+                elems.push(("replaceFonts.ok".into(), ok.rect, "موافق".into()));
+                let cancel = ui.button(tl!("إلغاء"));
+                elems.push(("replaceFonts.cancel".into(), cancel.rect, "إلغاء".into()));
                 if ok.clicked() {
                     action = Some(true);
                 }

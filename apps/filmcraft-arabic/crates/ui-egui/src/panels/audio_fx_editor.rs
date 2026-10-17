@@ -206,8 +206,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             }
             ui.separator();
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Close"));
-                ed.auto(format!("fxEditor.{}.close", ed.fx), r.rect, "Close");
+                let r = ui.button(tl!("إغلاق"));
+                ed.auto(format!("fxEditor.{}.close", ed.fx), r.rect, "إغلاق");
                 if r.clicked() {
                     closed = true;
                 }
@@ -412,8 +412,8 @@ fn graphic(ui: &mut egui::Ui, ed: &mut Ed) {
     }
     ui.horizontal(|ui| {
         ed.slider(ui, "gain", tl!("Master Gain"), false);
-        let r = ui.button(tl!("Reset"));
-        ed.auto(format!("fxEditor.{}.reset", ed.fx), r.rect, "Reset");
+        let r = ui.button(tl!("إعادة ضبط"));
+        ed.auto(format!("fxEditor.{}.reset", ed.fx), r.rect, "إعادة ضبط");
         if r.clicked() {
             for i in 0..n {
                 let pid = format!("b{}", i + 1);

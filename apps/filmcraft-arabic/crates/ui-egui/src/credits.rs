@@ -100,7 +100,7 @@ impl SortKey {
     /// Menu label and table header.
     pub fn label(self) -> (&'static str, &'static str) {
         match self {
-            SortKey::Name => ("Name (A–Z)", "Name"),
+            SortKey::Name => ("Name (A–Z)", "الاسم"),
             SortKey::Prs => ("Merged PRs", "PRs"),
             SortKey::Commits => ("Commits", "Commits"),
             SortKey::LinesAdded => ("Lines added", "+LOC"),

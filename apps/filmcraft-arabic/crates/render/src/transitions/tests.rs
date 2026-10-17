@@ -1,7 +1,7 @@
 //! Property and golden tests for every video transition.
 //!
 //! Golden fingerprints (`goldens.txt`): a 4×4 grid of mean 8-bit RGB values at p = 0.25 / 0.5 /
-//! 0.75 on two procedural test frames. Re-bless after an intended change with
+//! 0.75 on two procedural test إطار. Re-bless after an intended change with
 //! `FILMCRAFT_BLESS=1 cargo test -p filmcraft-render transitions::tests::golden_fingerprints`
 //! and review the diff.
 

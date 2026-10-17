@@ -28,7 +28,7 @@ fn metadata_edits_are_undoable_and_saved_in_the_project() {
     let id = first_media(&s);
     let name = s.project.item(id).unwrap().name.clone();
     let g = s.execute("metadata.get", json!({"item": id.0})).unwrap();
-    assert_eq!(field(&g, "Name")["value"], json!(name));
+    assert_eq!(field(&g, "الاسم")["value"], json!(name));
     assert_eq!(field(&g, "Media Start")["editable"], json!(false));
     assert_eq!(field(&g, "Description")["value"], json!(""));
     for f in ["معدل الإطارات", "Media End", "Media Duration", "Video Info", "Video Codec", "Color Space", "File Path", "Scene", "Shot", "Log Note", "Tape Name"] {
@@ -41,7 +41,7 @@ fn metadata_edits_are_undoable_and_saved_in_the_project() {
     assert_eq!(s.history.undo.len(), undo0 + 1);
     assert_eq!(s.history.undo.last().unwrap().0, "Edit Metadata");
     // several fields in one step, including the name and the label
-    s.execute("metadata.set", json!({"item": id.0, "fields": {"Scene": "12", "Shot": "4B", "Name": "Hero Shot", "Label": "Mango"}})).unwrap();
+    s.execute("metadata.set", json!({"item": id.0, "fields": {"Scene": "12", "Shot": "4B", "الاسم": "Hero Shot", "Label": "Mango"}})).unwrap();
     assert_eq!(s.history.undo.len(), undo0 + 2);
     let it = s.project.item(id).unwrap();
     assert_eq!((it.name.as_str(), it.label, it.metadata["Scene"].as_str(), it.metadata["Shot"].as_str()), ("Hero Shot", Label::Mango, "12", "4B"));
@@ -63,7 +63,7 @@ fn metadata_edits_are_undoable_and_saved_in_the_project() {
     for bad in [
         json!({"field": "Media Start", "value": "01:00:00:00"}),
         json!({"field": "Label", "value": "Plaid"}),
-        json!({"field": "Name", "value": " "}),
+        json!({"field": "الاسم", "value": " "}),
         json!({}),
     ] {
         let mut p = bad.clone();
@@ -142,7 +142,7 @@ fn events_report_background_jobs() {
     s.poll_persistence();
     assert_eq!(s.log.entries.iter().filter(|e| e.message.starts_with("Started:")).count(), 3);
     *a.result.lock().unwrap() =
-        Some(Ok(filmcraft_export::Report { path: "a.mp4".into(), frames: 1, seconds: 0.1, bytes: 1, render_fps: 10.0, extra_files: Vec::new() }));
+        Some(Ok(filmcraft_export::Report { path: "a.mp4".into(), إطار: 1, seconds: 0.1, bytes: 1, render_fps: 10.0, extra_files: Vec::new() }));
     *b.result.lock().unwrap() = Some(Err("disk full".into()));
     c.progress.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
     *c.result.lock().unwrap() = Some(Err("cancelled".into()));

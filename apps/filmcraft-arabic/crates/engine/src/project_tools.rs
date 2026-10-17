@@ -597,7 +597,7 @@ fn find(s: &mut Session, p: &Value) -> Result<Value> {
     let mut query = query_p(p, "edit.find")?;
     // timeline Find searches names: an `All` / empty column is fine
     if scope == "timeline" {
-        query.rows.iter_mut().for_each(|r| r.column = "Name".into());
+        query.rows.iter_mut().for_each(|r| r.column = "الاسم".into());
     }
     if query.is_empty() {
         return Err(bad("edit.find", "enter text to find"));
@@ -624,7 +624,7 @@ fn find_next(s: &mut Session, _: &Value) -> Result<Value> {
 
 /// Where project templates live: `<data dir>/Templates` (None without a data directory).
 pub fn templates_dir(s: &Session) -> Option<std::path::PathBuf> {
-    s.prefs_path.as_ref().and_then(|p| p.parent()).map(|d| d.join("القوالب"))
+    s.prefs_path.as_ref().and_then(|p| p.parent()).map(|d| d.join("Templates"))
 }
 
 fn save_as_template(s: &mut Session, p: &Value) -> Result<Value> {
@@ -674,7 +674,7 @@ fn new_from_template(s: &mut Session, p: &Value) -> Result<Value> {
     if s.is_dirty() && !bool_p(p, "force").unwrap_or(false) {
         return Err(EngineError::Other("the project has unsaved changes: save it first, or pass {\"force\": true} to discard them".into()));
     }
-    let name = str_p(p, "name").unwrap_or("بدون عنوان").to_string();
+    let name = str_p(p, "name").unwrap_or("Untitled").to_string();
     proj.name = name.clone();
     proj.root.name = name;
     s.project = std::sync::Arc::new(proj);
@@ -971,7 +971,7 @@ pub fn previews_dir(s: &Session) -> Option<std::path::PathBuf> {
 pub fn previews_dir_for(project: &Project, path: &str) -> std::path::PathBuf {
     match &project.settings.scratch.video_previews {
         Some(d) if !d.is_empty() => {
-            let stem = std::path::Path::new(path).file_stem().map(|x| x.to_string_lossy().to_string()).unwrap_or_else(|| "بدون عنوان".into());
+            let stem = std::path::Path::new(path).file_stem().map(|x| x.to_string_lossy().to_string()).unwrap_or_else(|| "Untitled".into());
             std::path::Path::new(d).join(stem)
         }
         _ => crate::previews::dir_for_project(path),
@@ -1170,7 +1170,7 @@ fn automate_to_sequence(s: &mut Session, p: &Value) -> Result<Value> {
         if is_still && let Some(d) = still {
             r = TimeRange::new(r.start, d);
         }
-        // snap to whole sequence frames
+        // snap to whole sequence إطار
         let d = rate.tick_of(rate.frame_at(r.duration + Tick(fd.0 / 2)).max(1));
         plan.push((*id, TimeRange::new(r.start, d)));
     }
@@ -1247,7 +1247,7 @@ fn automate_to_sequence(s: &mut Session, p: &Value) -> Result<Value> {
         let default_frames = s.project.settings.default_transition_duration_frames;
         let mut edges = Vec::new();
         for ((_, ids), ov) in placed.iter().skip(1).zip(cut_overlap.iter().chain(std::iter::repeat(&overlap))) {
-            let frames = if *ov > Tick::ZERO { rate.frame_at(*ov) } else { default_frames };
+            let إطار = if *ov > Tick::ZERO { rate.frame_at(*ov) } else { default_frames };
             for c in ids {
                 let Some((tid, _)) = q.find_item(*c) else { continue };
                 let kind = q.track(tid).map(|t| t.kind);
@@ -1256,11 +1256,11 @@ fn automate_to_sequence(s: &mut Session, p: &Value) -> Result<Value> {
                     Some(TrackKind::Audio) if at => "sequence.applyAudioTransition",
                     _ => continue,
                 };
-                edges.push((cmd, *c, frames));
+                edges.push((cmd, *c, إطار));
             }
         }
-        for (cmd, c, frames) in edges {
-            if s.execute(cmd, json!({"clip": c.0, "edge": "in", "frames": frames})).is_ok() {
+        for (cmd, c, إطار) in edges {
+            if s.execute(cmd, json!({"clip": c.0, "edge": "in", "frames": إطار})).is_ok() {
                 transitions += 1;
             }
         }

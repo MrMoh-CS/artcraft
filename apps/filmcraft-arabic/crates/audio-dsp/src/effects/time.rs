@@ -57,7 +57,7 @@ impl Delay {
         ParamSpec::new("bpm", "Tempo", 20.0, 300.0, 120.0, Unit::Bpm),
         ParamSpec::choice("division", "Division", DIVISIONS, 3),
         ParamSpec::new("feedback", "Feedback", 0.0, 95.0, 30.0, Unit::Percent),
-        ParamSpec::new("mix", "Mix", 0.0, 100.0, 30.0, Unit::Percent),
+        ParamSpec::new("mix", "المزج", 0.0, 100.0, 30.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {
@@ -162,7 +162,7 @@ impl Reverb {
         ParamSpec::log("decay", "Decay (RT60)", 0.1, 20.0, 2.0, Unit::Seconds),
         ParamSpec::new("damping", "HF Damping", 0.0, 100.0, 40.0, Unit::Percent),
         ParamSpec::new("size", "Room Size", 0.0, 100.0, 50.0, Unit::Percent),
-        ParamSpec::new("mix", "Mix", 0.0, 100.0, 25.0, Unit::Percent),
+        ParamSpec::new("mix", "المزج", 0.0, 100.0, 25.0, Unit::Percent),
     ];
 
     pub fn new(sample_rate: f32, _channels: usize) -> Self {

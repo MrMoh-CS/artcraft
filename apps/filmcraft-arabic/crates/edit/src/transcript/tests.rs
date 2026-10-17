@@ -157,7 +157,7 @@ fn search_word_at_and_paragraphs() {
 #[test]
 fn word_ranges_snap_outward() {
     let w = sequence_words(&whole(), &transcripts());
-    // "Welcome to the show." 0.50–1.70 → frames 12..43 (0.48–1.72)
+    // "Welcome to the show." 0.50–1.70 → إطار 12..43 (0.48–1.72)
     let r = word_range(&w, 3, 0, R).unwrap();
     assert_eq!((r.start, r.end()), (s(0.48), s(1.72)));
     let m = media_word_range(&fixture(), 4, 9, R).unwrap();
@@ -217,7 +217,7 @@ fn fillers_are_found_with_phrases_and_removed() {
     more.push("you".into());
     assert_eq!(find_fillers(&w, &more), vec![4..5, 15..16, 18..20]);
     let ranges = filler_ranges(&w, &hits, R);
-    // "Um," 3.70–4.00 → nearest frames 3.68–4.00; "uh" 8.20–8.50 → 8.20–8.48
+    // "Um," 3.70–4.00 → nearest إطار 3.68–4.00; "uh" 8.20–8.50 → 8.20–8.48
     assert_eq!(ranges.iter().map(|r| (r.start, r.end())).collect::<Vec<_>>(), vec![(s(3.68), s(4.00)), (s(8.20), s(8.48))]);
     let mut next = 1000;
     let mut ctx = EditCtx { next_id: &mut next, media_duration: &media_dur, media_start: &|_| Tick::ZERO, min_duration: R.frame_duration() };

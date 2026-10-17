@@ -106,10 +106,10 @@ pub fn detect(path: &str, bytes: &[u8]) -> Option<Format> {
 }
 
 /// Import a caption file as a new caption track in the active sequence (a new sequence is made
-/// when none is open), snapped to the sequence's frames. One undo step.
+/// when none is open), snapped to the sequence's إطار. One undo step.
 pub fn import(s: &mut Session, path: &str, bytes: &[u8], format: Format, name: Option<&str>) -> Result<Value> {
     let mut doc = filmcraft_captions::parse(bytes, format).map_err(|e| EngineError::Other(format!("{path}: {e}")))?;
-    let stem = std::path::Path::new(path).file_stem().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "التسميات التوضيحية".into());
+    let stem = std::path::Path::new(path).file_stem().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "الترجمة النصية".into());
     let track_name = name.map(str::to_string).unwrap_or_else(|| stem.clone());
     let seq_id = match s.state.active_sequence.filter(|id| s.project.sequence(*id).is_some()) {
         Some(id) => id,
@@ -224,7 +224,7 @@ pub fn commands() -> Vec<CommandSpec> {
         spec(
             "captions.newTrack",
             "Add New Caption Track…",
-            &["تسلسل", "التسميات التوضيحية"],
+            &["التسلسل", "الترجمة النصية"],
             Some("Cmd+Alt+A"),
             r#"{"format":"Subtitle|CEA-608|CEA-708|Teletext","name":str?,"language":str?}"#,
             has_seq,
@@ -357,7 +357,7 @@ pub fn commands() -> Vec<CommandSpec> {
         spec(
             "captions.add",
             "Add Caption at Playhead",
-            &["تسلسل", "التسميات التوضيحية"],
+            &["التسلسل", "الترجمة النصية"],
             Some("Cmd+Alt+C"),
             r#"{"track":id|"C1"?,"text":str?,"time":ticks?,"seconds":f64?,"durationSeconds":f64=3}"#,
             has_seq,
@@ -484,10 +484,10 @@ pub fn commands() -> Vec<CommandSpec> {
             s.state.selection.clear();
             Ok(json!({"time": start.0}))
         }),
-        spec("captions.next", "Go to Next Caption Segment", &["تسلسل", "التسميات التوضيحية"], Some("Cmd+Alt+Down"), "{}", has_captions, |s, _| step(s, true)),
-        spec("captions.previous", "Go to Previous Caption Segment", &["تسلسل", "التسميات التوضيحية"], Some("Cmd+Alt+Up"), "{}", has_captions, |s, _| step(s, false)),
-        spec("captions.showAll", "Show All Caption Tracks", &["تسلسل", "التسميات التوضيحية"], None, "{}", has_caption_track, |s, _| show_all(s, true)),
-        spec("captions.hideAll", "Hide All Caption Tracks", &["تسلسل", "التسميات التوضيحية"], None, "{}", has_caption_track, |s, _| show_all(s, false)),
+        spec("captions.next", "Go to Next Caption Segment", &["التسلسل", "الترجمة النصية"], Some("Cmd+Alt+Down"), "{}", has_captions, |s, _| step(s, true)),
+        spec("captions.previous", "Go to Previous Caption Segment", &["التسلسل", "الترجمة النصية"], Some("Cmd+Alt+Up"), "{}", has_captions, |s, _| step(s, false)),
+        spec("captions.showAll", "Show All Caption Tracks", &["التسلسل", "الترجمة النصية"], None, "{}", has_caption_track, |s, _| show_all(s, true)),
+        spec("captions.hideAll", "Hide All Caption Tracks", &["التسلسل", "الترجمة النصية"], None, "{}", has_caption_track, |s, _| show_all(s, false)),
         spec("captions.import", "Import Captions…", &[], None, r#"{"path":str,"name":str?}"#, always, |s, p| {
             let path = str_p(p, "path").ok_or_else(|| bad("captions.import", "need `path`"))?.to_string();
             let bytes = s.services.read_file(&path).map_err(|e| EngineError::Other(format!("{path}: {e}")))?;

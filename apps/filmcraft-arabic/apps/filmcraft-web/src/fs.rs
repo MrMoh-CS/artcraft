@@ -46,7 +46,7 @@ struct Fs {
     clock: u64,
     inflight: HashSet<(u32, u64)>,
     failed: HashMap<(u32, u64), String>,
-    /// Called when fetched bytes arrive (repaint the UI so pending frames are retried).
+    /// Called when fetched bytes arrive (repaint the UI so pending إطار are retried).
     on_data: Option<Rc<dyn Fn()>>,
     /// Called after a file was written (path, bytes): the app offers it as a download.
     on_write: Option<Rc<dyn Fn(&str, &[u8])>>,

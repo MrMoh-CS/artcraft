@@ -1,6 +1,6 @@
 //! Project panel (M12.7): bins and items in List, Icon or Freeform view, with the breadcrumb, search
 //! and selection count, the Preview Area, the footer (views, thumbnail size, Sort Icons, Automate to
-//! Sequence, Find, New Bin, New Item, Clear) and the panel menu.
+//! تسلسل، Find, New Bin, New Item, Clear) and the panel menu.
 //!
 //! View settings, columns, sorting and view presets are engine preferences
 //! (`filmcraft_engine::project_panel`, `project.view.*`, `project.columns.*`, `project.viewPreset.*`);
@@ -321,8 +321,8 @@ fn tab_strip(app: &mut FilmcraftApp, ui: &mut egui::Ui, strip: Rect, docked: &[u
         }
         if let Some(k) = k {
             let cr = Rect::from_center_size(pos2(r.max.x - 11.0, r.center().y), vec2(12.0, 12.0));
-            let cresp = ui.interact(cr, egui::Id::new(("ptab-close", k)), Sense::click()).on_hover_text(tl!("Close"));
-            app.auto.add(&format!("project.tab.{k}.close"), cr, "Close");
+            let cresp = ui.interact(cr, egui::Id::new(("ptab-close", k)), Sense::click()).on_hover_text(tl!("إغلاق"));
+            app.auto.add(&format!("project.tab.{k}.close"), cr, "إغلاق");
             icons::paint(ui.painter(), cr.shrink(2.0), Icon::Close, if cresp.hovered() { t.text } else { t.text_dim });
             if cresp.clicked() || resp.middle_clicked() {
                 close = Some(k);
@@ -441,7 +441,7 @@ fn body(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, v: &View, actions
     let filter = app.ui.project_search.to_ascii_lowercase();
     let total = count_items(app, v.bin);
     let sel = app.session.state.project_selection.len();
-    let count = if sel > 0 { tlf!("{sel} of {total} items selected", sel, total) } else { tlf!("{total} items", total) };
+    let count = if sel > 0 { tlf!("تم تحديد {sel} من {total} عناصر", sel, total) } else { tlf!("{total} items", total) };
     ui.painter().text(pos2(row.max.x, row.center().y - 1.0), Align2::RIGHT_CENTER, &count, Tokens::ui(fs - 1.0), t.text_dim);
     app.auto.add(&format!("{pre}.count"), Rect::from_min_max(pos2(row.max.x - 160.0, row.min.y), row.max), &count);
 
@@ -531,7 +531,7 @@ fn preview_area(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, pre: &str) {
     let lines = [
         it.name.clone(),
         format!("{}{}", crate::i18n::t(it.type_label()), if it.has_video() { format!(", {}", col("Video Info")) } else { String::new() }),
-        [col("Media Duration"), col("Frame Rate")].into_iter().filter(|s| !s.is_empty()).collect::<Vec<_>>().join(", "),
+        [col("Media Duration"), col("معدل الإطارات")].into_iter().filter(|s| !s.is_empty()).collect::<Vec<_>>().join(", "),
         col("Audio Info"),
         tlf!("Video Usage: {vu}  Audio Usage: {au}", vu, au),
     ];
@@ -677,7 +677,7 @@ pub fn new_item_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, pre: &str, actio
 fn sort_icons_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, pre: &str, actions: &mut Actions) {
     let cur = app.session.prefs.project_panel.view.icon_sort.clone();
     let mut entries: Vec<(String, String)> = vec![("".into(), tl!("User Order").into())];
-    for c in ["Name", "Label", "Media Type", "Frame Rate", "Media Start", "Media End", "Media Duration", "Video Info", "Audio Info", "Date Created"] {
+    for c in ["الاسم", "Label", "Media Type", "معدل الإطارات", "Media Start", "Media End", "Media Duration", "Video Info", "Audio Info", "Date Created"] {
         entries.push((c.into(), crate::i18n::t(c).into()));
     }
     for (col, label) in entries {
@@ -748,7 +748,7 @@ pub fn panel_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui) -> bool {
         if item(ui, "rename", tl!("Rename"), has_sel, None) {
             actions.push(("projectPanel.rename".into(), json!({})));
         }
-        if item(ui, "delete", tl!("Delete"), clear.is_some(), Some("Backspace")) {
+        if item(ui, "delete", tl!("حذف"), clear.is_some(), Some("Backspace")) {
             app.ui.project_panel.rename = None;
             actions.push(("project.delete".into(), clear.unwrap_or_default()));
         }

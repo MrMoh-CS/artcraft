@@ -179,7 +179,7 @@ fn unknown_key(known: &Value, patch: &Value, prefix: &str) -> Option<String> {
     None
 }
 
-/// A frame rate from a number of frames per second (29.97 → 30000/1001) or "num/den".
+/// A frame rate from a number of إطار per second (29.97 → 30000/1001) or "num/den".
 pub fn parse_rate(v: &Value) -> Option<FrameRate> {
     if let Some(s) = v.as_str() {
         if let Some((n, d)) = s.split_once('/') {
@@ -426,7 +426,7 @@ fn is_folder(x: &str) -> bool {
 /// Output path for `seq`: the `path` param (a file, or a directory ending in `/` or existing), else
 /// `<default dir>/<sequence name>.<ext>`; `suffix` distinguishes several items.
 fn output_path(s: &Session, p: &Value, seq: ItemId, settings: &ExportSettings, suffix: Option<usize>) -> String {
-    let name = s.project.item(seq).map(|i| i.name.clone()).unwrap_or_else(|| "تسلسل".into());
+    let name = s.project.item(seq).map(|i| i.name.clone()).unwrap_or_else(|| "التسلسل".into());
     let base = match str_p(p, "path").map(expand_home) {
         Some(x) if is_folder(&x) => Path::new(&x).join(file_safe(&name)).to_string_lossy().to_string(),
         Some(x) => x,
@@ -483,7 +483,7 @@ pub fn spawn_export(s: &mut Session, project: Arc<Project>, seq: ItemId, mut set
     let (prog, res) = (job.progress.clone(), job.result.clone());
     let offline = s.export_offline.entry(id).or_default().clone();
     if cfg!(target_arch = "wasm32") && !wait && filmcraft_export::stepped(format) {
-        // No threads: the host advances the export between UI frames (`Session::pump_jobs`).
+        // No threads: the host advances the export between UI إطار (`Session::pump_jobs`).
         let mut exporter = filmcraft_export::Exporter::new(project, seq, &settings, &prog).map_err(|e| EngineError::Other(e.to_string()))?;
         exporter.set_batch(1);
         s.jobs.push(job);
@@ -935,7 +935,7 @@ fn resolve(s: &mut Session, p: &Value) -> Result<Value> {
         "output": {"width": r.width, "height": r.height, "fps": r.rate.label(), "sampleRate": r.sample_rate, "channels": r.channels,
                    "targetKbps": r.target_kbps, "maxKbps": r.max_kbps, "keyframeDistance": r.keyint},
         "summary": summary,
-        "source": format!("Sequence, {}x{}, {} fps, {} Hz", w, h, rate.label(), sr),
+        "source": format!("تسلسل، {}x{}, {} fps, {} Hz", w, h, rate.label(), sr),
     }))
 }
 

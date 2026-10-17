@@ -225,13 +225,13 @@ fn header(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) {
                 }
             }
         });
-        app.auto.add("shortcuts.preset", r.response.rect, "Preset");
+        app.auto.add("shortcuts.preset", r.response.rect, "الإعداد المسبق");
         ui.add_space(8.0);
         if small_button(app, ui, "shortcuts.saveAs", tl!("Save As…"), true) {
             app.shortcut_editor.save_name = Some(if builtin.contains(&active) { tl!("My Shortcuts").into() } else { active.clone() });
         }
         let can_delete = custom.contains(&active);
-        if small_button(app, ui, "shortcuts.delete", tl!("Delete"), can_delete) {
+        if small_button(app, ui, "shortcuts.delete", tl!("حذف"), can_delete) {
             exec(app, "shortcuts.deletePreset", json!({"name": active}));
             app.shortcut_editor.message = tlf!("Deleted preset “{active}”", active);
         }
@@ -265,14 +265,14 @@ fn header(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) {
             let r = ui.add(egui::TextEdit::singleline(&mut name).desired_width(260.0));
             app.auto.add("shortcuts.saveAs.name", r.rect, "Preset name");
             let enter = r.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
-            if small_button(app, ui, "shortcuts.saveAs.ok", tl!("Save"), !name.trim().is_empty()) || enter {
+            if small_button(app, ui, "shortcuts.saveAs.ok", tl!("حفظ"), !name.trim().is_empty()) || enter {
                 if exec(app, "shortcuts.savePreset", json!({"name": name})).is_some() {
                     app.shortcut_editor.message = tlf!("Saved preset “{name}”", name = name.trim());
                     app.shortcut_editor.save_name = None;
                 } else {
                     app.shortcut_editor.save_name = Some(name.clone());
                 }
-            } else if small_button(app, ui, "shortcuts.saveAs.cancel", tl!("Cancel"), true) {
+            } else if small_button(app, ui, "shortcuts.saveAs.cancel", tl!("إلغاء"), true) {
                 app.shortcut_editor.save_name = None;
             } else {
                 app.shortcut_editor.save_name = Some(name.clone());
@@ -387,8 +387,8 @@ const MAIN_ROWS: [KeyRow; 6] = [
 /// Navigation cluster rows (x offset in units within the cluster).
 const NAV_ROWS: [&[(&str, f32)]; 6] = [
     &[],
-    &[("Insert", 0.0), ("Home", 1.0), ("PageUp", 2.0)],
-    &[("Delete", 0.0), ("End", 1.0), ("PageDown", 2.0)],
+    &[("Insert", 0.0), ("الرئيسية", 1.0), ("PageUp", 2.0)],
+    &[("حذف", 0.0), ("End", 1.0), ("PageDown", 2.0)],
     &[],
     &[("Up", 1.0)],
     &[("Left", 0.0), ("Down", 1.0), ("Right", 2.0)],
@@ -426,11 +426,11 @@ fn key_legend(name: &str, mac: bool) -> String {
                 "Backspace".into()
             }
         }
-        "Delete" => {
+        "حذف" => {
             if mac {
                 "⌦ Fwd Del".into()
             } else {
-                "Delete".into()
+                "حذف".into()
             }
         }
         "Enter" => "↩ Return".into(),
@@ -785,14 +785,14 @@ fn footer(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) -> Option<bool>
         });
         ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
             let ok = ui.add(
-                egui::Button::new(RichText::new(tl!("OK")).size(13.0).color(Color32::WHITE)).fill(t.accent).min_size(vec2(72.0, 28.0)).corner_radius(14.0),
+                egui::Button::new(RichText::new(tl!("موافق")).size(13.0).color(Color32::WHITE)).fill(t.accent).min_size(vec2(72.0, 28.0)).corner_radius(14.0),
             );
-            app.auto.add("shortcuts.ok", ok.rect, "OK");
+            app.auto.add("shortcuts.ok", ok.rect, "موافق");
             if ok.clicked() {
                 close = Some(true);
             }
-            let cancel = ui.add(egui::Button::new(RichText::new(tl!("Cancel")).size(13.0)).min_size(vec2(72.0, 28.0)).corner_radius(14.0));
-            app.auto.add("shortcuts.cancel", cancel.rect, "Cancel");
+            let cancel = ui.add(egui::Button::new(RichText::new(tl!("إلغاء")).size(13.0)).min_size(vec2(72.0, 28.0)).corner_radius(14.0));
+            app.auto.add("shortcuts.cancel", cancel.rect, "إلغاء");
             if cancel.clicked() {
                 close = Some(false);
             }
@@ -806,10 +806,10 @@ fn footer(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) -> Option<bool>
                 app.shortcut_editor.message = tlf!("Cleared {n} shortcut(s) of {command}", n = r["removed"], command = label_of(app, &c));
             }
             let (cu, cr) = (app.session.shortcuts.can_undo(), app.session.shortcuts.can_redo());
-            if small_button(app, ui, "shortcuts.redo", tl!("Redo"), cr) {
+            if small_button(app, ui, "shortcuts.redo", tl!("إعادة"), cr) {
                 exec(app, "shortcuts.redo", json!({}));
             }
-            if small_button(app, ui, "shortcuts.undo", tl!("Undo"), cu) {
+            if small_button(app, ui, "shortcuts.undo", tl!("تراجع"), cu) {
                 exec(app, "shortcuts.undo", json!({}));
             }
         });
@@ -824,7 +824,7 @@ mod localization_tests {
     #[test]
     fn command_search_accepts_spanish_labels_ids_and_keys() {
         crate::i18n::set_current(crate::i18n::Language::Es);
-        let row = json!({"id": "edit.undo", "label": "Undo", "category": "Edit", "shortcuts": [{"keys": "Cmd+Z", "display": "Ctrl+Z"}]});
+        let row = json!({"id": "edit.undo", "label": "تراجع", "category": "تحرير", "shortcuts": [{"keys": "Cmd+Z", "display": "Ctrl+Z"}]});
         for query in ["deshacer", "undo", "edit.undo", "ctrl+z", "cmd+z"] {
             assert!(matches_search(&row, query), "{query}");
         }

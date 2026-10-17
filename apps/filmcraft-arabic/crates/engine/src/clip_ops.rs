@@ -436,7 +436,7 @@ fn media_root(p: &Project, id: ItemId) -> Option<(ItemId, &MediaClip, Option<Tim
 #[derive(Clone, Debug, PartialEq)]
 pub struct SourceView {
     pub item: ItemId,
-    /// The media item whose frames are shown (the parent of a subclip).
+    /// The media item whose إطار are shown (the parent of a subclip).
     pub media: ItemId,
     pub start: Tick,
     pub end: Tick,
@@ -825,7 +825,7 @@ fn close_project(s: &mut Session, p: &Value) -> Result<Value> {
     if s.is_dirty() && !bool_p(p, "force").unwrap_or(false) {
         return Err(EngineError::Other("the project has unsaved changes: save it first, or pass {\"force\": true} to discard them".into()));
     }
-    s.project = std::sync::Arc::new(Project::new("بدون عنوان"));
+    s.project = std::sync::Arc::new(Project::new("Untitled"));
     s.history = Default::default();
     s.history.limit = 200;
     s.state = Session::default().state;
@@ -1133,7 +1133,7 @@ fn subclip_plan(s: &Session, p: &Value) -> Result<(ItemId, TimeRange, String, La
     })
 }
 
-/// The Make Subclip dialog's defaults: `{name, startFrame, endFrame, fps}` (media frames).
+/// The Make Subclip dialog's defaults: `{name, startFrame, endFrame, fps}` (media إطار).
 pub fn subclip_defaults(s: &Session, p: &Value) -> Option<Value> {
     let (parent, range, base, _) = subclip_plan(s, p).ok()?;
     let rate = item_rate(&s.project, parent);
@@ -1636,8 +1636,8 @@ fn extract_audio(s: &mut Session, p: &Value) -> Result<Value> {
         let src = s.media.full_res_source(&s.project, root, &*s.services).ok_or_else(|| EngineError::Other(format!("{name}: media is offline")))?;
         let sr = a.sample_rate.max(8000);
         let start = range.start.to_units_floor(sr as i64);
-        let frames = (range.end().to_units_floor(sr as i64) - start).max(0) as usize;
-        let buf = src.audio(start, frames, sr).map_err(|e| EngineError::Other(format!("{name}: {e}")))?;
+        let إطار = (range.end().to_units_floor(sr as i64) - start).max(0) as usize;
+        let buf = src.audio(start, إطار, sr).map_err(|e| EngineError::Other(format!("{name}: {e}")))?;
         let ch = buf.channel_count().max(1);
         let mut inter = Vec::with_capacity(frames * ch);
         for i in 0..frames {
@@ -1694,7 +1694,7 @@ fn replace_with(s: &mut Session, p: &Value, how: Replace) -> Result<Value> {
     // From Bin starts at the item's In point, as Premiere does; `keepSourceIn` keeps each clip's own
     let keep_in = how == Replace::Bin && bool_p(p, "keepSourceIn").unwrap_or(false);
     // ...but a subclip that restricts trims has no media outside its range: a kept In stays on
-    // one of its frames (first frame, last frame)
+    // one of its إطار (first frame, last frame)
     let keep_within = match &pi.kind {
         ItemKind::Subclip { range, restrict_trims: true, .. } => {
             Some((range.start, (range.end() - item_rate(&s.project, new_item).frame_duration()).max(range.start)))
@@ -1753,7 +1753,7 @@ fn replace_with(s: &mut Session, p: &Value, how: Replace) -> Result<Value> {
     Ok(result)
 }
 
-/// The clips among `clips` that play past the end of their media, with how many sequence frames
+/// The clips among `clips` that play past the end of their media, with how many sequence إطار
 /// of the clip have no media (at most the clip's own length). The edit is left as it is (the
 /// renderer holds the last frame there); this is so whoever replaced the clip knows.
 fn short_clips(s: &Session, clips: &[u64]) -> Vec<Value> {
@@ -1772,8 +1772,8 @@ fn short_clips(s: &Session, clips: &[u64]) -> Vec<Value> {
             // media ticks past the end, as sequence ticks of this clip
             let length = it.duration.0.max(0);
             let ticks = ((over as f64 / it.speed.abs().max(1e-9)).round().min(length as f64) as i64).min(length);
-            let frames = ticks.saturating_add(frame - 1) / frame;
-            (frames > 0).then(|| json!({"clip": c, "shortByFrames": frames}))
+            let إطار = ticks.saturating_add(frame - 1) / frame;
+            (frames > 0).then(|| json!({"clip": c, "shortByFrames": إطار}))
         })
         .collect()
 }

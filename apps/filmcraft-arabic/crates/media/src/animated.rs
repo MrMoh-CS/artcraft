@@ -6,14 +6,14 @@
 //!
 //! - each frame lasts its own delay; GIF delays of 10 ms or less play as 100 ms and APNG delays
 //!   under 10 ms as 10 ms, as browsers do, so a zero delay never makes a zero-length frame;
-//! - consecutive identical frames are merged (one picture, the sum of their delays);
+//! - consecutive identical إطار are merged (one picture, the sum of their delays);
 //! - the clip is one pass through the animation (the file's loop count is not applied);
 //! - transparency is kept: the source reports alpha when any frame has a pixel that is not fully
 //!   opaque.
 //!
-//! The file is hostile: decoding stops at [`MAX_FRAMES`] frames or [`MAX_DECODED_BYTES`] of
+//! The file is hostile: decoding stops at [`MAX_FRAMES`] إطار or [`MAX_DECODED_BYTES`] of
 //! pictures (the clip then ends there), and a frame that fails to decode ends the animation at the
-//! frames decoded before it. A file that turns out not to be animated (one frame, or no frame that
+//! إطار decoded before it. A file that turns out not to be animated (one frame, or no frame that
 //! decodes) is left to the still decoders, which is what happened to every animated image before.
 
 use std::io::Cursor;
@@ -27,9 +27,9 @@ use image::{AnimationDecoder, Delay, Frames, ImageDecoder, Limits};
 
 use crate::{FrameRequest, MediaError, MediaInfo, MediaKind, MediaSource, Result, VideoStreamInfo};
 
-/// Most frames kept from one file (frames past this are dropped; the clip ends there).
+/// Most إطار kept from one file (frames past this are dropped; the clip ends there).
 pub const MAX_FRAMES: usize = 10_000;
-/// Most bytes of decoded RGBA pictures kept from one file (after merging identical frames).
+/// Most bytes of decoded RGBA pictures kept from one file (after merging identical إطار).
 pub const MAX_DECODED_BYTES: usize = 1 << 30;
 
 /// Animated image formats.
@@ -73,19 +73,19 @@ impl Format {
     }
 }
 
-/// An animation: its frames (full-canvas pictures) and when each one starts.
+/// An animation: its إطار (full-canvas pictures) and when each one starts.
 pub struct AnimatedSource {
     info: MediaInfo,
-    frames: Vec<Arc<VideoFrame>>,
+    إطار: Vec<Arc<VideoFrame>>,
     /// Media time each frame starts at; ascending, `starts[0]` is zero.
     starts: Vec<Tick>,
 }
 
 /// Decode `bytes` as an animated image. `None` when it is not an APNG or GIF with at least two
-/// frames that decode (the caller then opens it as a still).
+/// إطار that decode (the caller then opens it as a still).
 pub fn open(name: &str, bytes: &[u8]) -> Option<Result<AnimatedSource>> {
     let format = Format::sniff(bytes)?;
-    let frames = match format {
+    let إطار = match format {
         Format::Apng => {
             let mut d = PngDecoder::new(Cursor::new(bytes)).ok()?;
             if !d.is_apng().ok()? {
@@ -100,17 +100,17 @@ pub fn open(name: &str, bytes: &[u8]) -> Option<Result<AnimatedSource>> {
             d.into_frames()
         }
     };
-    AnimatedSource::from_frames(name, format, frames, bytes.len() as u64).map(Ok)
+    AnimatedSource::from_frames(name, format, إطار, bytes.len() as u64).map(Ok)
 }
 
 impl AnimatedSource {
-    fn from_frames(name: &str, format: Format, frames: Frames<'_>, file_size: u64) -> Option<Self> {
+    fn from_frames(name: &str, format: Format, إطار: Frames<'_>, file_size: u64) -> Option<Self> {
         let mut pictures: Vec<(u32, u32, Vec<u8>)> = Vec::new();
         let mut durations: Vec<Tick> = Vec::new();
         let mut decoded = 0usize;
         let mut has_alpha = false;
-        for frame in frames.take(MAX_FRAMES) {
-            // a damaged frame ends the animation at the frames before it
+        for frame in إطار.take(MAX_FRAMES) {
+            // a damaged frame ends the animation at the إطار before it
             let Ok(frame) = frame else { break };
             let ticks = format.frame_ticks(frame.delay());
             let buffer = frame.into_buffer();
@@ -162,11 +162,11 @@ impl AnimatedSource {
             start_timecode: None,
             file_size: Some(file_size),
         };
-        let frames = pictures.into_iter().map(|(w, h, rgba)| Arc::new(VideoFrame::rgba8(w, h, rgba))).collect();
-        Some(Self { info, frames, starts })
+        let إطار = pictures.into_iter().map(|(w, h, rgba)| Arc::new(VideoFrame::rgba8(w, h, rgba))).collect();
+        Some(Self { info, إطار, starts })
     }
 
-    /// Number of distinct frames kept.
+    /// Number of distinct إطار kept.
     pub fn frame_count(&self) -> usize {
         self.frames.len()
     }
@@ -183,7 +183,7 @@ impl AnimatedSource {
 }
 
 /// The clip's frame rate: the rate of its most common frame duration, when that is a sensible video
-/// rate (1 to 120 frames per second), else 30 fps. Frames are shown for their own durations
+/// rate (1 to 120 إطار per second), else 30 fps. Frames are shown for their own durations
 /// whatever this says; it sets the clip's timebase (e.g. a sequence made from the clip).
 fn rate_of(durations: &[Tick]) -> FrameRate {
     let mut sorted: Vec<i64> = durations.iter().map(|d| d.0).collect();

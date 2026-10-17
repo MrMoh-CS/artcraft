@@ -52,7 +52,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     let items: Vec<TrackItem> =
         app.session.active_sequence().map(|seq| clip_ids.iter().filter_map(|c| seq.find_item(*c).map(|(_, i)| i.clone())).collect()).unwrap_or_default();
     let presets = filmcraft_engine::essential_sound::presets(&app.session);
-    let tab = if app.ui.essential_sound_tab == "Browse" { "Browse" } else { "Edit" };
+    let tab = if app.ui.essential_sound_tab == "Browse" { "Browse" } else { "تحرير" };
     let mut cx = Ctx { t, auto: &mut app.auto, actions: Vec::new(), clips: clip_ids.iter().map(|c| c.0).collect() };
     let painter = ui.painter().clone();
     painter.rect_filled(rect, 0.0, t.panel_bg);
@@ -60,8 +60,8 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     let mut x = rect.min.x + PAD;
     let ty = rect.min.y + 16.0;
     let mut new_tab = None;
-    for name in ["Browse", "Edit"] {
-        let shown = if name == "Browse" { tl!("Browse") } else { tl!("Edit") };
+    for name in ["Browse", "تحرير"] {
+        let shown = if name == "Browse" { tl!("Browse") } else { tl!("تحرير") };
         let g = painter.layout_no_wrap(shown.to_string(), Tokens::ui(12.5), t.text);
         let r = Rect::from_min_size(pos2(x, ty - 9.0), vec2(g.size().x, 20.0));
         let resp = ui.interact(r, egui::Id::new(("es-tab", name)), Sense::click());
@@ -221,7 +221,7 @@ fn typed_body(ui: &mut egui::Ui, cx: &mut Ctx, st: &EssentialSound, items: &[Tra
                 }
             }
         });
-        cx.auto.add("essentialSound.preset", cb.response.rect, "Preset");
+        cx.auto.add("essentialSound.preset", cb.response.rect, "الإعداد المسبق");
         let (sr, sresp) = ui.allocate_exact_size(vec2(22.0, 22.0), Sense::click());
         save_icon(ui.painter(), sr.shrink(3.0), if sresp.hovered() { t.text } else { t.text_dim });
         cx.auto.add("essentialSound.preset.save", sr, "Save Preset");
@@ -244,8 +244,8 @@ fn typed_body(ui: &mut egui::Ui, cx: &mut Ctx, st: &EssentialSound, items: &[Tra
         ui.horizontal(|ui| {
             let r = ui.add(egui::TextEdit::singleline(&mut d).hint_text(tl!("Preset name")).desired_width(ui.available_width() - 70.0));
             cx.auto.add("essentialSound.preset.name", r.rect, "Preset name");
-            let ok = ui.button(tl!("Save"));
-            cx.auto.add("essentialSound.preset.ok", ok.rect, "Save");
+            let ok = ui.button(tl!("حفظ"));
+            cx.auto.add("essentialSound.preset.ok", ok.rect, "حفظ");
             if (ok.clicked() || (r.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)))) && !d.trim().is_empty() {
                 cx.run("essentialSound.savePreset", json!({"name": d.trim()}));
                 done = true;
@@ -301,7 +301,7 @@ fn typed_body(ui: &mut egui::Ui, cx: &mut Ctx, st: &EssentialSound, items: &[Tra
                         on && st.clarity.enhance.on,
                         |i| json!(i),
                     );
-                    slider(ui, cx, tl!("Mix"), "clarity.enhance.amount", st.clarity.enhance.amount, (0.0, 10.0), 1, "", on && st.clarity.enhance.on);
+                    slider(ui, cx, tl!("المزج"), "clarity.enhance.amount", st.clarity.enhance.amount, (0.0, 10.0), 1, "", on && st.clarity.enhance.on);
                 }
                 Section::Creative => {
                     switch_row(ui, cx, tl!("Reverb"), "creative.reverb.on", st.creative.reverb.on, on);

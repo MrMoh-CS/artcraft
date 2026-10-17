@@ -43,7 +43,7 @@ fn query(id: &'static str, label: &'static str, params: &'static str, run: Run) 
     CommandSpec { id, label, menu: &[], shortcut: None, params, enabled: always, run, journal: false }
 }
 
-const G: &[&str] = &["Graphics and Titles"];
+const G: &[&str] = &["الرسوميات والعناوين"];
 
 fn has_graphic(s: &Session) -> std::result::Result<(), String> {
     has_seq(s)?;
@@ -575,7 +575,7 @@ fn template_thumbnail(s: &mut Session, p: &Value) -> Result<Value> {
 // Responsive design
 // ------------------------------------------------------------------------------------------------
 
-/// Duration parameter: `<key>Frames` (sequence frames), `<key>Seconds`, or `<key>` in ticks.
+/// Duration parameter: `<key>Frames` (sequence إطار), `<key>Seconds`, or `<key>` in ticks.
 fn dur_p(s: &Session, p: &Value, key: &str) -> Option<Tick> {
     let rate = s.sequence_rate();
     if let Some(f) = f64_p(p, &format!("{key}Frames")) {

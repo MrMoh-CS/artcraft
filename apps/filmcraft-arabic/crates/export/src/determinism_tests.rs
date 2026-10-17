@@ -19,7 +19,7 @@ fn export_with_cores(threads: usize, settings: &ExportSettings) -> Vec<u8> {
     std::fs::read(&settings.path).unwrap()
 }
 
-/// Export a step at a time with `batch` frames per step (the web app uses 1).
+/// Export a step at a time with `batch` إطار per step (the web app uses 1).
 fn export_stepped(batch: i64, settings: &ExportSettings) -> Vec<u8> {
     let (p, seq, m) = project();
     let prog = Progress::default();
@@ -31,7 +31,7 @@ fn export_stepped(batch: i64, settings: &ExportSettings) -> Vec<u8> {
 
 #[test]
 fn same_file_whatever_the_core_count() {
-    // 24 frames: one full interleave group and a partial one
+    // 24 إطار: one full interleave group and a partial one
     for (format, ext) in [(Format::ProRes, "mov"), (Format::H264, "mp4"), (Format::Mjpeg, "mov")] {
         let settings = |name: &str| ExportSettings { format, path: tmp(&format!("{name}.{ext}")), ..Default::default() };
         let reference = export_with_cores(2, &settings(&format!("{}-2", format.id())));
@@ -109,7 +109,7 @@ fn pool(threads: usize) -> rayon::ThreadPool {
     rayon::ThreadPoolBuilder::new().num_threads(threads).build().unwrap()
 }
 
-/// Step an export on a pool of `threads` cores with `batch` frames per step, rendering ahead or
+/// Step an export on a pool of `threads` cores with `batch` إطار per step, rendering ahead or
 /// not; returns the file and how many steps rendered ahead.
 fn export_overlapped(threads: usize, batch: i64, overlap: bool, settings: &ExportSettings) -> (Vec<u8>, u64) {
     let (p, seq, m) = project();
@@ -133,7 +133,7 @@ fn rendering_ahead_does_not_change_the_file() {
         assert_eq!(ahead, 0, "{}: overlap is off", format.label());
         for (threads, batch) in [(2, 1), (3, 3), (5, 7), (16, 24)] {
             let (other, ahead) = export_overlapped(threads, batch, true, &settings(&format!("ov-{}-{threads}-{batch}", format.id())));
-            // 24 frames in one batch (the last case) has nothing to render ahead; the others do
+            // 24 إطار in one batch (the last case) has nothing to render ahead; the others do
             assert_eq!(ahead > 0, batch < 24, "{}: {ahead} overlapped steps at batch {batch}", format.label());
             assert!(reference == other, "{}: rendering ahead ({threads} cores, {batch} per step) gives a different file", format.label());
         }
@@ -192,7 +192,7 @@ fn hdr_with_audio_is_the_same_file_when_the_memory_budget_caps_the_batch() {
             })
         };
         let (reference, _) = run(&format!("hdrcap-{}-ref", format.id()), 16, false, None);
-        // 320 x 180 HDR frames are 691 200 bytes: a budget of six of them lets two batches of three be in
+        // 320 x 180 HDR إطار are 691 200 bytes: a budget of six of them lets two batches of three be in
         // flight, so a batch of 16 is cut to 3 and the interleave cut at frame 16 falls in a prefetched batch
         let budget = 6 * frame_bytes_for_test();
         let (capped, ahead) = run(&format!("hdrcap-{}-3", format.id()), 16, true, Some(budget));
@@ -202,7 +202,7 @@ fn hdr_with_audio_is_the_same_file_when_the_memory_budget_caps_the_batch() {
         assert_eq!(ahead, 1);
         assert!(reference == one, "{}: one-frame HDR batches give a different file", format.label());
         let (full, ahead) = run(&format!("hdrcap-{}-16", format.id()), 16, true, None);
-        assert_eq!(ahead, 8, "{}: 24 frames in batches of 16 leave 8 ahead", format.label());
+        assert_eq!(ahead, 8, "{}: 24 إطار in batches of 16 leave 8 ahead", format.label());
         assert!(reference == full, "{}: an uncapped HDR batch gives a different file", format.label());
     }
 }

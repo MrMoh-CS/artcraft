@@ -13,7 +13,7 @@
 
 use egui::{Align2, Color32, CursorIcon, Rect, Sense, Stroke, pos2, vec2};
 use filmcraft_project::mixer::{LANE_MUTE, LANE_PAN, LANE_VOLUME, lane_info, parse_fx_lane, send_lane};
-use filmcraft_project::{ParamKind, Sequence, Track, TrackKind};
+use filmcraft_project::{ParamKind, تسلسل، Track, TrackKind};
 use filmcraft_time::Tick;
 use serde_json::json;
 
@@ -94,7 +94,7 @@ fn band(r: &Row) -> Rect {
 
 /// Header button (diamond) choosing clip keyframes or a track lane.
 #[allow(clippy::too_many_arguments)]
-pub fn header_button(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, r: &Row, rect: Rect, visible: Rect, label: &str, t: &Tokens) {
+pub fn header_button(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، r: &Row, rect: Rect, visible: Rect, label: &str, t: &Tokens) {
     let Some(tr) = seq.track(r.track) else { return };
     let showing = app.ui.timeline.track_lanes.get(&r.track.0).cloned();
     let resp =
@@ -136,7 +136,7 @@ fn drag_id() -> egui::Id {
 
 /// Draw the shown lanes (after clips) and handle their editing (after the timeline's own interaction,
 /// so keyframes sit on top).
-pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, layout: &Layout, aclip: Rect) {
+pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، layout: &Layout, aclip: Rect) {
     if app.ui.timeline.track_lanes.is_empty() {
         return;
     }
@@ -228,7 +228,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, layout: &
             let time = k.time;
             let key2 = key.clone();
             resp.context_menu(|ui| {
-                if ui.button(tl!("Delete")).clicked() {
+                if ui.button(tl!("حذف")).clicked() {
                     acts.push(("mixer.deleteKeyframe", json!({"strip": r.track.0, "lane": key2, "time": time.0})));
                     ui.close();
                 }

@@ -169,7 +169,7 @@ fn hann(n: usize) -> Vec<f32> {
 fn stft_mag(x: &[f32], n: usize, hop: usize) -> Vec<Vec<f32>> {
     let fft = Fft::new(n);
     let w = hann(n);
-    let frames = if x.len() >= n { (x.len() - n) / hop + 1 } else { 1 };
+    let إطار = if x.len() >= n { (x.len() - n) / hop + 1 } else { 1 };
     let mut re = vec![0f32; n];
     let mut im = vec![0f32; n];
     let mut out = Vec::with_capacity(frames);
@@ -214,7 +214,7 @@ pub fn onset_envelope(x: &[f32], sr: u32) -> (Vec<f32>, usize, usize) {
     (env, n, hop)
 }
 
-/// Beat period in envelope frames from the autocorrelation (50–200 BPM, prior centred at 120 BPM).
+/// Beat period in envelope إطار from the autocorrelation (50–200 BPM, prior centred at 120 BPM).
 fn tempo(env: &[f32], frame_rate: f64) -> Option<f64> {
     let mean = env.iter().sum::<f32>() / env.len().max(1) as f32;
     let e: Vec<f32> = env.iter().map(|v| v - mean).collect();
@@ -404,30 +404,30 @@ pub fn analyze(channels: &[&[f32]], sample_rate: u32) -> Result<Analysis, RemixE
     let (env, n, hop) = onset_envelope(&mono, sample_rate);
     let frame_rate = sample_rate as f64 / hop as f64;
     let period = tempo(&env, frame_rate).ok_or(RemixError::NoBeat)?;
-    let mut frames = track_beats(&env, period);
+    let mut إطار = track_beats(&env, period);
     // weak beats at the edges (silence before / after the music) are not beats
-    let mut strengths: Vec<f32> = frames.iter().map(|&t| local_max(&env, t, 2)).collect();
+    let mut strengths: Vec<f32> = إطار.iter().map(|&t| local_max(&env, t, 2)).collect();
     strengths.sort_by(f32::total_cmp);
     let median = strengths.get(strengths.len() / 2).copied().unwrap_or(0.0);
-    while frames.first().is_some_and(|&t| local_max(&env, t, 2) < 0.3 * median) {
-        frames.remove(0);
+    while إطار.first().is_some_and(|&t| local_max(&env, t, 2) < 0.3 * median) {
+        إطار.remove(0);
     }
-    while frames.last().is_some_and(|&t| local_max(&env, t, 2) < 0.3 * median) {
-        frames.pop();
+    while إطار.last().is_some_and(|&t| local_max(&env, t, 2) < 0.3 * median) {
+        إطار.pop();
     }
     // …and edge beats off the grid (the tracker's end search can settle on an off-beat)
     let off_grid = |a: usize, b: usize| ((b - a) as f64 / period - 1.0).abs() > 0.05;
-    while frames.len() > 2 && off_grid(frames[frames.len() - 2], frames[frames.len() - 1]) {
-        frames.pop();
+    while إطار.len() > 2 && off_grid(frames[frames.len() - 2], إطار[frames.len() - 1]) {
+        إطار.pop();
     }
-    while frames.len() > 2 && off_grid(frames[0], frames[1]) {
-        frames.remove(0);
+    while إطار.len() > 2 && off_grid(frames[0], إطار[1]) {
+        إطار.remove(0);
     }
     // the flux of frame t peaks as soon as an attack enters the newer window, at about
     // t·hop + n − ¾·hop (measured on generated drums); joints sit half a crossfade earlier so a joint's fade is over
     // when the beat's attack starts
     let mut beats: Vec<i64> =
-        frames.iter().map(|&t| (t * hop + n) as i64 - 3 * hop as i64 / 4 - beat_lead(sample_rate)).filter(|&b| b > 0 && b < len as i64).collect();
+        إطار.iter().map(|&t| (t * hop + n) as i64 - 3 * hop as i64 / 4 - beat_lead(sample_rate)).filter(|&b| b > 0 && b < len as i64).collect();
     beats.dedup();
     if beats.len() < 2 * MIN_PIECE_BEATS + 2 {
         return Err(if beats.len() < 4 { RemixError::NoBeat } else { RemixError::TooShort });

@@ -238,11 +238,11 @@ fn close_gap_works() {
 fn reversed_trim_uses_the_handle_its_playback_direction_consumes() {
     let mut fx = Fx::new();
     let v1 = fx.v(0);
-    // source frames [5, 15) played backwards; the media is 1000 frames long
+    // source إطار [5, 15) played backwards; the media is 1000 إطار long
     let a = fx.put(v1, 30, 10, 5);
     fx.seq.find_item_mut(a).unwrap().1.reverse = true;
     let mut n = fx.next;
-    // out extends into the 5 frames before source_in, not into the 985 after source_out
+    // out extends into the 5 إطار before source_in, not into the 985 after source_out
     let d = trim(&mut fx.seq, a, Edge::Out, TrimMode::Regular, f(20), &mut Fx::ctx(&mut n)).unwrap();
     assert_eq!(d, f(5));
     let it = fx.seq.find_item(a).unwrap().1;
@@ -262,10 +262,10 @@ fn regular_trim_respects_neighbours_and_handles() {
     let a = fx.put(v1, 0, 10, 5);
     fx.put(v1, 12, 10, 0);
     let mut n = fx.next;
-    // out: only 2 frames of space before the neighbour
+    // out: only 2 إطار of space before the neighbour
     let d = trim(&mut fx.seq, a, Edge::Out, TrimMode::Regular, f(5), &mut Fx::ctx(&mut n)).unwrap();
     assert_eq!(d, f(2));
-    // in: 5 frames of head handle, but item starts at 0 so no space to the left
+    // in: 5 إطار of head handle, but item starts at 0 so no space to the left
     let d = trim(&mut fx.seq, a, Edge::In, TrimMode::Regular, -f(3), &mut Fx::ctx(&mut n)).unwrap();
     assert_eq!(d, Tick::ZERO);
     let d = trim(&mut fx.seq, a, Edge::In, TrimMode::Regular, f(3), &mut Fx::ctx(&mut n)).unwrap();
@@ -293,7 +293,7 @@ fn held_regular_in_trim_stops_at_previous_clip() {
     let b = fx.put(v1, 15, 10, 5);
     fx.seq.find_item_mut(b).unwrap().1.frame_hold = Some(f(5));
     let mut n = fx.next;
-    // 5 frames of gap: a 20 frame extension is clamped to 5 instead of overlapping the previous clip
+    // 5 إطار of gap: a 20 frame extension is clamped to 5 instead of overlapping the previous clip
     let d = trim(&mut fx.seq, b, Edge::In, TrimMode::Regular, -f(20), &mut Fx::ctx(&mut n)).unwrap();
     assert_eq!(d, -f(5));
     assert_eq!(fx.spans(v1), vec![(0, 10), (10, 15)]);
@@ -574,8 +574,8 @@ fn rate_stretch_and_speed() {
 
 #[test]
 fn linked_rate_stretch_uses_the_tighter_neighbour() {
-    // picture and sound are 60 frames; a later clip on A1 starts at 70, so the sound has only 10
-    // frames of room. Stretching the pair +20 must not leave the picture at 80f / 0.75x and the
+    // picture and sound are 60 إطار; a later clip on A1 starts at 70, so the sound has only 10
+    // إطار of room. Stretching the pair +20 must not leave the picture at 80f / 0.75x and the
     // sound at 70f / 6/7x while still linked.
     let mut fx = Fx::new();
     let (v1, a1) = (fx.v(0), fx.a(0));

@@ -15,7 +15,7 @@
 //!   "duration": 1270080000000,
 //!   "layers": [ /* graphic_text / graphic_shape effect instances, as in a project file */ ],
 //!   "graphic": { /* roll, intro / outro (GraphicMeta) */ },
-//!   "controls": [ { "id": "name", "name": "Name", "kind": "text", "layer": 1, "param": "text" } ],
+//!   "controls": [ { "id": "name", "name": "الاسم", "kind": "text", "layer": 1, "param": "text" } ],
 //!   "resources": { "fonts": [ { "family": "…", "style": "…", "license": "OFL-1.1", "data": "<base64>" } ] }
 //! }
 //! ```
@@ -481,7 +481,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
         pin(&mut slab, 2, [true, false, true, false], [-40.0, 0.0, 48.0, 0.0]);
         let mut accent = shape(4, "Accent", 0, (130.0, 900.0), (12.0, 150.0), 0xfacc15);
         pin(&mut accent, 1, [true, false, false, false], [-12.0, 0.0, 0.0, 0.0]);
-        let mut name = text(2, "Name", "Alex Morgan", (160.0, 895.0), 62.0, "SemiBold");
+        let mut name = text(2, "الاسم", "Alex Morgan", (160.0, 895.0), 62.0, "SemiBold");
         set(&mut name, "fill_color", rgb(0xffffff));
         let mut role = text(3, "Role", "Field Producer", (162.0, 950.0), 36.0, "Regular");
         set(&mut role, "fill_color", rgb(0xdbeafe));
@@ -493,7 +493,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
             6,
             vec![slab, accent, name, role],
             vec![
-                ctl("name", "Name", 2, "text"),
+                ctl("name", "الاسم", 2, "text"),
                 ctl("role", "Role", 3, "text"),
                 ctl("slab_color", "Slab Color", 1, "fill_color"),
                 ctl("accent_color", "Accent Color", 4, "fill_color"),
@@ -505,7 +505,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
     }
     // Lower third: name with a rule underneath that stretches to the name's width.
     {
-        let mut name = text(1, "Name", "Sam Rivera", (140.0, 900.0), 58.0, "Bold");
+        let mut name = text(1, "الاسم", "Sam Rivera", (140.0, 900.0), 58.0, "Bold");
         let shadow = |e: &mut EffectInstance| {
             set(e, "shadow", ParamValue::Bool(true));
             set(e, "shadow_distance", ParamValue::Float(3.0));
@@ -526,7 +526,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
             6,
             vec![name, rule, role],
             vec![
-                ctl("name", "Name", 1, "text"),
+                ctl("name", "الاسم", 1, "text"),
                 ctl("role", "Role", 3, "text"),
                 ctl("rule_color", "Rule Color", 2, "fill_color"),
                 ctl("font", "Font", 1, "font"),
@@ -654,7 +654,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
         pin(&mut tag, 2, [true; 4], [-70.0, -18.0, 30.0, 18.0]);
         let mut dot = shape(3, "Dot", 1, (190.0, 140.0), (22.0, 22.0), 0x22c55e);
         pin(&mut dot, 2, [true, false, false, false], [-44.0, 0.0, 0.0, 0.0]);
-        let mut label = text(2, "Text", "LIVE", (220.0, 155.0), 40.0, "Bold");
+        let mut label = text(2, "النص", "LIVE", (220.0, 155.0), 40.0, "Bold");
         set(&mut label, "tracking", ParamValue::Float(80.0));
         v.push(builtin(
             "callout-tag",
@@ -664,7 +664,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
             4,
             vec![tag, dot, label],
             vec![
-                ctl("text", "Text", 2, "text"),
+                ctl("text", "النص", 2, "text"),
                 ctl("tag_color", "Tag Color", 1, "fill_color"),
                 ctl("dot_color", "Dot Color", 3, "fill_color"),
                 ctl("show_dot", "Show Dot", 3, "enabled"),
@@ -692,7 +692,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
             "A news-style line that crawls in from the right and leaves at the left.",
             15,
             vec![line],
-            vec![ctl("text", "Text", 1, "text"), ctl("text_color", "Text Color", 1, "fill_color"), ctl("bar_color", "Bar Color", 1, "background_color")],
+            vec![ctl("text", "النص", 1, "text"), ctl("text_color", "Text Color", 1, "fill_color"), ctl("bar_color", "Bar Color", 1, "background_color")],
         );
         t.graphic.roll = Roll { mode: RollMode::CrawlLeft, start_off_screen: true, end_off_screen: true, ..Default::default() };
         v.push(t);

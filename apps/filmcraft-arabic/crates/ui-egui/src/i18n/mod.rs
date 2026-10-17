@@ -366,24 +366,24 @@ mod tests {
                 assert_eq!(en.ends_with('…'), tr.ends_with('…'), "{code}: ellipsis differs in {en:?} → {tr:?}");
             }
         }
-        assert_eq!(Language::Es.tr("File"), "Archivo");
-        assert_eq!(Language::Ja.tr("File"), "ファイル");
-        assert_eq!(Language::En.tr("File"), "File");
+        assert_eq!(Language::Es.tr("ملف"), "Archivo");
+        assert_eq!(Language::Ja.tr("ملف"), "ファイル");
+        assert_eq!(Language::En.tr("ملف"), "ملف");
         assert_eq!(Language::Es.tr("mi video.mp4"), "mi video.mp4");
         assert_eq!(Language::Ja.tr("日本語の文書.pdf"), "日本語の文書.pdf");
         assert_eq!(Language::parse("es"), Some(Language::Es));
         assert_eq!(Language::parse("xx"), None);
-        assert_eq!(Language::PtBr.tr("File"), "Arquivo");
+        assert_eq!(Language::PtBr.tr("ملف"), "Arquivo");
         assert_eq!(Language::PtBr.tr("meu video.mp4"), "meu video.mp4");
         assert_eq!(Language::PtBr.name(), "Português (Brasil)");
         assert_eq!(Language::Uk.name(), "Українська");
-        assert_eq!(Language::Uk.tr("File"), "Файл");
+        assert_eq!(Language::Uk.tr("ملف"), "Файл");
         assert_eq!(Language::Uk.tr("мій кліп.mp4"), "мій кліп.mp4");
         assert_eq!(Language::Uk.tr("An untranslated label"), "An untranslated label");
         assert_eq!(Language::ZhCn.name(), "简体中文");
-        assert_eq!(Language::ZhCn.tr("File"), "文件");
+        assert_eq!(Language::ZhCn.tr("ملف"), "文件");
         assert_eq!(Language::ZhCn.tr("我的视频.mp4"), "我的视频.mp4");
-        assert_eq!(Language::De.tr("File"), "Datei");
+        assert_eq!(Language::De.tr("ملف"), "Datei");
         assert_eq!(Language::De.tr("Save As…"), "Speichern unter…");
         assert_eq!(Language::De.tr("Größe ändern.mp4"), "Größe ändern.mp4");
         assert_eq!(Language::De.tr("An untranslated label"), "An untranslated label");
@@ -391,25 +391,25 @@ mod tests {
         assert_eq!(Language::parse("de"), Some(Language::De));
         assert_eq!(Language::parse("de-DE"), None, "the preference stores the bare code");
         assert_eq!(Language::Ru.name(), "Русский");
-        assert_eq!(Language::Ru.tr("File"), "Файл");
+        assert_eq!(Language::Ru.tr("ملف"), "Файл");
         assert_eq!(Language::Ru.tr("мой клип.mp4"), "мой клип.mp4");
         assert_eq!(Language::Ru.tr("An untranslated label"), "An untranslated label");
         assert_eq!(Language::Fr.name(), "Français");
-        assert_eq!(Language::Fr.tr("File"), "Fichier");
+        assert_eq!(Language::Fr.tr("ملف"), "Fichier");
         assert_eq!(Language::Fr.tr("Save As…"), "Enregistrer sous…");
         assert_eq!(Language::Fr.tr("Montage d'été.mp4"), "Montage d'été.mp4");
         assert_eq!(Language::Fr.tr("An untranslated label"), "An untranslated label");
         assert_eq!(Language::parse("fr"), Some(Language::Fr));
         assert_eq!(Language::parse("fr-FR"), None, "the preference stores the bare code");
         assert_eq!(Language::Id.name(), "Bahasa Indonesia");
-        assert_eq!(Language::Id.tr("File"), "Berkas");
+        assert_eq!(Language::Id.tr("ملف"), "Berkas");
         assert_eq!(Language::Id.tr("Save As…"), "Simpan Sebagai…");
         assert_eq!(Language::Id.tr("Liburan keluarga.mp4"), "Liburan keluarga.mp4");
         assert_eq!(Language::Id.tr("An untranslated label"), "An untranslated label");
         assert_eq!(Language::parse("id"), Some(Language::Id));
         assert_eq!(Language::parse("id-ID"), None, "the preference stores the bare code");
         assert_eq!(Language::It.name(), "Italiano");
-        assert_eq!(Language::It.tr("File"), "File");
+        assert_eq!(Language::It.tr("ملف"), "ملف");
         assert_eq!(Language::It.tr("Save As…"), "Salva con nome…");
         assert_eq!(Language::It.tr("Vacanze d'estate.mp4"), "Vacanze d'estate.mp4");
         assert_eq!(Language::It.tr("An untranslated label"), "An untranslated label");
@@ -428,11 +428,11 @@ mod tests {
     #[test]
     fn the_current_language_is_per_thread() {
         set_current(Language::Es);
-        assert_eq!((current(), t("File")), (Language::Es, "Archivo"));
+        assert_eq!((current(), t("ملف")), (Language::Es, "Archivo"));
         // another thread (another test) still draws in English
-        assert_eq!(std::thread::spawn(|| t("File").to_string()).join().ok().as_deref(), Some("File"));
+        assert_eq!(std::thread::spawn(|| t("ملف").to_string()).join().ok().as_deref(), Some("ملف"));
         set_current(Language::En);
-        assert_eq!(t("File"), "File");
+        assert_eq!(t("ملف"), "ملف");
     }
 
     #[test]
@@ -501,7 +501,7 @@ mod tests {
                 missing.push(text.to_string());
             }
         };
-        for top in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for top in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             need(top);
         }
         for it in crate::menus::menu_items(&app) {
@@ -517,7 +517,7 @@ mod tests {
         assert!(missing.is_empty(), "untranslated Portuguese menu labels: {missing:#?}");
         // beyond the menus: panels, effects and their parameters, settings, status messages
         for (en, pt) in [
-            ("File", "Arquivo"),
+            ("ملف", "Arquivo"),
             ("Settings", "Preferências"),
             ("Gaussian Blur", "Desfoque gaussiano"),
             ("Audio Track Mixer", "Misturador de faixas de áudio"),
@@ -775,7 +775,7 @@ mod tests {
             "Responsive Design - Time",
             "Responsive Design - Position",
             "Align and Transform",
-            "Text",
+            "النص",
             "Shape",
             "Appearance",
         ];
@@ -883,7 +883,7 @@ mod tests {
     #[test]
     fn tl_literals_are_found_and_unescaped() {
         let src = "a(tl!(\"Save\")); b(tl!(\"Say \\\"hi\\\"\\n\")); tl!(x); tlf!(\"{n} file(s)\", n);";
-        assert_eq!(tl_literals(src), ["Save", "Say \"hi\"\n", "{n} file(s)"]);
+        assert_eq!(tl_literals(src), ["حفظ", "Say \"hi\"\n", "{n} file(s)"]);
     }
 
     #[test]
@@ -1098,7 +1098,7 @@ mod tests {
         for (_, en, _) in entries {
             assert!(known(&en) || en == "Settings", "not a menu label: {en}");
         }
-        for en in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             assert_ne!(Language::Uk.tr(en), en, "untranslated Ukrainian menu: {en}");
         }
     }
@@ -1117,8 +1117,8 @@ mod tests {
         for en in core_menu_labels() {
             assert!(Language::De.has(&en), "missing German menu label: {en}");
         }
-        // "Clip" and "Audio" are the same word in German, so check for an entry, not a change
-        for en in crate::menus::MENUS.into_iter().chain(["Audio"]).chain(crate::menus::NATIVE_APP_MENU) {
+        // "مقطع" and "الصوت" are the same word in German, so check for an entry, not a change
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت"]).chain(crate::menus::NATIVE_APP_MENU) {
             assert!(Language::De.has(en), "untranslated German menu: {en}");
         }
         assert_eq!(Language::De.tr("Settings"), "Voreinstellungen");
@@ -1139,12 +1139,12 @@ mod tests {
         for en in core_menu_labels() {
             assert!(Language::Fr.has(&en), "missing French menu label: {en}");
         }
-        for en in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             assert!(Language::Fr.has(en), "untranslated French menu: {en}");
         }
         // beyond the menus: panels, effects and their parameters, settings, status messages
         for (en, fr) in
-            [("Settings", "Préférences"), ("Gaussian Blur", "Flou gaussien"), ("Audio Track Mixer", "Mixeur de pistes audio"), ("Sequence", "Séquence")]
+            [("Settings", "Préférences"), ("Gaussian Blur", "Flou gaussien"), ("Audio Track Mixer", "Mixeur de pistes audio"), ("التسلسل", "Séquence")]
         {
             assert_eq!(Language::Fr.tr(en), fr);
         }
@@ -1167,10 +1167,10 @@ mod tests {
         for en in core_menu_labels() {
             assert!(Language::Ko.has(&en), "missing Korean menu label: {en}");
         }
-        for en in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             assert!(Language::Ko.has(en), "untranslated Korean menu: {en}");
         }
-        for (en, ko) in [("File", "파일"), ("Edit", "편집"), ("Sequence", "시퀀스"), ("Settings", "설정")] {
+        for (en, ko) in [("ملف", "파일"), ("تحرير", "편집"), ("التسلسل", "시퀀스"), ("Settings", "설정")] {
             assert_eq!(Language::Ko.tr(en), ko);
         }
         assert_eq!(Language::Ko.name(), "한국어");
@@ -1192,7 +1192,7 @@ mod tests {
         for en in core_menu_labels() {
             assert!(Language::Ru.has(&en), "missing Russian menu label: {en}");
         }
-        for en in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             assert_ne!(Language::Ru.tr(en), en, "untranslated Russian menu: {en}");
         }
     }
@@ -1213,7 +1213,7 @@ mod tests {
         for (_, en, _) in core {
             assert!(Language::Id.has(&en), "missing Indonesian menu label: {en}");
         }
-        for en in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             assert!(Language::Id.has(en), "untranslated Indonesian menu: {en}");
         }
         // beyond the menus: panels, effects and their parameters, settings, status messages
@@ -1221,7 +1221,7 @@ mod tests {
             ("Settings", "Preferensi"),
             ("Gaussian Blur", "Buram Gaussian"),
             ("Audio Track Mixer", "Mixer Trek Audio"),
-            ("Sequence", "Sekuens"),
+            ("التسلسل", "Sekuens"),
             ("Playhead", "Kepala Putar"),
         ] {
             assert_eq!(Language::Id.tr(en), id);
@@ -1247,7 +1247,7 @@ mod tests {
         for (_, en, _) in core {
             assert!(Language::It.has(&en), "missing Italian menu label: {en}");
         }
-        for en in crate::menus::MENUS.into_iter().chain(["Audio", "Settings"]) {
+        for en in crate::menus::MENUS.into_iter().chain(["الصوت", "Settings"]) {
             assert!(Language::It.has(en), "untranslated Italian menu: {en}");
         }
         // beyond the menus: panels, effects and their parameters, settings, status messages
@@ -1255,7 +1255,7 @@ mod tests {
             ("Settings", "Impostazioni"),
             ("Gaussian Blur", "Sfocatura gaussiana"),
             ("Audio Track Mixer", "Mixer tracce audio"),
-            ("Sequence", "Sequenza"),
+            ("التسلسل", "Sequenza"),
             ("Playhead", "Indicatore di riproduzione"),
         ] {
             assert_eq!(Language::It.tr(en), it);

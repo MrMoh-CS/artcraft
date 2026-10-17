@@ -17,9 +17,9 @@ fn a1_clip(s: &Session) -> u64 {
     s.active_sequence().unwrap().audio_tracks[0].items[0].id.0
 }
 
-fn render(s: &Session, frames: usize) -> filmcraft_frame::AudioBuffer {
+fn render(s: &Session, إطار: usize) -> filmcraft_frame::AudioBuffer {
     let provider = s.media.provider(s.project.clone(), s.services.clone());
-    filmcraft_render::audio::mix_sequence(&s.project, s.active_sequence().unwrap(), 0, frames, &provider)
+    filmcraft_render::audio::mix_sequence(&s.project, s.active_sequence().unwrap(), 0, إطار, &provider)
 }
 
 #[test]
@@ -67,7 +67,7 @@ fn parameters_are_set_by_id_and_change_the_sound() {
     let peak = |b: &filmcraft_frame::AudioBuffer| b.channels.iter().flatten().fold(0.0f32, |a, v| a.max(v.abs()));
     assert!(peak(&before) > 1e-3, "the demo has audio on A1");
     // Mute (a loose item) silences the clip.
-    s.execute("effects.apply", json!({"clips": [clip], "effect": "كتم الصوت"})).unwrap();
+    s.execute("effects.apply", json!({"clips": [clip], "effect": "Mute"})).unwrap();
     let it = s.active_sequence().unwrap().find_item(ClipId(clip)).unwrap().1.clone();
     let idx = it.effects.iter().position(|e| e.effect == "mute").unwrap();
     s.execute("effects.setParam", json!({"clip": clip, "effect": idx, "param": "mute", "value": true})).unwrap();
@@ -100,7 +100,7 @@ fn parameters_are_set_by_id_and_change_the_sound() {
 fn shared_names_resolve_by_track_kind() {
     let mut s = demo();
     let clip = a1_clip(&s);
-    for (name, id) in [("Invert", "invert_a"), ("مستوى الصوت", "volume_a"), ("Channel Volume", "channel_volume_a"), ("Balance", "balance_a")] {
+    for (name, id) in [("Invert", "invert_a"), ("Volume", "volume_a"), ("Channel Volume", "channel_volume_a"), ("Balance", "balance_a")] {
         s.execute("effects.apply", json!({"clips": [clip], "effect": name})).unwrap();
         let it = s.active_sequence().unwrap().find_item(ClipId(clip)).unwrap().1.clone();
         assert_eq!(it.effects.last().unwrap().effect, id, "{name}");

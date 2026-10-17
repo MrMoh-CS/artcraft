@@ -2,7 +2,7 @@
 //!
 //! Frames come from the background [`FrameServer`](crate::frames::FrameServer) at the *smaller* of
 //! the playback resolution and the on-screen resolution (so a small monitor never pays for 4K).
-//! While playing we prefetch the next frames in priority order; while scrubbing the exact frame is
+//! While playing we prefetch the next إطار in priority order; while scrubbing the exact frame is
 //! requested first and the nearest cached frame is shown until it arrives (no black flashes), or
 //! failing that the frame asked for a refresh earlier, so the picture follows a scrub or a value
 //! that is dragged instead of waiting for the mouse to rest.
@@ -60,12 +60,12 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, which: Which)
         }
         Which::Source => {
             let Some(item) = app.session.state.source_item else {
-                crate::dock::placeholder(ui, rect, &t, tl!("(no clips)"));
+                crate::dock::placeholder(ui, rect, &t, tl!("(لا توجد مقاطع)"));
                 return;
             };
             let Some(pi) = app.session.project.item(item) else { return };
             let Some(view) = filmcraft_engine::clip_ops::source_view(&app.session, item) else { return };
-            // a subclip shows its parent media's frames
+            // a subclip shows its parent media's إطار
             let size = match app.session.project.item(view.media).map(|i| &i.kind) {
                 Some(ItemKind::Media(m)) => m.info.video.as_ref().map(|v| (v.width, v.height)).unwrap_or((0, 0)),
                 Some(ItemKind::Sequence(s)) => (s.settings.width, s.settings.height),
@@ -290,7 +290,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, which: Which)
     // Click/drag in the picture: the Hand tool pans a magnified picture, otherwise focus.
     let pic_resp = ui.interact(pic, egui::Id::new((prefix, "pic")), if show_picture { Sense::click_and_drag() } else { Sense::hover() });
     app.auto.add(&format!("{prefix}.picture"), pic.intersect(video_area), "picture");
-    // (Comparison View always fits both frames)
+    // (Comparison View always fits both إطار)
     if show_picture && !compare {
         monitor_view::zoom_pan_input(app, ui, which, video_area, pic, display_w, ppp);
     }
@@ -349,7 +349,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, which: Which)
     };
     let zr = Rect::from_min_size(pos2(zoom_x, settings_y), vec2(70.0, 24.0));
     let zoom_label = match mv.zoom {
-        None => tl!("Fit").to_string(),
+        None => tl!("ملاءمة").to_string(),
         Some(z) => format!("{}%", (z * 100.0).round() as i32),
     };
     let zresp = crate::widgets::dropdown_text(ui, zr, &zoom_label, &t, egui::Id::new((prefix, "zoom")));
@@ -451,7 +451,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, which: Which)
 /// is ready.
 const ASKED_KEYS: usize = 64;
 
-/// Note that the monitor `prefix` asks for `key`, and return the frames it asked for on the passes
+/// Note that the monitor `prefix` asks for `key`, and return the إطار it asked for on the passes
 /// before, newest first: the stand-ins for `key` while it renders.
 ///
 /// A value that is dragged asks for a new revision on every pass, and a scrub for a new frame, so
@@ -613,7 +613,7 @@ pub fn fit(area: Rect, w: f32, h: f32) -> Rect {
 /// room for its two handles and a part between them to grab.
 const MIN_ZOOM_THUMB_W: f32 = 34.0;
 
-/// The fewest frames the time ruler can be zoomed in to.
+/// The fewest إطار the time ruler can be zoomed in to.
 const MIN_ZOOM_FRAMES: i64 = 5;
 
 /// A monitor's time zoom range as (start, end) fractions of the clip or sequence, made usable (it
@@ -766,7 +766,7 @@ fn mini_timeline(
     app.auto.add(if which == Which::Program { "program.scrubBar" } else { "source.scrubBar" }, bar, "scrub bar");
     let interaction = crate::panels::source_range::interact(app, ui, bar, which, shown);
     let p = ui.painter();
-    // ticks: minor 3.5 pt high, major 8 pt, on whole frames chosen as on the Timeline's ruler (minor
+    // ticks: minor 3.5 pt high, major 8 pt, on whole إطار chosen as on the Timeline's ruler (minor
     // at least 12 pt apart, major at least 110 pt), so they spread out and fill in as the ruler zooms
     let frame_px = rate.frame_duration().0 as f64 / dur * f64::from(bar.width());
     let base = rate.timecode_base();
@@ -963,8 +963,8 @@ fn transport(app: &mut FilmcraftApp, ui: &mut egui::Ui, row: Rect, which: Which)
                     }
                 }
                 ui.separator();
-                let reset = ui.button(tl!("Reset"));
-                app.auto.add(&format!("{prefix}.transport.editor.reset"), reset.rect, "Reset");
+                let reset = ui.button(tl!("إعادة ضبط"));
+                app.auto.add(&format!("{prefix}.transport.editor.reset"), reset.rect, "إعادة ضبط");
                 if reset.clicked() {
                     edited_hidden = crate::state::MonitorView::default().transport_hidden;
                 }
@@ -1097,7 +1097,7 @@ pub fn source_panel_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui) -> bool {
     if !recent.is_empty() {
         ui.separator();
     }
-    for (cmd, id, label) in [("source.close", "close", tl!("Close")), ("source.closeAll", "closeAll", tl!("Close All"))] {
+    for (cmd, id, label) in [("source.close", "close", tl!("إغلاق")), ("source.closeAll", "closeAll", tl!("Close All"))] {
         let r = ui.add_enabled(current.is_some(), egui::Button::new(label));
         app.auto.add(&format!("panel.menu.Source.{id}"), r.rect, label);
         if r.clicked() {

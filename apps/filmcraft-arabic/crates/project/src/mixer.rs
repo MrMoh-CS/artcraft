@@ -131,11 +131,11 @@ impl InputMap {
     pub const ALL: [InputMap; 5] = [InputMap::Stereo, InputMap::Left, InputMap::Right, InputMap::Swap, InputMap::Mono];
     pub fn label(self) -> &'static str {
         match self {
-            InputMap::Stereo => "Stereo",
+            InputMap::Stereo => "ستيريو",
             InputMap::Left => "Left",
             InputMap::Right => "Right",
             InputMap::Swap => "Swap",
-            InputMap::Mono => "Mono",
+            InputMap::Mono => "أحادي",
         }
     }
     pub fn from_name(s: &str) -> Option<Self> {
@@ -354,7 +354,7 @@ pub const MASTER_STRIP: TrackId = TrackId(u64::MAX);
 impl crate::Sequence {
     /// The Mix track as a [`Track`] (volume, inserts and mixer state; no clips).
     pub fn master_strip(&self) -> Track {
-        let mut m = Track::new(MASTER_STRIP, crate::TrackKind::Audio, "Mix".into());
+        let mut m = Track::new(MASTER_STRIP, crate::TrackKind::Audio, "المزج".into());
         m.volume_db = self.master_volume_db;
         m.effects = self.master_effects.clone();
         m.mixer = self.master_mixer.clone();
@@ -516,7 +516,7 @@ mod tests {
     use crate::TrackKind;
 
     fn tr() -> Track {
-        Track::new(TrackId(1), TrackKind::Audio, "Audio 1".into())
+        Track::new(TrackId(1), TrackKind::Audio, "صوت 1".into())
     }
 
     #[test]

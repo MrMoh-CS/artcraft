@@ -17,8 +17,8 @@ fn v1(s: &Session) -> Vec<(u64, Tick, Tick)> {
     s.active_sequence().unwrap().video_tracks[0].items.iter().map(|i| (i.id.0, i.start, i.end())).collect()
 }
 
-/// Whole frames covered by `secs` of real time at the sequence rate.
-fn frames(s: &Session, secs: f64) -> i64 {
+/// Whole إطار covered by `secs` of real time at the sequence rate.
+fn إطار(s: &Session, secs: f64) -> i64 {
     s.sequence_rate().frame_at(Tick::from_seconds_f64(secs))
 }
 
@@ -77,21 +77,21 @@ fn pressing_l_again_doubles_speed_and_j_reverses() {
     let r = s.execute("trim.shuttle", json!({"direction": "forward", "clock": 0.5})).unwrap();
     assert_eq!(r["speed"], json!(2.0));
     // 0.5 s at 1× + 0.5 s at 2×
-    let a = frames(&s, 0.5);
+    let a = إطار(&s, 0.5);
     s.execute("trim.tick", json!({"clock": 1.0})).unwrap();
-    let expect = a + frames(&s, 1.0);
+    let expect = a + إطار(&s, 1.0);
     assert_eq!(v1(&s).into_iter().find(|c| c.0 == left).unwrap().2, cut + rate.tick_of(expect));
     // J: reverse at 1×
     let r = s.execute("trim.shuttle", json!({"direction": "reverse", "clock": 1.0})).unwrap();
     assert_eq!(r["speed"], json!(-1.0));
     s.execute("trim.tick", json!({"clock": 1.25})).unwrap();
-    let back = expect - frames(&s, 0.25);
+    let back = expect - إطار(&s, 0.25);
     assert_eq!(v1(&s).into_iter().find(|c| c.0 == left).unwrap().2, cut + rate.tick_of(back));
     // slow (Shift+J / Shift+L) = quarter speed
     let r = s.execute("trim.shuttle", json!({"direction": "forward", "slow": true, "clock": 1.25})).unwrap();
     assert_eq!(r["speed"], json!(0.25));
     let r = s.execute("trim.shuttleStop", json!({"clock": 2.25})).unwrap();
-    assert_eq!(r["offsetFrames"], json!(back + frames(&s, 0.25)));
+    assert_eq!(r["offsetFrames"], json!(back + إطار(&s, 0.25)));
     assert_eq!(s.history.undo.last().unwrap().0, "Dynamic Rolling Edit");
 }
 
@@ -105,7 +105,7 @@ fn dynamic_ripple_backward_shortens_and_stops_at_a_limit() {
     let dur0 = v1_end(&s);
     s.execute("trim.shuttle", json!({"direction": "reverse", "clock": 0.0})).unwrap();
     s.execute("trim.tick", json!({"clock": 0.25})).unwrap();
-    let n = frames(&s, 0.25);
+    let n = إطار(&s, 0.25);
     assert_eq!(v1(&s)[0].2, end0 - rate.tick_of(n));
     assert_eq!(v1_end(&s), dur0 - rate.tick_of(n), "ripple pulls later material in");
     // keep going for a minute: the clip can't get shorter than one frame
@@ -217,7 +217,7 @@ fn extend_to_playhead_moves_each_unequal_out_point_to_the_playhead() {
     s.execute("sequence.linkedSelection", json!({"on": false})).unwrap();
     let rate = s.sequence_rate();
     let q = s.active_sequence().unwrap();
-    // a clip on V1 and the overlay on V2 that overlap in time but end at different frames
+    // a clip on V1 and the overlay on V2 that overlap in time but end at different إطار
     let mut found = None;
     for a in &q.video_tracks[0].items {
         for b in &q.video_tracks[1].items {

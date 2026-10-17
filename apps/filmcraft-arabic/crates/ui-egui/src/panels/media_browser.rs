@@ -1,6 +1,6 @@
 //! Media Browser panel (M12.7): a directory tree (Favorites, Local Drives, Network, Recent
 //! Directories) beside the media list (List or Thumbnails view with hover scrub), back / forward /
-//! up navigation, the path field, the file-type filter, Ingest and Import as Image Sequence, Edit
+//! up navigation, the path field, the file-type filter, Ingest and Import as Image تسلسل، Edit
 //! Columns…, Import / Open In Source Monitor and dragging files to the Project panel or Timeline.
 //!
 //! Listing, navigation, Favorites, settings and import are engine commands
@@ -179,8 +179,8 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     let row2 = Rect::from_min_size(pos2(bar.min.x, bar.max.y + 4.0), vec2(bar.width(), 20.0));
     let mut ingest = app.session.project.settings.ingest.enabled;
     let mut c = ui.new_child(egui::UiBuilder::new().max_rect(row2).id_salt("mb-row2").layout(egui::Layout::left_to_right(egui::Align::Center)));
-    let r = c.checkbox(&mut ingest, tl!("Ingest"));
-    app.auto.add("mediaBrowser.ingest", r.rect, "Ingest");
+    let r = c.checkbox(&mut ingest, tl!("استيعاب"));
+    app.auto.add("mediaBrowser.ingest", r.rect, "استيعاب");
     if r.changed() {
         exec(app, &ctx, "project.ingestSettings", json!({"enabled": ingest}));
     }
@@ -191,8 +191,8 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     }
     c.add_space(12.0);
     let mut seq = prefs.import_as_image_sequence;
-    let r = c.checkbox(&mut seq, tl!("Import as Image Sequence"));
-    app.auto.add("mediaBrowser.importAsImageSequence", r.rect, "Import as Image Sequence");
+    let r = c.checkbox(&mut seq, tl!("استيراد كتسلسل صور"));
+    app.auto.add("mediaBrowser.importAsImageSequence", r.rect, "استيراد كتسلسل صور");
     if r.changed() {
         exec(app, &ctx, "mediaBrowser.settings", json!({"importAsImageSequence": seq}));
     }
@@ -219,7 +219,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             }
             let n = entries.iter().filter(|e| !e.is_dir).count();
             let sel = app.session.browser.selection.len();
-            let status = if sel > 0 { tlf!("{sel} of {total} items selected", sel, total = n) } else { tlf!("{total} items", total = n) };
+            let status = if sel > 0 { tlf!("تم تحديد {sel} من {total} عناصر", sel, total = n) } else { tlf!("{total} items", total = n) };
             ui.painter().text(pos2(list_r.min.x + 6.0, rect.max.y - 12.0), Align2::LEFT_CENTER, &status, Tokens::ui(11.0), t.text_dim);
             app.auto.add("mediaBrowser.count", Rect::from_min_size(pos2(list_r.min.x, rect.max.y - 22.0), vec2(160.0, 20.0)), &status);
         }
@@ -263,10 +263,10 @@ fn tree(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, dir: &str) {
     let mut go: Option<String> = None;
     egui::ScrollArea::vertical().id_salt("mb-tree-scroll").auto_shrink([false, false]).show(&mut child, |ui| {
         let sections: [(&str, &str, Icon); 4] = [
-            ("favorites", tl!("Favorites"), Icon::Star),
-            ("localDrives", tl!("Local Drives"), Icon::Drive),
-            ("network", tl!("Network"), Icon::Network),
-            ("recent", tl!("Recent Directories"), Icon::Clock),
+            ("favorites", tl!("المفضلة"), Icon::Star),
+            ("localDrives", tl!("الأقراص المحلية"), Icon::Drive),
+            ("network", tl!("الشبكة"), Icon::Network),
+            ("recent", tl!("المجلدات الأخيرة"), Icon::Clock),
         ];
         for (key, title, icon) in sections {
             let list: Vec<(String, String)> = roots[key]
@@ -347,7 +347,7 @@ fn node(
             exec(app, ctx, "mediaBrowser.favorite", json!({"path": path, "remove": fav}));
             ui.close();
         }
-        if ui.button(tl!("Import")).clicked() {
+        if ui.button(tl!("استيراد")).clicked() {
             exec(app, ctx, "mediaBrowser.import", json!({"paths": [path]}));
             ui.close();
         }
@@ -411,8 +411,8 @@ fn entry_interactions(app: &mut FilmcraftApp, ui: &egui::Ui, resp: &egui::Respon
     }
     resp.context_menu(|ui| {
         let paths: Vec<String> = if app.session.browser.selection.contains(&e.path) { app.session.browser.selection.clone() } else { vec![e.path.clone()] };
-        let b = ui.button(tl!("Import"));
-        app.auto.add("mediaBrowser.entryMenu.import", b.rect, "Import");
+        let b = ui.button(tl!("استيراد"));
+        app.auto.add("mediaBrowser.entryMenu.import", b.rect, "استيراد");
         if b.clicked() {
             exec(app, &ctx, "mediaBrowser.import", json!({"paths": paths, "imageSequence": false}));
             ui.close();
@@ -426,8 +426,8 @@ fn entry_interactions(app: &mut FilmcraftApp, ui: &egui::Ui, resp: &egui::Respon
             }
         }
         if e.numbered {
-            let b = ui.button(tl!("Import as Image Sequence"));
-            app.auto.add("mediaBrowser.entryMenu.importSequence", b.rect, "Import as Image Sequence");
+            let b = ui.button(tl!("استيراد كتسلسل صور"));
+            app.auto.add("mediaBrowser.entryMenu.importSequence", b.rect, "استيراد كتسلسل صور");
             if b.clicked() {
                 exec(app, &ctx, "mediaBrowser.import", json!({"paths": [e.path], "imageSequence": true}));
                 ui.close();
@@ -507,14 +507,14 @@ fn finish_drag(app: &mut FilmcraftApp, ui: &egui::Ui) {
 fn list(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, entries: &[Entry], columns: &[String]) {
     let t = app.tokens;
     let ctx = ui.ctx().clone();
-    let widths: Vec<f32> = columns.iter().map(|c| if c == "Name" { 220.0 } else { 110.0 }).collect();
+    let widths: Vec<f32> = columns.iter().map(|c| if c == "الاسم" { 220.0 } else { 110.0 }).collect();
     let total: f32 = widths.iter().sum::<f32>() + 8.0;
     let header = Rect::from_min_size(r.min, vec2(r.width(), 20.0));
     let body = Rect::from_min_max(pos2(r.min.x, header.max.y), r.max);
     let mut child = ui.new_child(egui::UiBuilder::new().max_rect(body).id_salt("mb-list"));
     child.set_clip_rect(body.intersect(ui.clip_rect()));
     let needs_probe =
-        columns.iter().any(|c| matches!(c.as_str(), "Frame Rate" | "Media Duration" | "Video Info" | "Audio Info" | "Video Codec" | "Audio Codec"));
+        columns.iter().any(|c| matches!(c.as_str(), "معدل الإطارات" | "Media Duration" | "Video Info" | "Audio Info" | "Video Codec" | "Audio Codec"));
     let mut probes_left = 2;
     let out = egui::ScrollArea::both().id_salt("mb-list-scroll").auto_shrink([false, false]).show(&mut child, |ui| {
         ui.set_min_width(total.max(body.width()));
@@ -544,7 +544,7 @@ fn list(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, entries: &[Entry], c
             for (c, w) in columns.iter().zip(&widths) {
                 let cr = Rect::from_min_size(pos2(x, rr.min.y), vec2(*w, ROW_H));
                 let p = ui.painter().with_clip_rect(cr.shrink2(vec2(2.0, 0.0)).intersect(ui.clip_rect()));
-                if c == "Name" {
+                if c == "الاسم" {
                     let icon = match e.kind {
                         "folder" => Icon::Folder,
                         "audio" => Icon::Audio,
@@ -760,7 +760,7 @@ pub fn panel_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui) -> bool {
         app.ui.media_browser.edit_columns = Some(prefs.columns.clone());
         close = true;
     }
-    if item(app, ui, "importAsImageSequence", tl!("Import as Image Sequence"), true, Some(prefs.import_as_image_sequence), "") {
+    if item(app, ui, "importAsImageSequence", tl!("استيراد كتسلسل صور"), true, Some(prefs.import_as_image_sequence), "") {
         exec(app, &ctx, "mediaBrowser.settings", json!({"importAsImageSequence": !prefs.import_as_image_sequence}));
         close = true;
     }
@@ -798,7 +798,7 @@ pub fn panel_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui) -> bool {
         exec(app, &ctx, "mediaBrowser.clearRecent", json!({}));
         close = true;
     }
-    if item(app, ui, "import", tl!("Import"), has_sel, None, "") {
+    if item(app, ui, "import", tl!("استيراد"), has_sel, None, "") {
         exec(app, &ctx, "mediaBrowser.import", json!({}));
         close = true;
     }
@@ -825,7 +825,7 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
             for c in mb::ALL_COLUMNS {
                 ui.horizontal(|ui| {
                     let mut on = cols.iter().any(|x| x == c);
-                    let r = ui.add_enabled(c != "Name", egui::Checkbox::new(&mut on, crate::i18n::t(c)));
+                    let r = ui.add_enabled(c != "الاسم", egui::Checkbox::new(&mut on, crate::i18n::t(c)));
                     app.auto.add(&format!("mediaBrowser.columns.{c}"), r.rect, c);
                     if r.changed() {
                         if on {
@@ -849,11 +849,11 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
             }
             ui.separator();
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Cancel"));
-                app.auto.add("mediaBrowser.columns.cancel", r.rect, "Cancel");
+                let r = ui.button(tl!("إلغاء"));
+                app.auto.add("mediaBrowser.columns.cancel", r.rect, "إلغاء");
                 close |= r.clicked();
-                let r = ui.button(tl!("OK"));
-                app.auto.add("mediaBrowser.columns.ok", r.rect, "OK");
+                let r = ui.button(tl!("موافق"));
+                app.auto.add("mediaBrowser.columns.ok", r.rect, "موافق");
                 ok = r.clicked();
             });
         });

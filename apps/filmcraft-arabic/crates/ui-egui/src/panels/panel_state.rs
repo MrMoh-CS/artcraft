@@ -155,8 +155,8 @@ impl TcSource {
     pub fn label(self) -> &'static str {
         match self {
             TcSource::Active => "Active Monitor",
-            TcSource::Program => "Program",
-            TcSource::Source => "Source",
+            TcSource::Program => "البرنامج",
+            TcSource::Source => "المصدر",
         }
     }
 }

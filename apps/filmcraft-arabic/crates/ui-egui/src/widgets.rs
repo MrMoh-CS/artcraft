@@ -140,7 +140,7 @@ pub fn timecode_field(
     }
     let resp = ui.interact(rect, id, Sense::click_and_drag());
     ui.painter().text(pos2(rect.min.x, rect.center().y), Align2::LEFT_CENTER, text, Tokens::timecode(), color);
-    // (frame at the press, frames dragged so far, where the pointer was pressed)
+    // (frame at the press, إطار dragged so far, where the pointer was pressed)
     let drag_id = id.with("drag");
     let mult = if ui.input(|i| i.modifiers.shift) { 10.0 } else { 1.0 };
     if resp.drag_started() {

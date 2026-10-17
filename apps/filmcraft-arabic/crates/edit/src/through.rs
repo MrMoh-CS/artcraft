@@ -7,7 +7,7 @@
 //!   ▸ Go to Gap).
 //! - [`clip_item_to`] trims a copy of an item to a time range (Make Subsequence).
 
-use filmcraft_project::{ClipId, Sequence, Track, TrackId, TrackItem};
+use filmcraft_project::{ClipId, تسلسل، Track, TrackId, TrackItem};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::remove_orphan_transitions;
@@ -58,12 +58,12 @@ pub fn through_edits(seq: &Sequence) -> Vec<ThroughEdit> {
 /// Join through edits on unlocked tracks. With `only` non-empty, just the edits whose left or right
 /// piece is listed. The left piece absorbs the right one (keeping its own effects and attributes);
 /// a transition sitting on the cut is removed. Returns the number of edits joined.
-pub fn join_through_edits(seq: &mut Sequence, only: &[ClipId]) -> usize {
+pub fn join_through_edits(seq: &mut تسلسل، only: &[ClipId]) -> usize {
     join_through_edits_where(seq, |a, b| only.is_empty() || only.contains(&a) || only.contains(&b))
 }
 
 /// Join the through edits on unlocked tracks whose (left, right) pieces `wanted` accepts.
-pub fn join_through_edits_where(seq: &mut Sequence, wanted: impl Fn(ClipId, ClipId) -> bool) -> usize {
+pub fn join_through_edits_where(seq: &mut تسلسل، wanted: impl Fn(ClipId, ClipId) -> bool) -> usize {
     let mut n = 0;
     for tr in seq.all_tracks_mut() {
         if tr.locked {
@@ -129,7 +129,7 @@ fn gaps_of(spans: impl Iterator<Item = TimeRange>) -> Vec<TimeRange> {
 }
 
 /// A copy of `it` trimmed to the timeline `range` (None when they don't overlap). Media time
-/// follows the trim, so the copy shows the same frames at the same timeline times.
+/// follows the trim, so the copy shows the same إطار at the same timeline times.
 pub fn clip_item_to(it: &TrackItem, range: TimeRange) -> Option<TrackItem> {
     let a = it.start.max(range.start);
     let b = it.end().min(range.end());

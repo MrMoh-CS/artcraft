@@ -48,10 +48,10 @@ fn buttons(app: &mut FilmcraftApp, ui: &mut egui::Ui) -> (bool, bool) {
     let mut out = (false, false);
     ui.add_space(6.0);
     ui.horizontal(|ui| {
-        let c = ui.button(tl!("Cancel"));
-        app.auto.add("colorDialog.cancel", c.rect, "Cancel");
-        let o = ui.button(tl!("OK"));
-        app.auto.add("colorDialog.ok", o.rect, "OK");
+        let c = ui.button(tl!("إلغاء"));
+        app.auto.add("colorDialog.cancel", c.rect, "إلغاء");
+        let o = ui.button(tl!("موافق"));
+        app.auto.add("colorDialog.ok", o.rect, "موافق");
         out = (o.clicked(), c.clicked());
     });
     out

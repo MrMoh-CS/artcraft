@@ -8,8 +8,8 @@
 //!    [`Params::chunk_gap`] or when the chunk reaches [`Params::max_chunk`]; chunks shorter than
 //!    [`Params::min_chunk`] are joined to the previous one.
 //! 2. Each chunk gets a voice vector: 40-band log-mel energies → DCT → MFCC 1–19 over the chunk's
-//!    voiced frames (within 30 dB of its loudest), then the mean and standard deviation of each
-//!    coefficient (38 values), each scaled by that coefficient's spread over all voiced frames of
+//!    voiced إطار (within 30 dB of its loudest), then the mean and standard deviation of each
+//!    coefficient (38 values), each scaled by that coefficient's spread over all voiced إطار of
 //!    the file.
 //! 3. Average-linkage agglomerative clustering with RMS distance merges the closest clusters
 //!    until the closest pair is farther apart than [`Params::threshold`] or only
@@ -80,8 +80,8 @@ pub fn chunks(t: &Transcript, p: &Params) -> Vec<std::ops::Range<usize>> {
 fn mfcc_frames(audio: &[f32]) -> (usize, Vec<f32>, Vec<f32>) {
     let (frames, mel) = crate::mel::mel_energies(audio, N_MELS);
     // per frame: log energies (dB-ish) and the DCT-II of the log mel
-    let mut energy = vec![0f32; frames];
-    let mut mfcc = vec![0f32; frames * N_MFCC];
+    let mut energy = vec![0f32; إطار];
+    let mut mfcc = vec![0f32; إطار * N_MFCC];
     let dct: Vec<f32> = (0..N_MFCC * N_MELS)
         .map(|i| {
             let (k, m) = (i / N_MELS, i % N_MELS);
@@ -92,7 +92,7 @@ fn mfcc_frames(audio: &[f32]) -> (usize, Vec<f32>, Vec<f32>) {
     for f in 0..frames {
         let mut e = 0f32;
         for m in 0..N_MELS {
-            let v = mel[m * frames + f];
+            let v = mel[m * إطار + f];
             e += v;
             lm[m] = (v + 1e-10).ln();
         }
@@ -126,7 +126,7 @@ pub fn diarize(audio: &[f32], t: &mut Transcript, p: &Params) -> usize {
         return one(t);
     }
     let (frames, energy, mfcc) = mfcc_frames(audio);
-    // chunk vectors: mean and std of MFCC 1..N over voiced frames
+    // chunk vectors: mean and std of MFCC 1..N over voiced إطار
     let dim = 2 * (N_MFCC - 1);
     let mut vecs: Vec<Vec<f32>> = Vec::new();
     let mut weight: Vec<f32> = Vec::new();
@@ -148,7 +148,7 @@ pub fn diarize(audio: &[f32], t: &mut Transcript, p: &Params) -> usize {
         vecs.push(v);
         weight.push(voiced.len() as f32);
     }
-    // scale each dimension by its spread over all voiced frames of the file (an absolute yardstick:
+    // scale each dimension by its spread over all voiced إطار of the file (an absolute yardstick:
     // one voice stays close to itself however many chunks there are)
     let all: Vec<usize> = {
         let peak = energy.iter().copied().fold(f32::NEG_INFINITY, f32::max);
@@ -203,7 +203,7 @@ pub fn diarize(audio: &[f32], t: &mut Transcript, p: &Params) -> usize {
         let b = clusters.remove(best.2);
         clusters[best.1].extend(b);
     }
-    // fold clusters with < 5 % of the voiced frames into their nearest neighbour
+    // fold clusters with < 5 % of the voiced إطار into their nearest neighbour
     let total: f32 = weight.iter().sum::<f32>().max(1.0);
     loop {
         if clusters.len() <= 1 {

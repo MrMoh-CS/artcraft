@@ -79,7 +79,7 @@ fn parametric_eq() -> Vec<ParamDef> {
 
 fn multiband() -> Vec<ParamDef> {
     let mut v =
-        group("Crossovers", vec![hz("xo1", "Low", 120.0, 20.0, 1000.0), hz("xo2", "Mid", 2000.0, 100.0, 8000.0), hz("xo3", "High", 10000.0, 1000.0, 20000.0)]);
+        group("Crossovers", vec![hz("xo1", "Low", 120.0, 20.0, 1000.0), hz("xo2", "Mid", 2000.0, 100.0, 8000.0), hz("xo3", "عالي", 10000.0, 1000.0, 20000.0)]);
     let ids: [[&'static str; 7]; 4] = [
         ["b1_threshold", "b1_ratio", "b1_attack", "b1_release", "b1_gain", "b1_solo", "b1_bypass"],
         ["b2_threshold", "b2_ratio", "b2_attack", "b2_release", "b2_gain", "b2_solo", "b2_bypass"],
@@ -102,7 +102,7 @@ fn multiband() -> Vec<ParamDef> {
         ));
     }
     v.extend(group(
-        "Output",
+        "المخرجات",
         vec![
             db("output", "Output Gain", 0.0, -18.0, 18.0),
             b("lim_on", "Limiter", false),
@@ -297,7 +297,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             vec![
                 fs("delay", "Delay", 1.0, (0.0, 2.0), (0.0, 2.0), "s", 2),
                 f("feedback", "Feedback", 0.0, 0.0, 100.0, "%"),
-                f("mix", "Mix", 50.0, 0.0, 100.0, "%"),
+                f("mix", "المزج", 50.0, 0.0, 100.0, "%"),
             ],
         ),
         audio(
@@ -317,7 +317,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 ms("delay4", "Delay 4", 1000.0, 1.0, 4000.0),
                 pct("feedback4", "Feedback 4", 0.0, 0.0, 95.0),
                 db("level4", "Level 4", -15.0, -96.0, 0.0),
-                pct("mix", "Mix", 50.0, 0.0, 100.0),
+                pct("mix", "المزج", 50.0, 0.0, 100.0),
             ],
         ),
         // ---- Filter and EQ ----
@@ -365,7 +365,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 pct("width", "Width", 50.0, 0.0, 100.0),
                 pct("intensity", "Intensity", 30.0, 0.0, 100.0),
                 pct("transience", "Transience", 0.0, 0.0, 100.0),
-                pct("mix", "Mix", 50.0, 0.0, 100.0),
+                pct("mix", "المزج", 50.0, 0.0, 100.0),
             ],
         ),
         audio(
@@ -381,7 +381,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 b("inverted", "Inverted", false),
                 b("special", "Special Effects", false),
                 b("sinusoidal", "Sinusoidal", true),
-                pct("mix", "Mix", 50.0, 0.0, 100.0),
+                pct("mix", "المزج", 50.0, 0.0, 100.0),
             ],
         ),
         audio(
@@ -396,7 +396,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 num("phase_diff", "Phase Difference", 90.0, 0.0, 180.0, "°", 0),
                 hz("upper_freq", "Upper Frequency", 2500.0, 100.0, 20000.0),
                 pct("feedback", "Feedback", 0.0, -100.0, 100.0),
-                pct("mix", "Mix", 50.0, 0.0, 100.0),
+                pct("mix", "المزج", 50.0, 0.0, 100.0),
                 db("output", "Output Gain", 0.0, -24.0, 24.0),
             ],
         ),
@@ -425,7 +425,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             A_NOISE,
             vec![f("amount", "Amount", 50.0, 0.0, 100.0, "%"), fs("rt60", "Decay Time (RT60)", 0.8, (0.1, 5.0), (0.1, 3.0), "s", 2)],
         ),
-        audio("speech_enhance", "Enhance Speech", A_NOISE, vec![f("mix", "Mix", 100.0, 0.0, 100.0, "%"), ch("tone", "Voice", &["Low Tone", "High Tone"], 0)]),
+        audio("speech_enhance", "Enhance Speech", A_NOISE, vec![f("mix", "المزج", 100.0, 0.0, 100.0, "%"), ch("tone", "Voice", &["Low Tone", "High Tone"], 0)]),
         // ---- Reverb ----
         audio(
             "convolution_reverb",
@@ -433,7 +433,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             A_REVERB,
             vec![
                 ch("impulse", "Impulse", &["Small Room", "Medium Room", "Large Hall", "Cathedral", "Plate", "Ambience", "Vocal Booth"], 1),
-                pct("mix", "Mix", 30.0, 0.0, 100.0),
+                pct("mix", "المزج", 30.0, 0.0, 100.0),
                 fixed(pct("room_size", "Room Size", 100.0, 10.0, 100.0)),
                 fixed(hz("damping_lf", "Damping LF", 10.0, 10.0, 1000.0)),
                 fixed(hz("damping_hf", "Damping HF", 20000.0, 1000.0, 20000.0)),
@@ -480,7 +480,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             vec![
                 num("angle", "Speaker Angle", 30.0, 0.0, 90.0, "°", 0),
                 num("head_size", "Head Size", 17.5, 12.0, 24.0, "cm", 1),
-                pct("mix", "Mix", 100.0, 0.0, 100.0),
+                pct("mix", "المزج", 100.0, 0.0, 100.0),
             ],
         ),
         audio(
@@ -493,7 +493,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 pct("symmetry", "Asymmetry", 0.0, -100.0, 100.0),
                 hz("tone", "Tone", 20000.0, 500.0, 20000.0),
                 db("output", "Output Gain", 0.0, -48.0, 12.0),
-                pct("mix", "Mix", 100.0, 0.0, 100.0),
+                pct("mix", "المزج", 100.0, 0.0, 100.0),
             ],
         ),
         audio("fill_left", "Fill Left with Right", A_SPECIAL, vec![]),
@@ -510,7 +510,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 ch("filter", "Filter", &["None", "Low Pass", "High Pass", "Band Pass"], 0),
                 hz("filter_freq", "Filter Frequency", 2000.0, 100.0, 10000.0),
                 pct("filter_res", "Filter Resonance", 20.0, 0.0, 100.0),
-                pct("mix", "Mix", 100.0, 0.0, 100.0),
+                pct("mix", "المزج", 100.0, 0.0, 100.0),
                 db("output", "Output Gain", 0.0, -24.0, 12.0),
             ],
         ),
@@ -559,7 +559,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
         // ---- loose items ----
         audio("balance_a", "Balance", A_ROOT, vec![num("balance", "Balance", 0.0, -100.0, 100.0, "", 1)]),
         audio("mute", "Mute", A_ROOT, vec![mute_param()]),
-        audio("volume_a", "Volume", A_ROOT, vec![b("bypass", "Bypass", false), fs("level", "Level", 0.0, (-96.0, 15.0), (-60.0, 15.0), "dB", 1)]),
+        audio("volume_a", "Volume", A_ROOT, vec![b("bypass", "Bypass", false), fs("level", "المستوى", 0.0, (-96.0, 15.0), (-60.0, 15.0), "dB", 1)]),
     ]
 }
 

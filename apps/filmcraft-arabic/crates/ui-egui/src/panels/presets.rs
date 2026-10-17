@@ -108,7 +108,7 @@ pub fn save_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
             ui.horizontal(|ui| {
                 ui.label(tl!("Name:"));
                 let r = ui.text_edit_singleline(&mut d.name);
-                app.auto.add("savePreset.name", r.rect, "Name");
+                app.auto.add("savePreset.name", r.rect, "الاسم");
             });
             ui.add_space(4.0);
             ui.label(egui::RichText::new(tl!("Type")).strong());
@@ -130,10 +130,10 @@ pub fn save_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
             app.auto.add("savePreset.description", r.rect, "Description");
             ui.add_space(6.0);
             ui.horizontal(|ui| {
-                let c = ui.button(tl!("Cancel"));
-                app.auto.add("savePreset.cancel", c.rect, "Cancel");
-                let o = ui.add_enabled(!d.name.trim().is_empty(), egui::Button::new(tl!("OK")));
-                app.auto.add("savePreset.ok", o.rect, "OK");
+                let c = ui.button(tl!("إلغاء"));
+                app.auto.add("savePreset.cancel", c.rect, "إلغاء");
+                let o = ui.add_enabled(!d.name.trim().is_empty(), egui::Button::new(tl!("موافق")));
+                app.auto.add("savePreset.ok", o.rect, "موافق");
                 apply = o.clicked();
                 close = apply || c.clicked();
             });

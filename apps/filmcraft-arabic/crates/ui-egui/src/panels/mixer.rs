@@ -25,7 +25,7 @@ use filmcraft_engine::mixer::strip_label;
 use filmcraft_project::mixer::{
     FADER_MAX_DB, FADER_MIN_DB, LANE_MUTE, LANE_PAN, LANE_PAN51_CENTER, LANE_PAN51_LFE, LANE_PAN51_X, LANE_PAN51_Y, LANE_VOLUME, MASTER_STRIP,
 };
-use filmcraft_project::{AutomationMode, InputMap, Sequence, Track, TrackId};
+use filmcraft_project::{AutomationMode, InputMap, تسلسل، Track, TrackId};
 use filmcraft_time::{TimeDisplay, format_time};
 use serde_json::{Value, json};
 
@@ -198,7 +198,7 @@ fn insert_effects() -> Vec<&'static filmcraft_project::EffectDef> {
 }
 
 /// Submixes a strip may route to (all of them for tracks; only later ones for submixes).
-fn targets(seq: &Sequence, id: TrackId) -> Vec<&Track> {
+fn targets(seq: &تسلسل، id: TrackId) -> Vec<&Track> {
     let me = seq.submix_tracks.iter().position(|t| t.id == id);
     seq.submix_tracks.iter().enumerate().filter(|(i, _)| me.is_none_or(|m| *i > m)).map(|(_, t)| t).collect()
 }
@@ -272,8 +272,8 @@ pub fn track_mixer(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                     if r.clicked() {
                         app.ui.mixer_hidden.clear();
                     }
-                    let r = ui.button(tl!("OK"));
-                    app.auto.add("mixer.showHide.ok", r.rect, "OK");
+                    let r = ui.button(tl!("موافق"));
+                    app.auto.add("mixer.showHide.ok", r.rect, "موافق");
                     if r.clicked() {
                         close = true;
                     }
@@ -561,15 +561,15 @@ fn strip(app: &mut FilmcraftApp, ui: &mut egui::Ui, cx: &mut Ctx, id: TrackId, s
         y += 24.0;
         let or = Rect::from_min_size(pos2(x + 4.0, y), vec2(w - 8.0, 20.0));
         let out_label =
-            tr.mixer.output.map(|o| seq.mix_track(o).map(|s| s.name.clone()).unwrap_or_else(|| tl!("Mix").into())).unwrap_or_else(|| tl!("Mix").into());
+            tr.mixer.output.map(|o| seq.mix_track(o).map(|s| s.name.clone()).unwrap_or_else(|| tl!("المزج").into())).unwrap_or_else(|| tl!("المزج").into());
         let oresp = crate::widgets::dropdown_text(ui, or, &out_label, &t, egui::Id::new((&ap, "output")));
         app.auto.add(&format!("{ap}.output"), or, "Track output assignment");
         let tg = targets(seq, id);
         egui::Popup::menu(&oresp).show(|ui| {
-            let r = ui.selectable_label(tr.mixer.output.is_none(), tl!("Mix"));
-            app.auto.add(&format!("{ap}.output.Mix"), r.rect, "Mix");
+            let r = ui.selectable_label(tr.mixer.output.is_none(), tl!("المزج"));
+            app.auto.add(&format!("{ap}.output.Mix"), r.rect, "المزج");
             if r.clicked() {
-                cx.cmd("mixer.setStrip", json!({"strip": sid, "output": "Mix"}));
+                cx.cmd("mixer.setStrip", json!({"strip": sid, "output": "المزج"}));
             }
             for s in &tg {
                 let r = ui.selectable_label(tr.mixer.output == Some(s.id), &s.name);
@@ -757,7 +757,7 @@ fn strip(app: &mut FilmcraftApp, ui: &mut egui::Ui, cx: &mut Ctx, id: TrackId, s
     let nr = Rect::from_min_max(pos2(x, sr.max.y - name_h), sr.max);
     ui.painter().line_segment([pos2(nr.min.x + 4.0, nr.min.y), pos2(nr.max.x - 4.0, nr.min.y)], Stroke::new(1.0, t.separator));
     if is_master {
-        small_text(ui, nr.center(), Align2::CENTER_CENTER, tl!("Mix"), 12.0, t.text);
+        small_text(ui, nr.center(), Align2::CENTER_CENTER, tl!("المزج"), 12.0, t.text);
     } else {
         small_text(ui, pos2(nr.min.x + 6.0, nr.center().y), Align2::LEFT_CENTER, &label, 12.0, t.text);
         let name = ui.painter().with_clip_rect(Rect::from_min_max(pos2(nr.min.x + 26.0, nr.min.y), nr.max).intersect(ui.clip_rect()));

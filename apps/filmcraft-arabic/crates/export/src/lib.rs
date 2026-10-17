@@ -374,7 +374,7 @@ pub struct ExportSettings {
     /// byte-reproducible like the built-in encoder's (`determinism_tests`).
     #[serde(default)]
     pub hardware_encoding: HardwareEncoding,
-    /// Composite the exported frames on the GPU instead of the CPU reference renderer (Export ▸
+    /// Composite the exported إطار on the GPU instead of the CPU reference renderer (Export ▸
     /// GPU rendering: Auto / Off, Off by default). Off = the CPU reference renderer exactly.
     #[serde(default)]
     pub gpu_rendering: GpuRendering,
@@ -634,7 +634,7 @@ impl ExportSettings {
             return Err(ExportError::Unsupported(format!("{codec} audio has no {} samples: choose 16, 24 or 32 bit", sample_format.label())));
         }
         if self.field_order != FieldOrder::Progressive && self.has_video() {
-            return Err(ExportError::Unsupported(format!("{} field order: FilmCraft's encoders write progressive frames", self.field_order.label())));
+            return Err(ExportError::Unsupported(format!("{} field order: FilmCraft's encoders write progressive إطار", self.field_order.label())));
         }
         if self.effects.image_overlay.enabled && self.effects.image_overlay.path.trim().is_empty() {
             return Err(ExportError::Unsupported("image overlay: no image file chosen".into()));
@@ -706,7 +706,7 @@ impl Progress {
 #[derive(Clone, Debug, Serialize)]
 pub struct Report {
     pub path: String,
-    pub frames: u64,
+    pub إطار: u64,
     pub seconds: f64,
     pub bytes: u64,
     pub render_fps: f64,
@@ -790,7 +790,7 @@ fn audio_factories() -> &'static RwLock<Vec<AudioEncoderFactory>> {
 /// took them).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct HwEncodeStats {
-    pub frames: u64,
+    pub إطار: u64,
     pub sessions: u64,
     pub declined: u64,
 }
@@ -802,7 +802,7 @@ static HW_DECLINED: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64:
 /// The hardware encoder counters so far.
 pub fn hw_encode_stats() -> HwEncodeStats {
     use std::sync::atomic::Ordering::Relaxed;
-    HwEncodeStats { frames: HW_FRAMES.load(Relaxed), sessions: HW_SESSIONS.load(Relaxed), declined: HW_DECLINED.load(Relaxed) }
+    HwEncodeStats { إطار: HW_FRAMES.load(Relaxed), sessions: HW_SESSIONS.load(Relaxed), declined: HW_DECLINED.load(Relaxed) }
 }
 
 /// A hardware encoder encoded a picture.
@@ -830,9 +830,9 @@ pub enum Stage {
     Setup,
     /// The loudness pass before the first frame (normalised audio only).
     Loudness,
-    /// Rendering a batch of frames (parallel; includes decoding the sources, effects, colour).
+    /// Rendering a batch of إطار (parallel; includes decoding the sources, effects, colour).
     Render,
-    /// Encoding the rendered frames, colour conversion included (serial).
+    /// Encoding the rendered إطار, colour conversion included (serial).
     Encode,
     /// The part of [`Stage::Encode`] spent converting RGB to the encoder's YUV.
     Convert,
@@ -992,12 +992,12 @@ pub fn reset_export_lock_wait() {
 /// GPU-vs-CPU frame counters of the export renderer (per-process, like the hardware ones).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct GpuRenderStats {
-    pub frames: u64,
+    pub إطار: u64,
     pub fallbacks: u64,
 }
 
 pub fn gpu_render_stats() -> GpuRenderStats {
-    GpuRenderStats { frames: GPU_FRAMES.load(Ordering::Relaxed), fallbacks: GPU_FALLBACKS.load(Ordering::Relaxed) }
+    GpuRenderStats { إطار: GPU_FRAMES.load(Ordering::Relaxed), fallbacks: GPU_FALLBACKS.load(Ordering::Relaxed) }
 }
 pub fn register_audio_encoder(f: AudioEncoderFactory) {
     audio_factories().write().unwrap_or_else(|e| e.into_inner()).insert(0, f);
@@ -1176,7 +1176,7 @@ fn aac_factory(_format: Format, sample_rate: u32, channels: u32, s: &ExportSetti
 struct ProResEncoder {
     enc: filmcraft_prores::Encoder,
     profile: filmcraft_prores::Profile,
-    /// Code the frames' alpha channel (4444 profiles with Include Alpha Channel).
+    /// Code the إطار' alpha channel (4444 profiles with Include Alpha Channel).
     alpha: bool,
     w: u32,
     h: u32,
@@ -1749,7 +1749,7 @@ pub fn validate_range(range: TimeRange) -> Result<()> {
     Ok(())
 }
 
-/// Output frames `[f0, f1)` of `range` at `rate` (frame `f` is at `rate.tick_of(f)`).
+/// Output إطار `[f0, f1)` of `range` at `rate` (frame `f` is at `rate.tick_of(f)`).
 pub fn frame_span(rate: FrameRate, range: TimeRange) -> (i64, i64) {
     let f0 = rate.frame_at(range.start);
     let f1 = rate.frame_at(range.end() - Tick(1)) + 1;
@@ -1785,7 +1785,7 @@ impl Write for SharedBuf {
 
 /// Encode straight sRGB RGBA8 pixels as a PNG file (thumbnails, previews).
 pub fn encode_png(rgba: Vec<u8>, w: u32, h: u32) -> Result<Vec<u8>> {
-    encode_still(Format::PngSequence, rgba, w, h, false)
+    encode_still(Format::Pngتسلسل، rgba, w, h, false)
 }
 
 /// Encode one still of an image sequence (also Export Frame). PNG always carries the alpha
@@ -1860,7 +1860,7 @@ pub fn export(project: &Arc<Project>, seq: ItemId, settings: &ExportSettings, so
         Format::Wav | Format::Aiff | Format::Flac => {
             let mut a = audio_out::AudioOut::new(project.clone(), seq, settings, range)?;
             let (ch, sr, fmt) = (a.channels as u16, a.sr, settings.audio.sample_format());
-            let frames = a.remaining();
+            let إطار = a.remaining();
             // the sizes are known up front: refuse an AIFF that cannot hold them before measuring
             let mut writer = match settings.format {
                 Format::Flac => {
@@ -1872,7 +1872,7 @@ pub fn export(project: &Arc<Project>, seq: ItemId, settings: &ExportSettings, so
                 _ => AudioWriter::Pcm(pcm::PcmContainer::Aiff),
             };
             let head = match &writer {
-                AudioWriter::Pcm(c) => pcm::header(*c, ch, sr, fmt, frames).map_err(ExportError::Unsupported)?,
+                AudioWriter::Pcm(c) => pcm::header(*c, ch, sr, fmt, إطار).map_err(ExportError::Unsupported)?,
                 AudioWriter::Flac(enc) => enc.header(),
             };
             // one second per chunk: memory stays flat however long the range is
@@ -1920,7 +1920,7 @@ pub fn export(project: &Arc<Project>, seq: ItemId, settings: &ExportSettings, so
             if settings.part_of_batch {
                 progress.done.store(1, Ordering::Relaxed);
             }
-            (n, frames)
+            (n, إطار)
         }
         f if f.is_image_sequence() || f == Format::Gif => {
             let pipe = pipeline::Pipeline::new(project.clone(), seq, settings, false)?;
@@ -1930,7 +1930,7 @@ pub fn export(project: &Arc<Project>, seq: ItemId, settings: &ExportSettings, so
             let (w, h) = (pipe.w, pipe.h);
             if !settings.part_of_batch {
                 progress.total.store(count, Ordering::Relaxed);
-                progress.set_status(format!("Exporting {count} frames ({})", settings.format.label()));
+                progress.set_status(format!("Exporting {count} إطار ({})", settings.format.label()));
             }
             let mut total = 0u64;
             let gif_buf = SharedBuf::default();
@@ -1948,7 +1948,7 @@ pub fn export(project: &Arc<Project>, seq: ItemId, settings: &ExportSettings, so
                 }
                 let end = (f + batch).min(f1);
                 if let Some(enc) = gif.as_mut() {
-                    let frames: Vec<Vec<u8>> = (f..end).into_par_iter().map(|fi| pipe.frame(fi, sources).0).collect();
+                    let إطار: Vec<Vec<u8>> = (f..end).into_par_iter().map(|fi| pipe.frame(fi, sources).0).collect();
                     for (fi, rgba) in (f..end).zip(frames) {
                         let img = image::RgbaImage::from_raw(w, h, rgba).ok_or_else(|| ExportError::Encode("frame".into()))?;
                         let delay = image::Delay::from_numer_denom_ms(u32::from(gif_delay_cs(pipe.rate, fi - f0)) * 10, 1);
@@ -1995,7 +1995,7 @@ pub fn export(project: &Arc<Project>, seq: ItemId, settings: &ExportSettings, so
         progress.finished.store(true, Ordering::Relaxed);
         progress.set_status(format!("Done in {secs:.1}s"));
     }
-    Ok(Report { path: settings.path.clone(), frames: nframes, seconds: secs, bytes, render_fps: nframes as f64 / secs.max(1e-6), extra_files: Vec::new() })
+    Ok(Report { path: settings.path.clone(), إطار: nframes, seconds: secs, bytes, render_fps: nframes as f64 / secs.max(1e-6), extra_files: Vec::new() })
 }
 
 #[cfg(test)]

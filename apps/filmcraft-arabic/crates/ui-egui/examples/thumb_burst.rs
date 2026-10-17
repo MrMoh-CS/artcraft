@@ -78,7 +78,7 @@ fn main() {
     stop.store(true, Ordering::Relaxed);
     let _ = sampler.join();
     println!(
-        "clips {} imported in {:.2}s, all thumbnails ready after {:.2}s, peak live decoders {}, gop frames cached {:.0} MB",
+        "clips {} imported in {:.2}s, all thumbnails ready after {:.2}s, peak live decoders {}, gop إطار cached {:.0} MB",
         keys.len(),
         imported.as_secs_f64(),
         t0.elapsed().as_secs_f64(),

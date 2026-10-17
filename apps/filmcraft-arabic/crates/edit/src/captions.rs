@@ -5,7 +5,7 @@
 //! whole edit. Locked caption tracks refuse edits. Sync-locked caption tracks follow insert and
 //! extract edits on the media tracks (see [`crate::insert`] / [`crate::extract`]).
 
-use filmcraft_project::{Caption, CaptionTrack, ClipId, Sequence, TrackId};
+use filmcraft_project::{Caption, CaptionTrack, ClipId, تسلسل، TrackId};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::{Edge, EditCtx, EditError, Result};
@@ -13,7 +13,7 @@ use crate::{Edge, EditCtx, EditError, Result};
 /// Default duration of a new caption (Premiere uses about three seconds).
 pub const DEFAULT_SECONDS: i64 = 3;
 
-fn track_mut(seq: &mut Sequence, id: TrackId) -> Result<&mut CaptionTrack> {
+fn track_mut(seq: &mut تسلسل، id: TrackId) -> Result<&mut CaptionTrack> {
     let t = seq.caption_track_mut(id).ok_or(EditError::NoTrack(id))?;
     if t.locked {
         return Err(EditError::Locked);
@@ -21,7 +21,7 @@ fn track_mut(seq: &mut Sequence, id: TrackId) -> Result<&mut CaptionTrack> {
     Ok(t)
 }
 
-fn owner(seq: &Sequence, id: ClipId) -> Result<TrackId> {
+fn owner(seq: &تسلسل، id: ClipId) -> Result<TrackId> {
     seq.find_caption(id).map(|(t, _)| t).ok_or(EditError::NoItem(id))
 }
 
@@ -35,7 +35,7 @@ fn neighbours(t: &CaptionTrack, id: ClipId) -> (Tick, Tick) {
 
 /// Add a caption at `start`. The duration is cut short at the next caption; fails if a caption
 /// already covers `start` or less than one frame would remain.
-pub fn add_caption(seq: &mut Sequence, track: TrackId, start: Tick, duration: Tick, text: &str, ctx: &mut EditCtx) -> Result<ClipId> {
+pub fn add_caption(seq: &mut تسلسل، track: TrackId, start: Tick, duration: Tick, text: &str, ctx: &mut EditCtx) -> Result<ClipId> {
     let start = start.max(Tick::ZERO);
     let t = track_mut(seq, track)?;
     if t.caption_at(start).is_some() {
@@ -54,7 +54,7 @@ pub fn add_caption(seq: &mut Sequence, track: TrackId, start: Tick, duration: Ti
 
 /// Split caption `id` at `t` (strictly inside it); both halves keep the text. Returns the new
 /// (right) caption.
-pub fn split_caption(seq: &mut Sequence, id: ClipId, t: Tick, ctx: &mut EditCtx) -> Result<ClipId> {
+pub fn split_caption(seq: &mut تسلسل، id: ClipId, t: Tick, ctx: &mut EditCtx) -> Result<ClipId> {
     let tid = owner(seq, id)?;
     let min = ctx.min_duration;
     let new_id = ClipId(ctx.alloc());
@@ -76,7 +76,7 @@ pub fn split_caption(seq: &mut Sequence, id: ClipId, t: Tick, ctx: &mut EditCtx)
 
 /// Split every caption strictly containing `t` on unlocked caption tracks (all when `tracks` is
 /// empty). Returns the new captions.
-pub fn split_captions_at(seq: &mut Sequence, tracks: &[TrackId], t: Tick, ctx: &mut EditCtx) -> Vec<ClipId> {
+pub fn split_captions_at(seq: &mut تسلسل، tracks: &[TrackId], t: Tick, ctx: &mut EditCtx) -> Vec<ClipId> {
     let ids: Vec<ClipId> = seq
         .caption_tracks
         .iter()
@@ -88,7 +88,7 @@ pub fn split_captions_at(seq: &mut Sequence, tracks: &[TrackId], t: Tick, ctx: &
 
 /// Merge captions on one track into the first: it spans from the first start to the last end and
 /// joins the texts with line breaks. The captions must be consecutive (none in between).
-pub fn merge_captions(seq: &mut Sequence, ids: &[ClipId]) -> Result<ClipId> {
+pub fn merge_captions(seq: &mut تسلسل، ids: &[ClipId]) -> Result<ClipId> {
     if ids.len() < 2 {
         return Err(EditError::Nothing);
     }
@@ -119,7 +119,7 @@ pub fn merge_captions(seq: &mut Sequence, ids: &[ClipId]) -> Result<ClipId> {
 }
 
 /// Change a caption's text and/or speaker.
-pub fn set_caption(seq: &mut Sequence, id: ClipId, text: Option<&str>, speaker: Option<Option<&str>>) -> Result<()> {
+pub fn set_caption(seq: &mut تسلسل، id: ClipId, text: Option<&str>, speaker: Option<Option<&str>>) -> Result<()> {
     let tid = owner(seq, id)?;
     let c = track_mut(seq, tid)?.caption_mut(id).ok_or(EditError::NoItem(id))?;
     if let Some(t) = text {
@@ -132,7 +132,7 @@ pub fn set_caption(seq: &mut Sequence, id: ClipId, text: Option<&str>, speaker: 
 }
 
 /// Set a caption's in and out points directly (Captions panel timecode fields).
-pub fn set_caption_times(seq: &mut Sequence, id: ClipId, start: Tick, end: Tick, ctx: &EditCtx) -> Result<()> {
+pub fn set_caption_times(seq: &mut تسلسل، id: ClipId, start: Tick, end: Tick, ctx: &EditCtx) -> Result<()> {
     let tid = owner(seq, id)?;
     let tr = track_mut(seq, tid)?;
     if end - start < ctx.min_duration || start < Tick::ZERO {
@@ -150,7 +150,7 @@ pub fn set_caption_times(seq: &mut Sequence, id: ClipId, start: Tick, end: Tick,
 
 /// Trim a caption edge by `delta`, limited by its neighbours and a one-frame minimum. Returns the
 /// delta applied.
-pub fn trim_caption(seq: &mut Sequence, id: ClipId, edge: Edge, delta: Tick, ctx: &EditCtx) -> Result<Tick> {
+pub fn trim_caption(seq: &mut تسلسل، id: ClipId, edge: Edge, delta: Tick, ctx: &EditCtx) -> Result<Tick> {
     let tid = owner(seq, id)?;
     let tr = track_mut(seq, tid)?;
     let (prev, next) = neighbours(tr, id);
@@ -174,7 +174,7 @@ pub fn trim_caption(seq: &mut Sequence, id: ClipId, edge: Edge, delta: Tick, ctx
 
 /// Move captions by `delta`, clamped so they stay at or after zero and do not overlap captions
 /// that are not moving. Returns the delta applied.
-pub fn move_captions(seq: &mut Sequence, ids: &[ClipId], delta: Tick) -> Result<Tick> {
+pub fn move_captions(seq: &mut تسلسل، ids: &[ClipId], delta: Tick) -> Result<Tick> {
     let mut lo = Tick::MIN;
     let mut hi = Tick::MAX;
     let mut tracks = Vec::new();
@@ -216,7 +216,7 @@ pub fn move_captions(seq: &mut Sequence, ids: &[ClipId], delta: Tick) -> Result<
 }
 
 /// Delete captions. With `ripple`, later captions on the same track move left to close each gap.
-pub fn delete_captions(seq: &mut Sequence, ids: &[ClipId], ripple: bool) -> Result<usize> {
+pub fn delete_captions(seq: &mut تسلسل، ids: &[ClipId], ripple: bool) -> Result<usize> {
     let mut n = 0;
     for id in ids {
         let tid = owner(seq, *id)?;
@@ -297,7 +297,7 @@ mod tests {
     use super::*;
     use filmcraft_project::CaptionFormat;
 
-    fn seq_with(captions: &[(i64, i64, &str)]) -> (Sequence, TrackId) {
+    fn seq_with(captions: &[(i64, i64, &str)]) -> (تسلسل، TrackId) {
         let mut p = filmcraft_project::Project::new("t");
         let sid = p.new_sequence("s", Default::default(), 1, 1, None);
         let mut seq = p.sequence(sid).unwrap().clone();
@@ -323,7 +323,7 @@ mod tests {
         EditCtx { next_id: next, media_duration: &NONE, media_start: &|_| Tick::ZERO, min_duration: Tick(10) }
     }
 
-    fn spans(seq: &Sequence, tid: TrackId) -> Vec<(i64, i64, String)> {
+    fn spans(seq: &تسلسل، tid: TrackId) -> Vec<(i64, i64, String)> {
         seq.caption_track(tid).unwrap().captions.iter().map(|c| (c.start.0, c.end().0, c.text.clone())).collect()
     }
 

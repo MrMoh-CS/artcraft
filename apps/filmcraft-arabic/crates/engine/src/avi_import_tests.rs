@@ -52,7 +52,7 @@ fn avi_imports_plays_and_probes() {
     let src = s.source(item).unwrap();
     assert!(src.video_frame(filmcraft_media::FrameRequest::full(filmcraft_time::Tick(filmcraft_time::TICKS_PER_SECOND))).is_ok());
     assert!(src.audio(48_000, 4_800, 48_000).unwrap().channels[0].iter().any(|v| v.abs() > 0.05));
-    // the Media Browser's probe streams it (index now, frames on demand)
+    // the Media Browser's probe streams it (index now, إطار on demand)
     let probed = s.media.probe_file(&path.to_string_lossy(), &*s.services).unwrap();
     assert_eq!(probed.info().container, "AVI");
 }

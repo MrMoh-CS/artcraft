@@ -180,12 +180,12 @@ struct ReverbState {
     hist: Vec<f32>,
     pos: usize,
     gains: Vec<f32>,
-    frames: usize,
+    إطار: usize,
 }
 
 impl ReverbState {
     fn new(bins: usize, delay: usize) -> Self {
-        ReverbState { psd: vec![0.0; bins], hist: vec![0.0; bins * delay], pos: 0, gains: vec![1.0; bins], frames: 0 }
+        ReverbState { psd: vec![0.0; bins], hist: vec![0.0; bins * delay], pos: 0, gains: vec![1.0; bins], إطار: 0 }
     }
     fn reset(&mut self) {
         self.psd.iter_mut().for_each(|v| *v = 0.0);
@@ -284,7 +284,7 @@ impl AudioEffect for DeReverb {
                     let p = spec.re[k] * spec.re[k] + spec.im[k] * spec.im[k];
                     let psd = alpha * st.psd[k] + (1.0 - alpha) * p;
                     st.psd[k] = if psd < 1e-30 { 0.0 } else { psd };
-                    // Late reverb predicted from the PSD `delay` frames ago (the ring slot we are
+                    // Late reverb predicted from the PSD `delay` إطار ago (the ring slot we are
                     // about to overwrite holds exactly that frame).
                     let late = if warm { decay * st.hist[base + k] } else { 0.0 };
                     st.hist[base + k] = st.psd[k];
@@ -352,7 +352,7 @@ pub struct SpeechEnhance {
 
 impl SpeechEnhance {
     pub const PARAMS: &'static [ParamSpec] =
-        &[ParamSpec::new("mix", "Mix", 0.0, 100.0, 100.0, Unit::Percent), ParamSpec::choice("tone", "Tone", &["Low Tone", "High Tone"], 0)];
+        &[ParamSpec::new("mix", "المزج", 0.0, 100.0, 100.0, Unit::Percent), ParamSpec::choice("tone", "Tone", &["Low Tone", "High Tone"], 0)];
 
     pub fn new(sample_rate: f32, channels: usize) -> Self {
         let sr = sample_rate as f64;

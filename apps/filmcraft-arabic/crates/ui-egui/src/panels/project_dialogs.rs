@@ -37,7 +37,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal(|ui| {
                     ui.label(tl!("Name:"));
                     let r = ui.add(egui::TextEdit::singleline(name).desired_width(240.0));
-                    push(app, "projectDialog.name", &r, "Name");
+                    push(app, "projectDialog.name", &r, "الاسم");
                 });
                 if ui.input(|i| i.key_pressed(egui::Key::Enter)) {
                     run = Some(("project.viewPreset.saveAs".into(), json!({"name": name})));
@@ -75,7 +75,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal(|ui| {
                     ui.label(tl!("Name:"));
                     let r = ui.add(egui::TextEdit::singleline(name).desired_width(240.0));
-                    push(app, "projectDialog.name", &r, "Name");
+                    push(app, "projectDialog.name", &r, "الاسم");
                 });
                 if ok_cancel(app, ui, &mut close) && !name.trim().is_empty() {
                     run = Some(("project.freeform.saveArrangement".into(), json!({"name": name, "bin": bin})));
@@ -108,13 +108,13 @@ fn ok_cancel(app: &mut FilmcraftApp, ui: &mut egui::Ui, close: &mut bool) -> boo
     ui.separator();
     let mut ok = false;
     ui.horizontal(|ui| {
-        let r = ui.button(tl!("Cancel"));
-        push(app, "projectDialog.cancel", &r, "Cancel");
+        let r = ui.button(tl!("إلغاء"));
+        push(app, "projectDialog.cancel", &r, "إلغاء");
         if r.clicked() {
             *close = true;
         }
-        let r = ui.button(tl!("OK"));
-        push(app, "projectDialog.ok", &r, "OK");
+        let r = ui.button(tl!("موافق"));
+        push(app, "projectDialog.ok", &r, "موافق");
         ok = r.clicked();
     });
     ok
@@ -137,7 +137,7 @@ fn metadata_display(app: &mut FilmcraftApp, ui: &mut egui::Ui, columns: &mut Vec
                 ui.set_min_width(220.0);
                 for c in all.iter().filter(|c| f.is_empty() || c.to_ascii_lowercase().contains(&f)) {
                     let mut on = columns.contains(c);
-                    let name_col = c == "Name";
+                    let name_col = c == "الاسم";
                     let r = ui.add_enabled(!name_col, egui::Checkbox::new(&mut on, crate::i18n::t(c)));
                     push(app, &format!("projectDialog.field.{c}"), &r, c);
                     if r.changed() {
@@ -218,7 +218,7 @@ fn manage_presets(app: &mut FilmcraftApp, ui: &mut egui::Ui, selected: &mut usiz
     ui.horizontal(|ui| {
         ui.label(tl!("Name:"));
         let r = ui.add_enabled(filled, egui::TextEdit::singleline(name).desired_width(200.0));
-        push(app, "projectDialog.name", &r, "Name");
+        push(app, "projectDialog.name", &r, "الاسم");
         let b = ui.add_enabled(filled, egui::Button::new(tl!("Rename")));
         push(app, "projectDialog.rename", &b, "Rename");
         if b.clicked() {
@@ -231,8 +231,8 @@ fn manage_presets(app: &mut FilmcraftApp, ui: &mut egui::Ui, selected: &mut usiz
         if b.clicked() {
             *run = Some(("project.viewPreset.restore".into(), json!({"slot": *selected + 1})));
         }
-        let b = ui.add_enabled(filled, egui::Button::new(tl!("Delete")));
-        push(app, "projectDialog.delete", &b, "Delete");
+        let b = ui.add_enabled(filled, egui::Button::new(tl!("حذف")));
+        push(app, "projectDialog.delete", &b, "حذف");
         if b.clicked() {
             *run = Some(("project.viewPreset.delete".into(), json!({"slot": *selected + 1})));
         }

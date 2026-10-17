@@ -42,17 +42,17 @@ pub fn add_generator(p: &mut Project, pool: &MediaPool, src: GeneratorSource, na
 pub fn demo_project(pool: &MediaPool) -> (Project, ItemId) {
     build_demo(pool).unwrap_or_else(|| {
         // Only reachable if the built-in items could not be placed: an empty demo, not a crash.
-        let mut p = Project::new("FilmCraft Demo");
-        let seq = p.new_sequence("Main Edit", SequenceSettings::default(), 3, 3, None);
+        let mut p = Project::new("عرض فيلم كرافت التجريبي");
+        let seq = p.new_sequence("التحرير الرئيسي", SequenceSettings::default(), 3, 3, None);
         (p, seq)
     })
 }
 
 fn build_demo(pool: &MediaPool) -> Option<(Project, ItemId)> {
-    let mut p = Project::new("FilmCraft Demo");
+    let mut p = Project::new("عرض فيلم كرافت التجريبي");
     let footage = p.add_bin("Footage", None);
     let audio_bin = p.add_bin("الصوت", None);
-    let gfx = p.add_bin("الرسوميات", None);
+    let gfx = p.add_bin("Graphics", None);
     let seqs = p.add_bin("Sequences", None);
 
     let mut clips = Vec::new();
@@ -79,7 +79,7 @@ fn build_demo(pool: &MediaPool) -> Option<(Project, ItemId)> {
         &mut p,
         pool,
         GeneratorSource::new(Generator::BarsAndTone, 1920, 1080, FrameRate::FPS_23_976, Tick(10 * TICKS_PER_SECOND)),
-        "Bars and Tone",
+        "أشرطة الألوان والنغمة",
         Label::Lavender,
         Some(gfx),
     );
@@ -103,7 +103,7 @@ fn build_demo(pool: &MediaPool) -> Option<(Project, ItemId)> {
 
     let settings = SequenceSettings::default();
     let r = settings.frame_rate;
-    let seq = p.new_sequence("Main Edit", settings, 3, 3, Some(seqs));
+    let seq = p.new_sequence("التحرير الرئيسي", settings, 3, 3, Some(seqs));
     let _rough = p.new_sequence("Rough Cut", SequenceSettings::default(), 3, 2, Some(seqs));
 
     // V1 edit: (clip index, source in s, duration s)

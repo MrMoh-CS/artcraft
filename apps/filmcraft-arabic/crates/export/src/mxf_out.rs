@@ -81,7 +81,7 @@ pub(crate) struct MxfSetup<'a> {
     pub rate: FrameRate,
     /// (sample rate, channels) of the audio, if any.
     pub audio: Option<(u32, usize)>,
-    /// Start timecode in frames of `rate`, and drop-frame.
+    /// Start timecode in إطار of `rate`, and drop-frame.
     pub timecode: (i64, bool),
 }
 
@@ -113,7 +113,7 @@ impl MxfMux {
         let mut cfg = WriterConfig::new(if atom { Pattern::OpAtom } else { Pattern::Op1a }, rate, ids.clone());
         cfg.picture = Some(picture(settings, s.width, s.height));
         cfg.modified = Timestamp::from_unix((now / 1_000_000_000) as i64);
-        cfg.timecode = Some(StartTimecode { frames: s.timecode.0, rate, drop_frame: s.timecode.1 && s.rate.supports_drop_frame() });
+        cfg.timecode = Some(StartTimecode { إطار: s.timecode.0, rate, drop_frame: s.timecode.1 && s.rate.supports_drop_frame() });
         if !atom && let Some((sr, ch)) = s.audio {
             cfg.sound = vec![SoundDesc { sample_rate: sr, channels: ch as u32, bits }];
         }

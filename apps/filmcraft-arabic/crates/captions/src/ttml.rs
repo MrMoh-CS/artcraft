@@ -9,7 +9,7 @@
 //! one, and always for DFXP (for older players), times are clock times with milliseconds.
 //!
 //! **Reading** accepts TTML1 2010, the 2006 `ttaf1` drafts and TTML2:
-//! clock times (`HH:MM:SS`, `.fraction`, `:FF` frames and `.subframes`), offset times (`h`, `m`,
+//! clock times (`HH:MM:SS`, `.fraction`, `:FF` إطار and `.subframes`), offset times (`h`, `m`,
 //! `s`, `ms`, `f`, `t` with `ttp:tickRate`), `begin` / `end` / `dur`, nested `par` time
 //! containers (`body` / `div` begins add up and their ends clip what is inside), timed `<span>`s inside an untimed `<p>`, `<br/>`, whitespace
 //! collapsing, styles referenced by id (italic / bold / underline) and `ttm:agent` / `xml:id`.
@@ -59,7 +59,7 @@ fn clock(t: Tick) -> String {
     format!("{:02}:{:02}:{:02}.{:03}", ms / 3_600_000, (ms / 60_000) % 60, (ms / 1000) % 60, ms % 1000)
 }
 
-/// Time expression for `t`: frames at `rate` when it is on a frame boundary, else clock time.
+/// Time expression for `t`: إطار at `rate` when it is on a frame boundary, else clock time.
 fn time_expr(t: Tick, rate: Option<FrameRate>) -> String {
     match rate {
         Some(r) if r.tick_of(r.frame_at(t)) == t => format!("{}f", r.frame_at(t)),
@@ -206,7 +206,7 @@ fn gcd(a: i64, b: i64) -> i64 {
 struct Timing {
     /// Effective frame rate (frameRate × multiplier).
     rate: FrameRate,
-    /// Nominal frames per second for `HH:MM:SS:FF`.
+    /// Nominal إطار per second for `HH:MM:SS:FF`.
     base: i64,
     sub_frame_rate: i64,
     tick_rate: i64,
@@ -340,14 +340,14 @@ fn parse_time(s: &str, tm: Timing) -> Option<Tick> {
                 return None;
             }
             let (fi, fs) = fp.split_once('.').unwrap_or((fp, ""));
-            let frames = num(fi)?;
+            let إطار = num(fi)?;
             let sub: i128 = if fs.is_empty() { 0 } else { num(fs)? };
-            if frames >= i128::from(tm.base) || sub >= i128::from(tm.sub_frame_rate) {
+            if إطار >= i128::from(tm.base) || sub >= i128::from(tm.sub_frame_rate) {
                 return None;
             }
-            // frames at the effective rate; sub-frames divide a frame
+            // إطار at the effective rate; sub-frames divide a frame
             let ft = tm.rate.tick_of(1).0 as i128;
-            t += frames * ft + sub * ft / tm.sub_frame_rate.max(1) as i128;
+            t += إطار * ft + sub * ft / tm.sub_frame_rate.max(1) as i128;
         }
         return i64::try_from(t).ok().map(Tick);
     }

@@ -39,7 +39,7 @@
 //! size and rate match the sequence. Green (a valid preview exists) is decided by the preview
 //! store, which knows which hashes have files.
 
-use filmcraft_project::{ClipId, ItemId, ItemKind, Project, Sequence, TrackItem, TrackKind, Transition};
+use filmcraft_project::{ClipId, ItemId, ItemKind, Project, تسلسل، TrackItem, TrackKind, Transition};
 use filmcraft_time::{FrameRate, Tick};
 use serde::Serialize;
 
@@ -51,7 +51,7 @@ pub const HASH_VERSION: &str = "filmcraft-preview-v1";
 /// display duration and still keep up.
 ///
 /// Calibration (M4 Pro, shared with other jobs; 1080p 23.976 sequence, Full playback resolution,
-/// 8 s of playback ≈ 192 frames, counted by the Program monitor's dropped-frame stats):
+/// 8 s of playback ≈ 192 إطار, counted by the Program monitor's dropped-frame stats):
 /// * 1080p H.264 High clip, no effects (no bar, est. 3.5 ms): 11 dropped;
 /// * same clip + Lumetri, Sharpen, Levels, Tint (red, est. 183 ms): 189–191 dropped, ≤ 17 on time;
 /// * after Render Effects In to Out (green; ProRes preview rendered at ~3 fps): 25–46 dropped on
@@ -68,16 +68,16 @@ pub enum Need {
     None,
     /// Should play in real time (yellow).
     Realtime,
-    /// Probably drops frames (red).
+    /// Probably drops إطار (red).
     Render,
 }
 
 /// A stretch of the timeline with a constant set of visible layers.
 #[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct Segment {
-    /// First frame (sequence frame index) and number of frames.
+    /// First frame (sequence frame index) and number of إطار.
     pub first_frame: i64,
-    pub frames: i64,
+    pub إطار: i64,
     /// Timeline range (frame-aligned).
     pub start: Tick,
     pub end: Tick,
@@ -107,7 +107,7 @@ enum Layer<'a> {
     Transition(usize, &'a Transition, Option<&'a TrackItem>, Option<&'a TrackItem>),
 }
 
-fn layers_at<'a>(seq: &'a Sequence, t: Tick) -> Vec<Layer<'a>> {
+fn layers_at<'a>(seq: &'a تسلسل، t: Tick) -> Vec<Layer<'a>> {
     let mut out = Vec::new();
     for (ti, tr) in seq.video_tracks.iter().enumerate() {
         if !tr.enabled {
@@ -202,7 +202,7 @@ pub fn video_segments(project: &Project, seq_id: ItemId) -> Vec<Segment> {
         } else {
             Need::Realtime
         };
-        out.push(Segment { first_frame: fa, frames: fb - fa, start: t, end: rate.tick_of(fb), hash: h.hex(), need, cost_ms, clips });
+        out.push(Segment { first_frame: fa, إطار: fb - fa, start: t, end: rate.tick_of(fb), hash: h.hex(), need, cost_ms, clips });
     }
     out
 }
@@ -498,7 +498,7 @@ fn layer_cost(project: &Project, it: &TrackItem, px: f64, force_cpu: bool) -> f6
     decode + path + item_fx_cost(it, px)
 }
 
-fn estimate_cost(project: &Project, seq: &Sequence, layers: &[Layer]) -> f64 {
+fn estimate_cost(project: &Project, seq: &تسلسل، layers: &[Layer]) -> f64 {
     let px = (seq.settings.width as f64 * seq.settings.height as f64) / HD_PIXELS;
     let mut total = 0.0;
     for l in layers {
@@ -516,7 +516,7 @@ fn estimate_cost(project: &Project, seq: &Sequence, layers: &[Layer]) -> f64 {
 
 /// A single clip that plays natively: no standard effects, untouched fixed effects, normal speed,
 /// source frame size and rate equal to the sequence's.
-fn native(project: &Project, seq: &Sequence, it: &TrackItem) -> bool {
+fn native(project: &Project, seq: &تسلسل، it: &TrackItem) -> bool {
     if it.has_standard_effects() || it.has_modified_intrinsics() || (it.speed - 1.0).abs() > 1e-9 || it.reverse || it.frame_hold.is_some() {
         return false;
     }

@@ -34,11 +34,11 @@ struct Mp4Audio {
     /// Index into `Mp4File::tracks`.
     track: usize,
     state: Mutex<AudioState>,
-    /// Packet start positions in source sample frames (see [`audio_starts`]).
+    /// Packet start positions in source sample إطار (see [`audio_starts`]).
     starts: Vec<i64>,
     /// Presentation offset of the track in its timescale (edit list, or Opus pre-skip).
     offset: i64,
-    /// Decoder pre-roll after a seek, in source sample frames (0: prime with one packet).
+    /// Decoder pre-roll after a seek, in source sample إطار (0: prime with one packet).
     preroll: i64,
 }
 
@@ -56,12 +56,12 @@ pub fn sniff(b: &[u8]) -> bool {
     b.len() >= 12 && matches!(&b[4..8], b"ftyp" | b"moov" | b"mdat" | b"wide" | b"free" | b"skip")
 }
 
-/// Audio packet start positions in source sample frames at `rate`: the running total of the sample
+/// Audio packet start positions in source sample إطار at `rate`: the running total of the sample
 /// durations, except that packets which all decode to the same length (AAC, MPEG audio, AC-3,
 /// E-AC-3) run on from one another, resynchronising to the total only across gaps of more than half
 /// a packet.
 /// A remux from Matroska (OBS's) carries the millisecond rounding of its timestamps into the
-/// durations: 1008, 1008, 1056… for 1024-sample AAC frames at 48 kHz (see
+/// durations: 1008, 1008, 1056… for 1024-sample AAC إطار at 48 kHz (see
 /// [`crate::audio::contiguous_starts`]).
 fn audio_starts(file: &Mp4File, bytes: &crate::Src, ti: usize, rate: u32) -> Vec<i64> {
     use crate::audio::{FixedFrames, PacketTime, contiguous_starts, fixed_packet_samples};
@@ -168,7 +168,7 @@ fn color_from(entry: &filmcraft_isobmff::SampleEntry, w: u32, h: u32) -> ColorIn
 const RTMD_HEADER_LEN: usize = 0x12;
 
 /// Sony XAVC `rtmd` (real-time metadata) start timecode fields, read from the first sample: hours,
-/// minutes, seconds, a drop-frame flag and frames. Sony stores them as raw decimal bytes in the
+/// minutes, seconds, a drop-frame flag and إطار. Sony stores them as raw decimal bytes in the
 /// sample's fixed header. The layout is proprietary and undocumented, so it is reproduced here from
 /// real footage; it is the same block ffmpeg reports as the `timecode` tag of an `rtmd` stream.
 ///
@@ -177,18 +177,18 @@ const RTMD_HEADER_LEN: usize = 0x12;
 fn rtmd_fields(sample: &[u8], rate: FrameRate) -> Option<(i64, i64, i64, i64, bool)> {
     let f = sample.get(0x0d..0x12)?;
     let (h, m, s) = (f[0] as i64, f[1] as i64, f[2] as i64);
-    let frames = f[4] as i64;
+    let إطار = f[4] as i64;
     let drop = f[3] != 0;
     let base = rate.timecode_base();
-    if h > 23 || m > 59 || s > 59 || frames >= base {
+    if h > 23 || m > 59 || s > 59 || إطار >= base {
         return None;
     }
     // Drop-frame counting skips the first `base / 15` frame labels of every minute except each
     // tenth minute, so those labels never occur in valid footage (SMPTE ST 12-1).
-    if drop && rate.supports_drop_frame() && s == 0 && m % 10 != 0 && frames < base / 15 {
+    if drop && rate.supports_drop_frame() && s == 0 && m % 10 != 0 && إطار < base / 15 {
         return None;
     }
-    Some((h, m, s, frames, drop))
+    Some((h, m, s, إطار, drop))
 }
 
 /// Start timecode from a Sony `rtmd` track as a frame count at `rate` (issue #460), used when the
@@ -292,7 +292,7 @@ impl Mp4Source {
                 }
             }
             if matches!(entry.codec, CodecConfig::ProRes { .. }) {
-                // a 4444 fourcc doesn't mean the frames carry alpha (alpha_channel_type does): read the first frame header
+                // a 4444 fourcc doesn't mean the إطار carry alpha (alpha_channel_type does): read the first frame header
                 let s0 = &t.samples[0];
                 if let Some(h) = filmcraft_media::reader::read_range(&*bytes.0, s0.offset, s0.size as usize).ok().and_then(|d| filmcraft_prores::probe(&d).ok())
                 {
@@ -338,7 +338,7 @@ impl Mp4Source {
                 let (offset, preroll) = match t.entries.first().map(|e| &e.codec) {
                     Some(CodecConfig::Opus(o)) => {
                         let off = if t.edit_offset != 0 { t.edit_offset } else { -(o.pre_skip as i64) * ts / 48_000 };
-                        // (Opus plays at 48 kHz: the pre-roll is in its sample frames)
+                        // (Opus plays at 48 kHz: the pre-roll is in its sample إطار)
                         (off, crate::audio::OPUS_PRE_ROLL as i64)
                     }
                     _ => (t.edit_offset, 0),
@@ -454,11 +454,11 @@ impl MediaSource for Mp4Source {
         Ok(f)
     }
 
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
-        self.audio_stream(0, start, frames, sample_rate)
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+        self.audio_stream(0, start, إطار, sample_rate)
     }
 
-    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
         let a = self.audios.get(stream).ok_or(MediaError::NoStream("audio"))?;
         let ti = a.track;
         let track = self.file.tracks.get(ti).ok_or(MediaError::NoStream("audio"))?;
@@ -495,7 +495,7 @@ impl MediaSource for Mp4Source {
         }
         drop(st);
         if src_rate == sample_rate {
-            let mut out = AudioBuffer::silence(sample_rate, ch, frames);
+            let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
             for c in 0..ch {
                 out.channels[c]
                     .copy_from_slice(&src[c][..frames.min(src[c].len())].iter().copied().chain(std::iter::repeat(0.0)).take(frames).collect::<Vec<_>>());
@@ -505,7 +505,7 @@ impl MediaSource for Mp4Source {
         // Resample the local window. Its first sample is presentation sample `p0`; the edit list
         // offset is already in `s0` and must not shift the read position a second time.
         let frac = p0 as f64 - start as f64 * ratio;
-        let mut out = AudioBuffer::silence(sample_rate, ch, frames);
+        let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
         for k in 0..frames {
             let pos = k as f64 * ratio - frac;
             let i0 = pos.floor().max(0.0) as usize;
@@ -568,9 +568,9 @@ fn codec_label(c: &CodecConfig) -> String {
         CodecConfig::Avc(a) => format!(
             "H.264 ({})",
             match a.profile {
-                66 => "Baseline",
-                77 => "Main",
-                100 => "High",
+                66 => "أساسي",
+                77 => "رئيسي",
+                100 => "عالي",
                 110 => "High 10",
                 122 => "High 4:2:2",
                 244 => "High 4:4:4",
@@ -580,7 +580,7 @@ fn codec_label(c: &CodecConfig) -> String {
         CodecConfig::Hevc(_) => "HEVC".into(),
         CodecConfig::Vp9(c) => format!("VP9 (Profile {})", c.profile),
         CodecConfig::Unknown { fourcc, .. } if fourcc.0 == *b"vp08" => "VP8".into(),
-        CodecConfig::Av1(c) => format!("AV1 ({} Profile)", ["Main", "High", "Professional"].get(c.seq_profile as usize).unwrap_or(&"Main")),
+        CodecConfig::Av1(c) => format!("AV1 ({} Profile)", ["رئيسي", "عالي", "Professional"].get(c.seq_profile as usize).unwrap_or(&"رئيسي")),
         CodecConfig::Apv(a) => match filmcraft_apv::Profile::from_idc(a.profile_idc) {
             Some(p) => p.name().into(),
             None => "APV".into(),
@@ -668,7 +668,7 @@ pub fn opener(name: &str, bytes: Arc<[u8]>) -> Option<Result<SharedSource, Media
 }
 
 /// Put the video samples of a constant-rate file whose pictures sit just off its frame grid back
-/// on the grid (#1282). Phone footage stamps frames up to a millisecond after where they belong (a
+/// on the grid (#1282). Phone footage stamps إطار up to a millisecond after where they belong (a
 /// first frame 34.1 ms long at 30 fps), and the frame shown at a time is the last one that starts at
 /// or before it: a sequence frame asked at the exact grid time got the picture before.
 ///
@@ -729,7 +729,7 @@ fn snap_to_frame_grid(file: &mut Mp4File, vtrack: Option<usize>) {
 
 /// Start the file at its first picture when its video track has no edit list (#714). Without an
 /// edit list the media timeline is the presentation, so a B-frame stream's first picture sits at its
-/// composition delay (two frames on an x264 MP4 written without `elst`, and on fragmented MP4s):
+/// composition delay (two إطار on an x264 MP4 written without `elst`, and on fragmented MP4s):
 /// media time zero repeated it and the clip, which lasts the media duration, lost its last pictures.
 /// Every track moves back by the earliest start among them, video and audio alike, so the streams
 /// stay in sync and a delay between them keeps its meaning; a track with an edit list is never
@@ -832,13 +832,13 @@ mod tests {
     #[test]
     fn duration_follows_the_edit_list() {
         use filmcraft_isobmff::Edit;
-        let frames = |s: &Mp4Source| s.info().duration.to_rational_floor(1, 25);
+        let إطار = |s: &Mp4Source| s.info().duration.to_rational_floor(1, 25);
         // no edit list: the media duration
         assert_eq!(frames(&Mp4Source::open("plain.mov", mov_with_edits(Vec::new())).expect("open")), 4);
-        // skip the first frame (B-frame delay style): three frames play (movie timescale 1000 ms)
+        // skip the first frame (B-frame delay style): three إطار play (movie timescale 1000 ms)
         let skip = vec![Edit { segment_duration: 120, media_time: 1, media_rate: 0x10000 }];
         assert_eq!(frames(&Mp4Source::open("skip.mov", mov_with_edits(skip)).expect("open")), 3);
-        // a one-frame empty edit, then all four frames: five frames, and the last one is there
+        // a one-frame empty edit, then all four إطار: five إطار, and the last one is there
         let delayed =
             vec![Edit { segment_duration: 40, media_time: -1, media_rate: 0x10000 }, Edit { segment_duration: 160, media_time: 0, media_rate: 0x10000 }];
         let s = Mp4Source::open("delayed.mov", mov_with_edits(delayed)).expect("open");
@@ -1116,13 +1116,13 @@ mod tests {
             b[0x0d..0x12].copy_from_slice(&[h, m, s, 1, f]);
             rtmd_fields(&b, FrameRate::FPS_59_94)
         };
-        // At 59.94 DF, frames 00-03 of a non-tenth minute are skipped, so they never occur.
+        // At 59.94 DF, إطار 00-03 of a non-tenth minute are skipped, so they never occur.
         assert_eq!(df(0, 1, 0, 0), None);
         assert_eq!(df(0, 1, 0, 3), None);
         assert_eq!(df(0, 1, 0, 4), Some((0, 1, 0, 4, true)));
         assert_eq!(df(0, 10, 0, 0), Some((0, 10, 0, 0, true))); // tenth minute: label exists
         assert_eq!(df(0, 1, 1, 0), Some((0, 1, 1, 0, true))); // seconds > 0: label exists
-        // At 29.97 DF only frames 00-01 are skipped.
+        // At 29.97 DF only إطار 00-01 are skipped.
         let df30 = |m, s, f| {
             let mut b = [0u8; 24];
             b[0x0d..0x12].copy_from_slice(&[0, m, s, 1, f]);

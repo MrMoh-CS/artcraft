@@ -60,7 +60,7 @@ fn block_rect(c: &filmcraft_project::Caption, row: Rect, layout: &Layout, drag: 
 }
 
 /// Paint headers and caption blocks.
-pub fn paint(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, area: Rect, layout: &Layout, t: &Tokens) {
+pub fn paint(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، area: Rect, layout: &Layout, t: &Tokens) {
     if seq.caption_tracks.is_empty() {
         return;
     }
@@ -170,7 +170,7 @@ pub fn paint(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, area: Re
 
 /// Pointer interaction on caption blocks (call after the timeline's own interaction so captions
 /// are on top).
-pub fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, area: Rect, layout: &Layout) {
+pub fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، area: Rect, layout: &Layout) {
     let ctx = ui.ctx().clone();
     let rate = seq.settings.frame_rate;
     let drag = drag_state(&ctx);
@@ -219,7 +219,7 @@ fn interact_block(
     }
     if resp.double_clicked() {
         app.show_panel(PanelKind::Text);
-        app.ui.text_tab = "Captions".into();
+        app.ui.text_tab = "الترجمة النصية".into();
         actions.push(("captions.goTo".into(), json!({"caption": c.id.0})));
         return;
     }

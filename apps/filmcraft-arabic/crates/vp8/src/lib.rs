@@ -1,12 +1,12 @@
 //! Clean-room pure-Rust VP8 decoder, implemented from RFC 6386 ("VP8 Data Format and Decoding
 //! Guide"), sections 1-19.
 //!
-//! Supported: the whole format — key frames and inter frames, all intra modes (16x16, chroma,
-//! the ten 4x4 subblock modes), inter prediction from the last, golden and altref frames with
+//! Supported: the whole format — key إطار and inter إطار, all intra modes (16x16, chroma,
+//! the ten 4x4 subblock modes), inter prediction from the last, golden and altref إطار with
 //! sign bias, NEAREST / NEAR / ZERO / NEW / SPLIT motion vectors, six-tap and bilinear
 //! interpolation (versions 0-3, full-pixel chroma), segmentation, the normal and simple loop
 //! filters with mode / reference deltas, multiple token partitions, probability persistence
-//! (`refresh_entropy_probs`), golden / altref copies and hidden (altref) frames.
+//! (`refresh_entropy_probs`), golden / altref copies and hidden (altref) إطار.
 //!
 //! ```no_run
 //! let mut dec = filmcraft_vp8::Decoder::new();

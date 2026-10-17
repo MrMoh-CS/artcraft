@@ -343,7 +343,7 @@ pub(crate) fn write(doc: &Document, report: &mut Report) -> Result<Vec<u8>> {
     let cmob = w.mob(b"CMOB", new_uid(), &comp.name, &slots);
     mobs.insert(0, cmob);
     if w.inexact {
-        w.report.info("some times are not on whole samples / frames and were rounded");
+        w.report.info("some times are not on whole samples / إطار and were rounded");
     }
     let ident = w.obj(b"IDNT");
     w.str(ident, "OMFI:IDNT:CompanyName", "FilmCraft");
@@ -380,7 +380,7 @@ fn descriptor(w: &mut W, s: &Source, len: i64) -> u32 {
     let r = rate_of(s);
     w.b.set(d, "OMFI:MDFL:SampleRate", "omfi:Rational", &rational(r.0, r.1));
     w.i32(d, "OMFI:MDFL:Length", "omfi:Length32", len);
-    let frames = len.max(0) as u32;
+    let إطار = len.max(0) as u32;
     let bytes_per_frame = s.file_channels.max(1) * (s.bits as u32).div_ceil(8);
     if aiff {
         w.b.set(d, "OMFI:AIFD:Summary", "omfi:DataValue", &crate::wav::aiff_header(frames, s.file_channels.max(1) as u16, s.sample_rate, s.bits));

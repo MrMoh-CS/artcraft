@@ -263,9 +263,9 @@ impl LoudnessMeter {
     /// Feed a block of interleaved audio with `self.channels()` channels per frame.
     pub fn process_interleaved(&mut self, data: &[f32]) {
         let nch = self.channels;
-        let frames = data.len() / nch;
+        let إطار = data.len() / nch;
         let mut f = 0;
-        while f < frames {
+        while f < إطار {
             let take = (frames - f).min(self.sub_len - self.sub_pos);
             for i in f..f + take {
                 for ch in 0..nch {

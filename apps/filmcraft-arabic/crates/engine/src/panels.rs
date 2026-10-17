@@ -33,7 +33,7 @@ pub enum Level {
 impl Level {
     pub fn label(self) -> &'static str {
         match self {
-            Level::Info => "Info",
+            Level::Info => "معلومات",
             Level::Warning => "Warning",
             Level::Error => "Error",
         }
@@ -193,7 +193,7 @@ pub fn metadata_fields(p: &Project, id: ItemId) -> Vec<Field> {
     };
     let mut out = Vec::new();
     let mut add = |section, name: &str, value: String, editable| out.push(Field { section, name: name.to_string(), value, editable });
-    add("مقطع", "Name", it.name.clone(), true);
+    add("مقطع", "الاسم", it.name.clone(), true);
     add("مقطع", "Label", it.label.name().to_string(), true);
     add("مقطع", "Media Type", it.type_label().to_string(), false);
     let col = |c: &str| filmcraft_project::find::column_text(p, it, c);

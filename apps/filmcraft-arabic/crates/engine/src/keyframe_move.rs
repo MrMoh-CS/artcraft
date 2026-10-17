@@ -2,7 +2,7 @@
 //! relative timing intact, including at the clip boundaries. Selection itself is a UI concern.
 use std::collections::{BTreeMap, HashSet};
 
-use filmcraft_project::{ClipId, Keyframe, Param, Sequence, TrackItem};
+use filmcraft_project::{ClipId, Keyframe, Param, تسلسل، TrackItem};
 use filmcraft_time::Tick;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -25,7 +25,7 @@ struct Key {
 
 type Lane = (u64, usize, Option<usize>, String);
 
-fn param_mut<'a>(sequence: &'a mut Sequence, lane: &Lane) -> Result<&'a mut Param> {
+fn param_mut<'a>(sequence: &'a mut تسلسل، lane: &Lane) -> Result<&'a mut Param> {
     let (_, it) = sequence.find_item_mut(ClipId(lane.0)).ok_or_else(|| bad(COMMAND, "clip does not exist"))?;
     let effect = it.effects.get_mut(lane.1).ok_or_else(|| bad(COMMAND, "effect does not exist"))?;
     match lane.2 {

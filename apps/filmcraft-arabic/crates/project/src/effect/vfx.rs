@@ -18,7 +18,7 @@ pub(super) const OBSOLETE: &[&str] = &["Video Effects", "Obsolete"];
 pub(super) const LEGACY: &[&str] = &["Legacy", "Video Effects"];
 
 /// Track choices for effects that read another video track (Track Matte Key, Compound Blur…).
-pub const TRACK_CHOICES: &[&str] = &["None", "Video 1", "Video 2", "Video 3", "Video 4", "Video 5", "Video 6", "Video 7", "Video 8"];
+pub const TRACK_CHOICES: &[&str] = &["None", "فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4", "فيديو 5", "فيديو 6", "فيديو 7", "فيديو 8"];
 /// Equirectangular frame layouts for the Immersive Video effects.
 pub const FRAME_LAYOUTS: &[&str] = &["Monoscopic", "Stereoscopic - Over/Under", "Stereoscopic - Side by Side"];
 /// Easing for the animated Transform presets (Grow, Shrink, Move, Spin).
@@ -364,7 +364,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 grp(fs("cycle_revs", "Cycle (in Revolutions)", 1.0, (1.0, 100.0), (1.0, 20.0), "", 0), "Evolution Options"),
                 grp(seed(), "Evolution Options"),
                 ch("pinning", "Pinning", &["None", "Pin All", "Pin Horizontal", "Pin Vertical"], 1),
-                ch("antialias", "Antialiasing for Best Quality", &["Low", "High"], 0),
+                ch("antialias", "Antialiasing for Best Quality", &["Low", "عالي"], 0),
             ],
         ),
         video(
@@ -611,7 +611,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             "Roughen Edges",
             STYLIZE,
             vec![
-                ch("edge_type", "Edge Type", &["Roughen", "Roughen Color", "Cut", "Spiky", "Rusty", "Rusty Color", "Photocopy", "Photocopy Color"], 0),
+                ch("edge_type", "Edge Type", &["Roughen", "Roughen Color", "قص", "Spiky", "Rusty", "Rusty Color", "Photocopy", "Photocopy Color"], 0),
                 col("edge_color", "Edge Color", [0.8, 0.5, 0.2, 1.0]),
                 px("border", "Border", 8.0, 500.0, 100.0),
                 fs("sharpness", "Edge Sharpness", 1.0, (0.0, 10.0), (0.0, 10.0), "", 2),
@@ -625,7 +625,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             ],
         ),
         // ---- Time ----
-        video("posterize_time", "Posterize Time", TIME, vec![fs("rate", "Frame Rate", 12.0, (0.1, 99.0), (1.0, 60.0), "", 2)]),
+        video("posterize_time", "Posterize Time", TIME, vec![fs("rate", "معدل الإطارات", 12.0, (0.1, 99.0), (1.0, 60.0), "", 2)]),
         // ---- Transform ----
         video(
             "rotate_3d",
@@ -648,7 +648,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 ch("preset", "Motion Preset", &["Slower Motion", "Default", "Faster Motion"], 1),
                 pt("offset", "Reframe Offset", 0.0, 0.0),
                 fs("zoom", "Reframe Zoom", 100.0, (100.0, 400.0), (100.0, 200.0), "%", 1),
-                ch("aspect", "Target Aspect", &["Sequence", "Vertical 9:16", "Square 1:1", "Vertical 4:5", "Horizontal 16:9"], 0),
+                ch("aspect", "Target Aspect", &["التسلسل", "Vertical 9:16", "Square 1:1", "Vertical 4:5", "Horizontal 16:9"], 0),
             ],
         ),
         video(
@@ -792,7 +792,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             "Metadata & Timecode Burn-in",
             VIDEO,
             vec![
-                ch("source", "Source", &["Sequence Timecode", "Media Timecode", "Clip Name", "File Name", "Frame Count", "Sequence Name"], 0),
+                ch("source", "المصدر", &["Sequence Timecode", "Media Timecode", "Clip Name", "اسم الملف", "Frame Count", "Sequence Name"], 0),
                 pt("position", "Position", f64::NAN, f64::NAN),
                 ch("alignment", "Alignment", &["Bottom Center", "Bottom Left", "Bottom Right", "Top Center", "Top Left", "Top Right", "Custom"], 0),
                 fs("size", "Size", 6.0, (1.0, 100.0), (1.0, 30.0), "%", 1),
@@ -843,7 +843,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
                 ch("pattern", "Cell Pattern", &["Bubbles", "Crystals", "Plates", "Static Plates", "Crystallize", "Pillow", "Mixed Crystals", "Tubular"], 0),
                 b("invert", "Invert", false),
                 fs("contrast", "Contrast", 100.0, (0.0, 10000.0), (0.0, 400.0), "", 1),
-                ch("overflow", "Overflow", &["Clip", "Soft Clamp", "Wrap Back"], 0),
+                ch("overflow", "Overflow", &["مقطع", "Soft Clamp", "Wrap Back"], 0),
                 fs("disperse", "Disperse", 1.0, (0.0, 1.5), (0.0, 1.5), "", 2),
                 px("size", "Size", 60.0, 2000.0, 200.0),
                 pt("offset", "Offset", 0.0, 0.0),
@@ -1077,7 +1077,7 @@ pub(super) fn extend_core(v: &mut [EffectDef]) {
                 grp(f("contrast", "Contrast", 0.0, 0.0, 100.0, ""), "Matte Cleanup"),
                 grp(f("mid_point", "Mid Point", 50.0, 0.0, 100.0, ""), "Matte Cleanup"),
                 grp(f("desaturate", "Desaturate", 25.0, 0.0, 100.0, ""), "Spill Suppression"),
-                grp(f("range", "Range", 50.0, 0.0, 100.0, ""), "Spill Suppression"),
+                grp(f("range", "النطاق", 50.0, 0.0, 100.0, ""), "Spill Suppression"),
                 grp(f("spill_luma", "Luma", 50.0, 0.0, 100.0, ""), "Spill Suppression"),
                 grp(fs("cc_saturation", "Saturation", 100.0, (0.0, 200.0), (0.0, 200.0), "", 1), "Color Correction"),
                 grp(ang("cc_hue", "Hue", 0.0), "Color Correction"),
@@ -1097,7 +1097,7 @@ pub(super) fn extend_core(v: &mut [EffectDef]) {
             "noise" => e.params.push(fs("grain_size", "Grain Size", 1.0, (1.0, 10.0), (1.0, 6.0), "", 1)),
             "mosaic" => e.params.push(pct("softness", "Softness", 0.0)),
             "simple_text" => e.params.extend([
-                ParamDef { default: ParamValue::Text("Simple Text".into()), ..txt("text", "Text") },
+                ParamDef { default: ParamValue::Text("Simple Text".into()), ..txt("text", "النص") },
                 pt("position", "Position", f64::NAN, f64::NAN),
                 fs("size", "Size", 64.0, (1.0, 1000.0), (4.0, 300.0), "", 0),
                 ch("font", "Font", &["Inter", "JetBrains Mono"], 0),
@@ -1226,7 +1226,7 @@ mod tests {
             ],
         ),
         ("Utility", &["Auto Align", "Cineon Converter", "Clone", "Simple Text", "Stroke"]),
-        ("Video", &["Metadata & Timecode Burn-in"]),
+        ("الفيديو", &["Metadata & Timecode Burn-in"]),
     ];
 
     const LEGACY_NAMES: &[&str] = &[

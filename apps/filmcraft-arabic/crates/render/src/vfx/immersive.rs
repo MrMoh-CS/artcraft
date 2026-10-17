@@ -1,4 +1,4 @@
-//! Immersive Video (VR) effects on equirectangular frames.
+//! Immersive Video (VR) effects on equirectangular إطار.
 //!
 //! Every effect treats each view (the whole frame, or the two halves of an over/under or
 //! side-by-side stereoscopic layout) as a full sphere: x is longitude −180°…180° (wrapping), y is

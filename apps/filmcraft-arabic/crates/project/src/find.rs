@@ -91,10 +91,10 @@ pub struct SearchBin {
 /// The columns offered by the Find dialog, in its order (metadata fields after the built-ins).
 pub const COLUMNS: [&str; 15] = [
     "All",
-    "Name",
+    "الاسم",
     "Label",
     "Media Type",
-    "Frame Rate",
+    "معدل الإطارات",
     "Media Duration",
     "Video Info",
     "Audio Info",
@@ -216,24 +216,24 @@ mod tests {
     #[test]
     fn operators_columns_and_match_modes() {
         let (p, a, b) = project();
-        assert_eq!(FindQuery::simple("Name", FindOp::Contains, "beach").find(&p), vec![b]);
-        assert_eq!(FindQuery::simple("Name", FindOp::BeginsWith, "inter").find(&p), vec![a]);
-        assert_eq!(FindQuery::simple("Name", FindOp::EndsWith, " a").find(&p), vec![a]);
-        assert_eq!(FindQuery::simple("Name", FindOp::Matches, "b-roll beach").find(&p), vec![b]);
-        assert!(FindQuery::simple("Name", FindOp::Matches, "b-roll").find(&p).is_empty());
-        assert_eq!(FindQuery::simple("Name", FindOp::DoesNotContain, "beach").find(&p), vec![a]);
+        assert_eq!(FindQuery::simple("الاسم", FindOp::Contains, "beach").find(&p), vec![b]);
+        assert_eq!(FindQuery::simple("الاسم", FindOp::BeginsWith, "inter").find(&p), vec![a]);
+        assert_eq!(FindQuery::simple("الاسم", FindOp::EndsWith, " a").find(&p), vec![a]);
+        assert_eq!(FindQuery::simple("الاسم", FindOp::Matches, "b-roll beach").find(&p), vec![b]);
+        assert!(FindQuery::simple("الاسم", FindOp::Matches, "b-roll").find(&p).is_empty());
+        assert_eq!(FindQuery::simple("الاسم", FindOp::DoesNotContain, "beach").find(&p), vec![a]);
         assert_eq!(FindQuery::simple("Scene", FindOp::Matches, "12").find(&p), vec![a]);
         assert_eq!(FindQuery::simple("Label", FindOp::Matches, "mango").find(&p), vec![b]);
         assert_eq!(FindQuery::simple("All", FindOp::Contains, "waves").find(&p), vec![b]);
         assert_eq!(FindQuery::simple("Media Type", FindOp::Matches, "sequence").find(&p), vec![a, b]);
         // case sensitivity
-        let mut q = FindQuery::simple("Name", FindOp::Contains, "beach");
+        let mut q = FindQuery::simple("الاسم", FindOp::Contains, "beach");
         q.case_sensitive = true;
         assert!(q.find(&p).is_empty());
         // all vs any
         let mut q = FindQuery {
             rows: vec![
-                FindRow { column: "Name".into(), op: FindOp::Contains, text: "a".into() },
+                FindRow { column: "الاسم".into(), op: FindOp::Contains, text: "a".into() },
                 FindRow { column: "Scene".into(), op: FindOp::Matches, text: "12".into() },
             ],
             match_all: true,

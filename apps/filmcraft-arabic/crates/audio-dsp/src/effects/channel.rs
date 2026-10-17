@@ -188,7 +188,7 @@ pub struct Invert {
 }
 
 impl Invert {
-    pub const PARAMS: &'static [ParamSpec] = &[ParamSpec::choice("channels", "Channels", &["All", "Left", "Right"], 0)];
+    pub const PARAMS: &'static [ParamSpec] = &[ParamSpec::choice("channels", "القنوات", &["All", "Left", "Right"], 0)];
     pub fn new(_sample_rate: f32, _channels: usize) -> Self {
         Invert { pv: ParamValues::new(Self::PARAMS) }
     }

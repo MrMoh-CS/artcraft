@@ -1,8 +1,8 @@
-//! Video frames and audio buffers.
+//! Video إطار and audio buffers.
 //!
 //! - [`VideoFrame`]: decoded or rendered pictures. Planar Y'CbCr (8 or 16-bit containers) straight
 //!   from decoders, sRGB-encoded RGBA8 from stills/generators, or linear premultiplied RGBA f32 in the
-//!   compositor. Pixel data is `Arc`-shared so caches, monitors and export share frames for free.
+//!   compositor. Pixel data is `Arc`-shared so caches, monitors and export share إطار for free.
 //! - [`AudioBuffer`]: planar f32 samples.
 
 #![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable))]
@@ -137,7 +137,7 @@ impl VideoFrame {
     /// A planar Y'CbCr frame reduced by `n` (2, 4, 8…) in each direction: every sample (luma,
     /// chroma at its own resolution, alpha) is the rounded mean of an `n`×`n` block, chroma format
     /// and bit depth unchanged. Reduced-resolution playback hands the GPU this instead of the full
-    /// picture (a quarter / sixteenth of the upload). None for RGBA frames or `n` < 2.
+    /// picture (a quarter / sixteenth of the upload). None for RGBA إطار or `n` < 2.
     pub fn box_decimated(&self, n: usize) -> Option<VideoFrame> {
         if n < 2 {
             return None;
@@ -180,7 +180,7 @@ impl VideoFrame {
     }
 
     /// The part of the frame inside `region` (a container's clean aperture). The region is clipped
-    /// to the frame; on Y'CbCr frames its corner is moved up / left onto the chroma grid (at most
+    /// to the frame; on Y'CbCr إطار its corner is moved up / left onto the chroma grid (at most
     /// one sample, keeping its size where the frame allows), so chroma is cut where luma is. An empty
     /// region, or one covering the whole frame, leaves the frame as it is.
     pub fn cropped(&self, region: Region) -> VideoFrame {
@@ -283,7 +283,7 @@ impl VideoFrame {
 
     /// Like [`VideoFrame::to_linear_f32_decimated`], decoding each channel's signal through
     /// `decode` (a colour-managed curve: log, PQ, HLG scene light…) instead of the frame's
-    /// transfer. Float frames are already linear and ignore it.
+    /// transfer. Float إطار are already linear and ignore it.
     pub fn to_linear_f32_decimated_with(&self, n: usize, decode: Option<&DecodeTable>) -> (usize, usize, Vec<f32>) {
         let n = n.max(1);
         let (ow, oh) = self.decimated_size(n);
@@ -583,10 +583,10 @@ pub struct AudioBuffer {
 }
 
 impl AudioBuffer {
-    pub fn silence(sample_rate: u32, channels: usize, frames: usize) -> Self {
-        Self { sample_rate, channels: vec![vec![0.0; frames]; channels] }
+    pub fn silence(sample_rate: u32, channels: usize, إطار: usize) -> Self {
+        Self { sample_rate, channels: vec![vec![0.0; إطار]; channels] }
     }
-    pub fn frames(&self) -> usize {
+    pub fn إطار(&self) -> usize {
         self.channels.first().map_or(0, Vec::len)
     }
     pub fn channel_count(&self) -> usize {

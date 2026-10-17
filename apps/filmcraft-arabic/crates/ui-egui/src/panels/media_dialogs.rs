@@ -174,7 +174,7 @@ fn link_media(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.add_space(6.0);
                 egui::ScrollArea::both().id_salt("link-media-rows-scroll").max_height(rows_max_h).auto_shrink([false, true]).show(ui, |ui| {
                     egui::Grid::new("link-media-rows").num_columns(4).striped(true).spacing([14.0, 4.0]).show(ui, |ui| {
-                        for h in [tl!("Clip Name"), tl!("File Name"), tl!("File Path"), tl!("Status")] {
+                        for h in [tl!("Clip Name"), tl!("اسم الملف"), tl!("File Path"), tl!("Status")] {
                             ui.label(RichText::new(h).strong());
                         }
                         ui.end_row();
@@ -197,7 +197,7 @@ fn link_media(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal_wrapped(|ui| {
                     ui.label(tl!("Match file properties:"));
                     for (id, label, v) in [
-                        ("fileName", tl!("File Name"), &mut d.file_name),
+                        ("fileName", tl!("اسم الملف"), &mut d.file_name),
                         ("extension", tl!("File Extension"), &mut d.extension),
                         ("clipId", tl!("Clip ID (fingerprint)"), &mut d.clip_id),
                         ("duration", tl!("Duration"), &mut d.duration),
@@ -279,7 +279,7 @@ fn link_media(app: &mut FilmcraftApp, ctx: &egui::Context) {
             });
             ui.add_space(6.0);
             ui.horizontal_wrapped(|ui| {
-                for (id, label) in [("offlineAll", tl!("Offline All")), ("offline", tl!("Offline")), ("cancel", tl!("Cancel")), ("locate", tl!("Locate…"))] {
+                for (id, label) in [("offlineAll", tl!("Offline All")), ("offline", tl!("Offline")), ("cancel", tl!("إلغاء")), ("locate", tl!("Locate…"))] {
                     let r = ui.button(label);
                     push(&mut elems, format!("linkMedia.{id}"), &r, label);
                     if r.clicked() {
@@ -389,11 +389,11 @@ fn make_offline(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 delete = true;
             }
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Cancel"));
-                push(&mut elems, "makeOffline.cancel", &r, "Cancel");
+                let r = ui.button(tl!("إلغاء"));
+                push(&mut elems, "makeOffline.cancel", &r, "إلغاء");
                 keep &= !r.clicked();
-                let r = ui.button(tl!("OK"));
-                push(&mut elems, "makeOffline.ok", &r, "OK");
+                let r = ui.button(tl!("موافق"));
+                push(&mut elems, "makeOffline.ok", &r, "موافق");
                 ok = r.clicked();
             });
         });
@@ -444,11 +444,11 @@ fn create_proxies(app: &mut FilmcraftApp, ctx: &egui::Context) {
             });
             ui.label(RichText::new(tl!("Proxies are made in the background and attached when done. Export always uses full-resolution media.")).weak());
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Cancel"));
-                push(&mut elems, "proxies.cancel", &r, "Cancel");
+                let r = ui.button(tl!("إلغاء"));
+                push(&mut elems, "proxies.cancel", &r, "إلغاء");
                 keep &= !r.clicked();
-                let r = ui.add(egui::Button::new(RichText::new(tl!("OK")).color(Color32::WHITE)).fill(app.tokens.accent));
-                push(&mut elems, "proxies.ok", &r, "OK");
+                let r = ui.add(egui::Button::new(RichText::new(tl!("موافق")).color(Color32::WHITE)).fill(app.tokens.accent));
+                push(&mut elems, "proxies.ok", &r, "موافق");
                 ok = r.clicked();
             });
         });
@@ -542,8 +542,8 @@ fn project_manager(app: &mut FilmcraftApp, ctx: &egui::Context) {
             ui.horizontal(|ui| {
                 ui.add_enabled_ui(d.mode == "consolidate", |ui| {
                     ui.label(tl!("Include Handles:"));
-                    let r = ui.add(crate::widgets::number_drag(&mut d.handles).range(0..=600).suffix(tl!(" frames")));
-                    push(&mut elems, "pm.handles", &r, format!("{} frames", d.handles));
+                    let r = ui.add(crate::widgets::number_drag(&mut d.handles).range(0..=600).suffix(tl!(" إطار")));
+                    push(&mut elems, "pm.handles", &r, format!("{} إطار", d.handles));
                 });
             });
             ui.add_enabled_ui(d.mode == "collect", |ui| {
@@ -576,14 +576,14 @@ fn project_manager(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.colored_label(Color32::from_rgb(0xe0, 0x8a, 0x6a), &d.message);
             }
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Cancel"));
-                push(&mut elems, "pm.cancel", &r, "Cancel");
+                let r = ui.button(tl!("إلغاء"));
+                push(&mut elems, "pm.cancel", &r, "إلغاء");
                 keep &= !r.clicked();
                 let r = ui.add_enabled(
                     !d.destination.is_empty() && !d.sequences.is_empty(),
-                    egui::Button::new(RichText::new(tl!("OK")).color(Color32::WHITE)).fill(app.tokens.accent),
+                    egui::Button::new(RichText::new(tl!("موافق")).color(Color32::WHITE)).fill(app.tokens.accent),
                 );
-                push(&mut elems, "pm.ok", &r, "OK");
+                push(&mut elems, "pm.ok", &r, "موافق");
                 ok = r.clicked();
             });
         });

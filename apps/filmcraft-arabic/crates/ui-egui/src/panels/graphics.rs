@@ -1594,7 +1594,7 @@ pub fn properties(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         }
         // ---- text
         let text_open = e.effect == graphic::TEXT_LAYER && {
-            let (open, head) = section_header(ui, app, "Text", &t);
+            let (open, head) = section_header(ui, app, "النص", &t);
             // Text Properties: the layer type (point / paragraph) and text styling
             let wr = Rect::from_center_size(pos2(head.max.x - 16.0, head.center().y), vec2(22.0, 22.0));
             let wresp = ui.interact(wr, egui::Id::new(("gfx-text-props", clip.0, l)), Sense::click());
@@ -1843,11 +1843,11 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
         elems.push(("graphics.textProperties.ligatures".into(), r.rect, "Ligatures"));
         ui.add_space(6.0);
         ui.horizontal(|ui| {
-            let r = ui.button(tl!("Cancel"));
-            elems.push(("graphics.textProperties.cancel".into(), r.rect, "Cancel"));
+            let r = ui.button(tl!("إلغاء"));
+            elems.push(("graphics.textProperties.cancel".into(), r.rect, "إلغاء"));
             close |= r.clicked();
-            let r = ui.button(tl!("OK"));
-            elems.push(("graphics.textProperties.ok".into(), r.rect, "OK"));
+            let r = ui.button(tl!("موافق"));
+            elems.push(("graphics.textProperties.ok".into(), r.rect, "موافق"));
             ok |= r.clicked();
         });
     });

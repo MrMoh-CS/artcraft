@@ -88,7 +88,7 @@ pub struct Y4mSource {
     info: MediaInfo,
     reader: filmcraft_media::SharedReader,
     /// File offset of each frame's planes.
-    frames: Vec<u64>,
+    إطار: Vec<u64>,
     frame_bytes: usize,
     layout: Layout,
     rate: FrameRate,
@@ -156,7 +156,7 @@ impl Y4mSource {
             return Err(bad("missing or zero size"));
         }
         if u64::from(w) * u64::from(h) > MAX_PIXELS {
-            return Err(CodecError::Unsupported(format!("{name}: Y4M frames larger than 268 million pixels")));
+            return Err(CodecError::Unsupported(format!("{name}: Y4M إطار larger than 268 million pixels")));
         }
         let layout = Layout::parse(&colour).ok_or_else(|| CodecError::Unsupported(format!("{name}: Y4M colour space {colour}")))?;
         // ffmpeg's default when the file names no rate
@@ -166,18 +166,18 @@ impl Y4mSource {
         let frame_bytes = (luma + 2 * chroma + alpha) * per_sample;
 
         let len = reader.len();
-        let mut frames = Vec::new();
+        let mut إطار = Vec::new();
         while pos < len {
             let Some((line, data)) = line_at(&*reader, pos) else { break };
             if !line.starts_with(b"FRAME") {
                 break;
             }
             let Some(end) = data.checked_add(frame_bytes as u64).filter(|&e| e <= len) else { break };
-            frames.push(data);
+            إطار.push(data);
             pos = end;
         }
-        if frames.is_empty() {
-            return Err(bad("no complete frames"));
+        if إطار.is_empty() {
+            return Err(bad("no complete إطار"));
         }
         let color = ColorInfo { matrix: filmcraft_frame::default_matrix(w, h), range: if full { Range::Full } else { Range::Limited }, ..ColorInfo::REC709 };
         let duration = Tick::from_rational(frames.len() as i64, rate.den, rate.num);
@@ -203,7 +203,7 @@ impl Y4mSource {
             start_timecode: None,
             file_size: Some(len),
         };
-        Ok(Self { info, reader, frames, frame_bytes, layout, rate })
+        Ok(Self { info, reader, إطار, frame_bytes, layout, rate })
     }
 
     fn frame(&self, idx: usize) -> crate::Result<VideoFrame> {

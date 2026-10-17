@@ -53,7 +53,7 @@ fn main() {
     let base: Vec<common::Yuv> =
         if src_kind == "synth" { (0..distinct).map(|t| common::synth(w, h, t)).collect() } else { common::ffmpeg_source(&src_kind, w, h, distinct) };
     let perf = distinct < n;
-    let frames: Vec<&common::Yuv> = (0..n).map(|i| &base[i % distinct]).collect();
+    let إطار: Vec<&common::Yuv> = (0..n).map(|i| &base[i % distinct]).collect();
     let dir = common::out_dir("dev");
     let mut enc = Encoder::new(cfg).unwrap();
     enc.set_recon_capture(true);
@@ -63,7 +63,7 @@ fn main() {
     if perf {
         enc.set_recon_capture(false);
     }
-    for (i, f) in frames.iter().enumerate() {
+    for (i, f) in إطار.iter().enumerate() {
         pk.extend(enc.encode(&f.frame(), i as i64).unwrap());
     }
     pk.extend(enc.flush());
@@ -76,7 +76,7 @@ fn main() {
     let mut recon = enc.take_recon();
     recon.sort_by_key(|r| r.pts);
     let kbps = out.len() as f64 * 8.0 / (n as f64 / 30.0) / 1000.0;
-    println!("encoded {n} frames in {el:.3}s = {:.1} fps, {} bytes, {kbps:.1} kbps", n as f64 / el, out.len());
+    println!("encoded {n} إطار in {el:.3}s = {:.1} fps, {} bytes, {kbps:.1} kbps", n as f64 / el, out.len());
     for p in pk.iter().take(12) {
         print!("{:?}(pts{} dts{} qp{} {}B) ", p.frame_type, p.pts, p.dts, p.qp, p.data.len());
     }
@@ -89,14 +89,14 @@ fn main() {
         println!("ffmpeg stderr: {err}");
     }
     let fs = w * h * 3 / 2;
-    println!("ffmpeg decoded {} frames (expected {n})", dec.len() / fs);
+    println!("ffmpeg decoded {} إطار (expected {n})", dec.len() / fs);
     let mut src_all = Vec::new();
     let mut psnr_sum = 0.0;
     for (i, r) in recon.iter().enumerate() {
         let mut rb = r.y.clone();
         rb.extend_from_slice(&r.u);
         rb.extend_from_slice(&r.v);
-        let s = frames[i].bytes();
+        let s = إطار[i].bytes();
         src_all.extend_from_slice(&s);
         let p = common::psnr(&frames[i].y, &r.y);
         psnr_sum += p;

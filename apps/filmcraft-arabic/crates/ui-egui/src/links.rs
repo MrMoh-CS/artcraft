@@ -20,9 +20,9 @@ pub const ISSUES: &str = "https://github.com/storytold/filmcraft/issues";
 /// (command id, label, url) for every link, in menu order.
 pub const ALL: [(&str, &str, &str); 5] = [
     ("help.discord", "Join the ArtCraft Discord…", DISCORD),
-    ("help.website", "ArtCraft Website", WEBSITE),
-    ("help.appPage", "FilmCraft on getartcraft.com", APP_PAGE),
-    ("help.github", "FilmCraft on GitHub", GITHUB),
+    ("help.website", "موقع آرت كرافت", WEBSITE),
+    ("help.appPage", "فيلم كرافت على الموقع الرسمي", APP_PAGE),
+    ("help.github", "فيلم كرافت على جيت هب", GITHUB),
     ("help.reportIssue", "Report an Issue…", ISSUES),
 ];
 
@@ -188,7 +188,7 @@ mod tests {
         let at = |app: &crate::FilmcraftApp, id: &str| {
             app.auto.elements.iter().find(|e| e.id == id).map(|e| egui::pos2(e.rect[0] + e.rect[2] / 2.0, e.rect[1] + e.rect[3] / 2.0)).unwrap()
         };
-        // press and release on separate frames; returns what was copied
+        // press and release on separate إطار; returns what was copied
         let click = |app: &mut crate::FilmcraftApp, p: egui::Pos2| {
             let b = |pressed| egui::Event::PointerButton { pos: p, button: egui::PointerButton::Primary, pressed, modifiers: Default::default() };
             let mut copied: Vec<String> = Vec::new();
@@ -201,7 +201,7 @@ mod tests {
         };
         let copy = at(&app, "failedLink.copy");
         assert_eq!(click(&mut app, copy), [GITHUB]);
-        // other frames (another window in front) don't close it; Close does
+        // other إطار (another window in front) don't close it; Close does
         for _ in 0..3 {
             frame(&mut app, Vec::new());
         }

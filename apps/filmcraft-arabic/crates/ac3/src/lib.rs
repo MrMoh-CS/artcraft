@@ -651,7 +651,7 @@ fn mantissa(r: &mut Bits, bap: u8, gr: &mut Groups) -> f32 {
     }
 }
 
-/// A decoder: keeps the overlap of each channel between frames.
+/// A decoder: keeps the overlap of each channel between إطار.
 pub struct Decoder {
     delay: [[f32; 256]; 6],
     dither: u32,

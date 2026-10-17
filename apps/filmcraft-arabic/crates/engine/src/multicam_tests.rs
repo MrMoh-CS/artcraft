@@ -11,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use filmcraft_media::DemoScene;
-use filmcraft_project::{ItemId, Marker, MarkerId, MarkerKind, MulticamAudio, Sequence, TrackItem};
+use filmcraft_project::{ItemId, Marker, MarkerId, MarkerKind, MulticamAudio, تسلسل، TrackItem};
 use filmcraft_time::{FrameRate, TICKS_PER_SECOND, Tick};
 use serde_json::{Value, json};
 
@@ -128,7 +128,7 @@ fn event_time(ti: &TrackItem, start: i64, m: i64) -> Tick {
     ti.start + (media - ti.source_in)
 }
 
-fn find_clip(q: &Sequence, item: ItemId, video: bool) -> &TrackItem {
+fn find_clip(q: &تسلسل، item: ItemId, video: bool) -> &TrackItem {
     let tracks = if video { &q.video_tracks } else { &q.audio_tracks };
     tracks.iter().flat_map(|t| t.items.iter()).find(|i| i.item == item).unwrap_or_else(|| panic!("no clip of {item:?}"))
 }
@@ -207,7 +207,7 @@ fn timecode_marker_and_in_point_sync_within_one_frame() {
     // timecode: A 01:00:00:00, B 01:00:02:12 = 2.5 s later (the true offset is 2.5257 s)
     let r = on_items(&mut s, "clip.createMulticam", &items, json!({"method": "timecode"})).unwrap();
     let off = offset_of(&s, &r);
-    assert_eq!(off, rate.tick_of(60), "timecode offset is exactly 60 frames");
+    assert_eq!(off, rate.tick_of(60), "timecode offset is exactly 60 إطار");
     assert!((off - truth).abs() <= rate.frame_duration(), "within a frame of the truth");
     // ignoring hours gives the same result here
     let r = on_items(&mut s, "clip.createMulticam", &items, json!({"method": "timecode", "ignoreHours": true})).unwrap();
@@ -305,14 +305,14 @@ fn timeline_synchronize_by_audio_and_timecode() {
         let c = find_clip(&q, it, false);
         let d = (event_time(c, start, m) - event_time(ca, START_A, m)).abs();
         assert!(d <= SAMPLE, "timeline sync error {} samples", d.0 as f64 / SAMPLE.0 as f64);
-        assert_eq!(c.start, rate.snap(c.start), "moved clips stay on frames");
+        assert_eq!(c.start, rate.snap(c.start), "moved clips stay on إطار");
     }
     let vb = find_clip(&q, items[1], true);
     let ab = find_clip(&q, items[1], false);
     assert_eq!((vb.start, vb.source_in), (ab.start, ab.source_in), "linked partners moved together");
     s.execute("edit.undo", json!({})).unwrap();
     assert_eq!(find_clip(s.active_sequence().unwrap(), items[1], false).start, rate.tick_of(480));
-    // timecode: B lands exactly 60 frames after A
+    // timecode: B lands exactly 60 إطار after A
     s.execute("timeline.select", json!({"clips": all})).unwrap();
     let r = s.execute("clip.synchronize", json!({"method": "timecode", "track": "V1"})).unwrap();
     assert!(r["moved"].as_u64().unwrap() >= 1);
@@ -659,8 +659,8 @@ impl filmcraft_media::MediaSource for Recording {
         self.scales.lock().unwrap().push(req.scale);
         self.inner.video_frame(req)
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-        self.inner.audio(start, frames, sample_rate)
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        self.inner.audio(start, إطار, sample_rate)
     }
 }
 
@@ -817,7 +817,7 @@ fn perf_grid_of_four_1080p_angles() {
         (s, ItemId(r["sequence"].as_u64().unwrap()))
     };
     let rate = FrameRate::FPS_24;
-    let frames = 72;
+    let إطار = 72;
     let (s, src) = setup();
     let provider = s.media.provider(s.project.clone(), s.services.clone());
     let q = s.project.sequence(src).unwrap().clone();
@@ -826,7 +826,7 @@ fn perf_grid_of_four_1080p_angles() {
         let opts = filmcraft_render::RenderOptions { scale: 0.5, ..Default::default() };
         let _ = filmcraft_render::multicam::render_angle(&s.project, &q, 0, rate.tick_of(f), opts, &provider);
     }
-    let one_ms = t0.elapsed().as_secs_f64() * 1000.0 / frames as f64;
+    let one_ms = t0.elapsed().as_secs_f64() * 1000.0 / إطار as f64;
     let (s, src) = setup();
     let provider = s.media.provider(s.project.clone(), s.services.clone());
     let cpu0 = crate::multicam_tests::process_cpu();
@@ -835,8 +835,8 @@ fn perf_grid_of_four_1080p_angles() {
         let (g, _) = filmcraft_render::multicam::render_grid(&s.project, src, rate.tick_of(f), 0.25, &provider).unwrap();
         assert_eq!((g.w, g.h), (960, 540));
     }
-    let grid_ms = t0.elapsed().as_secs_f64() * 1000.0 / frames as f64;
-    let grid_cpu = (crate::multicam_tests::process_cpu() - cpu0) * 1000.0 / frames as f64;
+    let grid_ms = t0.elapsed().as_secs_f64() * 1000.0 / إطار as f64;
+    let grid_cpu = (crate::multicam_tests::process_cpu() - cpu0) * 1000.0 / إطار as f64;
     eprintln!(
         "Multi-Camera grid (4 × 1080p H.264, ¼-scale cells): {grid_ms:.1} ms/frame wall, {grid_cpu:.1} ms/frame CPU; one angle at ½ scale: {one_ms:.1} ms/frame wall (24 fps budget 41.7 ms)"
     );

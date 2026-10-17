@@ -92,7 +92,7 @@ fn files_in(dir: &Path) -> Vec<String> {
 #[test]
 fn image_sequences_are_numbered_like_premiere() {
     let (p, seq, m) = matte([1.0, 0.0, 0.0, 1.0], 320, 180, None);
-    for (fmt, ext) in [(Format::PngSequence, "png"), (Format::TiffSequence, "tif"), (Format::BmpSequence, "bmp")] {
+    for (fmt, ext) in [(Format::Pngتسلسل، "png"), (Format::Tiffتسلسل، "tif"), (Format::Bmpتسلسل، "bmp")] {
         let dir = Scratch::new(&format!("seq-{ext}"));
         let mut s = ExportSettings { format: fmt, path: dir.path(&format!("Shot 01.{ext}")), scale: 0.5, ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(12)));
@@ -116,11 +116,11 @@ fn jpeg_targa_and_dpx_sequences() {
     let (p, seq, m) = matte([0.0, 0.0, 1.0, 0.5], 64, 36, None);
     let mut jpeg_sizes = Vec::new();
     for (fmt, ext, alpha, quality) in [
-        (Format::JpegSequence, "jpg", false, 95),
-        (Format::JpegSequence, "jpg", false, 20),
-        (Format::TgaSequence, "tga", false, 90),
-        (Format::TgaSequence, "tga", true, 90),
-        (Format::DpxSequence, "dpx", false, 90),
+        (Format::Jpegتسلسل، "jpg", false, 95),
+        (Format::Jpegتسلسل، "jpg", false, 20),
+        (Format::Tgaتسلسل، "tga", false, 90),
+        (Format::Tgaتسلسل، "tga", true, 90),
+        (Format::Dpxتسلسل، "dpx", false, 90),
     ] {
         let dir = Scratch::new(&format!("seq3-{ext}-{alpha}-{quality}"));
         let mut s = ExportSettings { format: fmt, path: dir.path(&format!("Shot.{ext}")), alpha, quality, ..Default::default() };
@@ -167,7 +167,7 @@ fn openexr_sequences() {
     let (p, seq, m) = matte([0.0, 0.0, 1.0, 0.5], 64, 36, None);
     for alpha in [false, true] {
         let dir = Scratch::new(&format!("seq-exr-{alpha}"));
-        let mut s = ExportSettings { format: Format::ExrSequence, path: dir.path("Shot.exr"), alpha, ..Default::default() };
+        let mut s = ExportSettings { format: Format::Exrتسلسل، path: dir.path("Shot.exr"), alpha, ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(3)));
         assert_eq!(Format::from_name("OpenEXR"), Some(Format::ExrSequence));
         assert!(s.is_image_sequence() && s.supports_alpha() && s.keeps_alpha() == alpha && !s.has_audio());
@@ -211,7 +211,7 @@ fn openexr_sequences_compress() {
     let mut files = Vec::new();
     for c in ExrCompression::ALL {
         let dir = Scratch::new(&format!("seq-exr-{c:?}"));
-        let mut s = ExportSettings { format: Format::ExrSequence, path: dir.path("c.exr"), alpha: true, exr_compression: c, ..Default::default() };
+        let mut s = ExportSettings { format: Format::Exrتسلسل، path: dir.path("c.exr"), alpha: true, exr_compression: c, ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(1)));
         export(&p, seq, &s, &m, &Progress::default()).unwrap();
         let path = dir.0.join("c000.exr");
@@ -242,7 +242,7 @@ fn openexr_sequences_compress() {
 #[test]
 fn image_sequences_keep_alpha_when_asked() {
     let (p, seq, m) = matte([0.0, 0.0, 1.0, 0.5], 64, 36, None);
-    for (fmt, ext) in [(Format::PngSequence, "png"), (Format::TiffSequence, "tif")] {
+    for (fmt, ext) in [(Format::Pngتسلسل، "png"), (Format::Tiffتسلسل، "tif")] {
         for alpha in [false, true] {
             let dir = Scratch::new(&format!("alpha-{ext}-{alpha}"));
             let mut s = ExportSettings { format: fmt, path: dir.path(&format!("a.{ext}")), alpha, ..Default::default() };
@@ -361,7 +361,7 @@ fn aac_audio_writes_m4a_and_adts() {
         pos += len;
         units += 1;
     }
-    assert!(units >= 44_100 / 1024, "{units} frames");
+    assert!(units >= 44_100 / 1024, "{units} إطار");
     assert!((0.2..0.5).contains(&rms(&pcm)), "rms {}", rms(&pcm));
     if let Some(j) = ffprobe_json(&["-show_streams", "-show_format"], &adts) {
         assert_eq!(j["format"]["format_name"], "aac");
@@ -490,7 +490,7 @@ fn flac_is_lossless_against_wav() {
 fn flac_audio_in_mp4_and_mov() {
     let (p, seq, m) = matte([0.2, 0.4, 0.6, 1.0], 64, 36, Some(-6.0));
     let dir = Scratch::new("flac-in");
-    // 1.5 s at 48 kHz: 17 full FLAC frames of 4096 samples and a last one of 2368
+    // 1.5 s at 48 kHz: 17 full FLAC إطار of 4096 samples and a last one of 2368
     let range = Some(TimeRange::new(Tick::ZERO, Tick(3 * TICKS_PER_SECOND / 2)));
     let audio = AudioSettings { codec: AudioCodec::Flac, bits: 24, ..Default::default() };
     let wav = dir.path("ref.wav");
@@ -764,12 +764,12 @@ fn h264_profile_level_and_keyframes() {
     };
     export(&p, seq, &s, &m, &Progress::default()).unwrap();
     if let Some(j) = ffprobe_json(&["-show_streams"], &path) {
-        assert_eq!(j["streams"][0]["profile"], "Main");
+        assert_eq!(j["streams"][0]["profile"], "رئيسي");
         assert_eq!(j["streams"][0]["level"], 51);
     }
     if let Some(j) = ffprobe_json(&["-show_frames", "-select_streams", "v:0", "-show_entries", "frame=key_frame"], &path) {
         let keys = j["frames"].as_array().unwrap().iter().filter(|f| f["key_frame"] == 1).count();
-        assert_eq!(keys, 4, "24 frames, a keyframe every 6");
+        assert_eq!(keys, 4, "24 إطار, a إطار مفتاحي كل 6");
     }
 }
 
@@ -777,7 +777,7 @@ fn h264_profile_level_and_keyframes() {
 fn video_limiter_clamps_luma() {
     let (p, seq, m) = matte([1.0, 1.0, 1.0, 1.0], 64, 36, None);
     let dir = Scratch::new("limiter");
-    let mut s = ExportSettings { format: Format::PngSequence, path: dir.path("w.png"), ..Default::default() };
+    let mut s = ExportSettings { format: Format::Pngتسلسل، path: dir.path("w.png"), ..Default::default() };
     s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(1)));
     s.effects.video_limiter = VideoLimiter { enabled: true, min_percent: 0.0, max_percent: 80.0 };
     export(&p, seq, &s, &m, &Progress::default()).unwrap();
@@ -796,7 +796,7 @@ fn overlays_draw_where_placed() {
     // a 10×10 green PNG as the image overlay
     let logo = dir.path("logo.png");
     image::RgbaImage::from_pixel(10, 10, image::Rgba([0, 255, 0, 255])).save(&logo).unwrap();
-    let mut s = ExportSettings { format: Format::PngSequence, path: dir.path("o.png"), ..Default::default() };
+    let mut s = ExportSettings { format: Format::Pngتسلسل، path: dir.path("o.png"), ..Default::default() };
     s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(1)));
     s.effects.image_overlay = ImageOverlay { enabled: true, path: logo, placement: Placement::TopRight, size_percent: 10.0, ..Default::default() };
     s.effects.name_overlay =
@@ -1023,7 +1023,7 @@ fn tiff_size_estimate_tracks_alpha_and_real_output() {
     let duration = rate.tick_of(1);
     for alpha in [false, true] {
         let dir = Scratch::new(&format!("tiff-size-{alpha}"));
-        let mut settings = ExportSettings { format: Format::TiffSequence, path: dir.path("frame.tif"), alpha, ..Default::default() };
+        let mut settings = ExportSettings { format: Format::Tiffتسلسل، path: dir.path("frame.tif"), alpha, ..Default::default() };
         settings.range = Some(TimeRange::new(Tick::ZERO, duration));
         settings.validate().unwrap();
 
@@ -1040,7 +1040,7 @@ fn tiff_size_estimate_tracks_alpha_and_real_output() {
     }
 
     // Other uncompressed formats already have the correct channel policy.
-    for format in [Format::BmpSequence, Format::TgaSequence] {
+    for format in [Format::Bmpتسلسل، Format::TgaSequence] {
         let rgb = ExportSettings { format, alpha: false, ..Default::default() };
         let rgba = ExportSettings { format, alpha: true, ..Default::default() };
         assert_eq!(rgb.estimate_bytes(320, 180, rate, 48_000, duration), 320 * 180 * 3);
@@ -1068,7 +1068,7 @@ impl MediaSource for CrestSource {
     fn video_frame(&self, req: FrameRequest) -> filmcraft_media::Result<Arc<filmcraft_frame::VideoFrame>> {
         self.0.video_frame(req)
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
         self.1.fetch_add(1, Ordering::Relaxed);
         let samples: Vec<f32> = (0..frames)
             .map(|i| {

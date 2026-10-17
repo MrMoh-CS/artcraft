@@ -71,7 +71,7 @@ fn intrinsic_audio() -> [(&'static str, &'static str); 3] {
     [("volume", tl!("Volume")), ("channelVolume", tl!("Channel Volume")), ("panner", tl!("Panner"))]
 }
 fn formats() -> [(&'static str, &'static str); 4] {
-    [("mono", tl!("Mono")), ("stereo", tl!("Stereo")), ("5.1", "5.1"), ("adaptive", tl!("Adaptive"))]
+    [("mono", tl!("أحادي")), ("stereo", tl!("ستيريو")), ("5.1", "5.1"), ("adaptive", tl!("Adaptive"))]
 }
 fn hold_on() -> [(&'static str, &'static str); 5] {
     [
@@ -283,7 +283,7 @@ fn number(ui: &mut egui::Ui, elems: &mut Elems, pre: &str, p: &mut Value, key: &
     });
 }
 
-fn frames(ui: &mut egui::Ui, elems: &mut Elems, pre: &str, p: &mut Value, key: &str, label: &str, fps: f64) {
+fn إطار(ui: &mut egui::Ui, elems: &mut Elems, pre: &str, p: &mut Value, key: &str, label: &str, fps: f64) {
     ui.horizontal(|ui| {
         ui.label(label);
         let mut v = p.get(key).and_then(Value::as_i64).unwrap_or(0);
@@ -329,7 +329,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     .as_array()
                     .map(|x| x.iter().filter_map(|e| Some((e[0].as_str()?.to_string(), e[1].as_str()?.to_string()))).collect())
                     .unwrap_or_default();
-                ui.label(RichText::new(tl!("Effects")).strong());
+                ui.label(RichText::new(tl!("المؤثرات")).strong());
                 if effects.is_empty() {
                     ui.label(RichText::new(tl!("No effects")).weak());
                 }
@@ -358,8 +358,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 text(ui, &mut elems, pre, p, "description", tl!("Description:"), 220.0);
                 ui.horizontal(|ui| {
                     ui.label(tl!("Contains:"));
-                    check(ui, &mut elems, pre, p, "video", tl!("Video"), true);
-                    check(ui, &mut elems, pre, p, "audio", tl!("Audio"), true);
+                    check(ui, &mut elems, pre, p, "video", tl!("الفيديو"), true);
+                    check(ui, &mut elems, pre, p, "audio", tl!("الصوت"), true);
                 });
                 let has_v = p["video"].as_bool().unwrap_or(true);
                 ui.add_enabled_ui(has_v, |ui| {
@@ -398,8 +398,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 } else {
                     ui.label(tlf!("Subclip: {name}", name = d.info["name"].as_str().unwrap_or_default()));
                 }
-                frames(ui, &mut elems, pre, p, "startFrame", tl!("Start:"), fps);
-                frames(ui, &mut elems, pre, p, "endFrame", tl!("End:"), fps);
+                إطار(ui, &mut elems, pre, p, "startFrame", tl!("Start:"), fps);
+                إطار(ui, &mut elems, pre, p, "endFrame", tl!("End:"), fps);
                 check(ui, &mut elems, pre, p, "restrictTrims", tl!("Restrict Trims To Subclip Boundaries"), true);
                 if d.command == "clip.editSubclip" {
                     check(ui, &mut elems, pre, p, "convertToMaster", tl!("Convert to Master Clip"), true);
@@ -543,8 +543,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.label(tlf!("Save changes to “{project_name}” before closing?", project_name));
                 ui.add_space(8.0);
                 ui.horizontal(|ui| {
-                    let r = ui.button(tl!("Cancel"));
-                    push(&mut elems, format!("{pre}.cancel"), &r, "Cancel");
+                    let r = ui.button(tl!("إلغاء"));
+                    push(&mut elems, format!("{pre}.cancel"), &r, "إلغاء");
                     if r.clicked() {
                         action = Some("cancel");
                     }
@@ -553,8 +553,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     if r.clicked() {
                         action = Some("dontSave");
                     }
-                    let r = ui.add_enabled(can_save, egui::Button::new(tl!("Save")));
-                    push(&mut elems, format!("{pre}.save"), &r, "Save");
+                    let r = ui.add_enabled(can_save, egui::Button::new(tl!("حفظ")));
+                    push(&mut elems, format!("{pre}.save"), &r, "حفظ");
                     if r.clicked() {
                         action = Some("save");
                     }
@@ -568,13 +568,13 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         }
         ui.add_space(6.0);
         ui.horizontal(|ui| {
-            let r = ui.button(tl!("Cancel"));
-            push(&mut elems, format!("{pre}.cancel"), &r, "Cancel");
+            let r = ui.button(tl!("إلغاء"));
+            push(&mut elems, format!("{pre}.cancel"), &r, "إلغاء");
             if r.clicked() {
                 action = Some("cancel");
             }
-            let r = ui.button(tl!("OK"));
-            push(&mut elems, format!("{pre}.ok"), &r, "OK");
+            let r = ui.button(tl!("موافق"));
+            push(&mut elems, format!("{pre}.ok"), &r, "موافق");
             if r.clicked() {
                 action = Some("ok");
             }

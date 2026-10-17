@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use egui::{Align2, Color32, CursorIcon, Pos2, Rect, Sense, Stroke, StrokeKind, pos2, vec2};
-use filmcraft_project::{ClipId, ItemId, MarkerId, Sequence, TrackId, TrackItem, TrackKind};
+use filmcraft_project::{ClipId, ItemId, MarkerId, تسلسل، TrackId, TrackItem, TrackKind};
 use filmcraft_time::{FrameRate, TICKS_PER_SECOND, Tick, TimeDisplay, format_time};
 use serde_json::{Value, json};
 
@@ -217,7 +217,7 @@ impl Layout {
 /// #483: where a drop at `y` adds a track: the empty space above the top video track (a video
 /// track) or below the last audio track (an audio track), never over a track, the caption tracks
 /// or the Mix row. Gives the kind and the band the new track would take (`vh` / `ah` high).
-fn new_track_at(seq: &Sequence, layout: &Layout, y: f32, vh: f32, ah: f32) -> Option<(TrackKind, Rect)> {
+fn new_track_at(seq: &تسلسل، layout: &Layout, y: f32, vh: f32, ah: f32) -> Option<(TrackKind, Rect)> {
     if layout.row_at(y).is_some() {
         return None;
     }
@@ -646,7 +646,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     // master track
     let master = Rect::from_min_max(pos2(rect.min.x, tracks_area.max.y - MASTER_H), pos2(content.max.x, tracks_area.max.y));
     painter.rect_filled(master, 0.0, t.tl_header_bg);
-    painter.text(pos2(rect.min.x + 44.0, master.center().y), Align2::LEFT_CENTER, tl!("Mix"), Tokens::ui(11.5), t.text);
+    painter.text(pos2(rect.min.x + 44.0, master.center().y), Align2::LEFT_CENTER, tl!("المزج"), Tokens::ui(11.5), t.text);
     painter.text(
         pos2(rect.min.x + header_w - 12.0, master.center().y),
         Align2::RIGHT_CENTER,
@@ -805,11 +805,11 @@ fn in_range(app: &FilmcraftApp, it: &TrackItem) -> bool {
 /// Most thumbnails one clip draws: a long clip far zoomed in only shows the visible ones anyway.
 const MAX_THUMBNAIL_TILES: usize = 256;
 
-/// The video thumbnails of a clip whose picture area spans `x0..x1` (points), for frames `tile_w`
-/// wide: the left edge of each tile and the offset into the clip (`dur` long, frames of `frame`)
+/// The video thumbnails of a clip whose picture area spans `x0..x1` (points), for إطار `tile_w`
+/// wide: the left edge of each tile and the offset into the clip (`dur` long, إطار of `frame`)
 /// whose picture it shows. Only tiles that meet `visible` (the panel's x range) are listed.
 /// Continuous tiles sit on a grid anchored at the clip's head, so scrolling only reveals new tiles
-/// and the others keep their frames. A clip too narrow for more than one tile shows its head.
+/// and the others keep their إطار. A clip too narrow for more than one tile shows its head.
 pub fn thumbnail_tiles(mode: ThumbnailMode, x0: f32, x1: f32, tile_w: f32, visible: (f32, f32), dur: Tick, frame: Tick) -> Vec<(f32, Tick)> {
     let width = x1 - x0;
     if !(x0.is_finite() && width.is_finite() && width > 0.0 && tile_w.is_finite() && tile_w >= 1.0) {
@@ -833,7 +833,7 @@ pub fn thumbnail_tiles(mode: ThumbnailMode, x0: f32, x1: f32, tile_w: f32, visib
 }
 
 /// [`thumbnail_tiles`] while the view zooms (#1094): Continuous tiles are laid out at the zoom
-/// the gesture started at (`frozen` points a second) and stretched to where their frames are at
+/// the gesture started at (`frozen` points a second) and stretched to where their إطار are at
 /// the live zoom `pps`, so every tile keeps its frame (cached) instead of asking for a new one at
 /// each zoom step. Returns each tile's left edge, width and offset into the clip.
 #[allow(clippy::too_many_arguments)]
@@ -887,7 +887,7 @@ fn draw_clip(
     let name_h = 16.0;
     let w = body.width();
     // video thumbnails, aspect-correct, below the name band: the head frame, head and tail, or
-    // frames side by side across the clip (Show Video Thumbnails in the wrench menu)
+    // إطار side by side across the clip (Show Video Thumbnails in the wrench menu)
     if kind == TrackKind::Video && app.ui.timeline.show_thumbnails && body.height() > 28.0 && w > 20.0 && it.enabled {
         let th = Rect::from_min_max(pos2(body.min.x + 1.0, body.min.y + name_h), pos2(body.max.x - 1.0, body.max.y - 1.0));
         let aspect = app.session.project.item(it.item).and_then(|pi| match &pi.kind {
@@ -1243,7 +1243,7 @@ fn patch_button(ui: &mut egui::Ui, r: Rect, clip: Rect, label: &str, on: bool, s
 }
 
 #[allow(clippy::too_many_arguments)]
-fn draw_headers(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, rows: &[Row], rect: Rect, vclip: Rect, aclip: Rect, t: &Tokens) {
+fn draw_headers(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، rows: &[Row], rect: Rect, vclip: Rect, aclip: Rect, t: &Tokens) {
     let hw = app.ui.timeline.header_w;
     let tg = app.session.targeting();
     let mut actions: Vec<(String, Value)> = Vec::new();
@@ -1408,7 +1408,7 @@ fn draw_headers(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, rows:
     }
 }
 
-/// The Ruler's two strides, in frames: `(tick, label)`.
+/// The Ruler's two strides, in إطار: `(tick, label)`.
 ///
 /// `label` is the first ladder step wide enough to keep timestamps apart (110 pt); `tick` is the
 /// finest divisor of `label` that still leaves ticks 12 pt apart. Deriving the tick stride as a
@@ -1424,7 +1424,7 @@ pub fn ruler_steps(frame_px: f64, base: i64) -> (i64, i64) {
     (minor, label_step)
 }
 
-fn draw_top(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, seq: &Sequence, layout: &Layout, t: &Tokens, seq_id: ItemId) {
+fn draw_top(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, seq: &تسلسل، layout: &Layout, t: &Tokens, seq_id: ItemId) {
     let p = ui.painter().clone();
     let rate = seq.settings.frame_rate;
     let hw = app.ui.timeline.header_w;
@@ -1736,17 +1736,17 @@ fn vertical_scrollbar(ui: &mut egui::Ui, bar: Rect, value: &mut f32, max: f32, i
 }
 
 /// Snap `t` to nearby candidates (edits, playhead, markers, in/out). Returns snapped tick.
-fn snap(app: &mut FilmcraftApp, seq: &Sequence, layout: &Layout, t: Tick, exclude: &[ClipId]) -> Tick {
+fn snap(app: &mut FilmcraftApp, seq: &تسلسل، layout: &Layout, t: Tick, exclude: &[ClipId]) -> Tick {
     snap_to(app, seq, layout, t, exclude, true)
 }
 
 /// Where a dragged playhead lands: [`snap`], but not onto itself, or it would stick where it is
 /// and only move in jumps of `SNAP_PX` (#164).
-fn snap_playhead(app: &mut FilmcraftApp, seq: &Sequence, layout: &Layout, t: Tick) -> Tick {
+fn snap_playhead(app: &mut FilmcraftApp, seq: &تسلسل، layout: &Layout, t: Tick) -> Tick {
     snap_to(app, seq, layout, t, &[], false)
 }
 
-fn snap_to(app: &mut FilmcraftApp, seq: &Sequence, layout: &Layout, t: Tick, exclude: &[ClipId], to_playhead: bool) -> Tick {
+fn snap_to(app: &mut FilmcraftApp, seq: &تسلسل، layout: &Layout, t: Tick, exclude: &[ClipId], to_playhead: bool) -> Tick {
     if !app.session.state.snapping {
         return t;
     }
@@ -1820,7 +1820,7 @@ pub fn locate(app: &FilmcraftApp, clip: u64, edge: Option<&str>) -> Option<(f32,
     Some((x, y))
 }
 
-fn preview_drag(app: &FilmcraftApp, seq: &Sequence, out: &mut HashMap<ClipId, (Tick, Tick, Option<TrackId>)>, edited: &mut HashMap<ClipId, TrackItem>) {
+fn preview_drag(app: &FilmcraftApp, seq: &تسلسل، out: &mut HashMap<ClipId, (Tick, Tick, Option<TrackId>)>, edited: &mut HashMap<ClipId, TrackItem>) {
     // the item as the edge move leaves it, and its place in the preview
     let mut moved = |it: &TrackItem, edge: filmcraft_edit::Edge, delta: Tick| {
         let mut e = it.clone();
@@ -1891,7 +1891,7 @@ fn preview_drag(app: &FilmcraftApp, seq: &Sequence, out: &mut HashMap<ClipId, (T
 /// so a dragged clip's transition follows it instead of lagging behind until the drop, and a cut
 /// transition does not ride along on a clip whose partner stays. Returns the transition's
 /// `(start, end, destination track)` when the drag carries it.
-fn move_transition_preview(app: &FilmcraftApp, seq: &Sequence, trn: &filmcraft_project::Transition) -> Option<(Tick, Tick, TrackId)> {
+fn move_transition_preview(app: &FilmcraftApp, seq: &تسلسل، trn: &filmcraft_project::Transition) -> Option<(Tick, Tick, TrackId)> {
     let Some(Drag::Move { clips, offset, track_delta, .. }) = &app.tl.drag else { return None };
     let endpoints: Vec<ClipId> = [trn.from, trn.to].into_iter().flatten().collect();
     // where each clip it sits on that moves lands (the same track shift as the clip preview), and
@@ -1917,7 +1917,7 @@ fn move_transition_preview(app: &FilmcraftApp, seq: &Sequence, trn: &filmcraft_p
 }
 
 /// The clips a marquee rectangle touches, on the tracks it crosses.
-fn marquee_clips(seq: &Sequence, layout: &Layout, r: Rect) -> Vec<ClipId> {
+fn marquee_clips(seq: &تسلسل، layout: &Layout, r: Rect) -> Vec<ClipId> {
     let (a, b) = (layout.tick_at(r.min.x), layout.tick_at(r.max.x));
     layout
         .rows
@@ -1929,7 +1929,7 @@ fn marquee_clips(seq: &Sequence, layout: &Layout, r: Rect) -> Vec<ClipId> {
 }
 
 /// A move previews the same track-lock restrictions as its eventual edit.
-fn drag_is_locked(session: &filmcraft_engine::Session, seq: &Sequence, drag: &Drag) -> bool {
+fn drag_is_locked(session: &filmcraft_engine::Session, seq: &تسلسل، drag: &Drag) -> bool {
     let clips = match drag {
         Drag::Move { clips, track_delta, .. } => return move_is_locked(seq, clips, *track_delta),
         Drag::Trim { clip, .. } | Drag::Stretch { clip, .. } | Drag::Remix { clip, .. } | Drag::Slip { clip, .. } | Drag::Slide { clip, .. } => vec![*clip],
@@ -1940,7 +1940,7 @@ fn drag_is_locked(session: &filmcraft_engine::Session, seq: &Sequence, drag: &Dr
     move_is_locked(seq, &filmcraft_engine::commands::with_links(session, &clips), 0)
 }
 
-fn move_is_locked(seq: &Sequence, clips: &[ClipId], delta: i32) -> bool {
+fn move_is_locked(seq: &تسلسل، clips: &[ClipId], delta: i32) -> bool {
     clips.iter().any(|clip| {
         seq.find_item(*clip).is_some_and(|(track, _)| {
             seq.track(track).is_some_and(|t| t.locked) || shift_track(seq, track, delta).and_then(|id| seq.track(id)).is_some_and(|t| t.locked)
@@ -1948,7 +1948,7 @@ fn move_is_locked(seq: &Sequence, clips: &[ClipId], delta: i32) -> bool {
     })
 }
 
-fn shift_track(seq: &Sequence, tid: TrackId, delta: i32) -> Option<TrackId> {
+fn shift_track(seq: &تسلسل، tid: TrackId, delta: i32) -> Option<TrackId> {
     if delta == 0 {
         return Some(tid);
     }
@@ -1987,8 +1987,8 @@ fn marker_menu(app: &mut FilmcraftApp, ctx: &egui::Context, ui: &mut egui::Ui, m
 
 pub(crate) const CLIP_MENU: &[&[(&str, &str)]] = &[
     &[
-        ("Cut", "edit.cut"),
-        ("Copy", "edit.copy"),
+        ("قص", "edit.cut"),
+        ("نسخ", "edit.copy"),
         ("Paste Attributes…", "edit.pasteAttributes"),
         ("Remove Attributes…", "edit.removeAttributes"),
         ("Clear", "edit.clear"),
@@ -2032,7 +2032,7 @@ struct EditPointTarget {
 }
 
 impl EditPointTarget {
-    fn at(seq: &Sequence, track: TrackId, clip: ClipId, edge: filmcraft_edit::Edge) -> Option<Self> {
+    fn at(seq: &تسلسل، track: TrackId, clip: ClipId, edge: filmcraft_edit::Edge) -> Option<Self> {
         let tr = seq.track(track)?;
         let it = tr.item(clip)?;
         Some(match edge {
@@ -2053,7 +2053,7 @@ pub(crate) const EDIT_POINT_TYPES: &[(&str, &str, &str, filmcraft_edit::Edge)] =
 ];
 
 /// The edit point context menu (#219).
-fn edit_point_menu(app: &mut FilmcraftApp, ctx: &egui::Context, ui: &mut egui::Ui, seq: &Sequence, target: EditPointTarget) {
+fn edit_point_menu(app: &mut FilmcraftApp, ctx: &egui::Context, ui: &mut egui::Ui, seq: &تسلسل، target: EditPointTarget) {
     let selected = app.session.state.edit_points.first().copied();
     for &(label, id, kind, edge) in EDIT_POINT_TYPES {
         let clip = match edge {
@@ -2201,7 +2201,7 @@ pub(crate) fn wheel_input(ctx: &egui::Context) -> WheelInput {
 }
 
 /// Puts the playhead where the pointer is on the ruler: what a press does before any drag (#1090).
-fn scrub_playhead(app: &mut FilmcraftApp, seq: &Sequence, layout: &Layout, p: Pos2, shift: bool) {
+fn scrub_playhead(app: &mut FilmcraftApp, seq: &تسلسل، layout: &Layout, p: Pos2, shift: bool) {
     app.stop();
     let mut tt = seq.settings.frame_rate.snap_nearest(layout.tick_at(p.x).max(Tick::ZERO));
     if shift || app.session.prefs.timeline.snap_playhead {
@@ -2214,7 +2214,7 @@ fn scrub_playhead(app: &mut FilmcraftApp, seq: &Sequence, layout: &Layout, p: Po
     app.session.set_playhead(tt);
 }
 
-fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &Sequence, layout: &Layout, rect: Rect) {
+fn interact(app: &mut FilmcraftApp, ui: &mut egui::Ui, seq: &تسلسل، layout: &Layout, rect: Rect) {
     let ctx = ui.ctx().clone();
     let area = Rect::from_min_max(pos2(layout.content.min.x, layout.ruler.min.y), layout.content.max);
     let resp = ui.interact(area, egui::Id::new("timeline-area"), Sense::click_and_drag());
@@ -3116,13 +3116,13 @@ mod trim_preview_tests {
         fn video_frame(&self, _req: filmcraft_media::FrameRequest) -> filmcraft_media::Result<Arc<filmcraft_frame::VideoFrame>> {
             Err(filmcraft_media::MediaError::NoStream("video"))
         }
-        fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-            Ok(filmcraft_frame::AudioBuffer { sample_rate, channels: vec![vec![0.1; frames]] })
+        fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+            Ok(filmcraft_frame::AudioBuffer { sample_rate, channels: vec![vec![0.1; إطار]] })
         }
-        fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
             match stream {
-                0 => self.audio(start, frames, sample_rate),
-                1 => Ok(filmcraft_frame::AudioBuffer { sample_rate, channels: vec![vec![0.5; frames]] }),
+                0 => self.audio(start, إطار, sample_rate),
+                1 => Ok(filmcraft_frame::AudioBuffer { sample_rate, channels: vec![vec![0.5; إطار]] }),
                 _ => Err(filmcraft_media::MediaError::NoStream("audio")),
             }
         }
@@ -3262,7 +3262,7 @@ mod thumbnail_tiles_tests {
         let settled = thumbnail_tiles(ThumbnailMode::Continuous, 0.0, 2000.0, 80.0, (0.0, 800.0), dur, FRAME);
         let expect: Vec<(f32, f32, Tick)> = settled.iter().map(|&(x, t)| (x, 80.0, t)).collect();
         assert_eq!(zoomed_thumbnail_tiles(ThumbnailMode::Continuous, 0.0, 2000.0, 80.0, (0.0, 800.0), dur, FRAME, 40.0, None), expect);
-        // Head and tail frames do not depend on the zoom
+        // Head and tail إطار do not depend on the zoom
         let head = zoomed_thumbnail_tiles(ThumbnailMode::Head, 0.0, 2000.0, 80.0, (0.0, 800.0), dur, FRAME, 40.0, Some(20.0));
         assert_eq!(head, [(0.0, 80.0, Tick::ZERO)]);
     }
@@ -3276,7 +3276,7 @@ mod thumbnail_tiles_tests {
         // each tile shows the clip time under its left edge (100 pt per second)
         assert_eq!(tiles[0].1, Tick(24 * S.0 / 10));
         assert_eq!(tiles[5].1, Tick(64 * S.0 / 10));
-        // scrolling 30 pt moves the tiles with the clip: the ones still shown keep their frames
+        // scrolling 30 pt moves the tiles with the clip: the ones still shown keep their إطار
         let scrolled = thumbnail_tiles(ThumbnailMode::Continuous, -30.0, 970.0, 80.0, (250.0, 650.0), Tick(10 * S.0), FRAME);
         assert_eq!(scrolled.first(), Some(&(210.0, tiles[0].1)));
         assert!(scrolled.iter().all(|(x, t)| tiles.iter().any(|(x0, t0)| *x0 - 30.0 == *x && t0 == t)));
@@ -3284,7 +3284,7 @@ mod thumbnail_tiles_tests {
         let end = thumbnail_tiles(ThumbnailMode::Continuous, 0.0, 1000.0, 80.0, (0.0, 2000.0), Tick(10 * S.0), FRAME);
         assert_eq!(end.len(), 13);
         assert!(end.iter().all(|(_, t)| *t <= Tick(10 * S.0) - FRAME));
-        // a clip far zoomed in asks for a bounded number of frames
+        // a clip far zoomed in asks for a bounded number of إطار
         let huge = thumbnail_tiles(ThumbnailMode::Continuous, -1.0e9, 1.0e9, 1.0, (-2.0e9, 2.0e9), Tick(10 * S.0), FRAME);
         assert_eq!(huge.len(), MAX_THUMBNAIL_TILES);
     }

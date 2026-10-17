@@ -156,13 +156,13 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         });
         ui.add_space(8.0);
         ui.horizontal(|ui| {
-            let c = ui.button(tl!("Cancel"));
-            elems.push((format!("{p}.cancel"), c.rect, "Cancel".into()));
+            let c = ui.button(tl!("إلغاء"));
+            elems.push((format!("{p}.cancel"), c.rect, "إلغاء".into()));
             if c.clicked() {
                 close = true;
             }
-            let o = ui.add(egui::Button::new(egui::RichText::new(tl!("OK")).color(egui::Color32::WHITE)).fill(app.tokens.accent));
-            elems.push((format!("{p}.ok"), o.rect, "OK".into()));
+            let o = ui.add(egui::Button::new(egui::RichText::new(tl!("موافق")).color(egui::Color32::WHITE)).fill(app.tokens.accent));
+            elems.push((format!("{p}.ok"), o.rect, "موافق".into()));
             if o.clicked() {
                 apply = true;
             }
@@ -177,7 +177,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
     if apply {
         close = true;
         let (ext, filter) = if d.omf { ("omf", "OMF") } else { ("aaf", "AAF") };
-        let stem = if d.title.is_empty() { "Sequence".to_string() } else { d.title.replace(['/', '\\', ':'], "_") };
+        let stem = if d.title.is_empty() { "التسلسل".to_string() } else { d.title.replace(['/', '\\', ':'], "_") };
         let suggested = format!("{stem}.{ext}");
         let dialog = FileDialog::save_as(filter, &[ext], &suggested);
         if dialog.available(&app.hooks) {

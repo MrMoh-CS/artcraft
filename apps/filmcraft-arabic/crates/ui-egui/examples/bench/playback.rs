@@ -8,7 +8,7 @@
 //! ```
 //!
 //! Each play simulates display refreshes at `--refresh` Hz on the wall clock (as the app does
-//! without an audio device) and counts shown/dropped frames with the same meter as the app. Wall-
+//! without an audio device) and counts shown/dropped إطار with the same meter as the app. Wall-
 //! clock numbers depend on machine load, so every run also reports CPU time (process and per
 //! frame-worker thread), which does not. See `docs/testing.md` §5.
 //!
@@ -188,10 +188,10 @@ pub struct PlayReport {
     pub seconds: f64,
     pub shown: u64,
     pub dropped: u64,
-    /// Due frames whose job finished before the frame was due.
+    /// Due إطار whose job finished before the frame was due.
     pub on_time: usize,
     pub due: usize,
-    /// ms: queue→done latency, service time, (due − done) slack of due frames.
+    /// ms: queue→done latency, service time, (due − done) slack of due إطار.
     pub latency: Vec<f64>,
     pub service: Vec<f64>,
     pub slack: Vec<f64>,
@@ -265,7 +265,7 @@ impl Bench {
         let (p0, ui0, up0) = (process_cpu_time().unwrap_or_default(), display.ui_cpu, display.uploaded);
         display.present.clear();
         let period = Duration::from_secs_f64(1.0 / self.refresh_hz);
-        // Preroll as the app does: refresh without moving the playhead until the first frames are
+        // Preroll as the app does: refresh without moving the playhead until the first إطار are
         // ready (or the timeout), then start the clock.
         let first = rate.frame_at(start);
         let last_frame = rate.frame_at(q.duration()) - 1;
@@ -375,7 +375,7 @@ impl Bench {
     pub fn seek_storm(&self, s: &Session, seq: ItemId, display: &mut Display, scale: f32, jumps: usize, dwell: Duration) -> PlayReport {
         let q = s.project.sequence(seq).expect("seq");
         let rate = q.settings.frame_rate;
-        let frames = rate.frame_at(q.duration()).max(1);
+        let إطار = rate.frame_at(q.duration()).max(1);
         let project = s.project.clone();
         let target = display.target(seq);
         let size = (scale * 1000.0) as u32;
@@ -390,7 +390,7 @@ impl Bench {
             rng ^= rng << 13;
             rng ^= rng >> 7;
             rng ^= rng << 17;
-            let frame = (rng % frames as u64) as i64;
+            let frame = (rng % إطار as u64) as i64;
             let key = FrameKey { target, frame, size, revision: s.revision, draft: false };
             let start = Instant::now();
             rep.due += 1;
@@ -432,7 +432,7 @@ impl Bench {
     /// Scrub latency, two ways, through the monitor's request path:
     /// - `seeks` random jumps: time from the request to the exact frame on screen (no dwell cap:
     ///   every jump waits for its frame, up to `timeout`);
-    /// - `drags` playhead drags: the playhead moves `drag_frames` frames, one step per display
+    /// - `drags` playhead drags: the playhead moves `drag_frames` إطار, one step per display
     ///   refresh (each refresh asks for the frame under the playhead, superseding the previous
     ///   request), then stops; time from the stop until the frame under it is on screen.
     pub fn scrub(
@@ -448,7 +448,7 @@ impl Bench {
     ) -> ScrubReport {
         let q = s.project.sequence(seq).expect("seq");
         let rate = q.settings.frame_rate;
-        let frames = rate.frame_at(q.duration()).max(1);
+        let إطار = rate.frame_at(q.duration()).max(1);
         let project = s.project.clone();
         let target = display.target(seq);
         let size = (scale * 1000.0) as u32;
@@ -476,7 +476,7 @@ impl Bench {
             }
         };
         for _ in 0..seeks {
-            let frame = (next() % frames as u64) as i64;
+            let frame = (next() % إطار as u64) as i64;
             let key = FrameKey { target, frame, size, revision: s.revision, draft: false };
             match wait(display, key, Instant::now()) {
                 Some(l) => rep.seek_ms.push(l),
@@ -549,8 +549,8 @@ pub fn print_header() {
 }
 
 pub fn print_row(r: &PlayReport, fps: f64) {
-    let frames = (r.shown + r.dropped).max(1) as f64;
-    let cpu_per_frame = r.process_cpu / frames;
+    let إطار = (r.shown + r.dropped).max(1) as f64;
+    let cpu_per_frame = r.process_cpu / إطار;
     println!(
         "{:<34} {:>6.2} {:>5} {:>5} {:>6.0}% | {:>6.1} {:>6.1} {:>6.1} | {:>6.1} {:>6.1} | {:>6.1} {:>6.1} {:>6.1} | {:>6.2} {:>6.2} | {:>7.1} {:>6.2} | {:>5} {:>5} {:>5} {:>4} | {}",
         r.label,
@@ -579,7 +579,7 @@ pub fn print_row(r: &PlayReport, fps: f64) {
 }
 
 pub fn to_json(r: &PlayReport, scenario: &str, res: &str, path: &str) -> Value {
-    let frames = (r.shown + r.dropped).max(1) as f64;
+    let إطار = (r.shown + r.dropped).max(1) as f64;
     json!({
         "scenario": scenario, "res": res, "path": path, "play": r.label, "wall_s": r.seconds,
         "shown": r.shown, "dropped": r.dropped, "on_time": r.on_time, "due": r.due,
@@ -590,7 +590,7 @@ pub fn to_json(r: &PlayReport, scenario: &str, res: &str, path: &str) -> Value {
         "source_wall_ms_mean": r.src_wall.iter().sum::<f64>() / r.jobs.max(1) as f64,
         "source_cpu_ms_mean": r.src_cpu.iter().sum::<f64>() / r.jobs.max(1) as f64,
         "present_ms": {"p50": pct(&r.present, 0.5), "p95": pct(&r.present, 0.95), "max": pct(&r.present, 1.0)},
-        "ui_cpu_ms": r.ui_cpu, "process_cpu_ms": r.process_cpu, "cpu_ms_per_frame": r.process_cpu / frames,
+        "ui_cpu_ms": r.ui_cpu, "process_cpu_ms": r.process_cpu, "cpu_ms_per_frame": r.process_cpu / إطار,
         "jobs": r.jobs, "wasted_jobs": r.wasted_jobs, "cancelled_jobs": r.cancelled_jobs, "preview_jobs": r.preview_jobs, "uploaded_mb": r.uploaded_mb,
         "gop": {"hits": r.gop.hits, "misses": r.gop.misses, "seeks": r.gop.seeks, "decoded": r.gop.decoded, "evicted": r.gop.evicted, "skipped": r.gop.skipped, "decode_ms": r.gop.decode_ns as f64 / 1e6},
         "loadavg": r.load, "preroll_ms": r.preroll_ms,
@@ -777,7 +777,7 @@ pub fn cli_main() {
         load_avg()
     );
     println!(
-        "lat = queue→ready per job, svc = worker time per job, cpu/j = worker thread CPU, src/j = source fetch (decode) wall, srcC/j = its thread CPU,\nui = present time on the UI thread (GPU upload+draw / texture conversion), cpu ms/f = process CPU per due frame, cores = CPU cores that rate needs at the sequence fps,\nseeks/dec = decoder restarts / samples decoded, waste = finished jobs for frames never due, canc = jobs cancelled while running (all times ms)\n"
+        "lat = queue→ready per job, svc = worker time per job, cpu/j = worker thread CPU, src/j = source fetch (decode) wall, srcC/j = its thread CPU,\nui = present time on the UI thread (GPU upload+draw / texture conversion), cpu ms/f = process CPU per due frame, cores = CPU cores that rate needs at the sequence fps,\nseeks/dec = decoder restarts / samples decoded, waste = finished jobs for إطار never due, canc = jobs cancelled while running (all times ms)\n"
     );
     print_header();
     let mut out = Vec::new();

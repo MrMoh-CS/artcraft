@@ -158,7 +158,7 @@ pub(crate) struct Source {
     pub length: Tick,
     /// Media time of the essence's time 0 (trimmed / consolidated essence).
     pub offset: Tick,
-    /// Start timecode in frames at `tc_rate`.
+    /// Start timecode in إطار at `tc_rate`.
     pub start_tc: Option<i64>,
     pub tc_rate: FrameRate,
     pub embedded: Option<Vec<u8>>,
@@ -214,7 +214,7 @@ pub(crate) fn from_project(p: &Project, seq_id: ItemId, name: &str, media: &Medi
 impl Exporter<'_> {
     /// `seq` as a composition. `top`: the exported sequence itself (a video mixdown replaces its
     /// video tracks; a nested sequence under a mixdown has no video tracks left to show).
-    fn composition(&mut self, seq: &Sequence, name: &str, top: bool) -> Composition {
+    fn composition(&mut self, seq: &تسلسل، name: &str, top: bool) -> Composition {
         let rate = seq.settings.frame_rate;
         let outer_rate = std::mem::replace(&mut self.seq_rate, rate);
         let media = self.media;
@@ -302,7 +302,7 @@ impl Exporter<'_> {
     /// The source behind a clip of the nested sequence `nested` (project item `item`): the
     /// sequence's sound as the caller rendered it for this clip, or the sequence as a composition
     /// of its own.
-    fn nest_source(&mut self, c: &TrackItem, item: ItemId, name: &str, nested: &Sequence, ckind: CKind, channel: Option<u32>) -> Option<usize> {
+    fn nest_source(&mut self, c: &TrackItem, item: ItemId, name: &str, nested: &تسلسل، ckind: CKind, channel: Option<u32>) -> Option<usize> {
         let clip_key = EssenceKey::Clip(c.id);
         if ckind == CKind::Sound
             && let Some(e) = self.media.essence_for(clip_key, channel).cloned()

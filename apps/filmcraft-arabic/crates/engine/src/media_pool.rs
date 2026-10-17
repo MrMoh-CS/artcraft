@@ -5,10 +5,10 @@
 //!   relink, Make Offline or their undo picks up the right file on the next frame.
 //! - Media that can't be opened (missing, unreadable) or was made offline renders the offline
 //!   slate ([`filmcraft_render::offline`]) instead of failing; the reason is kept for the UI. So
-//!   do the frames of a file that opens but whose picture FilmCraft cannot decode (a codec or
+//!   do the إطار of a file that opens but whose picture FilmCraft cannot decode (a codec or
 //!   profile without a decoder).
 //! - With proxies enabled ([`MediaPool::set_use_proxies`]) items with an attached proxy are read
-//!   from it. Proxy frames are smaller; the source still reports the full-resolution size, and the
+//!   from it. Proxy إطار are smaller; the source still reports the full-resolution size, and the
 //!   compositor derives its pixel scale from the frame it gets, so effects and Motion render the
 //!   same picture at lower resolution. Export asks for [`MediaPool::full_res_provider`].
 
@@ -49,7 +49,7 @@ pub struct MediaPool {
     proxies: RwLock<HashMap<ItemId, (String, SharedSource)>>,
     offline: Arc<RwLock<HashMap<ItemId, OfflineStatus>>>,
     use_proxies: AtomicBool,
-    /// Per item: video frames that failed in a row in the monitors (see [`Self::monitor_source`]).
+    /// Per item: video إطار that failed in a row in the monitors (see [`Self::monitor_source`]).
     failures: Arc<Mutex<HashMap<ItemId, u32>>>,
     /// Openers tried before the built-in ones (MP4/MOV + codecs register here).
     pub openers: RwLock<Vec<Opener>>,
@@ -84,18 +84,18 @@ pub fn media_key(m: &MediaClip) -> String {
     }
 }
 
-/// Open the image sequence that `first` (a numbered still) starts: its frames from that number to
+/// Open the image sequence that `first` (a numbered still) starts: its إطار from that number to
 /// the highest present one, played at `rate`. Frames are listed with [`Services::list_dir`], or
 /// found by probing consecutive numbers (stopping after 100 missing in a row) when the host cannot
 /// list directories.
 pub fn open_image_sequence(first: &str, services: &dyn Services, rate: filmcraft_time::FrameRate, name: &str) -> Result<SharedSource, MediaError> {
-    let frames = image_sequence_frames(first, services)?;
+    let إطار = image_sequence_frames(first, services)?;
     let loader = match services.file_loader() {
         Some(l) => l,
         None => {
-            // no lasting file access: read the (encoded) frames now
+            // no lasting file access: read the (encoded) إطار now
             let mut files = HashMap::new();
-            for p in frames.iter().flatten() {
+            for p in إطار.iter().flatten() {
                 if let Ok(b) = services.read_file(p) {
                     files.insert(p.clone(), Arc::<[u8]>::from(b));
                 }
@@ -103,10 +103,10 @@ pub fn open_image_sequence(first: &str, services: &dyn Services, rate: filmcraft
             Arc::new(move |p: &str| files.get(p).map(|b| b.to_vec()).ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, p.to_string())))
         }
     };
-    Ok(Arc::new(filmcraft_media::sequence::ImageSequenceSource::new(name, frames, rate, loader)?))
+    Ok(Arc::new(filmcraft_media::sequence::ImageSequenceSource::new(name, إطار, rate, loader)?))
 }
 
-/// The frames of the image sequence starting at `first` (see [`open_image_sequence`]).
+/// The إطار of the image sequence starting at `first` (see [`open_image_sequence`]).
 pub fn image_sequence_frames(first: &str, services: &dyn Services) -> Result<Vec<Option<String>>, MediaError> {
     use filmcraft_media::sequence::{Numbered, sequence_frames};
     let n = Numbered::parse(first).ok_or_else(|| MediaError::Unsupported(format!("{first}: not a numbered still image")))?;
@@ -160,7 +160,7 @@ impl MediaPool {
         self.sources.write().unwrap_or_else(|e| e.into_inner()).insert(item, (format!("file:{path}"), src));
     }
 
-    /// `src` (opened from `path` for `item`) showing the unreadable slate for the frames it
+    /// `src` (opened from `path` for `item`) showing the unreadable slate for the إطار it
     /// cannot decode.
     fn unsupported_as_slate(&self, item: ItemId, path: &str, src: SharedSource) -> SharedSource {
         let slate = SlateSource::new(src.info().clone(), &file_name(path), OfflineReason::Unreadable);
@@ -197,8 +197,8 @@ impl MediaPool {
         self.use_proxies.store(on, Ordering::Relaxed);
     }
 
-    /// `src` (item `item`) as the monitors show it: once [`DAMAGED_AFTER`] of its video frames in a
-    /// row fail to decode or read (a damaged file), its failing frames show the unreadable slate
+    /// `src` (item `item`) as the monitors show it: once [`DAMAGED_AFTER`] of its video إطار in a
+    /// row fail to decode or read (a damaged file), its failing إطار show the unreadable slate
     /// instead of nothing, until a frame decodes again (#626, follow-up to #762). Only for preview:
     /// exports and other renders use the pool's sources directly, so they never contain the slate.
     pub fn monitor_source(&self, item: ItemId, src: SharedSource) -> SharedSource {
@@ -402,7 +402,7 @@ impl filmcraft_render::SourceProvider for PoolProvider {
     }
 }
 
-/// The offline slate as a media source: video frames are the slate at the requested scale of the
+/// The offline slate as a media source: video إطار are the slate at the requested scale of the
 /// item's frame size; audio is silence.
 pub struct SlateSource {
     info: MediaInfo,
@@ -440,8 +440,8 @@ impl MediaSource for SlateSource {
         *last = Some(f.clone());
         Ok(Arc::new((*f).clone().with_pts(req.time)))
     }
-    fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        Ok(AudioBuffer::silence(sample_rate, self.info.audio().map_or(2, |a| a.channels as usize), frames))
+    fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        Ok(AudioBuffer::silence(sample_rate, self.info.audio().map_or(2, |a| a.channels as usize), إطار))
     }
 }
 
@@ -473,15 +473,15 @@ impl MediaSource for UnsupportedAsSlate {
             r => r,
         }
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        self.inner.audio(start, frames, sample_rate)
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        self.inner.audio(start, إطار, sample_rate)
     }
-    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        self.inner.audio_stream(stream, start, frames, sample_rate)
+    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        self.inner.audio_stream(stream, start, إطار, sample_rate)
     }
 }
 
-/// Consecutive failed video frames after which a monitor treats a source as damaged. A single
+/// Consecutive failed video إطار after which a monitor treats a source as damaged. A single
 /// failure (one bad slice, a read hiccup) and the decoder's retry of it stay as they were; three
 /// in a row (an eighth of a second at 24 fps) mean the file itself is damaged.
 pub const DAMAGED_AFTER: u32 = 3;
@@ -489,7 +489,7 @@ pub const DAMAGED_AFTER: u32 = 3;
 /// See [`MediaPool::monitor_source`]. Counts `Decode` / `Io` failures per item; a successful frame
 /// resets the count. Data still on its way (the web build's pending reads, see
 /// [`filmcraft_media::pending`]) neither counts nor resets, and cancellation, absent video and
-/// unsupported frames (already the slate, #762) pass through.
+/// unsupported إطار (already the slate, #762) pass through.
 struct DamagedAsSlate {
     inner: SharedSource,
     slate: SlateSource,
@@ -521,16 +521,16 @@ impl MediaSource for DamagedAsSlate {
             r => r,
         }
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        self.inner.audio(start, frames, sample_rate)
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        self.inner.audio(start, إطار, sample_rate)
     }
-    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        self.inner.audio_stream(stream, start, frames, sample_rate)
+    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        self.inner.audio_stream(stream, start, إطار, sample_rate)
     }
 }
 
 /// A proxy standing in for its full-resolution media: reports the full-resolution info and hands
-/// out the proxy's (smaller) frames. A proxy whose aspect ratio differs from the original is
+/// out the proxy's (smaller) إطار. A proxy whose aspect ratio differs from the original is
 /// resampled to the original's aspect so it lines up exactly.
 pub struct ProxySource {
     pub proxy: SharedSource,
@@ -564,11 +564,11 @@ impl MediaSource for ProxySource {
         }
         Ok(Arc::new(VideoFrame::rgba8(w as u32, h as u32, out).with_pts(f.pts)))
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        self.audio_from.as_ref().unwrap_or(&self.proxy).audio(start, frames, sample_rate)
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        self.audio_from.as_ref().unwrap_or(&self.proxy).audio(start, إطار, sample_rate)
     }
-    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        self.audio_from.as_ref().unwrap_or(&self.proxy).audio_stream(stream, start, frames, sample_rate)
+    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        self.audio_from.as_ref().unwrap_or(&self.proxy).audio_stream(stream, start, إطار, sample_rate)
     }
 }
 
@@ -658,7 +658,7 @@ mod tests {
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
-    /// A file whose first frame decodes and whose later frames need a decoder FilmCraft lacks.
+    /// A file whose first frame decodes and whose later إطار need a decoder FilmCraft lacks.
     struct PartlyDecodable(MediaInfo);
     impl MediaSource for PartlyDecodable {
         fn info(&self) -> &MediaInfo {
@@ -671,13 +671,13 @@ mod tests {
                 _ => Err(MediaError::Unsupported("H.264: field pictures".into())),
             }
         }
-        fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-            Ok(AudioBuffer::silence(sample_rate, 3, frames))
+        fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+            Ok(AudioBuffer::silence(sample_rate, 3, إطار))
         }
     }
 
-    /// #626: frames the decoder does not support show the unreadable slate (not nothing) and the
-    /// item says why; decodable frames, damaged ones and the sound are left alone.
+    /// #626: إطار the decoder does not support show the unreadable slate (not nothing) and the
+    /// item says why; decodable إطار, damaged ones and the sound are left alone.
     #[test]
     fn undecodable_frames_show_the_unreadable_slate() {
         let info = GeneratorSource::new(filmcraft_media::Generator::ColorMatte { color: [0.0; 4] }, 16, 8, Default::default(), filmcraft_time::Tick(100))
@@ -733,8 +733,8 @@ mod tests {
                 _ => MediaError::NoStream("video"),
             })
         }
-        fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-            Ok(AudioBuffer::silence(sample_rate, 1, frames))
+        fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+            Ok(AudioBuffer::silence(sample_rate, 1, إطار))
         }
     }
 

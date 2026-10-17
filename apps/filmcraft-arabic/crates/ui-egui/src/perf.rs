@@ -1,5 +1,5 @@
 //! `perf.stats` in the app: the engine's counters (decoder / GOP cache, jobs) plus playback
-//! (shown / dropped frames), the frame workers (decode and render ms per job, request hit rate,
+//! (shown / dropped إطار), the frame workers (decode and render ms per job, request hit rate,
 //! cache use), UI frame rate and process CPU time. Readable over the control channel
 //! (`perf.stats`, or `engine.execute {"command": "perf.stats"}`) and MCP `command_run`.
 
@@ -25,12 +25,12 @@ pub fn stats(app: &FilmcraftApp) -> Value {
         let sr = app.audio.as_ref().map_or(0, |a| a.sample_rate());
         v["playback"]["audio"] = app.playback.audio_stats.to_json(sr);
     }
-    let mut frames = app.frames.stats().to_json();
-    frames["workers"] = json!(app.frames.workers());
-    frames["queued"] = json!(app.frames.queue_len());
-    frames["renderCostMs"] = json!(app.frames.render_cost() * 1e3);
-    frames["cache"] = json!({"images": images, "imageMB": image_bytes as f64 / 1e6, "plans": plans, "planMB": plan_bytes as f64 / 1e6});
-    v["frames"] = frames;
+    let mut إطار = app.frames.stats().to_json();
+    إطار["workers"] = json!(app.frames.workers());
+    إطار["queued"] = json!(app.frames.queue_len());
+    إطار["renderCostMs"] = json!(app.frames.render_cost() * 1e3);
+    إطار["cache"] = json!({"images": images, "imageMB": image_bytes as f64 / 1e6, "plans": plans, "planMB": plan_bytes as f64 / 1e6});
+    v["frames"] = إطار;
     v["gpu"] = app.gpu.as_ref().map_or(Value::Null, |g| {
         json!({
             "uploadedBytes": g.compositor.uploaded_bytes,

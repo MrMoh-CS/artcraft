@@ -54,7 +54,7 @@ impl Accel for Recorder {
         assert_eq!(pic.CurrPic.picture_id, self.ids[target], "current picture surface");
         let valid = |p: &ffi::VAPictureHEVC| p.flags & ffi::VA_PICTURE_HEVC_INVALID == 0;
         let n = pic.ReferenceFrames.iter().take_while(|p| valid(p)).count();
-        assert!(pic.ReferenceFrames[n..].iter().all(|p| !valid(p)), "reference frames packed at the front");
+        assert!(pic.ReferenceFrames[n..].iter().all(|p| !valid(p)), "reference إطار packed at the front");
         let ids: BTreeSet<_> = pic.ReferenceFrames[..n].iter().map(|r| r.picture_id).collect();
         assert_eq!(ids.len(), n, "each reference frame once");
         assert!(!ids.contains(&pic.CurrPic.picture_id), "the target is not a reference");
@@ -120,7 +120,7 @@ impl Accel for Recorder {
                 let n = *minus1 as usize + 1;
                 assert!(list[..n].iter().all(valid), "{n} active entries");
                 assert!(list[n..].iter().all(|p| !valid(p)), "nothing past the active entries");
-                assert!(list[..n].iter().all(|p| ref_ids.contains(&p.picture_id)), "list entries are reference frames");
+                assert!(list[..n].iter().all(|p| ref_ids.contains(&p.picture_id)), "list entries are reference إطار");
             }
         }
         self.decoded[target] = true;
@@ -182,7 +182,7 @@ fn front(s: &Stream) -> Front<Recorder> {
 }
 
 fn pts(frames: &[DecodedFrame]) -> Vec<i64> {
-    frames.iter().map(|f| f.pts).collect()
+    إطار.iter().map(|f| f.pts).collect()
 }
 
 fn run_front(f: &mut Front<Recorder>, samples: &[(Vec<u8>, i64)]) -> Vec<i64> {

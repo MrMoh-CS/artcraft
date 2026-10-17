@@ -1,4 +1,4 @@
-//! Browser planes -> core frames; no color conversion or chroma reconstruction here.
+//! Browser planes -> core إطار; no color conversion or chroma reconstruction here.
 
 use std::sync::Arc;
 

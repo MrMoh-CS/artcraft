@@ -55,7 +55,7 @@ pub struct MxfSource {
     mpeg2_header: Vec<u8>,
     /// Sound tracks combined into one stream: (track, first stored sample frame).
     atracks: Vec<(usize, u64)>,
-    /// Presented sample frames.
+    /// Presented sample إطار.
     aframes: u64,
 }
 
@@ -185,7 +185,7 @@ fn start_frames(tc: &Timecode, rate: FrameRate) -> i64 {
     } else {
         (base, 1)
     };
-    // frames at the tc rate → frames at `rate` (exact when they are the same rate)
+    // إطار at the tc rate → إطار at `rate` (exact when they are the same rate)
     let n = tc.start as i128 * rate.num as i128 * den as i128;
     let d = num as i128 * rate.den as i128;
     ((n + d / 2) / d) as i64
@@ -456,15 +456,15 @@ impl MediaSource for MxfSource {
         Ok(frame)
     }
 
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
         let ainfo = self.info.audio().ok_or(MediaError::NoStream("audio"))?;
         let src_rate = ainfo.sample_rate;
         let ch = ainfo.channels.max(1) as usize;
-        let mut out = AudioBuffer::silence(sample_rate, ch, frames);
+        let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
         let ratio = src_rate as f64 / sample_rate as f64;
         let exact = src_rate == sample_rate;
         let s0 = if exact { start } else { (start as f64 * ratio).floor() as i64 };
-        let need = if exact { frames as i64 } else { (frames as f64 * ratio).ceil() as i64 + 2 };
+        let need = if exact { إطار as i64 } else { (frames as f64 * ratio).ceil() as i64 + 2 };
         // clip the request to the presented range [0, aframes)
         let a = s0.max(0);
         let b = (s0 + need).min(self.aframes as i64);

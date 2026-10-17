@@ -1,7 +1,7 @@
 //! Audio Track Mixer commands and the automation recorder.
 //!
 //! Strips are addressed by `strip` (or `track`): `"A1"` … (audio tracks), `"S1"` … (submixes),
-//! `"Mix"` (the master), a track id, or a strip name. Lanes are `volume`, `pan`, `mute`,
+//! `"المزج"` (the master), a track id, or a strip name. Lanes are `volume`, `pan`, `mute`,
 //! `send.<i>.level` and `fx.<slot>.<param>` (see [`filmcraft_project::mixer`]).
 //!
 //! **Recording.** `mixer.recordStart` begins an automation pass at the playhead (the UI calls it
@@ -35,7 +35,7 @@ use serde_json::{Value, json};
 use filmcraft_project::mixer::{
     self as pm, FADER_MAX_DB, FADER_MIN_DB, LANE_MUTE, LANE_PAN, LANE_VOLUME, MASTER_STRIP, lane_info, parse_fx_lane, parse_send_lane, thin_points, write_lane,
 };
-use filmcraft_project::{AudioChannels, AutomationMode, InputMap, ItemId, Param, ParamValue, Sequence, Track, TrackId, TrackKind, TrackSend, find_effect};
+use filmcraft_project::{AudioChannels, AutomationMode, InputMap, ItemId, Param, ParamValue, تسلسل، Track, TrackId, TrackKind, TrackSend, find_effect};
 use filmcraft_time::{TICKS_PER_SECOND, Tick};
 
 use crate::commands::{CommandSpec, always, bad, bool_p, f64_p, has_seq, str_p, time_p, u64_p};
@@ -114,7 +114,7 @@ impl Recorder {
 }
 
 /// Lanes a Write pass records on a strip (the 5.1 puck instead of pan when it feeds a 5.1 bus).
-fn write_lanes(seq: &Sequence, strip: TrackId) -> &'static [&'static str] {
+fn write_lanes(seq: &تسلسل، strip: TrackId) -> &'static [&'static str] {
     if strip == MASTER_STRIP {
         &[LANE_VOLUME]
     } else if seq.pans_51(strip) {
@@ -423,7 +423,7 @@ pub fn record_stop(s: &mut Session, t_stop: Tick) -> Result<Value> {
 pub fn set_clip_value(s: &mut Session, track: TrackId, lane: &str, v: f64, t: Tick) -> Result<()> {
     let (eff, par) = clip_target(lane);
     let v = clamp_lane(lane, v);
-    s.edit_sequence("Audio Clip Mixer", move |q, _, _| {
+    s.edit_sequence("مازج مقاطع الصوت", move |q, _, _| {
         let tr = q.mix_track_mut(track).ok_or_else(|| EngineError::Other("no such track".into()))?;
         let idx = tr.items.iter().position(|c| c.start <= t && t < c.end()).ok_or_else(|| EngineError::Other("no clip under the playhead".into()))?;
         let c = &mut tr.items[idx];
@@ -452,8 +452,8 @@ fn active_seq(s: &Session) -> Result<&Sequence> {
     s.active_sequence().ok_or(EngineError::NoSequence)
 }
 
-/// Parse a strip reference: id, "A1", "S1", "Mix", or a strip name.
-pub fn strip_ref(seq: &Sequence, v: &Value) -> Option<TrackId> {
+/// Parse a strip reference: id, "A1", "S1", "المزج", or a strip name.
+pub fn strip_ref(seq: &تسلسل، v: &Value) -> Option<TrackId> {
     if let Some(id) = v.as_u64() {
         let id = TrackId(id);
         return seq.strip(id).map(|_| id);
@@ -474,10 +474,10 @@ pub fn strip_ref(seq: &Sequence, v: &Value) -> Option<TrackId> {
     seq.audio_tracks.iter().chain(&seq.submix_tracks).find(|t| t.name.eq_ignore_ascii_case(name)).map(|t| t.id)
 }
 
-/// Display reference of a strip ("A1", "S2", "Mix").
-pub fn strip_label(seq: &Sequence, id: TrackId) -> String {
+/// Display reference of a strip ("A1", "S2", "المزج").
+pub fn strip_label(seq: &تسلسل، id: TrackId) -> String {
     if id == MASTER_STRIP {
-        return "Mix".into();
+        return "المزج".into();
     }
     if let Some(i) = seq.audio_tracks.iter().position(|t| t.id == id) {
         return format!("A{}", i + 1);
@@ -552,8 +552,8 @@ fn mode_p(p: &Value) -> Option<AutomationMode> {
 
 pub(crate) fn channels_name(c: AudioChannels) -> &'static str {
     match c {
-        AudioChannels::Mono => "Mono",
-        AudioChannels::Stereo => "Stereo",
+        AudioChannels::Mono => "أحادي",
+        AudioChannels::Stereo => "ستيريو",
         AudioChannels::Surround51 => "5.1",
         AudioChannels::Adaptive => "Adaptive",
     }
@@ -571,7 +571,7 @@ pub(crate) fn channels_from(s: &str) -> Option<AudioChannels> {
 }
 
 /// JSON view of one strip at time `t`.
-pub fn strip_json(s: &Session, seq: &Sequence, id: TrackId, t: Tick) -> Value {
+pub fn strip_json(s: &Session, seq: &تسلسل، id: TrackId, t: Tick) -> Value {
     let Some(tr) = seq.strip(id) else { return Value::Null };
     let live = &s.previews.live;
     let shown = |lane: &str| live.get(id, lane).map(|o| o.value).unwrap_or_else(|| underlying(&tr, lane, t));
@@ -604,7 +604,7 @@ pub fn strip_json(s: &Session, seq: &Sequence, id: TrackId, t: Tick) -> Value {
         "recordArm": tr.mixer.record_arm,
         "soloSafe": tr.mixer.solo_safe,
         "inputMap": tr.mixer.input_map.label(),
-        "output": tr.mixer.output.map(|o| strip_label(seq, o)).unwrap_or_else(|| if id == MASTER_STRIP { String::new() } else { "Mix".into() }),
+        "output": tr.mixer.output.map(|o| strip_label(seq, o)).unwrap_or_else(|| if id == MASTER_STRIP { String::new() } else { "المزج".into() }),
         "inserts": tr.effects.iter().enumerate().map(|(i, e)| json!({"slot": i, "effect": e.effect, "name": e.def().map(|d| d.name).unwrap_or(""), "enabled": e.enabled, "postFader": e.post_fader, "params": insert_params(e)})).collect::<Vec<_>>(),
         "sends": tr.mixer.sends.iter().enumerate().map(|(i, sd)| json!({"send": i, "target": strip_label(seq, sd.target), "levelDb": sd.level_db, "pan": sd.pan, "preFader": sd.pre_fader, "muted": sd.muted})).collect::<Vec<_>>(),
         "at": {"time": t.0, "volumeDb": shown(LANE_VOLUME), "pan": shown(LANE_PAN), "mute": shown(LANE_MUTE) >= 0.5},
@@ -1028,7 +1028,7 @@ fn clip_set(s: &mut Session, p: &Value) -> Result<Value> {
     if bool_p(p, "begin").unwrap_or(false) {
         s.history.merge_key = None;
     }
-    s.edit_merged("Audio Clip Mixer", &key, |pr, _| {
+    s.edit_merged("مازج مقاطع الصوت", &key, |pr, _| {
         let seq = pr.sequence_mut(seq_id).ok_or(EngineError::NoSequence)?;
         let (_, it) = seq.find_item_mut(clip).ok_or_else(|| bad("clipMixer.set", "no such clip"))?;
         let mt = it.source_time_at(t.clamp(it.start, it.end()));
@@ -1187,7 +1187,7 @@ pub fn commands() -> Vec<CommandSpec> {
             "Track Mixer Settings",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"name":str?,"volumeDb":f64?,"pan":f64?,"muted":bool?,"solo":bool?,"recordArm":bool?,"soloSafe":bool?,"mode":"Off|Read|Latch|Touch|Write"?,"output":"Mix"|"S1"?,"inputMap":"Stereo|Left|Right|Swap|Mono"?,"channels":"Mono|Stereo|5.1"?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"name":str?,"volumeDb":f64?,"pan":f64?,"muted":bool?,"solo":bool?,"recordArm":bool?,"soloSafe":bool?,"mode":"Off|Read|Latch|Touch|Write"?,"output":"المزج"|"S1"?,"inputMap":"Stereo|Left|Right|Swap|Mono"?,"channels":"Mono|Stereo|5.1"?}"#,
             has_seq,
             set_strip,
             true,
@@ -1197,7 +1197,7 @@ pub fn commands() -> Vec<CommandSpec> {
             "Set Mixer Control",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":"volume|pan|mute|send.<i>.level|fx.<slot>.<param>","value":f64,"time":ticks?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":"volume|pan|mute|send.<i>.level|fx.<slot>.<param>","value":f64,"time":ticks?}"#,
             has_seq,
             |s, p| {
                 let id = strip_p(s, p, "mixer.setValue")?;
@@ -1218,7 +1218,7 @@ pub fn commands() -> Vec<CommandSpec> {
             "Touch Mixer Control",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":"volume|pan|mute|send.<i>.level|fx.<slot>.<param>","value":f64,"time":ticks?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":"volume|pan|mute|send.<i>.level|fx.<slot>.<param>","value":f64,"time":ticks?}"#,
             has_seq,
             |s, p| {
                 let id = strip_p(s, p, "mixer.touch")?;
@@ -1234,7 +1234,7 @@ pub fn commands() -> Vec<CommandSpec> {
             "Release Mixer Control",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":str?,"time":ticks?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":str?,"time":ticks?}"#,
             has_seq,
             |s, p| {
                 let id = strip_p(s, p, "mixer.release")?;
@@ -1336,25 +1336,25 @@ pub fn commands() -> Vec<CommandSpec> {
             set_default_transition,
             true,
         ),
-        spec("mixer.addSubmix", "Add Audio Submix Track", &["تسلسل"], None, r#"{"name":str?,"channels":"Mono|Stereo|5.1"?}"#, has_seq, add_submix, true),
+        spec("mixer.addSubmix", "Add Audio Submix Track", &["التسلسل"], None, r#"{"name":str?,"channels":"Mono|Stereo|5.1"?}"#, has_seq, add_submix, true),
         spec("mixer.deleteSubmix", "Delete Submix Track", &[], None, r#"{"strip":"S1"|id}"#, has_seq, delete_submix, true),
         spec(
             "mixer.addInsert",
             "Add Track Effect",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"effect":str,"slot":n?,"postFader":bool?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"effect":str,"slot":n?,"postFader":bool?}"#,
             has_seq,
             add_insert,
             true,
         ),
-        spec("mixer.removeInsert", "Remove Track Effect", &[], None, r#"{"strip":"A1"|"S1"|"Mix"|id,"slot":n}"#, has_seq, remove_insert, true),
+        spec("mixer.removeInsert", "Remove Track Effect", &[], None, r#"{"strip":"A1"|"S1"|"المزج"|id,"slot":n}"#, has_seq, remove_insert, true),
         spec(
             "mixer.setInsert",
             "Track Effect Settings",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"slot":n,"enabled":bool?,"postFader":bool?,"params":{id:value}?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"slot":n,"enabled":bool?,"postFader":bool?,"params":{id:value}?}"#,
             has_seq,
             set_insert,
             true,
@@ -1385,29 +1385,29 @@ pub fn commands() -> Vec<CommandSpec> {
             "Add Track Keyframe",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":str?,"time":ticks?,"value":f64}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":str?,"time":ticks?,"value":f64}"#,
             has_seq,
             set_kf,
             true,
         ),
-        spec("mixer.deleteKeyframe", "Delete Track Keyframe", &[], None, r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":str?,"time":ticks}"#, has_seq, delete_kf, true),
+        spec("mixer.deleteKeyframe", "Delete Track Keyframe", &[], None, r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":str?,"time":ticks}"#, has_seq, delete_kf, true),
         spec(
             "mixer.moveKeyframe",
             "Move Track Keyframe",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":str?,"time":ticks,"newTime":ticks?,"value":f64?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":str?,"time":ticks,"newTime":ticks?,"value":f64?}"#,
             has_seq,
             move_kf,
             true,
         ),
-        spec("mixer.clearLane", "Clear Track Keyframes", &[], None, r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":str?}"#, has_seq, clear_lane, true),
+        spec("mixer.clearLane", "Clear Track Keyframes", &[], None, r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":str?}"#, has_seq, clear_lane, true),
         spec(
             "mixer.writeAutomation",
             "Write Automation Points",
             &[],
             None,
-            r#"{"strip":"A1"|"S1"|"Mix"|id,"lane":str?,"points":[[ticks,value]],"tolerance":f64?}"#,
+            r#"{"strip":"A1"|"S1"|"المزج"|id,"lane":str?,"points":[[ticks,value]],"tolerance":f64?}"#,
             has_seq,
             write_automation,
             true,

@@ -139,7 +139,7 @@ pub fn parse_header(b: &[u8]) -> Result<Header> {
     let bitrate_kbps = *rates.get(bitrate_index).ok_or(Error::Invalid("forbidden bit rate index"))?;
     // §2.4.3.1: Layer I slots are 4 bytes, 12 slots per 384-sample frame per bit/s over the
     // sampling frequency; Layers II / III have 1-byte slots, 144 per 1152 samples (72 for the
-    // 576-sample Layer III frames of MPEG-2).
+    // 576-sample Layer III إطار of MPEG-2).
     let bits_per_second = u64::from(bitrate_kbps) * 1000;
     let rate = u64::from(sample_rate);
     let pad = u64::from(padding);
@@ -165,7 +165,7 @@ pub struct Frame {
 /// Subband samples of one frame: `[channel][time slot][subband]`, up to 36 time slots.
 type Subbands = [[[f32; tables::SUBBANDS]; 36]; 2];
 
-/// A Layer I / Layer II decoder. It keeps the synthesis filter state between frames, so frames
+/// A Layer I / Layer II decoder. It keeps the synthesis filter state between إطار, so إطار
 /// must be fed in order; call [`Decoder::reset`] before decoding from another position.
 pub struct Decoder {
     /// The synthesis filter's `V` vector per channel (§2.4.3.2, Figure A.2).
@@ -189,7 +189,7 @@ impl Decoder {
         self.v = [[0.0; 1024]; 2];
     }
 
-    /// Decode the frame at the start of `frame` (which may run on into the next frames; only
+    /// Decode the frame at the start of `frame` (which may run on into the next إطار; only
     /// [`Header::frame_bytes`] are read).
     pub fn decode(&mut self, frame: &[u8]) -> Result<Frame> {
         let header = parse_header(frame)?;

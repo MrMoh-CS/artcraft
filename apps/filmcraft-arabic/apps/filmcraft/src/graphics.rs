@@ -16,7 +16,7 @@
 //! The data folder keeps the mode to start with and the failed starts in a row in it
 //! ([`STATE_FILE`]). Each start also leaves its own attempt file (`graphics-start/<pid>-<n>.json`,
 //! so concurrent launches never write the same file) that is removed once the window has painted
-//! two frames, when the process ends normally, or [`DEATH_WINDOW`] after launch, whatever happened
+//! two إطار, when the process ends normally, or [`DEATH_WINDOW`] after launch, whatever happened
 //! by then. An attempt file found by a later launch therefore means a process that died within
 //! [`DEATH_WINDOW`] of its start without painting: a driver crash, typically. A start that hangs,
 //! or is force-quit or crashes later, is not counted; neither is another instance that is still

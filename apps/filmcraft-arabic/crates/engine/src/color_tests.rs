@@ -14,7 +14,7 @@ fn demo() -> Session {
 fn pick_clip(s: &mut Session) -> ClipId {
     let q = s.active_sequence().unwrap();
     let t = s.playhead();
-    // the demo opens with the playhead inside the first V1 clip (its first frames fade from black)
+    // the demo opens with the playhead inside the first V1 clip (its first إطار fade from black)
     let id = q.video_tracks[0].item_at(t).unwrap().id;
     s.state.selection = vec![id];
     id

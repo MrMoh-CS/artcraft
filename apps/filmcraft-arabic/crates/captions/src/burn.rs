@@ -239,7 +239,7 @@ pub fn track_overlay(track: &CaptionTrack, t: Tick, w: usize, h: usize) -> Optio
 }
 
 /// Overlays of every visible caption track of a sequence at `t`, bottom track first.
-pub fn sequence_overlays(seq: &Sequence, t: Tick, w: usize, h: usize) -> Vec<Overlay> {
+pub fn sequence_overlays(seq: &تسلسل، t: Tick, w: usize, h: usize) -> Vec<Overlay> {
     seq.caption_tracks.iter().rev().filter_map(|tr| track_overlay(tr, t, w, h)).collect()
 }
 

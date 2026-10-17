@@ -135,7 +135,7 @@ fn names() {
     assert!(validate_name(&"x".repeat(32)).is_err());
     assert!(validate_name(&"x".repeat(31)).is_ok());
     let mut w = Writer::default();
-    w.stream(Writer::ROOT, "Name", vec![]).unwrap();
+    w.stream(Writer::ROOT, "الاسم", vec![]).unwrap();
     assert!(matches!(w.stream(Writer::ROOT, "NAME", vec![]), Err(Error::BadName(_))));
     let s = w.stream(Writer::ROOT, "x", vec![]).unwrap();
     assert!(w.storage(s, "y", [0; 16]).is_err(), "streams have no children");

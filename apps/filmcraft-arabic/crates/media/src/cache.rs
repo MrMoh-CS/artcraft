@@ -1,4 +1,4 @@
-//! A byte-budgeted LRU cache of decoded/rendered frames, shared by monitors, thumbnails and export.
+//! A byte-budgeted LRU cache of decoded/rendered إطار, shared by monitors, thumbnails and export.
 
 use std::collections::HashMap;
 use std::hash::Hash;

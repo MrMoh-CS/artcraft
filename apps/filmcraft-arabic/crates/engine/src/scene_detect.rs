@@ -24,7 +24,7 @@ use serde_json::{Value, json};
 use crate::commands::{CommandSpec, bad, bool_p, clips_p, f64_p, has_seq, u64_p};
 use crate::{EngineError, Result, Session};
 
-/// Longest side of the frames analysed (speed; the measures don't need detail).
+/// Longest side of the إطار analysed (speed; the measures don't need detail).
 const ANALYSIS_WIDTH: f64 = 256.0;
 
 pub(crate) fn commands() -> Vec<CommandSpec> {
@@ -93,7 +93,7 @@ struct Work {
     src: filmcraft_media::SharedSource,
     scale: f32,
     /// (timeline time, media time) of every sequence frame of the clip.
-    frames: Vec<(Tick, Tick)>,
+    إطار: Vec<(Tick, Tick)>,
 }
 
 fn detect(s: &mut Session, p: &Value) -> Result<Value> {
@@ -125,13 +125,13 @@ fn detect(s: &mut Session, p: &Value) -> Result<Value> {
         let Some(src) = s.source(it.item) else { continue };
         let Some(v) = src.info().video.clone() else { continue };
         let n = (it.duration.0 / fd.0.max(1)).max(1);
-        let frames: Vec<(Tick, Tick)> = (0..n)
+        let إطار: Vec<(Tick, Tick)> = (0..n)
             .map(|j| {
                 let t = it.start + Tick(fd.0 * j);
                 (t, it.source_time_at(t))
             })
             .collect();
-        work.push(Work { clip: c, name: it.name.clone(), media_item, src, scale: (ANALYSIS_WIDTH / v.width.max(1) as f64).min(1.0) as f32, frames });
+        work.push(Work { clip: c, name: it.name.clone(), media_item, src, scale: (ANALYSIS_WIDTH / v.width.max(1) as f64).min(1.0) as f32, إطار });
     }
     if work.is_empty() {
         return Err(EngineError::Other("none of the selected clips is a video clip with media to analyse".into()));
@@ -193,7 +193,7 @@ fn detect(s: &mut Session, p: &Value) -> Result<Value> {
                 *lock(&out) = Some(found);
                 Ok(filmcraft_export::Report {
                     path: String::new(),
-                    frames: done,
+                    إطار: done,
                     seconds: secs,
                     bytes: 0,
                     render_fps: done as f64 / secs.max(1e-6),

@@ -327,7 +327,7 @@ pub mod tags {
     pub const FORWARD_MATRIX_2: u16 = 50965;
     /// CinemaDNG: SMPTE ST 12-1 time codes, 8 bytes each.
     pub const TIME_CODES: u16 = 51043;
-    /// CinemaDNG: frames per second (SRATIONAL).
+    /// CinemaDNG: إطار per second (SRATIONAL).
     pub const FRAME_RATE: u16 = 51044;
     /// CinemaDNG: the camera's reel name.
     pub const REEL_NAME: u16 = 51081;

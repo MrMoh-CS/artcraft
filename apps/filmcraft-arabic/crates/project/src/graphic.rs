@@ -107,12 +107,12 @@ fn layer_def(id: &'static str, name: &'static str, mut params: Vec<ParamDef>) ->
 
 /// Definitions of the two layer kinds (appended to the effect registry; not in the Effects panel).
 pub(crate) fn layer_defs() -> Vec<EffectDef> {
-    const X: &str = "Text";
+    const X: &str = "النص";
     const S: &str = "Shape";
     vec![
         layer_def(
             TEXT_LAYER,
-            "Text",
+            "النص",
             vec![
                 tx("name", "Layer Name", "", false, ""),
                 tx("text", "Source Text", "", true, ""),
@@ -456,7 +456,7 @@ pub fn layer_display_name(e: &EffectInstance, index: usize) -> String {
     if e.effect == TEXT_LAYER {
         let t = ss(e, "text", Tick::ZERO);
         let first = t.lines().next().unwrap_or("").trim().to_string();
-        if first.is_empty() { "Text".into() } else { first.chars().take(40).collect() }
+        if first.is_empty() { "النص".into() } else { first.chars().take(40).collect() }
     } else {
         format!("Shape {:02}", index + 1)
     }

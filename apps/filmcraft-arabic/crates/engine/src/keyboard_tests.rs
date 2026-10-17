@@ -1,5 +1,5 @@
 //! Keyboard parity commands (M3.12): the shortcut tables, navigation, selection, trimming,
-//! nudging, targeting, clip volume, text layers, poster and export frames.
+//! nudging, targeting, clip volume, text layers, poster and export إطار.
 
 use super::*;
 use crate::shortcut_presets as presets;
@@ -209,7 +209,7 @@ fn nudge_slip_and_slide_the_selection_with_undo() {
     s.execute("timeline.slideRight", json!({})).unwrap();
     assert_eq!(clip(&s, mid.0).start, mid.1 + rate.tick_of(1));
     assert_eq!(clip(&s, v1[0].0).end(), mid.1 + rate.tick_of(1));
-    assert_eq!(s.history.undo.last().unwrap().0, "انزلاق");
+    assert_eq!(s.history.undo.last().unwrap().0, "Slide");
 }
 
 #[test]
@@ -389,9 +389,9 @@ fn reveal_nested_sequence_opens_it_at_the_matching_frame() {
 fn keyboard_slide_keeps_linked_partners_aligned_at_a_neighbour_limit() {
     // #712: a three-frame sound-only follower limits only the sound partner
     let mut s = Session::default();
-    s.execute("file.newProject", json!({"name": "انزلاق"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
-    let r = s.execute("file.newOfflineFile", json!({"name": "الوسائط", "seconds": 4, "fps": 25, "video": true, "audio": true})).unwrap();
+    s.execute("file.newProject", json!({"name": "Slide"})).unwrap();
+    s.execute("file.newSequence", json!({"name": "التسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
+    let r = s.execute("file.newOfflineFile", json!({"name": "Media", "seconds": 4, "fps": 25, "video": true, "audio": true})).unwrap();
     let item = r["item"].as_u64().unwrap();
     let fr = s.sequence_rate().tick_of(1);
     let r =

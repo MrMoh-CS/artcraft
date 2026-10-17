@@ -23,10 +23,10 @@ pub fn decode_json() -> Value {
         "evicted": g.evicted,
         // sources that hold a decoder right now (idle ones give theirs up beyond a cap)
         "liveDecoders": filmcraft_codecs::live_decoders(),
-        // decoded frames all sources hold, and the budget idle sources are trimmed to
+        // decoded إطار all sources hold, and the budget idle sources are trimmed to
         "cacheMB": filmcraft_codecs::cached_bytes() as f64 / 1e6,
         "cacheBudgetMB": filmcraft_codecs::FRAME_BUDGET as f64 / 1e6,
-        // plane buffers of evicted frames waiting for the next decoded pictures, and how many
+        // plane buffers of evicted إطار waiting for the next decoded pictures, and how many
         // planes were decoded into a recycled buffer
         "planePoolMB": filmcraft_frame::pool::stats().idle_bytes as f64 / 1e6,
         "planesReused": filmcraft_frame::pool::stats().reused,

@@ -57,12 +57,12 @@ const TIMEBASES: [(i64, i64); 15] = [
     (120, 1),
 ];
 const SAMPLE_RATES: [u32; 5] = [32_000, 44_100, 48_000, 88_200, 96_000];
-const MIXES: [&str; 4] = ["Stereo", "Mono", "5.1", "Adaptive"];
+const MIXES: [&str; 4] = ["ستيريو", "أحادي", "5.1", "Adaptive"];
 
 fn mix_name(c: AudioChannels) -> &'static str {
     match c {
-        AudioChannels::Mono => "Mono",
-        AudioChannels::Stereo => "Stereo",
+        AudioChannels::Mono => "أحادي",
+        AudioChannels::Stereo => "ستيريو",
         AudioChannels::Surround51 => "5.1",
         AudioChannels::Adaptive => "Adaptive",
     }
@@ -95,7 +95,7 @@ pub fn open(app: &mut FilmcraftApp) {
     app.dialog = Some(crate::Dialog::SequenceSettings);
 }
 
-/// File ▸ New ▸ Sequence…: the dialog as New Sequence, from the default settings, named like
+/// File ▸ New ▸ Sequence…: the dialog as New تسلسل، from the default settings, named like
 /// `file.newSequence` would name it, with three video and three audio tracks.
 pub fn open_new(app: &mut FilmcraftApp) {
     let st = SequenceSettings::default();
@@ -188,7 +188,7 @@ fn gcd(mut a: u32, mut b: u32) -> u32 {
 }
 
 fn timebase_label(r: FrameRate) -> String {
-    tlf!("{rate} frames/second", rate = r.label())
+    tlf!("{rate} إطار/second", rate = r.label())
 }
 
 /// The Video Display Format choices for a timebase: drop-frame / non-drop-frame timecode for the
@@ -203,7 +203,7 @@ fn timecode_formats(r: FrameRate) -> Vec<(&'static str, String)> {
 
 fn par_label(par: (u32, u32)) -> String {
     if par.0 == par.1 {
-        tl!("Square Pixels (1.0)").into()
+        tl!("بكسل مربع (1.0)").into()
     } else if par.1 > 0 {
         tlf!("Custom ({ratio})", ratio = format!("{:.4}", f64::from(par.0) / f64::from(par.1)))
     } else {
@@ -329,7 +329,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
         });
         elems.push(("sequenceSettings.timebase".into(), resp.response.rect, shown));
     });
-    section(ui, "Video", |ui| {
+    section(ui, "الفيديو", |ui| {
         row(ui, label_w, "Frame Size:", true, |ui| {
             let w = ui.add(crate::widgets::number_drag(&mut d.width).range(1..=filmcraft_project::MAX_FRAME_SIDE).speed(1.0));
             elems.push(("sequenceSettings.width".into(), w.rect, d.width.to_string()));
@@ -366,7 +366,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
             elems.push(("sequenceSettings.videoDisplay".into(), resp.response.rect, shown));
         });
     });
-    section(ui, "Audio", |ui| {
+    section(ui, "الصوت", |ui| {
         row(ui, label_w, "Channel Format:", true, |ui| {
             let shown = d.mix.clone();
             let resp = egui::ComboBox::from_id_salt("seq-settings-mix").selected_text(t(&shown)).width(120.0).show_ui(ui, |ui| {
@@ -378,7 +378,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
             elems.push(("sequenceSettings.channelFormat".into(), resp.response.rect, shown));
             ui.add_enabled(false, egui::Label::new(tl!("Number of Channels:")));
             let n = match d.mix.as_str() {
-                "Mono" => "1",
+                "أحادي" => "1",
                 "5.1" => "6",
                 "Adaptive" => "—",
                 _ => "2",
@@ -412,7 +412,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
         row(ui, label_w, "Width:", false, |ui| fixed_value(ui, elems, "previewWidth", &d.width.to_string()));
         row(ui, label_w, "Height:", false, |ui| {
             fixed_value(ui, elems, "previewHeight", &d.height.to_string());
-            ui.add_enabled(false, egui::Button::new(tl!("Reset"))).on_disabled_hover_text(t(NOT_YET));
+            ui.add_enabled(false, egui::Button::new(tl!("إعادة ضبط"))).on_disabled_hover_text(t(NOT_YET));
         });
         ui.horizontal(|ui| {
             let mut bit_depth = cur.max_bit_depth;
@@ -513,13 +513,13 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
             });
             ui.add_space(10.0);
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                let o = ui.add(egui::Button::new(egui::RichText::new(tl!("OK")).color(egui::Color32::WHITE)).fill(accent));
-                elems.push(("sequenceSettings.ok".into(), o.rect, "OK".into()));
+                let o = ui.add(egui::Button::new(egui::RichText::new(tl!("موافق")).color(egui::Color32::WHITE)).fill(accent));
+                elems.push(("sequenceSettings.ok".into(), o.rect, "موافق".into()));
                 if o.clicked() {
                     apply = true;
                 }
-                let c = ui.button(tl!("Cancel"));
-                elems.push(("sequenceSettings.cancel".into(), c.rect, "Cancel".into()));
+                let c = ui.button(tl!("إلغاء"));
+                elems.push(("sequenceSettings.cancel".into(), c.rect, "إلغاء".into()));
                 if c.clicked() {
                     keep = false;
                 }
@@ -605,7 +605,7 @@ mod tests {
         let (p, rest) = new_sequence_params(&d);
         assert_eq!(
             Value::Object(p),
-            json!({"name":"Shorts","width":1080,"height":1920,"fps":24_000.0/1001.0,"sampleRate":48_000,"mix":"Stereo","video":2,"audio":4})
+            json!({"name":"Shorts","width":1080,"height":1920,"fps":24_000.0/1001.0,"sampleRate":48_000,"mix":"ستيريو","video":2,"audio":4})
         );
         assert!(rest.is_empty(), "everything else is the default: {rest:?}");
         // what file.newSequence has no parameter for follows on the new sequence; a blank name

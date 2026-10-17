@@ -117,7 +117,7 @@ pub(crate) fn export(
         .find_map(|f| f(Format::Aac, a.sr, a.channels as u32, settings))
         .ok_or_else(|| ExportError::Unsupported("AAC encoder not available".into()))??;
     let entry = enc.sample_entry();
-    let frames = a.remaining();
+    let إطار = a.remaining();
     // one second per chunk: memory stays flat however long the range is
     let chunk = i64::from(a.sr.max(1));
     if !settings.part_of_batch {
@@ -154,7 +154,7 @@ pub(crate) fn export(
     if settings.part_of_batch {
         progress.done.store(1, Ordering::Relaxed);
     }
-    Ok((n, frames))
+    Ok((n, إطار))
 }
 
 #[cfg(test)]

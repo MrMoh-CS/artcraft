@@ -1,4 +1,4 @@
-//! Premiere-style docking: a tree of splits and tab groups. Panels are rounded frames separated by
+//! Premiere-style docking: a tree of splits and tab groups. Panels are rounded إطار separated by
 //! thin gutters; each group has a tab strip (active tab bright, with a panel menu "≡"); the focused
 //! panel gets a blue outline. Gutters drag to resize; workspaces are serialized trees.
 
@@ -75,17 +75,17 @@ impl PanelKind {
     ];
     pub fn title(self) -> &'static str {
         match self {
-            PanelKind::Project => "Project",
-            PanelKind::MediaBrowser => "Media Browser",
-            PanelKind::Libraries => "Libraries",
-            PanelKind::Info => "Info",
+            PanelKind::Project => "المشروع",
+            PanelKind::MediaBrowser => "متصفح الوسائط",
+            PanelKind::Libraries => "المكتبات",
+            PanelKind::Info => "معلومات",
             PanelKind::Effects => "المؤثرات",
             PanelKind::Markers => "العلامات",
             PanelKind::History => "History",
             PanelKind::Source => "المصدر",
             PanelKind::EffectControls => "التحكم بالمؤثرات",
-            PanelKind::AudioClipMixer => "Audio Clip Mixer",
-            PanelKind::Metadata => "Metadata",
+            PanelKind::AudioClipMixer => "مازج مقاطع الصوت",
+            PanelKind::Metadata => "البيانات الوصفية",
             PanelKind::Program => "البرنامج",
             PanelKind::Timeline => "الخط الزمني",
             PanelKind::Tools => "Tools",
@@ -93,11 +93,11 @@ impl PanelKind {
             PanelKind::AudioTrackMixer => "Audio Track Mixer",
             PanelKind::LumetriColor => "Lumetri Color",
             PanelKind::LumetriScopes => "Lumetri Scopes",
-            PanelKind::EssentialGraphics => "Essential Graphics",
+            PanelKind::EssentialGraphics => "الرسوميات الأساسية",
             PanelKind::EssentialSound => "Essential Sound",
             PanelKind::TextToSpeech => "Text to Speech",
             PanelKind::Properties => "الخصائص",
-            PanelKind::Text => "Text",
+            PanelKind::Text => "النص",
             PanelKind::Events => "Events",
             PanelKind::Progress => "Progress",
             PanelKind::ReferenceMonitor => "Reference Monitor",
@@ -177,7 +177,7 @@ fn vsplit(size: SplitSize, a: DockNode, b: DockNode) -> DockNode {
     DockNode::Split { vertical: true, size, a: Box::new(a), b: Box::new(b) }
 }
 
-pub const WORKSPACES: [&str; 9] = ["Editing", "التجميع", "الألوان", "المؤثرات", "الصوت", "Captions and Graphics", "Learning", "Review", "All Panels"];
+pub const WORKSPACES: [&str; 9] = ["التحرير", "Assembly", "Color", "المؤثرات", "الصوت", "Captions and Graphics", "Learning", "Review", "All Panels"];
 
 /// The user's workspaces file, beside `preferences.json` in the data directory.
 pub const WORKSPACES_FILE: &str = "workspaces.json";
@@ -313,7 +313,7 @@ pub fn workspace(name: &str) -> DockNode {
     use SplitSize::*;
     let bottom_editing = || hsplit(FixedA(64.0), tabs(&[Tools], 0), hsplit(FixedB(116.0), tabs(&[Timeline], 0), tabs(&[AudioMeters], 0)));
     match name {
-        "التجميع" => vsplit(
+        "Assembly" => vsplit(
             Ratio(0.52),
             hsplit(
                 Ratio(0.46),
@@ -322,7 +322,7 @@ pub fn workspace(name: &str) -> DockNode {
             ),
             bottom_editing(),
         ),
-        "الألوان" => hsplit(
+        "Color" => hsplit(
             FixedB(340.0),
             vsplit(
                 Ratio(0.58),
@@ -932,7 +932,7 @@ mod tests {
 
     #[test]
     fn close_and_open() {
-        let mut d = workspace("Editing");
+        let mut d = workspace("التحرير");
         d.close(PanelKind::Metadata);
         assert!(!d.contains(PanelKind::Metadata));
         d.open_near(PanelKind::LumetriColor, PanelKind::Program);
@@ -945,7 +945,7 @@ mod tests {
     /// #284: with Project and Program closed (or every panel closed) a panel still opens.
     #[test]
     fn open_near_falls_back_to_the_first_group() {
-        let mut d = workspace("Editing");
+        let mut d = workspace("التحرير");
         let mut all = Vec::new();
         d.panels(&mut all);
         for p in all {

@@ -247,7 +247,7 @@ const NOISE: &[&str] = &["Video Effects", "Noise & Grain"];
 const PERSPECTIVE: &[&str] = &["Video Effects", "Perspective"];
 const STYLIZE: &[&str] = &["Video Effects", "Stylize"];
 const TRANSFORM: &[&str] = &["Video Effects", "Transform"];
-const VIDEO: &[&str] = &["Video Effects", "Video"];
+const VIDEO: &[&str] = &["Video Effects", "الفيديو"];
 const A_AMP: &[&str] = &["Audio Effects", "Amplitude and Compression"];
 const A_DELAY: &[&str] = &["Audio Effects", "Delay and Echo"];
 const A_FILTER: &[&str] = &["Audio Effects", "Filter and EQ"];
@@ -307,7 +307,7 @@ fn build_effects() -> Vec<EffectDef> {
             name: "Volume",
             kind: EffectKind::Audio,
             category: &[],
-            params: vec![b("bypass", "Bypass", false), fs("level", "Level", 0.0, (-287.5, 15.0), (-60.0, 15.0), "dB", 1)],
+            params: vec![b("bypass", "Bypass", false), fs("level", "المستوى", 0.0, (-287.5, 15.0), (-60.0, 15.0), "dB", 1)],
             intrinsic: true,
             accelerated: false,
             float32: true,
@@ -547,7 +547,7 @@ fn build_effects() -> Vec<EffectDef> {
                 b("invert", "Invert", false),
             ],
         ),
-        video("posterize", "Posterize", STYLIZE, vec![fs("levels", "Level", 7.0, (2.0, 255.0), (2.0, 32.0), "", 0)]),
+        video("posterize", "Posterize", STYLIZE, vec![fs("levels", "المستوى", 7.0, (2.0, 255.0), (2.0, 32.0), "", 0)]),
         video(
             "mosaic",
             "Mosaic",
@@ -692,7 +692,7 @@ fn build_effects() -> Vec<EffectDef> {
             KEYING,
             vec![
                 col("key_color", "Key Color", [0.0, 0.8, 0.2, 1.0]),
-                ch("output", "Output", &["Composite", "Alpha Channel", "Color Channel"], 0),
+                ch("output", "المخرجات", &["Composite", "Alpha Channel", "Color Channel"], 0),
                 ch("setting", "Setting", &["Default", "Relaxed", "Aggressive", "Custom"], 0),
                 grp(f("transparency", "Transparency", 45.0, 0.0, 100.0, ""), "Matte Generation"),
                 grp(f("highlight", "Highlight", 10.0, 0.0, 100.0, ""), "Matte Generation"),
@@ -709,7 +709,7 @@ fn build_effects() -> Vec<EffectDef> {
             "Track Matte Key",
             KEYING,
             vec![
-                ch("matte", "Matte", &["None", "Video 1", "Video 2", "Video 3", "Video 4"], 0),
+                ch("matte", "Matte", &["None", "فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4"], 0),
                 ch("composite", "Composite Using", &["Matte Alpha", "Matte Luma"], 0),
                 b("reverse", "Reverse", false),
             ],

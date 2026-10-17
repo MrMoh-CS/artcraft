@@ -44,9 +44,9 @@ struct MkvAudio {
     /// Index into `MkvFile::tracks`.
     track: usize,
     state: Mutex<AudioState>,
-    /// Packet start positions in source sample frames.
+    /// Packet start positions in source sample إطار.
     starts: Vec<i64>,
-    /// Decoder pre-roll after a seek, in source sample frames (0: prime with one packet).
+    /// Decoder pre-roll after a seek, in source sample إطار (0: prime with one packet).
     preroll: i64,
 }
 
@@ -64,7 +64,7 @@ pub struct MkvSource {
     audios: Vec<MkvAudio>,
 }
 
-/// Audio packet start positions in source sample frames.
+/// Audio packet start positions in source sample إطار.
 ///
 /// Block timestamps are quantised to `TimestampScale` (usually 1 ms), so they are only accurate to a
 /// tick: a 1024-sample AAC frame at 48 kHz lasts 21.33 ms. Packets that all decode to the same
@@ -95,7 +95,7 @@ fn audio_starts(file: &MkvFile, bytes: &crate::Src, ti: usize, rate: i64) -> Vec
     contiguous_starts(packets, (frame / 2).max(stamp_tolerance(t, rate)))
 }
 
-/// Sample-exact Opus packet start positions (48 kHz frames, pre-skip removed).
+/// Sample-exact Opus packet start positions (48 kHz إطار, pre-skip removed).
 ///
 /// Starts are accumulated from each packet's TOC duration, resynchronising to the timestamp only
 /// across real gaps (more than two ticks off). Pre-skip is the exact `CodecDelay` (or the header's
@@ -113,7 +113,7 @@ fn opus_starts(file: &MkvFile, bytes: &crate::Src, ti: usize, head: &filmcraft_o
 }
 
 /// A block timestamp (with the demuxer's rounded `CodecDelay` taken off) as a position in sample
-/// frames at `rate`, `skip` frames of priming removed (#790). The demuxer's rounding is undone first:
+/// إطار at `rate`, `skip` إطار of priming removed (#790). The demuxer's rounding is undone first:
 /// `CodecDelay` is rarely a whole number of ticks (1024 AAC samples at 48 kHz are 21.333 ms, 256
 /// AC-3 samples at 44.1 kHz 5.805 ms), so starting the first packet at the rounded delay played the
 /// whole track up to 16 samples late.
@@ -127,7 +127,7 @@ fn stamp_to_samples(t: &filmcraft_matroska::Track, rate: i64, skip: i64) -> impl
     }
 }
 
-/// `CodecDelay` in sample frames at `rate`, rounded to the nearest (the element holds whole
+/// `CodecDelay` in sample إطار at `rate`, rounded to the nearest (the element holds whole
 /// nanoseconds: 1024 samples at 48 kHz are stored as 21 333 333 ns).
 fn codec_delay_samples(t: &filmcraft_matroska::Track, rate: i64) -> i64 {
     let ns = (t.codec_delay_ns as i128).saturating_mul(rate.max(0) as i128);
@@ -174,14 +174,14 @@ fn track_end(file: &MkvFile, i: usize) -> Option<(i64, &filmcraft_matroska::Trac
     Some((t.samples.iter().map(|s| s.pts.saturating_add(i64::try_from(s.duration).unwrap_or(i64::MAX))).max().unwrap_or(0), t))
 }
 
-/// Two timestamp ticks in sample frames at `rate`, plus one: how far a packet's Matroska timestamp
+/// Two timestamp ticks in sample إطار at `rate`, plus one: how far a packet's Matroska timestamp
 /// can be from its exact start.
 fn stamp_tolerance(t: &filmcraft_matroska::Track, rate: i64) -> i64 {
     let (n, d) = tb(t);
     i64::try_from(2 * n as i128 * rate as i128 / d as i128).unwrap_or(i64::MAX).saturating_add(1)
 }
 
-/// Whether a sample's timestamp is its own: frames after the first in a laced block without a
+/// Whether a sample's timestamp is its own: إطار after the first in a laced block without a
 /// duration repeat the block's timestamp.
 fn own_stamp(s: &filmcraft_matroska::Sample) -> bool {
     s.lace == 0 || s.duration > 0
@@ -376,7 +376,7 @@ impl MkvSource {
                 Some(ns) if ns > 0 => FrameRate::from_f64(1e9 / ns as f64),
                 _ => {
                     // blocks are stored in decode order: with B-frames, neighbours in the file are
-                    // up to a few frames apart, so step between presentation times (#923)
+                    // up to a few إطار apart, so step between presentation times (#923)
                     let mut pts: Vec<i64> = t.samples.iter().take(241).map(|s| s.pts).collect();
                     pts.sort_unstable();
                     let mut d: Vec<i64> = pts.windows(2).map(|p| p[1].saturating_sub(p[0])).filter(|d| *d > 0).collect();
@@ -618,11 +618,11 @@ impl MediaSource for MkvSource {
         Ok(self.video.frame_late(&MkvVideo { src: self, track: ti }, target, late)?)
     }
 
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
-        self.audio_stream(0, start, frames, sample_rate)
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+        self.audio_stream(0, start, إطار, sample_rate)
     }
 
-    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
         let a = self.audios.get(stream).ok_or(MediaError::NoStream("audio"))?;
         let n_packets = self.file.tracks.get(a.track).ok_or(MediaError::NoStream("audio"))?.samples.len();
         let ainfo = self.info.audio_streams.get(stream).ok_or(MediaError::NoStream("audio"))?;
@@ -653,7 +653,7 @@ impl MediaSource for MkvSource {
         }
         drop(st);
         let frac = s0 as f64 - start as f64 * ratio;
-        let mut out = AudioBuffer::silence(sample_rate, ch, frames);
+        let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
         for k in 0..frames {
             let pos = k as f64 * ratio - frac;
             let i0 = pos.floor().max(0.0) as usize;

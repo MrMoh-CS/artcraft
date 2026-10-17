@@ -135,19 +135,19 @@ mod tests {
         let d = std::env::temp_dir().join(format!("filmcraft-rotate-{}", std::process::id()));
         let _ = fs::remove_dir_all(&d);
         for i in 0..7 {
-            write_auto_save(&d, "Cut", 1_790_000_000 + i * 60, 0, b"{}", 5).unwrap();
+            write_auto_save(&d, "قص", 1_790_000_000 + i * 60, 0, b"{}", 5).unwrap();
         }
         // Another project whose name starts with the same prefix, and an unrelated file.
         fs::write(d.join("Cut-Two-2026-01-01_00-00-00.fcproj"), b"{}").unwrap();
         fs::write(d.join("notes.txt"), b"keep").unwrap();
-        let left = list_auto_saves(&d, "Cut");
+        let left = list_auto_saves(&d, "قص");
         assert_eq!(left.len(), 5);
         assert!(left[0].to_string_lossy().ends_with(&format!("Cut-{}.fcproj", timestamp(1_790_000_120, 0))));
         assert!(left[4].to_string_lossy().ends_with(&format!("Cut-{}.fcproj", timestamp(1_790_000_360, 0))));
         assert_eq!(list_auto_saves(&d, "Cut-Two").len(), 1);
         assert!(d.join("notes.txt").exists());
-        rotate(&d, "Cut", 2).unwrap();
-        assert_eq!(list_auto_saves(&d, "Cut").len(), 2);
+        rotate(&d, "قص", 2).unwrap();
+        assert_eq!(list_auto_saves(&d, "قص").len(), 2);
         assert_eq!(list_auto_saves(&d, "Cut-Two").len(), 1);
         fs::remove_dir_all(&d).unwrap();
     }

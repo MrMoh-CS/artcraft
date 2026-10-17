@@ -143,7 +143,7 @@ fn rate_of(o: &Obj, p: u16) -> Option<(i64, i64)> {
 
 impl R<'_> {
     fn composition(&mut self, c: &Obj) -> Composition {
-        let name = c.string(pid::MOB_NAME).unwrap_or_else(|| "Sequence".into());
+        let name = c.string(pid::MOB_NAME).unwrap_or_else(|| "التسلسل".into());
         let slots = c.objs(pid::SLOTS);
         let pic_rate = slots
             .iter()
@@ -680,7 +680,7 @@ fn markers_of(seg: &Obj, rate: (i64, i64)) -> Vec<CMarker> {
             CMarker {
                 start,
                 duration: units_to_ticks(e.i64(pid::LENGTH).unwrap_or(0).max(0), rate.0, rate.1),
-                name: tag("Name").unwrap_or_else(|| comment.clone()),
+                name: tag("الاسم").unwrap_or_else(|| comment.clone()),
                 comment: tag("Comment").unwrap_or_else(|| if tags.is_empty() { String::new() } else { comment.clone() }),
                 color: tag("Color"),
             }

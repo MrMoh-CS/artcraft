@@ -25,7 +25,7 @@ fn pos(ids: &[&str], id: &str) -> usize {
 
 #[test]
 fn sequence_and_markers_menu_order_matches_premiere() {
-    let seq = menu_ids(&["تسلسل"]);
+    let seq = menu_ids(&["التسلسل"]);
     let order = [
         "sequence.settings",
         "sequence.deleteRenderFilesInToOut",
@@ -51,7 +51,7 @@ fn sequence_and_markers_menu_order_matches_premiere() {
     assert_eq!(spec.label, "Apply Default Transitions to Selection");
     assert_eq!(Session::default().shortcuts.primary("trim.applyDefaultTransition").as_deref(), Some("Shift+D"));
     assert_eq!(crate::commands::find("sequence.normalizeMixTrack").unwrap().label, "Normalize Mix Track…");
-    let caps = menu_ids(&["تسلسل", "التسميات التوضيحية"]);
+    let caps = menu_ids(&["التسلسل", "الترجمة النصية"]);
     assert_eq!(pos(&caps, "captions.showActiveOnly"), pos(&caps, "captions.showAll") + 1);
     let markers = menu_ids(&["العلامات"]);
     assert_eq!(pos(&markers, "markers.addFlashCue"), pos(&markers, "markers.addChapter") + 1);

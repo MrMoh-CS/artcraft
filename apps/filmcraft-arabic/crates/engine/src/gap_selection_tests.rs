@@ -1,6 +1,6 @@
 //! Selecting a gap between clips and closing it with Delete / Backspace / Ripple Delete (#648, #668):
 //! `timeline.selectGap` selects the empty time on one track, `edit.clear` and `edit.rippleDelete`
-//! close it as one "حذف مع إغلاق الفجوة" undo step.
+//! close it as one "Ripple Delete" undo step.
 
 use filmcraft_project::ClipId;
 use filmcraft_time::Tick;
@@ -13,12 +13,12 @@ fn range(s: &Session, c: ClipId) -> (Tick, Tick) {
 }
 
 /// Two 48-frame clips (pictures on V1, linked sounds on A1) placed at `frames`.
-fn two_clips(s: &mut Session, frames: [i64; 2]) -> [(ClipId, ClipId); 2] {
+fn two_clips(s: &mut Session, إطار: [i64; 2]) -> [(ClipId, ClipId); 2] {
     s.execute("file.openDemoProject", json!({})).unwrap();
     s.execute("file.newSequence", json!({"name": "Gaps", "video": 1, "audio": 1})).unwrap();
     let rate = s.sequence_rate();
     let item = s.project.items.values().find(|i| i.has_video() && i.has_audio() && i.as_media().is_some()).map(|i| i.id).unwrap();
-    for f in frames {
+    for f in إطار {
         s.execute("timeline.place", json!({"item": item.0, "frame": f, "sourceIn": rate.tick_of(48).0, "duration": rate.tick_of(48).0})).unwrap();
     }
     s.execute("edit.deselectAll", json!({})).unwrap();
@@ -49,7 +49,7 @@ fn clicking_between_two_clips_selects_the_gap_and_delete_closes_it() {
     assert!(s.state.gap_selection.is_none(), "the gap is gone");
     s.active_sequence().unwrap().check().unwrap();
 
-    assert_eq!(s.undo().as_deref(), Some("حذف مع إغلاق الفجوة"), "one undo step");
+    assert_eq!(s.undo().as_deref(), Some("Ripple Delete"), "one undo step");
     assert_eq!(*s.project, *before);
 }
 

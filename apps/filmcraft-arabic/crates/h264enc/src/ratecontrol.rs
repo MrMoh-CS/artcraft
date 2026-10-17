@@ -19,7 +19,7 @@ fn type_idx(t: SliceType) -> usize {
     }
 }
 
-/// Relative qscale factor per frame type (I frames finer, B frames coarser).
+/// Relative qscale factor per frame type (I إطار finer, B إطار coarser).
 fn type_factor(t: SliceType) -> f64 {
     match t {
         SliceType::I => 1.0 / 1.4,
@@ -40,7 +40,7 @@ pub struct FrameStat {
 /// First-pass statistics, serialisable as text.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct PassStats {
-    pub frames: Vec<FrameStat>,
+    pub إطار: Vec<FrameStat>,
     pub fps: f64,
 }
 
@@ -61,7 +61,7 @@ impl PassStats {
         let mut lines = text.lines();
         let head = lines.next()?;
         let fps = head.strip_prefix("h264enc-pass1 fps=")?.trim().parse().ok()?;
-        let mut frames = Vec::new();
+        let mut إطار = Vec::new();
         for l in lines {
             let mut it = l.split_whitespace();
             let t = match it.next()? {
@@ -70,9 +70,9 @@ impl PassStats {
                 "B" => SliceType::B,
                 _ => return None,
             };
-            frames.push(FrameStat { slice_type: t, qscale: it.next()?.parse().ok()?, bits: it.next()?.parse().ok()?, cplx: it.next()?.parse().ok()? });
+            إطار.push(FrameStat { slice_type: t, qscale: it.next()?.parse().ok()?, bits: it.next()?.parse().ok()?, cplx: it.next()?.parse().ok()? });
         }
-        Some(PassStats { frames, fps })
+        Some(PassStats { إطار, fps })
     }
 }
 
@@ -91,7 +91,7 @@ pub struct RateControl {
     coef: [f64; 3],
     coef_n: [u32; 3],
     total_bits: f64,
-    frames: u64,
+    إطار: u64,
     sum_s: f64,
     // VBV
     vbv_max_bits_per_frame: f64,
@@ -103,7 +103,7 @@ pub struct RateControl {
     last_q: f64,
     /// Virtual history for 1-pass ABR: (frame count, complexity of one virtual frame), fixed at the first frame.
     prior: Option<(f64, f64)>,
-    /// Sum and count of the rate-model terms (`coef · cplx^QCOMP / type_factor`) of the coded P and B frames.
+    /// Sum and count of the rate-model terms (`coef · cplx^QCOMP / type_factor`) of the coded P and B إطار.
     inter_s: f64,
     inter_n: u64,
 }
@@ -118,7 +118,7 @@ impl RateControl {
             coef: [1.6, 1.4, 1.2],
             coef_n: [0; 3],
             total_bits: 0.0,
-            frames: 0,
+            إطار: 0,
             sum_s: 0.0,
             vbv_max_bits_per_frame: max,
             vbv_size: size,
@@ -177,10 +177,10 @@ impl RateControl {
             }
             RcKind::Abr { kbps } => {
                 let bpf = *kbps as f64 * 1000.0 / self.fps;
-                // rate factor so that past frames at this rf would have hit the target
+                // rate factor so that past إطار at this rf would have hit the target
                 let s_here = self.coef[ti] * cplx.powf(QCOMP) / type_factor(t);
-                // Virtual history of one second of inter frames so the first I frame gets a realistic share of the
-                // budget instead of a single frame's worth. A virtual frame costs what the P and B frames coded so far
+                // Virtual history of one second of inter إطار so the first I frame gets a realistic share of the
+                // budget instead of a single frame's worth. A virtual frame costs what the P and B إطار coded so far
                 // cost on average; before the first of them, a P frame of 40% of the first frame's complexity under
                 // the current model. Re-estimated every frame: the initial guess of `coef` can be several times off,
                 // and a history frozen at that guess starves the opening second of bits.

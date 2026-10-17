@@ -12,7 +12,7 @@
 //! does not check handles when applying one, so here a transition may cover at most the clips it
 //! joins: from the outgoing clip's start to the incoming clip's end.
 
-use filmcraft_project::{Sequence, Track, Transition, TransitionAlign, TransitionId};
+use filmcraft_project::{تسلسل، Track, Transition, TransitionAlign, TransitionId};
 use filmcraft_time::Tick;
 
 use crate::{Edge, EditError, Result};
@@ -69,7 +69,7 @@ pub fn bounds(track: &Track, tr: &Transition) -> Option<(Tick, Tick, Tick)> {
 }
 
 /// A transition's alignment on `cut`. Centred means within half a `frame` of the cut, as
-/// centring an odd number of frames lands on a frame boundary.
+/// centring an odd number of إطار lands on a frame boundary.
 pub fn alignment(tr: &Transition, cut: Tick, frame: Tick) -> Alignment {
     match (tr.from, tr.to) {
         (None, Some(_)) => return Alignment::Start,
@@ -87,13 +87,13 @@ pub fn alignment(tr: &Transition, cut: Tick, frame: Tick) -> Alignment {
     }
 }
 
-fn find(seq: &Sequence, id: TransitionId) -> Option<(&Track, &Transition)> {
+fn find(seq: &تسلسل، id: TransitionId) -> Option<(&Track, &Transition)> {
     seq.all_tracks().find_map(|t| t.transitions.iter().find(|x| x.id == id).map(|x| (t, x)))
 }
 
 /// Where a transition would start for `duration` and `align`, keeping its cut (and, for Center
 /// at Cut / Custom Start, its centre; `snap` puts a centred start on a frame).
-pub fn start_for(seq: &Sequence, id: TransitionId, duration: Tick, align: Alignment, frame: Tick, snap: impl Fn(Tick) -> Tick) -> Option<Tick> {
+pub fn start_for(seq: &تسلسل، id: TransitionId, duration: Tick, align: Alignment, frame: Tick, snap: impl Fn(Tick) -> Tick) -> Option<Tick> {
     let (track, tr) = find(seq, id)?;
     let (_, cut, _) = bounds(track, tr)?;
     let one_sided = alignment(tr, cut, frame);
@@ -113,7 +113,7 @@ pub fn start_for(seq: &Sequence, id: TransitionId, duration: Tick, align: Alignm
 /// Move / resize a transition to cover `start .. start + duration`. Refused (leaving the sequence
 /// as it was) when its track is locked, it would be shorter than `min`, it would leave its clips,
 /// or it would no longer touch its cut (a one-sided one must keep its edge).
-pub fn set_span(seq: &mut Sequence, id: TransitionId, start: Tick, duration: Tick, min: Tick, frame: Tick) -> Result<()> {
+pub fn set_span(seq: &mut تسلسل، id: TransitionId, start: Tick, duration: Tick, min: Tick, frame: Tick) -> Result<()> {
     let (track, tr) = find(seq, id).ok_or_else(|| EditError::Other(format!("no transition {}", id.0)))?;
     if track.locked {
         return Err(EditError::Locked);
@@ -188,7 +188,7 @@ pub fn drag_span(track: &Track, tr: &Transition, edge: Option<Edge>, delta: Tick
 }
 
 /// Remove transitions (on unlocked tracks). Returns how many went.
-pub fn remove(seq: &mut Sequence, ids: &[TransitionId]) -> Result<usize> {
+pub fn remove(seq: &mut تسلسل، ids: &[TransitionId]) -> Result<usize> {
     if seq.all_tracks().any(|t| t.locked && t.transitions.iter().any(|x| ids.contains(&x.id))) {
         return Err(EditError::Locked);
     }
@@ -270,12 +270,12 @@ mod tests {
         q
     }
 
-    fn span(q: &Sequence, id: u64) -> (Tick, Tick) {
+    fn span(q: &تسلسل، id: u64) -> (Tick, Tick) {
         let x = q.video_tracks[0].transitions.iter().find(|x| x.id.0 == id).unwrap();
         (x.start, x.duration)
     }
 
-    fn align(q: &Sequence, id: u64) -> Alignment {
+    fn align(q: &تسلسل، id: u64) -> Alignment {
         let (t, x) = find(q, TransitionId(id)).unwrap();
         let (_, cut, _) = bounds(t, x).unwrap();
         alignment(x, cut, f(1))
@@ -341,7 +341,7 @@ mod tests {
         assert!(set_span(&mut q, TransitionId(1), Tick(i64::MAX - 1), Tick(i64::MAX), f(1), f(1)).is_err());
     }
 
-    fn drag(q: &Sequence, id: u64, edge: Option<Edge>, frames: i64) -> (i64, i64) {
+    fn drag(q: &تسلسل، id: u64, edge: Option<Edge>, إطار: i64) -> (i64, i64) {
         let (t, x) = find(q, TransitionId(id)).unwrap();
         let (st, d) = drag_span(t, x, edge, f(frames), f(1)).unwrap();
         (R.frame_at(st), R.frame_at(d))

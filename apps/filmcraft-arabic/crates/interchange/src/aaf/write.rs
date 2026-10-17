@@ -302,7 +302,7 @@ pub(crate) fn write(doc: &Document, version: filmcraft_cfb::Version, report: &mu
         opdefs.push(o);
     }
     let pdefs = vec![
-        definition(cls::PARAMETER_DEFINITION, def::PARAM_LEVEL, "Level").data_prop(pid::PARAMDEF_DISPLAY_UNITS, utf16z("")),
+        definition(cls::PARAMETER_DEFINITION, def::PARAM_LEVEL, "المستوى").data_prop(pid::PARAMDEF_DISPLAY_UNITS, utf16z("")),
         definition(cls::PARAMETER_DEFINITION, def::PARAM_AMPLITUDE, "Amplitude").data_prop(pid::PARAMDEF_DISPLAY_UNITS, utf16z("")),
     ];
     let idefs = if uses_varying || !used_ops.is_empty() {
@@ -593,7 +593,7 @@ fn event_slot(w: &mut W, id: u32, rate: (i64, i64), markers: &[CMarker]) -> Obj 
         .map(|m| {
             let pos = w.u(m.start, rate);
             let len = w.u(m.start + m.duration, rate) - pos;
-            let mut tags = vec![tagged("Name", &m.name), tagged("Comment", &m.comment)];
+            let mut tags = vec![tagged("الاسم", &m.name), tagged("Comment", &m.comment)];
             if let Some(c) = &m.color {
                 tags.push(tagged("Color", c));
             }
@@ -607,7 +607,7 @@ fn event_slot(w: &mut W, id: u32, rate: (i64, i64), markers: &[CMarker]) -> Obj 
         .collect();
     Obj::new(cls::EVENT_MOB_SLOT)
         .data_prop(pid::SLOT_ID, id.to_le_bytes().to_vec())
-        .data_prop(pid::SLOT_NAME, utf16z("Markers"))
+        .data_prop(pid::SLOT_NAME, utf16z("العلامات"))
         .data_prop(pid::EVENT_EDIT_RATE, rational(rate.0, rate.1))
         .with(
             pid::SEGMENT,

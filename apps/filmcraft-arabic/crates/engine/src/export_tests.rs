@@ -113,7 +113,7 @@ fn files_in(dir: &Path) -> Vec<String> {
     v
 }
 
-/// Every built-in preset: a quarter second of the demo sequence (seven frames at 23.976) exported
+/// Every built-in preset: a quarter second of the demo sequence (seven إطار at 23.976) exported
 /// with `file.exportMedia {preset}`; ffprobe checks container, codec, profile, frame size, frame
 /// rate and audio format, and the data rate where the codec fixes it.
 #[test]
@@ -128,7 +128,7 @@ fn every_builtin_preset_exports_and_ffprobe_confirms() {
         std::fs::create_dir_all(&sub).unwrap();
         let path = sub.join("Demo").to_string_lossy().to_string();
         let params = json!({"preset": name, "path": path, "range": "custom", "startSeconds": 1.0, "endSeconds": 1.25, "wait": true});
-        let frames = s.execute("export.resolve", params.clone()).unwrap()["frames"].as_u64().unwrap();
+        let إطار = s.execute("export.resolve", params.clone()).unwrap()["frames"].as_u64().unwrap();
         let r = s.execute("file.exportMedia", params).unwrap_or_else(|e| panic!("{name}: {e}"));
         let out = r["path"].as_str().unwrap().to_string();
         let settings = s.execute("export.presets.get", json!({"name": name})).unwrap()["settings"].clone();
@@ -221,7 +221,7 @@ fn every_builtin_preset_exports_and_ffprobe_confirms() {
             "h264" => {
                 assert!(fmt_name.contains("mp4"), "{name}: {fmt_name}");
                 assert_eq!(v["codec_name"], "h264", "{name}");
-                assert_eq!(v["profile"], "High", "{name}");
+                assert_eq!(v["profile"], "عالي", "{name}");
                 assert_eq!(a["codec_name"], "aac", "{name}");
                 assert!((num(&a["bit_rate"]) / 1000.0 - 320.0).abs() < 80.0, "{name}: AAC {}", a["bit_rate"]);
             }
@@ -307,7 +307,7 @@ fn aac_audio_keeps_a_dot_aac_path_as_adts_and_adds_m4a_otherwise() {
     assert!(adts.ends_with("Mix.aac"), "{adts}");
     let b = std::fs::read(&adts).unwrap();
     assert_eq!((b[0], b[1]), (0xFF, 0xF1), "an ADTS header");
-    let m4a = run(&mut s, dir.path("Mix"));
+    let m4a = run(&mut s, dir.path("المزج"));
     assert!(m4a.ends_with("Mix.m4a"), "{m4a}");
     assert_eq!(&std::fs::read(&m4a).unwrap()[4..8], b"ftyp");
 }
@@ -317,7 +317,7 @@ fn h264_presets_hit_their_bitrates() {
     let mut s = demo();
     let dir = Scratch::new("bitrate");
     for (preset, target_kbps, max_kbps) in [
-        ("Match Source – Adaptive High Bitrate", 1920.0 * 1080.0 * (24000.0 / 1001.0) * 0.2 / 1000.0, 1.5),
+        ("مطابقة المصدر – معدل بت عالٍ متكيف", 1920.0 * 1080.0 * (24000.0 / 1001.0) * 0.2 / 1000.0, 1.5),
         ("YouTube 1080p Full HD", 16_000.0, 20.0 / 16.0),
         ("Vimeo 1080p Full HD", 18_000.0, 24.0 / 18.0),
     ] {
@@ -402,10 +402,10 @@ fn queue_orders_cancels_and_retries() {
             s.execute("export.queue.add", json!({"preset": preset, "path": dir.path(name), "range": "custom", "startSeconds": 0, "endSeconds": 0.25})).unwrap();
         r["added"][0].as_u64().unwrap()
     };
-    let a = add(&mut s, "a.mp4", "Match Source – Adaptive Low Bitrate");
+    let a = add(&mut s, "a.mp4", "مطابقة المصدر – معدل بت منخفض متكيف");
     let b = add(&mut s, "b.mov", "Apple ProRes 422 Proxy");
     let c = add(&mut s, "c.wav", "Waveform Audio 48 kHz 16-bit");
-    let d = add(&mut s, "d.mp4", "Match Source – Adaptive Low Bitrate");
+    let d = add(&mut s, "d.mp4", "مطابقة المصدر – معدل بت منخفض متكيف");
     assert!(queue(&mut s).iter().all(|i| i["status"] == "ready"));
     // reorder: c to the front, a one down
     s.execute("export.queue.move", json!({"id": c, "to": 0})).unwrap();
@@ -645,18 +645,18 @@ fn ranges_resolve_and_sidecar_captions_are_written() {
     let mut s = demo();
     let dir = Scratch::new("ranges");
     let fps = 24000.0 / 1001.0;
-    let frames = |s: &mut Session, p: Value| s.execute("export.resolve", p).unwrap()["frames"].as_i64().unwrap();
-    let whole = frames(&mut s, json!({"preset": "PNG Sequence", "range": "entire"}));
+    let إطار = |s: &mut Session, p: Value| s.execute("export.resolve", p).unwrap()["frames"].as_i64().unwrap();
+    let whole = إطار(&mut s, json!({"preset": "PNG Sequence", "range": "entire"}));
     let dur = s.active_sequence().unwrap().duration();
     assert_eq!(whole, (dur.seconds() * fps).ceil() as i64);
     s.execute("markers.markIn", json!({"seconds": 1.0})).unwrap();
     s.execute("markers.markOut", json!({"seconds": 2.0})).unwrap();
-    let io = frames(&mut s, json!({"preset": "PNG Sequence", "range": "inOut"}));
+    let io = إطار(&mut s, json!({"preset": "PNG Sequence", "range": "inOut"}));
     assert!((24..=26).contains(&io), "{io}");
     assert_eq!(frames(&mut s, json!({"preset": "PNG Sequence"})), io, "In/Out is the default");
     assert!(s.execute("export.resolve", json!({"range": "workArea"})).is_err(), "no work area");
     assert_eq!(frames(&mut s, json!({"preset": "Animated GIF 640×360", "range": "custom", "startSeconds": 0, "endSeconds": 2})), 30, "15 fps");
-    let bare = frames(&mut s, json!({"preset": "Animated GIF 640×360", "startSeconds": 0, "endSeconds": 2}));
+    let bare = إطار(&mut s, json!({"preset": "Animated GIF 640×360", "startSeconds": 0, "endSeconds": 2}));
     assert_eq!(bare, 30, "start/end times without `range` are a custom range, not the In/Out or whole sequence");
     assert!(s.execute("export.resolve", json!({"startSeconds": 1})).is_err(), "a start without an end is an error");
     let res = s.execute("export.resolve", json!({"preset": "YouTube 2160p 4K Ultra HD"})).unwrap();

@@ -21,7 +21,7 @@ const MAX_PIXELS: u64 = 1 << 26;
 /// Longest header we read (real ones are a few hundred bytes).
 const MAX_HEADER: usize = 64 << 10;
 
-/// The colour of HDR frames: scene-linear light, Rec.709 primaries.
+/// The colour of HDR إطار: scene-linear light, Rec.709 primaries.
 const LINEAR_709: ColorInfo = ColorInfo { transfer: Transfer::Linear, ..ColorInfo::SRGB_FULL };
 
 /// Whether `b` starts like a Radiance picture.

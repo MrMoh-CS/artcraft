@@ -158,19 +158,19 @@ fn the_group_stops_together_at_the_sequence_start() {
     let rate = s.sequence_rate();
     let f = |n: i64| rate.tick_of(n);
     let (lead, gap) = (f(10), f(100));
-    // make a split edit: the sound starts 10 frames before the picture
+    // make a split edit: the sound starts 10 إطار before the picture
     s.execute("timeline.move", json!({"moves": [{"clip": a.id.0, "track": a_track.0, "time": (a.start - lead).0}], "linked": false})).unwrap();
     assert_eq!(state(&s, a.id).1, v.start - lead);
-    // ask for the picture at 4 frames: the sound would start 6 frames before zero
+    // ask for the picture at 4 إطار: the sound would start 6 إطار before zero
     let r = s.execute("timeline.move", json!({"moves": [{"clip": v.id.0, "track": v_track.0, "time": f(4).0}]})).unwrap();
     assert_eq!(r["moved"], json!([v.id.0, a.id.0]));
-    assert_eq!((state(&s, v.id).1, state(&s, a.id).1), (lead, Tick::ZERO), "the sound stops at zero and the picture keeps its 10 frames");
+    assert_eq!((state(&s, v.id).1, state(&s, a.id).1), (lead, Tick::ZERO), "the sound stops at zero and the picture keeps its 10 إطار");
     s.execute("edit.undo", json!({})).unwrap();
     assert_eq!((state(&s, v.id).1, state(&s, a.id).1), (v.start, v.start - lead));
     s.execute("edit.redo", json!({})).unwrap();
     assert_eq!((state(&s, v.id).1, state(&s, a.id).1), (lead, Tick::ZERO));
     s.execute("edit.undo", json!({})).unwrap();
-    // a second, unlinked clip 100 frames after the picture, on V2; both listed, both asked 20 frames too far left
+    // a second, unlinked clip 100 إطار after the picture, on V2; both listed, both asked 20 إطار too far left
     let item = s.active_sequence().unwrap().video_tracks[0].items[0].item;
     let v2 = s.active_sequence().unwrap().video_tracks[1].id;
     s.execute("timeline.place", json!({"item": item.0, "time": (v.start + gap).0, "track": v2.0, "audioTrack": "A2"})).unwrap();
@@ -178,7 +178,7 @@ fn the_group_stops_together_at_the_sequence_start() {
     let back = v.start + f(20);
     let moves = json!([{"clip": v.id.0, "track": v_track.0, "time": (v.start - back).0}, {"clip": w.id.0, "track": v2.0, "time": (w.start - back).0}]);
     s.execute("timeline.move", json!({"moves": moves, "linked": false})).unwrap();
-    assert_eq!((state(&s, v.id).1, state(&s, w.id).1), (Tick::ZERO, gap), "the two clips are still 100 frames apart");
+    assert_eq!((state(&s, v.id).1, state(&s, w.id).1), (Tick::ZERO, gap), "the two clips are still 100 إطار apart");
     s.execute("edit.undo", json!({})).unwrap();
     // with the links followed, the earliest clip of all (the split sound) is the one that stops at zero
     s.execute("timeline.move", json!({"moves": moves})).unwrap();

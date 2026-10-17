@@ -126,7 +126,7 @@ fn delete(app: &mut FilmcraftApp, name: &str) -> Result<Value, String> {
     }
     app.set_workspaces(next)?;
     if app.ui.workspace == name {
-        app.set_workspace(if is_builtin(name) { name } else { "Editing" });
+        app.set_workspace(if is_builtin(name) { name } else { "التحرير" });
     }
     Ok(if is_builtin(name) { json!({"restored": name}) } else { json!({"deleted": name}) })
 }
@@ -144,7 +144,7 @@ pub fn default_menu(items: &mut Vec<MenuItem>, session: &filmcraft_engine::Sessi
 }
 
 fn splice(items: &mut Vec<MenuItem>, prefs: &dock::WorkspacePrefs, session: &filmcraft_engine::Session, current: Option<&str>, tr: impl Fn(&str) -> String) {
-    let is_ws = |it: &MenuItem| it.path.len() == 2 && it.path[0] == "Window" && it.path[1] == "Workspaces";
+    let is_ws = |it: &MenuItem| it.path.len() == 2 && it.path[0] == "نافذة" && it.path[1] == "Workspaces";
     let Some(at) = items.iter().position(is_ws) else { return };
     let actions: Vec<MenuItem> =
         items.iter().filter(|it| is_ws(it) && it.id.strip_prefix("window.workspace.").is_some_and(|k| ACTIONS.contains(&k))).cloned().collect();
@@ -155,7 +155,7 @@ fn splice(items: &mut Vec<MenuItem>, prefs: &dock::WorkspacePrefs, session: &fil
             let id = format!("window.workspace.{}", slug(&n));
             MenuItem {
                 label: tr(&n),
-                path: vec!["Window".into(), "Workspaces".into()],
+                path: vec!["نافذة".into(), "Workspaces".into()],
                 shortcut: session.shortcuts.primary(&id),
                 enabled: true,
                 checked: current.map(|c| n == c),
@@ -191,14 +191,14 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal(|ui| {
                     ui.label(tl!("Name:"));
                     let r = ui.text_edit_singleline(name);
-                    push("workspaces.save.name", &r, "Name");
+                    push("workspaces.save.name", &r, "الاسم");
                 });
                 ui.horizontal(|ui| {
-                    let r = ui.button(tl!("Cancel"));
-                    push("workspaces.save.cancel", &r, "Cancel");
+                    let r = ui.button(tl!("إلغاء"));
+                    push("workspaces.save.cancel", &r, "إلغاء");
                     close |= r.clicked();
-                    let r = ui.button(tl!("OK"));
-                    push("workspaces.save.ok", &r, "OK");
+                    let r = ui.button(tl!("موافق"));
+                    push("workspaces.save.ok", &r, "موافق");
                     if r.clicked() {
                         act = Some(("window.workspace.saveAs", json!({"name": name.clone()})));
                     }
@@ -219,7 +219,7 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal(|ui| {
                     ui.label(tl!("Name:"));
                     let r = ui.add_enabled(own, egui::TextEdit::singleline(name));
-                    push("workspaces.edit.name", &r, "Name");
+                    push("workspaces.edit.name", &r, "الاسم");
                     let r = ui.add_enabled(own && sel.as_deref() != Some(name.trim()), egui::Button::new(tl!("Rename")));
                     push("workspaces.edit.rename", &r, "Rename");
                     if r.clicked()
@@ -232,8 +232,8 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.horizontal(|ui| {
                     // a built-in workspace can't be deleted; its saved changes can
                     let restore = sel.as_deref().is_some_and(|s| is_builtin(s) && changed.iter().any(|c| c == s));
-                    let label = if restore { "Restore Original" } else { "Delete" };
-                    let r = ui.add_enabled(own || restore, egui::Button::new(if restore { tl!("Restore Original") } else { tl!("Delete") }));
+                    let label = if restore { "Restore Original" } else { "حذف" };
+                    let r = ui.add_enabled(own || restore, egui::Button::new(if restore { tl!("Restore Original") } else { tl!("حذف") }));
                     push("workspaces.edit.delete", &r, label);
                     if r.clicked()
                         && let Some(s) = &sel
@@ -244,8 +244,8 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                             name.clear();
                         }
                     }
-                    let r = ui.button(tl!("Close"));
-                    push("workspaces.edit.close", &r, "Close");
+                    let r = ui.button(tl!("إغلاق"));
+                    push("workspaces.edit.close", &r, "إغلاق");
                     close |= r.clicked();
                 });
             }

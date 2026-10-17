@@ -37,7 +37,7 @@ pub mod timing {
         /// Half float → f32 conversion of the read-back pixels.
         pub convert: Duration,
         /// Frames composited by the GPU.
-        pub frames: u64,
+        pub إطار: u64,
     }
 
     fn add(counter: &AtomicU64, d: Duration) {
@@ -62,7 +62,7 @@ pub mod timing {
 
     pub fn get() -> GpuTimings {
         let d = |c: &AtomicU64| Duration::from_nanos(c.load(Ordering::Relaxed));
-        GpuTimings { submit: d(&SUBMIT_NS), map_wait: d(&MAP_WAIT_NS), convert: d(&CONVERT_NS), frames: FRAMES.load(Ordering::Relaxed) }
+        GpuTimings { submit: d(&SUBMIT_NS), map_wait: d(&MAP_WAIT_NS), convert: d(&CONVERT_NS), إطار: FRAMES.load(Ordering::Relaxed) }
     }
 
     pub fn reset() {
@@ -115,7 +115,7 @@ impl ExportRenderer {
                 let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions::default())).ok()?;
                 let (device, queue) = pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor::default())).ok()?;
                 // wgpu's default handler panics on a validation or out-of-memory error; log it and
-                // send the remaining frames to the CPU instead.
+                // send the remaining إطار to the CPU instead.
                 device.on_uncaptured_error(std::sync::Arc::new(|e: wgpu::Error| mark_device_failed(&format!("GPU error: {e}"))));
                 device.set_device_lost_callback(|reason, msg| mark_device_failed(&format!("GPU device lost ({reason:?}): {msg}")));
                 Some((instance, device, queue))

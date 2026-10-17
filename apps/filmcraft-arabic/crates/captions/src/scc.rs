@@ -12,14 +12,14 @@
 //! starting at its timecode. **Reading** runs a channel-1
 //! CEA-608 decoder (pop-on, roll-up, paint-on; redundant control codes ignored) and emits a cue
 //! whenever the displayed memory changes. **Writing** produces pop-on captions: for each cue the
-//! load (RCL, ENM, PAC + tab offset per row, text) is scheduled into free frames before the cue so
+//! load (RCL, ENM, PAC + tab offset per row, text) is scheduled into free إطار before the cue so
 //! its End of Caption lands exactly on the cue start; an Erase Displayed Memory clears it at the
 //! cue end (omitted when the next caption replaces it). Rows are bottom-aligned (row 15 last),
 //! centred, wrapped at 32 columns; characters outside the 608 sets are dropped.
 
 use std::collections::BTreeMap;
 
-use filmcraft_time::{FrameRate, Tick, fields_to_frames, frames_to_fields};
+use filmcraft_time::{FrameRate, Tick, fields_to_frames, إطار_to_fields};
 
 use crate::cea608::{self, Encoded, misc};
 use crate::{Cue, Document, Error, Result};
@@ -39,7 +39,7 @@ pub fn parse_timecode(s: &str) -> Option<i64> {
 }
 
 pub fn format_timecode(frame: i64, drop_frame: bool) -> String {
-    let (_, h, m, s, f) = frames_to_fields(frame.max(0), RATE, drop_frame);
+    let (_, h, m, s, f) = إطار_to_fields(frame.max(0), RATE, drop_frame);
     format!("{h:02}:{m:02}:{s:02}{}{f:02}", if drop_frame { ';' } else { ':' })
 }
 
@@ -242,7 +242,7 @@ impl Decoder {
     }
 }
 
-/// Decode channel-1 CEA-608 byte pairs `(frame, b1, b2)` (with or without parity; frames
+/// Decode channel-1 CEA-608 byte pairs `(frame, b1, b2)` (with or without parity; إطار
 /// ascending) into cues at `rate`. A caption still showing after the last pair stays up for one
 /// second more.
 pub fn decode_pairs(pairs: impl IntoIterator<Item = (i64, u8, u8)>, rate: FrameRate) -> Vec<Cue> {
@@ -418,7 +418,7 @@ pub fn schedule(doc: &Document) -> BTreeMap<i64, (u8, u8)> {
         }
         let load = load_pairs(&c.text);
         let n = load.len() as i64;
-        // Doubled codes must stay adjacent, so the load is one contiguous run of free frames:
+        // Doubled codes must stay adjacent, so the load is one contiguous run of free إطار:
         // the latest run ending by `s`, else the first run after `cursor` (delaying the caption).
         let run_free = |occ: &BTreeMap<i64, (u8, u8)>, b: i64| (b..b + n).all(|f| !occ.contains_key(&f));
         let b = (cursor..=s - n).rev().find(|&b| run_free(&occ, b)).unwrap_or_else(|| (cursor..).find(|&b| run_free(&occ, b)).unwrap_or(cursor));

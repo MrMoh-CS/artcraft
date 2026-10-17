@@ -26,7 +26,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
-use filmcraft_project::{Sequence, TrackId, TrackKind};
+use filmcraft_project::{تسلسل، TrackId, TrackKind};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::commands::{CommandSpec, bad, bool_p, f64_p, has_seq, str_p, time_p, u64_p};
@@ -51,9 +51,9 @@ pub trait AudioInput: Send {
     fn channels(&self, device: &str) -> u16;
     /// Start capturing from `device` ("" = default), preferably at `sample_rate`.
     fn start(&mut self, device: &str, sample_rate: u32) -> std::result::Result<InputFormat, String>;
-    /// Up to `frames` captured frames (planar, every device channel), oldest first. A live device
+    /// Up to `frames` captured إطار (planar, every device channel), oldest first. A live device
     /// returns what it has captured; a synthetic one generates exactly `frames`.
-    fn read(&mut self, frames: usize) -> Vec<Vec<f32>>;
+    fn read(&mut self, إطار: usize) -> Vec<Vec<f32>>;
     /// A device error must not be saved as a successful silent take.
     fn error(&self) -> Option<String> {
         None
@@ -106,18 +106,18 @@ impl AudioInput for SyntheticInput {
         self.pos = 0;
         Ok(InputFormat { sample_rate: self.rate, channels: self.channels(device) })
     }
-    fn read(&mut self, frames: usize) -> Vec<Vec<f32>> {
+    fn read(&mut self, إطار: usize) -> Vec<Vec<f32>> {
         let p0 = self.pos;
-        self.pos += frames;
+        self.pos += إطار;
         match &self.signal {
             Synthetic::Clicks { period } => {
                 let period = (*period).max(1);
                 let w = 2.0 * std::f64::consts::PI * 440.0 / self.rate as f64;
-                let c0 = (p0..p0 + frames).map(|i| if i % period == 0 { 0.5 } else { 0.0 }).collect();
-                let c1 = (p0..p0 + frames).map(|i| (0.25 * (w * i as f64).sin()) as f32).collect();
+                let c0 = (p0..p0 + إطار).map(|i| if i % period == 0 { 0.5 } else { 0.0 }).collect();
+                let c1 = (p0..p0 + إطار).map(|i| (0.25 * (w * i as f64).sin()) as f32).collect();
                 vec![c0, c1]
             }
-            Synthetic::Buffer(b) => b.iter().map(|c| (p0..p0 + frames).map(|i| c.get(i).copied().unwrap_or(0.0)).collect()).collect(),
+            Synthetic::Buffer(b) => b.iter().map(|c| (p0..p0 + إطار).map(|i| c.get(i).copied().unwrap_or(0.0)).collect()).collect(),
         }
     }
     fn discard(&mut self) {
@@ -244,7 +244,7 @@ pub fn write_wav_f32(samples: &[f32], rate: u32) -> Vec<u8> {
 
 // ------------------------------------------------------------------------------------- commands
 
-fn audio_track_ref(seq: &Sequence, v: &Value) -> Option<TrackId> {
+fn audio_track_ref(seq: &تسلسل، v: &Value) -> Option<TrackId> {
     let id = crate::mixer::strip_ref(seq, v)?;
     seq.audio_tracks.iter().any(|t| t.id == id).then_some(id)
 }

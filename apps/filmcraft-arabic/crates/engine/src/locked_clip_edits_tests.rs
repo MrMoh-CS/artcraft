@@ -8,8 +8,8 @@ use serde_json::json;
 fn fixture() -> (Session, u64) {
     let mut s = Session::default();
     s.execute("file.newProject", json!({"name": "Lock check"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 0, "width": 16, "height": 16})).unwrap();
-    s.execute("file.newOfflineFile", json!({"name": "الوسائط", "seconds": 4, "fps": 25, "video": true, "audio": false, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newSequence", json!({"name": "التسلسل", "fps": 25, "video": 1, "audio": 0, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newOfflineFile", json!({"name": "Media", "seconds": 4, "fps": 25, "video": true, "audio": false, "width": 16, "height": 16})).unwrap();
     let item = s.project.items.values().find(|i| i.as_media().is_some()).map(|i| i.id.0).unwrap();
     s.execute("timeline.place", json!({"item": item, "track": "V1", "time": 0, "sourceIn": 0, "duration": 1_016_064_000_000i64})).unwrap();
     let clip = s.active_sequence().unwrap().video_tracks[0].items[0].id.0;
@@ -20,7 +20,7 @@ fn v1_clip(s: &Session, id: u64) -> filmcraft_project::TrackItem {
     s.active_sequence().unwrap().find_item(ClipId(id)).unwrap().1.clone()
 }
 
-/// Place a 100-frame clip, lock V1, trim Out by −20 frames: the command errors and duration stays 100.
+/// Place a 100-frame clip, lock V1, trim Out by −20 إطار: the command errors and duration stays 100.
 #[test]
 fn locked_track_refuses_trim_out_and_keeps_duration() {
     let (mut s, clip) = fixture();
@@ -57,8 +57,8 @@ fn locked_track_refuses_move_on_the_same_track() {
 fn locked_track_refuses_roll_slip_slide_speed() {
     let mut s = Session::default();
     s.execute("file.newProject", json!({"name": "Lock check"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 0, "width": 16, "height": 16})).unwrap();
-    s.execute("file.newOfflineFile", json!({"name": "الوسائط", "seconds": 4, "fps": 25, "video": true, "audio": false, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newSequence", json!({"name": "التسلسل", "fps": 25, "video": 1, "audio": 0, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newOfflineFile", json!({"name": "Media", "seconds": 4, "fps": 25, "video": true, "audio": false, "width": 16, "height": 16})).unwrap();
     let item = s.project.items.values().find(|i| i.as_media().is_some()).map(|i| i.id.0).unwrap();
     let frame = 10_160_640_000i64;
     s.execute("timeline.place", json!({"item": item, "track": "V1", "time": 0, "sourceIn": frame * 10, "duration": frame * 60})).unwrap();

@@ -112,7 +112,7 @@ fn source_tracks_with_clips_go_to_consecutive_tracks_and_missing_tracks_are_adde
     q.check().unwrap();
     assert_eq!(q.video_tracks.len(), 4);
     assert_eq!((q.video_tracks[2].items.len(), q.video_tracks[3].items.len()), (2, 1));
-    assert_eq!(q.video_tracks[3].name, "Video 4");
+    assert_eq!(q.video_tracks[3].name, "فيديو 4");
     // one undo removes the clips and the track again
     s.execute("edit.undo", json!({})).unwrap();
     assert_eq!(s.active_sequence().unwrap().video_tracks.len(), 3);
@@ -170,16 +170,16 @@ fn match_frame_on_a_nest_loads_the_nested_sequence_at_the_frame_it_shows() {
     let r = s.execute("clip.nest", json!({"name": "Inner"})).unwrap();
     let (nested, nest) = (ItemId(r["sequence"].as_u64().unwrap()), ClipId(r["clips"][0].as_u64().unwrap()));
     let clip = |s: &Session| s.active_sequence().unwrap().find_item(nest).unwrap().1.clone();
-    // plain: 9 frames into the nest is 9 frames into its sequence
+    // plain: 9 إطار into the nest is 9 إطار into its sequence
     s.set_playhead(clip(&s).start + rate.tick_of(9));
     s.execute("sequence.matchFrame", json!({})).unwrap();
     assert_eq!((s.state.source_item, s.state.source_playhead), (Some(nested), rate.tick_of(9)));
-    // trimmed in by 5 frames: the same timeline frame now shows frame 9 still, 4 frames into the clip
+    // trimmed in by 5 إطار: the same timeline frame now shows frame 9 still, 4 إطار into the clip
     s.execute("timeline.trim", json!({"clip": nest.0, "edge": "in", "deltaFrames": 5})).unwrap();
     s.set_playhead(clip(&s).start + rate.tick_of(4));
     s.execute("sequence.matchFrame", json!({})).unwrap();
     assert_eq!(s.state.source_playhead, rate.tick_of(9));
-    // at double speed, 4 frames in is 8 frames further into the sequence
+    // at double speed, 4 إطار in is 8 إطار further into the sequence
     s.execute("timeline.select", json!({"clips": [nest.0]})).unwrap();
     s.execute("clip.speedDuration", json!({"speed": 200.0})).unwrap();
     s.set_playhead(clip(&s).start + rate.tick_of(4));

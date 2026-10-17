@@ -3,7 +3,7 @@
 //! A file is a 1024-byte General Subtitle Information (GSI) block of ASCII fields followed by
 //! 128-byte Text and Timing Information (TTI) blocks. Each TTI block carries a subtitle number,
 //! an extension block number (`0xFF` = last block of the subtitle), in / out timecodes (hours,
-//! minutes, seconds, frames as binary bytes), vertical position, justification, a comment flag
+//! minutes, seconds, إطار as binary bytes), vertical position, justification, a comment flag
 //! and a 112-byte text field (`0x8A` = new line, `0x8F` = unused; `0x80`/`0x81` italics on/off,
 //! `0x82`/`0x83` underline on/off; `0x00`–`0x1F` teletext control codes are skipped on read).
 //!
@@ -16,7 +16,7 @@
 //! - Long subtitles continue in extension blocks; user-data (`EBN 0xFE`) and comment blocks are
 //!   skipped.
 
-use filmcraft_time::{FrameRate, Tick, fields_to_frames, frames_to_fields};
+use filmcraft_time::{FrameRate, Tick, fields_to_frames, إطار_to_fields};
 
 use crate::{Cue, Document, Error, Result};
 
@@ -354,7 +354,7 @@ pub fn write(doc: &Document, rate: Option<FrameRate>) -> Vec<u8> {
             b[3] = if k + 1 == chunks.len() { 0xff } else { k.min(0xfd) as u8 };
             b[4] = 0;
             for (at, f) in [(5, tin), (9, tout)] {
-                let (_, h, m, s, fr) = frames_to_fields(f, rate, false);
+                let (_, h, m, s, fr) = إطار_to_fields(f, rate, false);
                 b[at..at + 4].copy_from_slice(&[h.min(255) as u8, m as u8, s as u8, fr as u8]);
             }
             b[13] = (22 - 2 * (lines - 1)) as u8;
@@ -382,7 +382,7 @@ pub fn write(doc: &Document, rate: Option<FrameRate>) -> Vec<u8> {
     put(&mut gsi, 253, 2, "23");
     put(&mut gsi, 255, 1, "1");
     put(&mut gsi, 256, 8, "00000000");
-    let (_, h, m, s, f) = frames_to_fields(first_in.unwrap_or(0), rate, false);
+    let (_, h, m, s, f) = إطار_to_fields(first_in.unwrap_or(0), rate, false);
     put(&mut gsi, 264, 8, &format!("{h:02}{m:02}{s:02}{f:02}"));
     put(&mut gsi, 272, 1, "1");
     put(&mut gsi, 273, 1, "1");

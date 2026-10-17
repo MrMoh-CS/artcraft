@@ -74,10 +74,10 @@ fn mp4_remuxed(asc: &[u8], rate: u32, units: &[Vec<u8>]) -> Arc<[u8]> {
 }
 
 /// `frames` samples per channel read in 512-sample blocks at `rate`, as playback reads them.
-fn played(src: &dyn MediaSource, rate: u32, frames: usize) -> Vec<Vec<f32>> {
+fn played(src: &dyn MediaSource, rate: u32, إطار: usize) -> Vec<Vec<f32>> {
     let mut out = vec![Vec::new(), Vec::new()];
     let mut pos = 0;
-    while pos < frames {
+    while pos < إطار {
         let n = 512.min(frames - pos);
         let b = src.audio(pos as i64, n, rate).unwrap();
         for (o, c) in out.iter_mut().zip(&b.channels) {
@@ -113,11 +113,11 @@ fn matroska_millisecond_stamps_play_back_to_back() {
     for rate in [48_000, 44_100] {
         let (asc, units) = aac(rate);
         let want = continuous(&asc, rate, &units);
-        let frames = units.len().saturating_sub(1) * 1024;
+        let إطار = units.len().saturating_sub(1) * 1024;
         for lacing in [LacingMode::None, LacingMode::Xiph] {
             let bytes = mkv(&asc, rate, &units, lacing, usize::MAX, 0);
             let src = MkvSource::open("tone.mkv", bytes.clone()).unwrap();
-            let got = played(&src, rate, frames);
+            let got = played(&src, rate, إطار);
             let (n, first) = mismatches(&got, &want, 0);
             assert_eq!(n, 0, "{rate} Hz, {lacing:?}: {n} samples differ from the continuous decode, first (channel, sample) {first:?}");
             // random access (a fresh source, so a cold decoder primed with the packet before) gives
@@ -170,8 +170,8 @@ fn playing_at_another_rate_leaves_no_holes() {
     // a 44.1 kHz recording in a 48 kHz sequence (export's default rate)
     let (asc, units) = aac(44_100);
     let src = MkvSource::open("tone.mkv", mkv(&asc, 44_100, &units, LacingMode::None, usize::MAX, 0)).unwrap();
-    let frames = (units.len().saturating_sub(2) * 1024) * 48_000 / 44_100;
-    let got = played(&src, 48_000, frames);
+    let إطار = (units.len().saturating_sub(2) * 1024) * 48_000 / 44_100;
+    let got = played(&src, 48_000, إطار);
     // skip the encoder's priming (the first frame decodes to near-silence)
     let tail: Vec<Vec<f32>> = got.iter().map(|c| c[2048..].to_vec()).collect();
     assert_eq!(holes(&tail), 0);
@@ -198,8 +198,8 @@ fn matroska_codec_delay_is_trimmed_to_the_sample() {
         }
         let bytes: Arc<[u8]> = w.finish().unwrap().into_inner().into();
         let src = MkvSource::open("primed.mkv", bytes).unwrap();
-        let frames = units.len().saturating_sub(2) * 1024;
-        let got = played(&src, rate, frames);
+        let إطار = units.len().saturating_sub(2) * 1024;
+        let got = played(&src, rate, إطار);
         let trimmed: Vec<Vec<f32>> = want.iter().map(|c| c[1024..].to_vec()).collect();
         let (n, first) = mismatches(&got, &trimmed, 0);
         assert_eq!(n, 0, "{rate} Hz: {n} samples differ from the decode with the priming trimmed, first (channel, sample) {first:?}");

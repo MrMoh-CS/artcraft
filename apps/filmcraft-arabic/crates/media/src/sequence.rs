@@ -1,10 +1,10 @@
 //! Image sequences: numbered stills (`shot_0001.png`, `shot_0002.png`, …) as one movie clip.
 //!
 //! - [`Numbered`] splits a file name around its last run of digits; [`sequence_frames`] lists the
-//!   frames from the chosen file's number up to the highest number present (gaps are `None`).
-//! - [`ImageSequenceSource`] decodes frames on demand through a [`FrameLoader`] (the host's file
+//!   إطار from the chosen file's number up to the highest number present (gaps are `None`).
+//! - [`ImageSequenceSource`] decodes إطار on demand through a [`FrameLoader`] (the host's file
 //!   access) with the still decoders (PNG, JPEG, TIFF, BMP, WebP, GIF, Targa, DPX; OpenEXR and DNG
-//!   camera raw as linear float frames), keeps recently used frames in a byte-budgeted
+//!   camera raw as linear float إطار), keeps recently used إطار in a byte-budgeted
 //!   [`FrameCache`], and shows the nearest earlier frame for a missing or undecodable one (the
 //!   nearest later frame before the first).
 //! - The frame rate is the caller's (Settings ▸ Media ▸ Indeterminate Media Timebase), except for
@@ -98,7 +98,7 @@ impl Numbered {
     }
 }
 
-/// The frames of the sequence `first` belongs to, from `first.number` to the highest number among
+/// The إطار of the sequence `first` belongs to, from `first.number` to the highest number among
 /// `siblings` (file names in its directory): each frame's path, or `None` for a missing number.
 pub fn sequence_frames(first: &Numbered, siblings: &[String]) -> Vec<Option<String>> {
     let mut nums: Vec<(u64, &String)> = siblings.iter().filter_map(|n| first.number_of(n).map(|k| (k, n))).filter(|(k, _)| *k >= first.number).collect();
@@ -107,23 +107,23 @@ pub fn sequence_frames(first: &Numbered, siblings: &[String]) -> Vec<Option<Stri
     let last = nums.last().map_or(first.number, |x| x.0);
     // a sequence longer than this is a numbering accident (e.g. a date in the name)
     let span = (last - first.number).min(1_000_000) as usize + 1;
-    let mut frames = vec![None; span];
+    let mut إطار = vec![None; span];
     for (k, name) in nums {
         let i = (k - first.number) as usize;
         if i < span {
-            frames[i] = Some(format!("{}{}", first.dir, name));
+            إطار[i] = Some(format!("{}{}", first.dir, name));
         }
     }
-    if frames[0].is_none() {
-        frames[0] = Some(first.path(first.number));
+    if إطار[0].is_none() {
+        إطار[0] = Some(first.path(first.number));
     }
-    frames
+    إطار
 }
 
 /// Numbered stills played as a movie.
 pub struct ImageSequenceSource {
     info: MediaInfo,
-    frames: Vec<Option<String>>,
+    إطار: Vec<Option<String>>,
     loader: FrameLoader,
     cache: FrameCache<usize>,
 }
@@ -131,8 +131,8 @@ pub struct ImageSequenceSource {
 impl ImageSequenceSource {
     /// `frames`: path per frame (`None`: missing). The first present frame is decoded now (size,
     /// alpha); the rest on demand.
-    pub fn new(name: &str, frames: Vec<Option<String>>, rate: FrameRate, loader: FrameLoader) -> Result<Self> {
-        let first = frames.iter().flatten().next().ok_or_else(|| MediaError::Offline(format!("{name}: no frames")))?.clone();
+    pub fn new(name: &str, إطار: Vec<Option<String>>, rate: FrameRate, loader: FrameLoader) -> Result<Self> {
+        let first = إطار.iter().flatten().next().ok_or_else(|| MediaError::Offline(format!("{name}: no إطار")))?.clone();
         let bytes = loader(&first).map_err(|e| {
             if e.kind() == std::io::ErrorKind::NotFound { MediaError::Offline(format!("{first}: {e}")) } else { MediaError::Io(format!("{first}: {e}")) }
         })?;
@@ -143,7 +143,7 @@ impl ImageSequenceSource {
             None => (rate, None),
         };
         let ext = first.rsplit('.').next().unwrap_or("image").to_ascii_uppercase();
-        let n = frames.len() as i64;
+        let n = إطار.len() as i64;
         let info = MediaInfo {
             name: name.to_string(),
             kind: MediaKind::ImageSequence,
@@ -167,14 +167,14 @@ impl ImageSequenceSource {
         };
         let cache = FrameCache::new(256 << 20);
         cache.insert(frames.iter().position(Option::is_some).unwrap_or(0), Arc::new(frame));
-        Ok(Self { info, frames, loader, cache })
+        Ok(Self { info, إطار, loader, cache })
     }
 
     pub fn frame_count(&self) -> usize {
         self.frames.len()
     }
 
-    /// Indices of missing frames.
+    /// Indices of missing إطار.
     pub fn missing_frames(&self) -> Vec<usize> {
         self.frames.iter().enumerate().filter(|(_, f)| f.is_none()).map(|(i, _)| i).collect()
     }
@@ -290,7 +290,7 @@ mod tests {
     }
 
     #[test]
-    fn frames_with_gaps() {
+    fn إطار_with_gaps() {
         let n = Numbered::parse("/d/s_003.png").unwrap();
         let names: Vec<String> = ["s_001.png", "s_003.png", "s_004.png", "s_007.png", "other.png", "s_005.jpg"].iter().map(|s| s.to_string()).collect();
         let f = sequence_frames(&n, &names);
@@ -338,8 +338,8 @@ mod tests {
             *r.lock().unwrap() += 1;
             files.get(p).cloned().ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, p.to_string()))
         });
-        let frames = vec![Some("f0.png".to_string()), Some("f1.png".into()), None, Some("f3.png".into())];
-        let s = ImageSequenceSource::new("f0.png", frames, FrameRate::FPS_25, loader).unwrap();
+        let إطار = vec![Some("f0.png".to_string()), Some("f1.png".into()), None, Some("f3.png".into())];
+        let s = ImageSequenceSource::new("f0.png", إطار, FrameRate::FPS_25, loader).unwrap();
         assert_eq!(s.info().kind, MediaKind::ImageSequence);
         assert_eq!(s.info().duration, FrameRate::FPS_25.tick_of(4));
         assert_eq!(s.missing_frames(), vec![2]);

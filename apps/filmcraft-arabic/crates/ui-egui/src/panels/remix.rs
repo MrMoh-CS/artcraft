@@ -75,13 +75,13 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             elems.push(("remixProperties.info".into(), i.rect, d.info.clone()));
             ui.add_space(8.0);
             ui.horizontal(|ui| {
-                let c = ui.button(tl!("Cancel"));
-                elems.push(("remixProperties.cancel".into(), c.rect, "Cancel".into()));
+                let c = ui.button(tl!("إلغاء"));
+                elems.push(("remixProperties.cancel".into(), c.rect, "إلغاء".into()));
                 if c.clicked() {
                     close = true;
                 }
-                let o = ui.add(egui::Button::new(egui::RichText::new(tl!("OK")).color(egui::Color32::WHITE)).fill(app.tokens.accent));
-                elems.push(("remixProperties.ok".into(), o.rect, "OK".into()));
+                let o = ui.add(egui::Button::new(egui::RichText::new(tl!("موافق")).color(egui::Color32::WHITE)).fill(app.tokens.accent));
+                elems.push(("remixProperties.ok".into(), o.rect, "موافق".into()));
                 if o.clicked() {
                     apply = true;
                 }

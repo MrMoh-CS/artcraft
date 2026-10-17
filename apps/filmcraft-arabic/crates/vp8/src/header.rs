@@ -11,12 +11,12 @@ pub struct FrameTag {
     pub version: u8,
     pub show_frame: bool,
     pub first_part_size: usize,
-    /// Key frames only: dimensions and upscaling codes.
+    /// Key إطار only: dimensions and upscaling codes.
     pub width: u16,
     pub height: u16,
     pub horizontal_scale: u8,
     pub vertical_scale: u8,
-    /// Bytes of the uncompressed chunk (3, or 10 for key frames).
+    /// Bytes of the uncompressed chunk (3, or 10 for key إطار).
     pub header_len: usize,
 }
 
@@ -77,7 +77,7 @@ pub struct LfDeltas {
     pub mode_deltas: [i8; 4],
 }
 
-/// Probabilities that persist across frames (until the next key frame), saved and restored
+/// Probabilities that persist across إطار (until the next key frame), saved and restored
 /// around a frame whose `refresh_entropy_probs` is 0.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct EntropyContext {

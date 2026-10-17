@@ -561,7 +561,7 @@ fn transition_params_and_reverse_via_commands() {
     let r = s
         .execute(
             "sequence.applyVideoTransition",
-            json!({"effect": "Iris Round", "params": {"border_width": 12.0, "border_color": "#ff0000", "antialias": "High"}, "reverse": true}),
+            json!({"effect": "Iris Round", "params": {"border_width": 12.0, "border_color": "#ff0000", "antialias": "عالي"}, "reverse": true}),
         )
         .unwrap();
     let id = r["transition"].as_u64().unwrap();
@@ -597,7 +597,7 @@ fn effects_list_reports_transition_folders() {
     let wipes = wipes.as_array().unwrap();
     assert_eq!(wipes.len(), 9);
     let lw = wipes.iter().find(|e| e["id"] == "linear_wipe").unwrap();
-    assert_eq!(lw["folder"], "مسح");
+    assert_eq!(lw["folder"], "Wipe");
     assert_eq!(lw["path"], "Video Transitions/Wipe");
     let aa = lw["paramInfo"].as_array().unwrap().iter().find(|p| p["id"] == "antialias").unwrap();
     assert_eq!(aa["type"], "choice");
@@ -664,7 +664,7 @@ fn trim_mode_roll_ripple_and_toggle() {
     s.execute("trim.forwardMany", json!({})).unwrap();
     let after = v1(&s);
     let left = after.iter().find(|c| c.0 == clips[0].0).unwrap();
-    assert_eq!(left.2, cut + rate.tick_of(5), "roll moved the cut 5 frames later");
+    assert_eq!(left.2, cut + rate.tick_of(5), "roll moved the cut 5 إطار later");
     assert_eq!(s.active_sequence().unwrap().duration(), dur_before, "roll keeps the duration");
     // toggle Roll -> Trim -> Ripple; ripple backward shortens the sequence
     s.execute("trim.toggleType", json!({})).unwrap();
@@ -698,7 +698,7 @@ fn ripple_trim_to_playhead_q_w() {
     s.execute("playhead.set", json!({"time": ph2.0})).unwrap();
     s.execute("trim.ripplePrevious", json!({})).unwrap();
     let c2 = v1(&s).into_iter().find(|c| c.1 == start2).expect("a clip still starts at the old edit");
-    assert_eq!(c2.2, end2 - rate.tick_of(6), "its head (6 frames) was removed");
+    assert_eq!(c2.2, end2 - rate.tick_of(6), "its head (6 إطار) was removed");
     assert_eq!(s.active_sequence().unwrap().duration(), d1 - rate.tick_of(6));
     assert_eq!(s.playhead(), start2, "playhead parks on the new edit");
 }
@@ -1020,7 +1020,7 @@ fn transition_duration_alignment_and_position() {
     let r = set(&mut s, json!({"start": (cut - f(3)).0})).unwrap();
     assert_eq!(r["align"], json!("custom"));
     let r = set(&mut s, json!({"frames": 6})).unwrap();
-    assert_eq!((r["start"].as_i64(), r["duration"].as_i64()), (Some(cut.0), Some(f(6).0)), "centre at cut + 3 frames, 6 frames long");
+    assert_eq!((r["start"].as_i64(), r["duration"].as_i64()), (Some(cut.0), Some(f(6).0)), "centre at cut + 3 إطار, 6 إطار long");
     // dragging one edge: start and duration together
     let r = set(&mut s, json!({"start": (cut - f(4)).0, "duration": f(10).0})).unwrap();
     assert_eq!((r["start"].as_i64(), r["duration"].as_i64()), (Some((cut - f(4)).0), Some(f(10).0)));

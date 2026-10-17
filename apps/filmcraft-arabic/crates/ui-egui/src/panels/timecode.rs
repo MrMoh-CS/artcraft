@@ -1,7 +1,7 @@
 //! Timecode panel: the time of the active monitor in large type, plus optional smaller rows. Each
 //! row shows Current Time, Media Time (the source timecode of the clip under the playhead),
 //! Duration, In/Out Duration or Remaining, of the active monitor, the Program or the Source, in
-//! any time display (timecode, frames, feet + frames, samples, seconds). Right-click a row to
+//! any time display (timecode, إطار, feet + إطار, samples, seconds). Right-click a row to
 //! change it; "+" adds a row.
 //!
 //! Automation ids: `timecode.row.<i>` (the value), `timecode.addRow`, and in a row's menu
@@ -95,8 +95,8 @@ pub fn row_text(app: &FilmcraftApp, row: &TimecodeRow) -> (String, String) {
         TcMode::Remaining => fmt((b - v.t).max(Tick::ZERO), v.rate, v.df),
     };
     let src = match source {
-        TcSource::Source => tl!("Source"),
-        _ => tl!("Program"),
+        TcSource::Source => tl!("المصدر"),
+        _ => tl!("البرنامج"),
     };
     (value, format!("{src} · {} · {}", crate::i18n::t(row.mode.label()), v.name))
 }

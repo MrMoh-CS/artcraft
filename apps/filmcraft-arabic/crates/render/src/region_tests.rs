@@ -24,8 +24,8 @@ impl MediaSource for Still {
     fn video_frame(&self, _req: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
         Ok(self.frame.clone())
     }
-    fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        Ok(AudioBuffer::silence(sample_rate, 2, frames))
+    fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        Ok(AudioBuffer::silence(sample_rate, 2, إطار))
     }
 }
 

@@ -20,7 +20,7 @@ use std::sync::{Arc, Mutex};
 use serde_json::{Value, json};
 
 use filmcraft_interchange::essence::{AudioEssence, AudioNeed, EssenceData, EssenceKey, MediaOptions, MixdownVideo, NeedOptions, NestNeeds, audio_needs};
-use filmcraft_project::{ClipId, ItemId, Project, Sequence, SequenceSettings, Track, TrackItem, TrackKind};
+use filmcraft_project::{ClipId, ItemId, Project, تسلسل، SequenceSettings, Track, TrackItem, TrackKind};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::commands::{bad, bool_p, str_p, u64_p};
@@ -78,7 +78,7 @@ fn plan_from(s: &Session, p: &Value, seq: ItemId, cmd: &str, omf: bool) -> Resul
     if bits != 16 && bits != 24 {
         return Err(bad(cmd, "bitDepth must be 16 or 24"));
     }
-    let frames = u64_p(p, "handles").unwrap_or(if omf { 30 } else { 0 }) as i64;
+    let إطار = u64_p(p, "handles").unwrap_or(if omf { 30 } else { 0 }) as i64;
     Ok(AudioPlan {
         mode,
         aiff,
@@ -137,11 +137,11 @@ fn decode(s: &Session, need: &AudioNeed, sample_rate: u32) -> Result<Vec<Vec<f32
         .full_res_source(&s.project, need.item, &*s.services)
         .ok_or_else(|| EngineError::Other(format!("media {} is offline", need.path.as_deref().unwrap_or("?"))))?;
     let start = need.start.to_units_floor(sample_rate as i64);
-    let frames = (need.end.to_units_floor(sample_rate as i64) - start).max(0) as usize;
+    let إطار = (need.end.to_units_floor(sample_rate as i64) - start).max(0) as usize;
     let mut out: Vec<Vec<f32>> = vec![Vec::with_capacity(frames); need.channels.max(1) as usize];
     let chunk = sample_rate as usize * 10;
     let mut done = 0usize;
-    while done < frames {
+    while done < إطار {
         let n = chunk.min(frames - done);
         let b = src.audio_stream(need.audio_stream, start + done as i64, n, sample_rate).map_err(|e| EngineError::Other(e.to_string()))?;
         for (c, o) in out.iter_mut().enumerate() {
@@ -207,7 +207,7 @@ fn render_clip(s: &Session, seq: ItemId, need: &AudioNeed, sample_rate: u32, bit
 
 /// The audio clip `clip` with its track and sequence: in `seq`, or in a sequence nested in it
 /// (clip ids are unique in a project).
-fn audio_clip(p: &Project, seq: ItemId, clip: ClipId) -> Option<(&Sequence, &Track, &TrackItem)> {
+fn audio_clip(p: &Project, seq: ItemId, clip: ClipId) -> Option<(&تسلسل، &Track, &TrackItem)> {
     let first = p.sequence(seq).into_iter();
     let others = p.sequences().filter(|i| i.id != seq).filter_map(|i| p.sequence(i.id));
     for q in first.chain(others) {
@@ -258,7 +258,7 @@ pub fn prepare_audio(s: &Session, seq: ItemId, plan: &AudioPlan, media_dir: &str
         // a nested sequence has no file to read: its sound is mixed, with what is on the clip
         let nest = s.project.sequence(need.item).is_some();
         let planar = if plan.render_effects || nest { render_clip(s, seq, need, plan.sample_rate, plan.bits)? } else { decode(s, need, plan.sample_rate)? };
-        let frames = planar.first().map_or(0, Vec::len) as u64;
+        let إطار = planar.first().map_or(0, Vec::len) as u64;
         let groups: Vec<(Option<u32>, Vec<&Vec<f32>>)> =
             if plan.breakout { planar.iter().enumerate().map(|(c, x)| (Some(c as u32), vec![x])).collect() } else { vec![(None, planar.iter().collect())] };
         let base = match need.key {
@@ -327,7 +327,7 @@ pub fn prepare_audio(s: &Session, seq: ItemId, plan: &AudioPlan, media_dir: &str
                 key: need.key,
                 channel: ch,
                 start: need.start,
-                frames,
+                إطار,
                 sample_rate: plan.sample_rate,
                 bits: plan.bits,
                 channels: n,

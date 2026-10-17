@@ -7,7 +7,7 @@ use std::cmp::Ordering;
 
 use egui::{Modifiers, Pos2, Rect, pos2, vec2};
 use filmcraft_edit::Edge;
-use filmcraft_project::{ClipId, Sequence, Track, TrackId, TransitionId};
+use filmcraft_project::{ClipId, تسلسل، Track, TrackId, TransitionId};
 use filmcraft_time::Tick;
 
 use super::timeline::Layout;
@@ -37,7 +37,7 @@ pub fn selection_trim_kind(no_modifier: bool, cmd: bool, shift: bool, dist_px: f
 
 /// Distance (px) from `x` to the cut at `clip`'s `edge`, and whether a clip touches that cut on
 /// the other side.
-pub(crate) fn edge_geometry(seq: &Sequence, layout: &Layout, track: TrackId, clip: ClipId, edge: Edge, x: f32) -> (f32, bool) {
+pub(crate) fn edge_geometry(seq: &تسلسل، layout: &Layout, track: TrackId, clip: ClipId, edge: Edge, x: f32) -> (f32, bool) {
     let Some(tr) = seq.track(track) else { return (f32::MAX, false) };
     let Some(it) = tr.item(clip) else { return (f32::MAX, false) };
     let (cut, neighbour) = match edge {
@@ -84,7 +84,7 @@ pub fn marker_range_rect(layout: &Layout, marker: &filmcraft_project::Marker) ->
 
 /// The topmost marker under the pointer, including its range band. Preserve its id when opening
 /// a context menu: several markers can share a start, and the playhead can move while it is open.
-pub fn marker_under_pointer<'a>(seq: &'a Sequence, layout: &Layout, pos: Pos2) -> Option<&'a filmcraft_project::Marker> {
+pub fn marker_under_pointer<'a>(seq: &'a تسلسل، layout: &Layout, pos: Pos2) -> Option<&'a filmcraft_project::Marker> {
     if !layout.ruler.contains(pos) {
         return None;
     }
@@ -92,11 +92,11 @@ pub fn marker_under_pointer<'a>(seq: &'a Sequence, layout: &Layout, pos: Pos2) -
 }
 
 /// A press on a marker puts the playhead on its start for Clear Selected Marker (#695).
-pub fn marker_at(seq: &Sequence, layout: &Layout, pos: Pos2) -> Option<Tick> {
+pub fn marker_at(seq: &تسلسل، layout: &Layout, pos: Pos2) -> Option<Tick> {
     marker_under_pointer(seq, layout, pos).map(|m| m.start)
 }
 
-pub fn hit(seq: &Sequence, layout: &Layout, pos: Pos2) -> Hit {
+pub fn hit(seq: &تسلسل، layout: &Layout, pos: Pos2) -> Hit {
     if layout.ruler.contains(pos) {
         return Hit::Ruler;
     }
@@ -248,7 +248,7 @@ impl Grab {
 /// What a press of `tool` with `mods` at `pos` grabs (#259): the one place that decides which
 /// tools trim at a clip edge and which trim they start. `roll_ripple` is Settings ▸ Trim ▸ "Allow
 /// Selection tool to choose Roll and Ripple trims without modifier key".
-pub fn grab_at(seq: &Sequence, layout: &Layout, pos: Pos2, tool: Tool, mods: Modifiers, roll_ripple: bool) -> Grab {
+pub fn grab_at(seq: &تسلسل، layout: &Layout, pos: Pos2, tool: Tool, mods: Modifiers, roll_ripple: bool) -> Grab {
     let h = hit(seq, layout, pos);
     if let Hit::Clip { track, clip, edge: None } = h
         && matches!(tool, Tool::Selection | Tool::Pen)
@@ -277,7 +277,7 @@ pub fn grab_at(seq: &Sequence, layout: &Layout, pos: Pos2, tool: Tool, mods: Mod
 
 /// A roll of the cut at `clip`'s `edge`, or a regular trim when no clip touches that cut on the
 /// other side (there is nothing to roll against).
-fn roll(seq: &Sequence, track: TrackId, clip: ClipId, edge: Edge) -> EdgeKind {
+fn roll(seq: &تسلسل، track: TrackId, clip: ClipId, edge: Edge) -> EdgeKind {
     let Some(tr) = seq.track(track) else { return EdgeKind::Trim };
     let Some(it) = tr.item(clip) else { return EdgeKind::Trim };
     let pair = match edge {
@@ -340,7 +340,7 @@ mod tests {
     }
 
     /// One video track holding `items`, laid out at 100 px/s from x = 0.
-    fn fixture(items: Vec<TrackItem>) -> (Sequence, Layout, TrackId) {
+    fn fixture(items: Vec<TrackItem>) -> (تسلسل، Layout, TrackId) {
         let mut p = Project::new("t");
         let s = p.new_sequence("s", SequenceSettings { frame_rate: FrameRate::FPS_24, ..Default::default() }, 1, 0, None);
         let mut seq = p.sequence(s).cloned().expect("sequence");
@@ -483,7 +483,7 @@ mod tests {
 
     const ROLL_AB: EdgeKind = EdgeKind::Roll { left: ClipId(1), right: ClipId(2) };
 
-    fn grab(seq: &Sequence, l: &Layout, tool: Tool, x: f32, mods: Modifiers, roll_ripple: bool) -> Grab {
+    fn grab(seq: &تسلسل، l: &Layout, tool: Tool, x: f32, mods: Modifiers, roll_ripple: bool) -> Grab {
         grab_at(seq, l, at(x), tool, mods, roll_ripple)
     }
 

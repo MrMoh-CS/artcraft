@@ -6,7 +6,7 @@
 //! encoder instead.
 //!
 //! A compression session is created with a hardware encoder *required*, so a machine without one
-//! is declined up front. Frame reordering (B-frames) is off, so compressed frames come out in
+//! is declined up front. Frame reordering (B-frames) is off, so compressed إطار come out in
 //! presentation order with decode time = presentation time.
 //!
 //! Pictures go in as 8-bit 4:2:0 (NV12) pixel buffers filled from planar BT.709 limited-range
@@ -17,7 +17,7 @@
 //!
 //! The first frame is completed straight away: the parameter sets the container needs (SPS / PPS
 //! for H.264, VPS / SPS / PPS and VideoToolbox's own `hvcC` record for HEVC) come with the first
-//! compressed frame, and the muxer asks for them after the first group of frames.
+//! compressed frame, and the muxer asks for them after the first group of إطار.
 
 use std::ffi::{CStr, c_char, c_int, c_void};
 use std::panic::AssertUnwindSafe;
@@ -146,7 +146,7 @@ impl Shared {
     }
 }
 
-/// A compression session with its callback state. Dropping it completes the pending frames and
+/// A compression session with its callback state. Dropping it completes the pending إطار and
 /// invalidates the session before the callback state is freed.
 struct Session {
     session: CFRetained<VTCompressionSession>,
@@ -161,7 +161,7 @@ unsafe impl Send for Session {}
 
 impl Drop for Session {
     fn drop(&mut self) {
-        // SAFETY: the session is valid until released. Completing the frames lets any callback in
+        // SAFETY: the session is valid until released. Completing the إطار lets any callback in
         // flight finish; invalidating guarantees none runs afterwards, so `shared` can be freed
         // when this function returns.
         unsafe {
@@ -171,7 +171,7 @@ impl Drop for Session {
     }
 }
 
-/// `kCMTimeInvalid`: "all pending frames" for `complete_frames`.
+/// `kCMTimeInvalid`: "all pending إطار" for `complete_frames`.
 fn invalid_time() -> CMTime {
     CMTime { value: 0, timescale: 0, flags: CMTimeFlags(0), epoch: 0 }
 }
@@ -400,7 +400,7 @@ fn fill(pb: &CVImageBuffer, w: usize, h: usize, y: &[u8], u: &[u8], v: &[u8]) ->
     Ok(())
 }
 
-/// A hardware H.264 or HEVC encoder: feed pictures, collect compressed frames (in presentation
+/// A hardware H.264 or HEVC encoder: feed pictures, collect compressed إطار (in presentation
 /// order, which is decoding order since nothing is reordered).
 pub struct VtEncoder {
     session: Session,
@@ -637,7 +637,7 @@ impl VtEncoder {
     }
 
     /// Submit picture number `index` (planar BT.709 limited-range Y'CbCr, tightly packed) and return
-    /// the compressed frames that came out meanwhile.
+    /// the compressed إطار that came out meanwhile.
     pub fn encode(&mut self, index: u64, y: &[u8], u: &[u8], v: &[u8]) -> Result<Vec<VtPacket>, String> {
         let buffer = self.new_buffer()?;
         fill(&buffer, self.config.width as usize, self.config.height as usize, y, u, v)?;
@@ -660,8 +660,8 @@ impl VtEncoder {
 
     /// Finish every pending frame and return them.
     pub fn flush(&mut self) -> Result<Vec<VtPacket>, String> {
-        // SAFETY: the session is valid; an invalid time means "all pending frames".
-        require(unsafe { self.session.session.complete_frames(invalid_time()) }, "to finish the pending frames")?;
+        // SAFETY: the session is valid; an invalid time means "all pending إطار".
+        require(unsafe { self.session.session.complete_frames(invalid_time()) }, "to finish the pending إطار")?;
         self.drain()
     }
 

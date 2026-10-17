@@ -108,9 +108,9 @@ impl HybridDecoder {
     /// Software output after a fallback: pictures already returned are dropped, carried hardware
     /// pictures are merged in presentation order (a software picture replaces the carried one with
     /// the same pts).
-    fn merge(&mut self, frames: Vec<DecodedFrame>) -> Vec<DecodedFrame> {
+    fn merge(&mut self, إطار: Vec<DecodedFrame>) -> Vec<DecodedFrame> {
         let mut out = Vec::with_capacity(frames.len());
-        for f in frames {
+        for f in إطار {
             if self.emitted.contains(&f.pts) {
                 self.carry.remove(&f.pts);
                 continue;
@@ -151,13 +151,13 @@ impl HybridDecoder {
             self.carry.clear();
             return Err(CodecError::Decode(format!("{err} (continuing in software after the next seek)")));
         };
-        let mut frames = Vec::new();
+        let mut إطار = Vec::new();
         let mut rejected = None;
         let last = log.len().saturating_sub(1);
         for (i, (s, p)) in log.iter().enumerate() {
             let Some(sw) = self.sw.as_mut() else { break };
             match sw.decode(s, *p) {
-                Ok(out) => frames.extend(out),
+                Ok(out) => إطار.extend(out),
                 Err(e) if i == last => rejected = Some(e),
                 Err(e) => log::warn!("software replay after the hardware decoder failed: {e}"),
             }
@@ -166,7 +166,7 @@ impl HybridDecoder {
         match rejected {
             None => Ok(self.merge(frames)),
             Some(e) => {
-                for f in frames {
+                for f in إطار {
                     if !self.emitted.contains(&f.pts) {
                         self.carry.insert(f.pts, f);
                     }
@@ -180,7 +180,7 @@ impl HybridDecoder {
 impl VideoDecoder for HybridDecoder {
     fn decode(&mut self, sample: &[u8], pts: i64) -> Result<Vec<DecodedFrame>> {
         if let Some(sw) = self.sw.as_mut() {
-            let frames = sw.decode(sample, pts)?;
+            let إطار = sw.decode(sample, pts)?;
             return Ok(self.merge(frames));
         }
         self.remember(sample, pts);
@@ -207,7 +207,7 @@ impl VideoDecoder for HybridDecoder {
             self.note_emitted(&out);
             return out;
         }
-        let frames = self.sw.as_mut().map(|d| d.flush()).unwrap_or_default();
+        let إطار = self.sw.as_mut().map(|d| d.flush()).unwrap_or_default();
         let mut out = self.merge(frames);
         out.extend(std::mem::take(&mut self.carry).into_values());
         out

@@ -127,7 +127,7 @@ impl Default for ViewSettings {
             icon_size: 110.0,
             font_size: FontSize::Medium,
             columns: DEFAULT_COLUMNS.iter().map(|c| Column { name: c.to_string(), width: default_width(c) }).collect(),
-            sort: SortSpec { column: "Name".into(), descending: false },
+            sort: SortSpec { column: "الاسم".into(), descending: false },
             icon_sort: SortSpec::default(),
         }
     }
@@ -203,7 +203,7 @@ pub const PRESET_SLOTS: usize = 10;
 
 /// List view columns shown by default (Premiere's default set).
 pub const DEFAULT_COLUMNS: [&str; 12] = [
-    "Name",
+    "الاسم",
     "معدل الإطارات",
     "Media Start",
     "Media End",
@@ -219,7 +219,7 @@ pub const DEFAULT_COLUMNS: [&str; 12] = [
 
 /// Every built-in column (Metadata Display ▸ Project Metadata), in display order.
 pub const BUILTIN_COLUMNS: [&str; 36] = [
-    "Name",
+    "الاسم",
     "Label",
     "Media Type",
     "معدل الإطارات",
@@ -271,7 +271,7 @@ pub fn is_internal_key(k: &str) -> bool {
 
 pub fn default_width(c: &str) -> f32 {
     match c {
-        "Name" => 220.0,
+        "الاسم" => 220.0,
         "Label" | "معدل الإطارات" | "Status" | "Good" | "Proxy" => 80.0,
         "Video Info" | "Audio Info" | "File Path" | "Description" | "Log Note" | "Comment" => 170.0,
         _ => 110.0,
@@ -357,7 +357,7 @@ pub fn cell(p: &Project, it: &ProjectItem, column: &str) -> (String, SortKey) {
         (s, k)
     };
     match column {
-        "Name" => text(it.name.clone()),
+        "الاسم" => text(it.name.clone()),
         "Label" => text(it.label.name().to_string()),
         "Media Type" => text(it.type_label().to_string()),
         "معدل الإطارات" if has_v => (format!("{} fps", rate.label()), SortKey::Num(rate.num as f64 / rate.den.max(1) as f64)),
@@ -390,9 +390,9 @@ pub fn cell(p: &Project, it: &ProjectItem, column: &str) -> (String, SortKey) {
                         "{} Hz - {}",
                         a.sample_rate,
                         if a.channels == 1 {
-                            "Mono".to_string()
+                            "أحادي".to_string()
                         } else if a.channels == 2 {
-                            "Stereo".into()
+                            "ستيريو".into()
                         } else {
                             format!("{} ch", a.channels)
                         }
@@ -488,7 +488,7 @@ pub fn bin_children(p: &Project, bin: &Bin, sort: &SortSpec) -> (Vec<BinId>, Vec
     }
     if !sort.column.is_empty() {
         bins.sort();
-        if sort.column == "Name" && sort.descending {
+        if sort.column == "الاسم" && sort.descending {
             bins.reverse();
         }
     }
@@ -981,17 +981,17 @@ fn columns_set(s: &mut Session, p: &Value) -> Result<Value> {
         cols.push(Column { width: width.or(keep).unwrap_or_else(|| default_width(&name)).clamp(30.0, 800.0), name });
     }
     // Name is always shown, first
-    if let Some(i) = cols.iter().position(|c| c.name == "Name") {
+    if let Some(i) = cols.iter().position(|c| c.name == "الاسم") {
         let n = cols.remove(i);
         cols.insert(0, n);
     } else {
-        let w = s.prefs.project_panel.view.columns.iter().find(|c| c.name == "Name").map(|c| c.width).unwrap_or(default_width("Name"));
-        cols.insert(0, Column { name: "Name".into(), width: w });
+        let w = s.prefs.project_panel.view.columns.iter().find(|c| c.name == "الاسم").map(|c| c.width).unwrap_or(default_width("الاسم"));
+        cols.insert(0, Column { name: "الاسم".into(), width: w });
     }
     let mut prefs = s.prefs.clone();
     let sort = &mut prefs.project_panel.view.sort;
     if !cols.iter().any(|c| c.name == sort.column) {
-        *sort = SortSpec { column: "Name".into(), descending: false };
+        *sort = SortSpec { column: "الاسم".into(), descending: false };
     }
     prefs.project_panel.view.columns = cols;
     save_prefs(s, prefs)?;

@@ -575,7 +575,7 @@ pub struct PendingTrack {
     applied: usize,
 }
 
-/// Longest side of the frames the tracker works on (speed; the result is in clip pixels).
+/// Longest side of the إطار the tracker works on (speed; the result is in clip pixels).
 const TRACK_MAX_WIDTH: f64 = 960.0;
 
 fn track(s: &mut Session, p: &Value) -> Result<Value> {
@@ -676,7 +676,7 @@ fn track(s: &mut Session, p: &Value) -> Result<Value> {
             Some(e) if e != "stopped" => Err(e.clone()),
             _ => Ok(filmcraft_export::Report {
                 path: String::new(),
-                frames: done,
+                إطار: done,
                 seconds: secs,
                 bytes: 0,
                 render_fps: done as f64 / secs.max(1e-6),

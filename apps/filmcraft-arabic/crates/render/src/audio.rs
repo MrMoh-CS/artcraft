@@ -12,7 +12,7 @@ use std::collections::HashMap;
 
 use filmcraft_audio_dsp::channels::{self as chans, Layout, Mixdown};
 use filmcraft_frame::AudioBuffer;
-use filmcraft_project::{AudioChannels, Project, Sequence, Track, TrackId, TrackItem};
+use filmcraft_project::{AudioChannels, Project, تسلسل، Track, TrackId, TrackItem};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::mixer::Override;
@@ -31,8 +31,8 @@ pub fn db_to_gain(db: f64) -> f32 {
 /// Mix `frames` stereo samples of sequence audio starting at sample `start` (sequence rate), through
 /// the full mixer graph ([`crate::mixer`]). A 5.1 Mix is folded to stereo with the ITU-R BS.775
 /// downmix. Export and playback use [`mix_sequence_layout`] for other channel counts.
-pub fn mix_sequence(project: &Project, seq: &Sequence, start: i64, frames: usize, sources: &dyn SourceProvider) -> AudioBuffer {
-    to_layout(crate::mixer::mix_graph(project, seq, start, frames, sources, None), Layout::Stereo, Mixdown::FrontRear)
+pub fn mix_sequence(project: &Project, seq: &تسلسل، start: i64, إطار: usize, sources: &dyn SourceProvider) -> AudioBuffer {
+    to_layout(crate::mixer::mix_graph(project, seq, start, إطار, sources, None), Layout::Stereo, Mixdown::FrontRear)
 }
 
 /// The sequence mix in `layout` (mono, stereo or 5.1): a 5.1 Mix is downmixed with `mixdown`
@@ -41,12 +41,12 @@ pub fn mix_sequence_layout(
     project: &Project,
     seq: &Sequence,
     start: i64,
-    frames: usize,
+    إطار: usize,
     sources: &dyn SourceProvider,
     layout: Layout,
     mixdown: Mixdown,
 ) -> AudioBuffer {
-    to_layout(crate::mixer::mix_graph(project, seq, start, frames, sources, None), layout, mixdown)
+    to_layout(crate::mixer::mix_graph(project, seq, start, إطار, sources, None), layout, mixdown)
 }
 
 /// Convert a mixed buffer (2 or 6 channels) to `layout`.
@@ -64,10 +64,10 @@ pub fn master_layout(seq: &Sequence) -> Layout {
 }
 
 /// The summed clip audio of one track (clip gain, clip effects, Volume / Channel Volume / Panner,
-/// audio transitions) for sequence samples `[start, start + frames)`: the track's mixer input
+/// audio transitions) for sequence samples `[start, start + إطار)`: the track's mixer input
 /// (2 channels, or 6 for a 5.1 track).
-pub fn track_input(project: &Project, track: &Track, start: i64, frames: usize, sr: u32, sources: &dyn SourceProvider) -> AudioBuffer {
-    track_input_live(project, track, start, frames, sr, sources, &HashMap::new())
+pub fn track_input(project: &Project, track: &Track, start: i64, إطار: usize, sr: u32, sources: &dyn SourceProvider) -> AudioBuffer {
+    track_input_live(project, track, start, إطار, sr, sources, &HashMap::new())
 }
 
 /// [`track_input`] with the live mixer overrides: held Clip Mixer controls ([`CLIP_LANE_VOLUME`],
@@ -76,12 +76,12 @@ pub fn track_input_live(
     project: &Project,
     track: &Track,
     start: i64,
-    frames: usize,
+    إطار: usize,
     sr: u32,
     sources: &dyn SourceProvider,
     ovs: &HashMap<(TrackId, String), Override>,
 ) -> AudioBuffer {
-    track_input_at(project, track, start, frames, sr, sources, ovs, 0)
+    track_input_at(project, track, start, إطار, sr, sources, ovs, 0)
 }
 
 /// [`track_input_live`] for a track `depth` nested sequences down from the one being mixed.
@@ -90,7 +90,7 @@ pub(crate) fn track_input_at(
     project: &Project,
     track: &Track,
     start: i64,
-    frames: usize,
+    إطار: usize,
     sr: u32,
     sources: &dyn SourceProvider,
     ovs: &HashMap<(TrackId, String), Override>,
@@ -99,10 +99,10 @@ pub(crate) fn track_input_at(
     let w = crate::mixer::width_of(track.channels);
     let live =
         ClipLive { vol: ovs.get(&(track.id, CLIP_LANE_VOLUME.to_string())).copied(), pan: ovs.get(&(track.id, CLIP_LANE_PAN.to_string())).copied(), depth };
-    let range = TimeRange::from_bounds(Tick::from_units(start, sr as i64), Tick::from_units(start + frames as i64, sr as i64));
-    let mut tbuf = AudioBuffer::silence(sr, w, frames);
+    let range = TimeRange::from_bounds(Tick::from_units(start, sr as i64), Tick::from_units(start + إطار as i64, sr as i64));
+    let mut tbuf = AudioBuffer::silence(sr, w, إطار);
     for item in track.items.iter().filter(|i| i.enabled && i.range().overlaps(&range)) {
-        mix_item(project, item, start, frames, sr, sources, &mut tbuf, 1.0, &live);
+        mix_item(project, item, start, إطار, sr, sources, &mut tbuf, 1.0, &live);
     }
     // audio transitions: attenuate the covered region of each side
     for tr in &track.transitions {
@@ -115,7 +115,7 @@ pub(crate) fn track_input_at(
         let from = tr.from.and_then(|id| track.item(id)).map(|i| with_handles(i, tr.start, tr.end()));
         let to = tr.to.and_then(|id| track.item(id)).map(|i| with_handles(i, tr.start, tr.end()));
         let s0 = tr.start.to_units_floor(sr as i64).max(start);
-        let s1 = tr.end().to_units_floor(sr as i64).min(start + frames as i64);
+        let s1 = tr.end().to_units_floor(sr as i64).min(start + إطار as i64);
         if s1 <= s0 {
             continue;
         }
@@ -187,7 +187,7 @@ fn mix_item(
     project: &Project,
     item: &TrackItem,
     start: i64,
-    frames: usize,
+    إطار: usize,
     sr: u32,
     sources: &dyn SourceProvider,
     out: &mut AudioBuffer,
@@ -197,7 +197,7 @@ fn mix_item(
     let item_s0 = item.start.to_units_floor(sr as i64);
     let item_s1 = item.end().to_units_floor(sr as i64);
     let a0 = start.max(item_s0);
-    let a1 = (start + frames as i64).min(item_s1);
+    let a1 = (start + إطار as i64).min(item_s1);
     if a1 <= a0 {
         return;
     }
@@ -285,7 +285,7 @@ fn mix_item(
 /// its own sample rate and converted when the two differ; time before its start is silent.
 /// `depth` is the nesting depth of the sequence the nest is in.
 #[allow(clippy::too_many_arguments)]
-fn nested_mix(project: &Project, nested: &Sequence, m0: i64, len: usize, sr: u32, sources: &dyn SourceProvider, w: usize, depth: u32) -> AudioBuffer {
+fn nested_mix(project: &Project, nested: &تسلسل، m0: i64, len: usize, sr: u32, sources: &dyn SourceProvider, w: usize, depth: u32) -> AudioBuffer {
     // a damaged project can claim any rate: keep the buffer below sized by a real one
     let own = nested.settings.sample_rate.clamp(1_000, 768_000);
     let sr = sr.max(1);
@@ -333,18 +333,18 @@ fn effected(item: &TrackItem, src: SourceAudio, a0: i64, n: usize, sr: u32, w: u
     if crate::audio_fx::has_effects(item) { crate::audio_fx::process(item, a0, n, sr, &read) } else { read(a0, n) }
 }
 
-/// One clip's own signal for timeline samples `[start, start + frames)` (sequence rate): clip gain
+/// One clip's own signal for timeline samples `[start, start + إطار)` (sequence rate): clip gain
 /// and clip effects, without Volume / Channel Volume / Panner, transitions or Mute (silence outside
 /// the clip). Loudness Auto-Match and ducking analyse this. `None` when the clip has no audio
 /// source (nested sequences are not analysed).
-pub fn clip_signal(item: &TrackItem, start: i64, frames: usize, sr: u32, sources: &dyn SourceProvider) -> Option<[Vec<f32>; 2]> {
+pub fn clip_signal(item: &TrackItem, start: i64, إطار: usize, sr: u32, sources: &dyn SourceProvider) -> Option<[Vec<f32>; 2]> {
     let src = sources.source(item.item)?;
     if !src.info().has_audio() {
         return None;
     }
-    let mut out = [vec![0.0f32; frames], vec![0.0f32; frames]];
+    let mut out = [vec![0.0f32; إطار], vec![0.0f32; إطار]];
     let a0 = start.max(item.start.to_units_floor(sr as i64));
-    let a1 = (start + frames as i64).min(item.end().to_units_floor(sr as i64));
+    let a1 = (start + إطار as i64).min(item.end().to_units_floor(sr as i64));
     if a1 > a0 {
         let n = (a1 - a0) as usize;
         let off = (a0 - start) as usize;

@@ -190,11 +190,11 @@ fn nest_clip(s: &Session, id: ClipId) -> filmcraft_project::TrackItem {
     s.active_sequence().unwrap().find_item(id).unwrap().1.clone()
 }
 
-fn mix_at(s: &Session, t: Tick, frames: usize) -> filmcraft_frame::AudioBuffer {
+fn mix_at(s: &Session, t: Tick, إطار: usize) -> filmcraft_frame::AudioBuffer {
     let q = s.active_sequence().unwrap();
     let sr = q.settings.sample_rate as i64;
     let provider = s.media.full_res_provider(s.project.clone(), s.services.clone());
-    filmcraft_render::audio::mix_sequence(&s.project, q, t.to_units_floor(sr), frames, &provider)
+    filmcraft_render::audio::mix_sequence(&s.project, q, t.to_units_floor(sr), إطار, &provider)
 }
 
 #[test]
@@ -247,7 +247,7 @@ fn a_nest_can_be_trimmed_out_to_reveal_what_its_sequence_gained() {
     let later: Vec<u64> = s.active_sequence().unwrap().video_tracks[0].items.iter().filter(|i| i.start >= whole.end()).map(|i| i.id.0).collect();
     s.execute("timeline.select", json!({"clips": later})).unwrap();
     s.execute("edit.clear", json!({})).unwrap();
-    // add 48 frames of media to the end of the nested sequence
+    // add 48 إطار of media to the end of the nested sequence
     let media = s.project.items.values().find(|i| i.name == "Desert_Dunes.mp4").unwrap().id;
     s.execute("sequence.open", json!({"item": nested.0})).unwrap();
     s.execute("timeline.place", json!({"item": media.0, "time": (first + second).0, "duration": rate.tick_of(48).0})).unwrap();

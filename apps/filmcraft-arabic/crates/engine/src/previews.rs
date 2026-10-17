@@ -5,9 +5,9 @@
 //! [`filmcraft_render::preview`]. A rendered segment is a ProRes 422 QuickTime file named
 //! `<hash>.mov` in the project's preview cache directory, and a rendered part of a segment (In/Out
 //! inside it: Render In to Out renders only In to Out, like Premiere) is `<hash>-<off>-<len>.mov`,
-//! frames `off..off + len` counted from the segment start. Because the offsets are relative to the
+//! إطار `off..off + len` counted from the segment start. Because the offsets are relative to the
 //! segment, a ripple edit that moves the segment keeps its parts, as it keeps whole previews. The
-//! render bar is green over the rendered frames only; later renders fill the gaps.
+//! render bar is green over the rendered إطار only; later renders fill the gaps.
 //!
 //! The folder:
 //!
@@ -99,7 +99,7 @@ fn video_name(hash: &str) -> String {
     format!("{hash}.mov")
 }
 
-/// A rendered stretch of one segment: frames `off..off + len` counted from the segment start, in
+/// A rendered stretch of one segment: إطار `off..off + len` counted from the segment start, in
 /// file `name`. A whole-segment preview has `off` 0 and `len` [`WHOLE`].
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Part {
@@ -110,9 +110,9 @@ struct Part {
 
 const WHOLE: i64 = i64::MAX;
 
-/// File name of the preview of frames `off..off + len` of a segment of `frames` frames.
-fn part_name(hash: &str, off: i64, len: i64, frames: i64) -> String {
-    if off == 0 && len >= frames { video_name(hash) } else { format!("{hash}-{off}-{len}.mov") }
+/// File name of the preview of إطار `off..off + len` of a segment of `frames` إطار.
+fn part_name(hash: &str, off: i64, len: i64, إطار: i64) -> String {
+    if off == 0 && len >= إطار { video_name(hash) } else { format!("{hash}-{off}-{len}.mov") }
 }
 
 /// `(hash, off, len)` of a video preview file name (`<hash>.mov` or `<hash>-<off>-<len>.mov`).
@@ -250,7 +250,7 @@ impl PreviewStore {
         *self.video.write().unwrap_or_else(|e| e.into_inner()) = video;
     }
 
-    /// The rendered frames of `seg`, counted from its start: sorted, merged, within the segment.
+    /// The rendered إطار of `seg`, counted from its start: sorted, merged, within the segment.
     pub fn coverage(&self, seg: &Segment) -> Vec<(i64, i64)> {
         let video = self.video.read().unwrap_or_else(|e| e.into_inner());
         let Some(parts) = video.get(&seg.hash) else { return Vec::new() };
@@ -272,7 +272,7 @@ impl PreviewStore {
         matches!(self.coverage(seg).as_slice(), [(0, b)] if *b == seg.frames)
     }
 
-    /// Names of the video preview files of `seg` that hold frames of `a..b` (from the segment start).
+    /// Names of the video preview files of `seg` that hold إطار of `a..b` (from the segment start).
     fn parts_in(&self, seg: &Segment, a: i64, b: i64) -> Vec<String> {
         if a >= b {
             return Vec::new();
@@ -385,8 +385,8 @@ impl PreviewStore {
 
     /// Sequence audio for playback and meters, as stereo (a 5.1 Mix folded with the BS.775
     /// downmix): rendered audio previews where they are valid, the live mix everywhere else.
-    pub fn mix(&self, project: &Arc<Project>, seq: ItemId, start: i64, frames: usize, sources: &dyn filmcraft_render::SourceProvider) -> AudioBuffer {
-        self.mix_layout(project, seq, start, frames, sources, Layout::Stereo, Mixdown::FrontRear)
+    pub fn mix(&self, project: &Arc<Project>, seq: ItemId, start: i64, إطار: usize, sources: &dyn filmcraft_render::SourceProvider) -> AudioBuffer {
+        self.mix_layout(project, seq, start, إطار, sources, Layout::Stereo, Mixdown::FrontRear)
     }
 
     /// [`PreviewStore::mix`] in `layout`: a 5.1 Mix is folded to stereo with `mixdown` (Preferences ▸
@@ -399,23 +399,23 @@ impl PreviewStore {
         project: &Arc<Project>,
         seq: ItemId,
         start: i64,
-        frames: usize,
+        إطار: usize,
         sources: &dyn filmcraft_render::SourceProvider,
         layout: Layout,
         mixdown: Mixdown,
     ) -> AudioBuffer {
-        let Some(q) = project.sequence(seq) else { return AudioBuffer::silence(48_000, layout.channels(), frames) };
+        let Some(q) = project.sequence(seq) else { return AudioBuffer::silence(48_000, layout.channels(), إطار) };
         let live = Some(&*self.live);
         let has_audio = self.files.read().unwrap_or_else(|e| e.into_inner()).iter().any(|n| n.ends_with(".wav"));
         let surround = q.settings.audio_master == filmcraft_project::AudioChannels::Surround51;
         let previews_ok = layout == Layout::Stereo && (!surround || mixdown == Mixdown::FrontRear);
         // held mixer controls are heard live (rendered previews don't know them)
         if !has_audio || self.live.is_active() || !previews_ok {
-            return to_layout(filmcraft_render::mixer::mix_graph(project, q, start, frames, sources, live), layout, mixdown);
+            return to_layout(filmcraft_render::mixer::mix_graph(project, q, start, إطار, sources, live), layout, mixdown);
         }
         let segs = self.audio_segments(project, seq);
-        let mut out = AudioBuffer::silence(q.settings.sample_rate, 2, frames);
-        let end = start + frames as i64;
+        let mut out = AudioBuffer::silence(q.settings.sample_rate, 2, إطار);
+        let end = start + إطار as i64;
         let mut pos = start;
         while pos < end {
             let i = segs.partition_point(|g| g.first_sample <= pos);
@@ -470,7 +470,7 @@ impl PreviewStore {
         if self.is_rendered(seg) { BarState::Green } else { need_state(seg) }
     }
 
-    /// The render bar: per segment, green over its rendered frames and its own colour elsewhere;
+    /// The render bar: per segment, green over its rendered إطار and its own colour elsewhere;
     /// adjacent spans of the same colour merged.
     pub fn bar(&self, project: &Arc<Project>, seq: ItemId) -> Vec<BarSpan> {
         let Some(rate) = project.sequence(seq).map(|q| q.settings.frame_rate) else { return Vec::new() };
@@ -574,7 +574,7 @@ fn untitled_dir(root: &Path) -> PathBuf {
 /// The preview folder of a project saved at `project_path`.
 pub fn dir_for_project(project_path: &str) -> PathBuf {
     let p = Path::new(project_path);
-    let stem = p.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| "بدون عنوان".into());
+    let stem = p.file_stem().map(|s| s.to_string_lossy().to_string()).unwrap_or_else(|| "Untitled".into());
     p.parent().unwrap_or(Path::new(".")).join("FilmCraft Previews").join(stem)
 }
 
@@ -590,7 +590,7 @@ fn in_out(s: &Session) -> Result<(ItemId, TimeRange)> {
     Ok((id, TimeRange::from_bounds(a, b.max(a))))
 }
 
-/// One preview file to render: frames `off..off + len` of segment `seg` (from its start).
+/// One preview file to render: إطار `off..off + len` of segment `seg` (from its start).
 struct Todo {
     seg: Segment,
     off: i64,
@@ -599,8 +599,8 @@ struct Todo {
 
 /// Start rendering previews as a background job. `{"wait": true}` renders synchronously.
 ///
-/// The In/Out modes render only the frames between In and Out (a segment that extends past them
-/// gets a partial preview), and every mode renders only frames that have no preview yet.
+/// The In/Out modes render only the إطار between In and Out (a segment that extends past them
+/// gets a partial preview), and every mode renders only إطار that have no preview yet.
 pub fn render(s: &mut Session, mode: RenderMode, p: &Value) -> Result<Value> {
     let (seq, range) = in_out(s)?;
     let rate = s.project.sequence(seq).ok_or(EngineError::NoSequence)?.settings.frame_rate;
@@ -625,7 +625,7 @@ pub fn render(s: &mut Session, mode: RenderMode, p: &Value) -> Result<Value> {
         return Ok(json!({"job": null, "segments": 0}));
     }
     std::fs::create_dir_all(&dir).map_err(|e| EngineError::Other(format!("preview folder {}: {e}", dir.display())))?;
-    let frames: i64 = todo.iter().map(|t| t.len).fold(0, i64::saturating_add);
+    let إطار: i64 = todo.iter().map(|t| t.len).fold(0, i64::saturating_add);
     let id = s.jobs.len() as u64 + 1;
     let job = crate::Job {
         id,
@@ -692,7 +692,7 @@ pub fn render(s: &mut Session, mode: RenderMode, p: &Value) -> Result<Value> {
         let secs = t0.elapsed().as_secs_f64();
         let r = outcome.map(|_| filmcraft_export::Report {
             path: dir.to_string_lossy().to_string(),
-            frames: done_frames,
+            إطار: done_frames,
             seconds: secs,
             bytes,
             render_fps: done_frames as f64 / secs.max(1e-6),
@@ -702,7 +702,7 @@ pub fn render(s: &mut Session, mode: RenderMode, p: &Value) -> Result<Value> {
             *prog.error.lock().unwrap_or_else(|x| x.into_inner()) = Some(e.clone());
         }
         *prog.status.lock().unwrap_or_else(|e| e.into_inner()) =
-            if r.is_ok() { format!("Rendered {done_frames} frames in {secs:.1}s") } else { "Render stopped".into() };
+            if r.is_ok() { format!("Rendered {done_frames} إطار in {secs:.1}s") } else { "Render stopped".into() };
         prog.finished.store(true, Ordering::Relaxed);
         *res.lock().unwrap_or_else(|x| x.into_inner()) = Some(r);
     };
@@ -714,7 +714,7 @@ pub fn render(s: &mut Session, mode: RenderMode, p: &Value) -> Result<Value> {
     } else {
         std::thread::Builder::new().name("filmcraft-render-previews".into()).spawn(run).map_err(|e| EngineError::Other(e.to_string()))?;
     }
-    Ok(json!({"job": id, "segments": nseg, "frames": frames}))
+    Ok(json!({"job": id, "segments": nseg, "frames": إطار}))
 }
 
 /// Render Audio: mix the audio segments in In/Out (or the whole sequence) to float WAV previews.
@@ -779,7 +779,7 @@ pub fn render_audio(s: &mut Session, p: &Value) -> Result<Value> {
         let secs = t0.elapsed().as_secs_f64();
         let r = outcome.map(|_| filmcraft_export::Report {
             path: dir.to_string_lossy().to_string(),
-            frames: 0,
+            إطار: 0,
             seconds: secs,
             bytes,
             render_fps: 0.0,
@@ -856,7 +856,7 @@ pub fn delete(s: &mut Session, in_to_out: bool) -> Result<Value> {
     let n = if in_to_out {
         let (seq, range) = in_out(s)?;
         let rate = s.project.sequence(seq).ok_or(EngineError::NoSequence)?.settings.frame_rate;
-        // the files holding frames between In and Out (a partial preview outside them stays)
+        // the files holding إطار between In and Out (a partial preview outside them stays)
         let names: Vec<String> = s
             .previews
             .segments(&s.project, seq)

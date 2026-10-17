@@ -14,7 +14,7 @@ pub const EFFECT_TOP_FOLDERS: &[&str] = &["Presets", "Lumetri Presets", "Audio E
 
 /// The ten `Video Transitions` sub-folders, in panel order.
 pub const VIDEO_TRANSITION_FOLDERS: &[&str] =
-    &["Animation", "Dissolve", "Grunge & Distort", "Immersive Video", "Lights & Blurs", "Slide", "Smart Tools", "Text", "Transformers", "Wipe"];
+    &["Animation", "Dissolve", "Grunge & Distort", "Immersive Video", "Lights & Blurs", "Slide", "Smart Tools", "النص", "Transformers", "Wipe"];
 
 /// Category of the legacy transitions (`Legacy > Video Transitions`).
 pub const LEGACY_VIDEO_TRANSITIONS: &[&str] = &["Legacy", "Video Transitions"];
@@ -29,13 +29,13 @@ const IMMERSIVE: &[&str] = &["Video Transitions", "Immersive Video"];
 const LIGHTS: &[&str] = &["Video Transitions", "Lights & Blurs"];
 const SLIDE: &[&str] = &["Video Transitions", "Slide"];
 const SMART: &[&str] = &["Video Transitions", "Smart Tools"];
-const TEXT: &[&str] = &["Video Transitions", "Text"];
+const TEXT: &[&str] = &["Video Transitions", "النص"];
 const TRANSFORMERS: &[&str] = &["Video Transitions", "Transformers"];
 const WIPE: &[&str] = &["Video Transitions", "Wipe"];
 
 /// Direction choices (index 3, "From West", moves left → right).
 pub const DIR_OPTS: &[&str] = &["From North", "From East", "From South", "From West"];
-pub const AA_OPTS: &[&str] = &["Off", "Low", "Medium", "High"];
+pub const AA_OPTS: &[&str] = &["Off", "Low", "Medium", "عالي"];
 pub const AXIS_OPTS: &[&str] = &["Horizontal", "Vertical"];
 pub const CORNER_OPTS: &[&str] = &["Top Left", "Top Right", "Bottom Right", "Bottom Left"];
 pub const SHAPE_OPTS: &[&str] = &["Circle", "Square", "Diamond", "Star", "Heart", "Triangle", "Hexagon"];

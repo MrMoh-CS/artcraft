@@ -33,7 +33,7 @@ impl MediaSource for Tones6 {
     fn video_frame(&self, _: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
         Err(MediaError::Unsupported("audio only".into()))
     }
-    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
         Ok(AudioBuffer { sample_rate, channels: (0..6).map(|c| (0..frames).map(|i| tone(c, start + i as i64)).collect()).collect() })
     }
 }
@@ -116,9 +116,9 @@ fn decode(path: &str) -> Option<Vec<Vec<f64>>> {
 }
 
 /// Every decoded sample equals our 24-bit quantisation of the tone (sample-exact).
-fn assert_sample_exact(ch: &[Vec<f64>], frames: usize) {
+fn assert_sample_exact(ch: &[Vec<f64>], إطار: usize) {
     assert_eq!(ch.len(), 6);
-    assert_eq!(ch[0].len(), frames, "frame count");
+    assert_eq!(ch[0].len(), إطار, "frame count");
     for (c, v) in ch.iter().enumerate() {
         for (i, x) in v.iter().enumerate() {
             let want = ((tone(c, i as i64).clamp(-1.0, 1.0) * 8_388_607.0).round() as i64) << 8;

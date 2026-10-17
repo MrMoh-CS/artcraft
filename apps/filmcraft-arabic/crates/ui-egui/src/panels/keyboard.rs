@@ -65,8 +65,8 @@ pub const COMMANDS: &[UiCommand] = &[
     uic!("window.toggleMonitorFocus", "Toggle Source/Program Monitor Focus", [], None),
     uic!("window.openSearch", "Open Search", [], Some("Cmd+Shift+F")),
     uic!("panel.selectFindBox", "Select Find Box", [], Some("Shift+F")),
-    uic!("window.workspace.learning", "Learning", ["Window", "Workspaces"], Some("Alt+Shift+7")),
-    uic!("window.workspace.review", "Review", ["Window", "Workspaces"], Some("Alt+Shift+8")),
+    uic!("window.workspace.learning", "Learning", ["نافذة", "Workspaces"], Some("Alt+Shift+7")),
+    uic!("window.workspace.review", "Review", ["نافذة", "Workspaces"], Some("Alt+Shift+8")),
     uic!("view.programZoom100", "Zoom Program Monitor to 100%", [], Some("Cmd+Shift+1")),
     uic!("view.programZoomFit", "Zoom Program Monitor to Fit", [], Some("Cmd+Shift+0")),
     uic!("view.sourceZoom100", "Zoom Source Monitor to 100%", [], Some("Cmd+Alt+Shift+1")),
@@ -111,7 +111,7 @@ pub const COMMANDS: &[UiCommand] = &[
     uic!("projectPanel.freeformOptions", "Freeform View Options…", [], None),
     uic!("projectPanel.saveArrangement", "Save Arrangement…", [], None),
     uic!("projectPanel.revealProject", "Reveal Project in Finder…", [], None),
-    uic!("projectPanel.newPanel", "New Project Panel", ["Window"], None),
+    uic!("projectPanel.newPanel", "New Project Panel", ["نافذة"], None),
     uic!("textPanel.prevWord", "Navigate to Previous Word", [], None),
     uic!("textPanel.nextWord", "Navigate to Next Word", [], None),
     uic!("textPanel.selectPrevWord", "Select to Previous Word", [], None),
@@ -124,11 +124,11 @@ pub const COMMANDS: &[UiCommand] = &[
     uic!("textPanel.segmentEnd", "Navigate to End of Segment", [], None),
     uic!("textPanel.selectToSegmentStart", "Select to Segment Start", [], None),
     uic!("textPanel.selectToSegmentEnd", "Select to Segment End", [], None),
-    uic!("textPanel.delete", "Delete", [], None),
+    uic!("textPanel.delete", "حذف", [], None),
     uic!("textPanel.rippleDelete", "Ripple Delete", [], None),
     uic!("textPanel.showProgramTranscript", "Show Program Transcript", [], None),
     uic!("graphics.beginTextEditing", "Begin Text Editing for a Graphic Layer", [], Some("Cmd+Alt+'")),
-    uic!("help.filmcraftHelp", "FilmCraft Help…", ["Help"], Some("F1")),
+    uic!("help.filmcraftHelp", "FilmCraft Help…", ["مساعدة"], Some("F1")),
     uic!("app.quit", "Quit FilmCraft", [], Some("Cmd+Q")),
 ];
 
@@ -196,7 +196,7 @@ pub fn route(app: &mut FilmcraftApp, ctx: &egui::Context, id: &str, params: &Val
         "timeline.increaseVideoHeight" | "timeline.decreaseVideoHeight" | "timeline.increaseAudioHeight" | "timeline.decreaseAudioHeight" => {
             let d = if id.contains("increase") { HEIGHT_STEP } else { -HEIGHT_STEP };
             let tv = &mut app.ui.timeline;
-            let h = if id.contains("Video") { &mut tv.video_track_h } else { &mut tv.audio_track_h };
+            let h = if id.contains("الفيديو") { &mut tv.video_track_h } else { &mut tv.audio_track_h };
             *h = (*h + d).clamp(MIN_TRACK_H, MAX_TRACK_H);
             Ok(json!({"videoTrackHeight": tv.video_track_h, "audioTrackHeight": tv.audio_track_h}))
         }
@@ -230,7 +230,7 @@ pub fn route(app: &mut FilmcraftApp, ctx: &egui::Context, id: &str, params: &Val
     Some(r)
 }
 
-// ------------------------------------------------------------------ frames and panels
+// ------------------------------------------------------------------ إطار and panels
 
 /// Maximize `p`, or restore the layout when a panel is maximized (also the panel menu's Maximize /
 /// Restore Frame). A maximized panel that has since been closed counts as restored.

@@ -98,7 +98,7 @@ fn ingest_copies_and_creates_proxies_on_import() {
     std::fs::create_dir_all(&cards).unwrap();
     let a = cards.join("A001.mov");
     make_movie(&a, DemoScene::Forest, W, H, 8);
-    let dest = root.join("Ingest");
+    let dest = root.join("استيعاب");
     let mut s = Session::default();
     s.execute(
         "project.ingestSettings",
@@ -142,7 +142,7 @@ fn check_ingest_collision(action: &str) {
     }
     let original: Vec<Vec<u8>> = paths.iter().map(|p| std::fs::read(p).unwrap()).collect();
     assert_ne!(original[0], original[1], "different source takes");
-    let dest = root.join("Ingest");
+    let dest = root.join("استيعاب");
     std::fs::create_dir_all(&dest).unwrap();
     let existing = dest.join("A001.mov");
     let existing_bytes = b"existing destination must survive ingest";
@@ -226,7 +226,7 @@ fn ingest_copy_keeps_sources_already_at_destination_and_extensionless_names() {
 
     for (name, numbered) in [("Take.wav", "Take 2.wav"), ("Take", "Take 2")] {
         let root = tmp_dir("ingest-copy-existing-source");
-        let dest = root.join("Ingest");
+        let dest = root.join("استيعاب");
         let card = root.join("Card");
         std::fs::create_dir_all(&dest).unwrap();
         std::fs::create_dir_all(&card).unwrap();
@@ -263,7 +263,7 @@ fn ingest_copy_does_not_create_a_destination_when_the_source_is_missing() {
     let mut s = Session::default();
     let imported = s.execute("file.import", json!({"paths": [source.to_string_lossy()]})).unwrap();
     let item = ItemId(imported["items"][0].as_u64().unwrap());
-    let dest = root.join("Ingest");
+    let dest = root.join("استيعاب");
     s.execute("project.ingestSettings", json!({"enabled": true, "action": "copy", "destination": dest.to_string_lossy()})).unwrap();
     let before = s.project.clone();
     std::fs::rename(&source, root.join("Moved.wav")).unwrap();
@@ -273,7 +273,7 @@ fn ingest_copy_does_not_create_a_destination_when_the_source_is_missing() {
     let _ = std::fs::remove_dir_all(root);
 }
 
-/// Measure: Program-monitor playback cost of 4K H.264 with and without proxies (sequential frames
+/// Measure: Program-monitor playback cost of 4K H.264 with and without proxies (sequential إطار
 /// at ½ resolution). Run with `RAYON_NUM_THREADS=1` so wall time ≈ CPU time:
 /// `cargo test --release -p filmcraft-engine proxy_playback_perf_4k -- --ignored --nocapture`.
 #[test]

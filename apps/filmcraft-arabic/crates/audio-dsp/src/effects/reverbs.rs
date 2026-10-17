@@ -105,7 +105,7 @@ pub struct ConvolutionReverb {
 impl ConvolutionReverb {
     pub const PARAMS: &'static [ParamSpec] = &[
         ParamSpec::choice("impulse", "Impulse", IMPULSES, 1),
-        ParamSpec::new("mix", "Mix", 0.0, 100.0, 30.0, Unit::Percent),
+        ParamSpec::new("mix", "المزج", 0.0, 100.0, 30.0, Unit::Percent),
         ParamSpec::new("room_size", "Room Size", 10.0, 100.0, 100.0, Unit::Percent),
         ParamSpec::log("damping_lf", "Damping LF", 10.0, 1000.0, 10.0, Unit::Hertz),
         ParamSpec::log("damping_hf", "Damping HF", 1000.0, 20000.0, 20000.0, Unit::Hertz),

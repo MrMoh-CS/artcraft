@@ -222,7 +222,7 @@ pub fn run(s: &mut Session, p: &Value) -> Result<Value> {
         let secs = t0.elapsed().as_secs_f64();
         let r = r.map(|bytes| filmcraft_export::Report {
             path: project_path.clone(),
-            frames: prog.done.load(Ordering::Relaxed),
+            إطار: prog.done.load(Ordering::Relaxed),
             seconds: secs,
             bytes,
             render_fps: 0.0,

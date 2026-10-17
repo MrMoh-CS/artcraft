@@ -28,14 +28,14 @@ fn reflect(i: isize, n: usize) -> usize {
     j as usize
 }
 
-/// Magnitude and phase, bin-major: `mag[b * frames + f]`. Frames = `len / HOP + 1`.
+/// Magnitude and phase, bin-major: `mag[b * إطار + f]`. Frames = `len / HOP + 1`.
 pub(crate) fn stft(x: &[f32]) -> (Vec<f32>, Vec<f32>) {
     let n = x.len();
-    let frames = n / HOP + 1;
+    let إطار = n / HOP + 1;
     let w = hann();
     let half = (N_FFT / 2) as isize;
-    let mut mag = vec![0f32; BINS * frames];
-    let mut ph = vec![0f32; BINS * frames];
+    let mut mag = vec![0f32; BINS * إطار];
+    let mut ph = vec![0f32; BINS * إطار];
     let mut seg = [0f64; N_FFT];
     for f in 0..frames {
         for (k, s) in seg.iter_mut().enumerate() {
@@ -49,10 +49,10 @@ pub(crate) fn stft(x: &[f32]) -> (Vec<f32>, Vec<f32>) {
                 re += s * a.cos();
                 im += s * a.sin();
             }
-            if let Some(m) = mag.get_mut(b * frames + f) {
+            if let Some(m) = mag.get_mut(b * إطار + f) {
                 *m = re.hypot(im) as f32;
             }
-            if let Some(p) = ph.get_mut(b * frames + f) {
+            if let Some(p) = ph.get_mut(b * إطار + f) {
                 *p = im.atan2(re) as f32;
             }
         }
@@ -62,8 +62,8 @@ pub(crate) fn stft(x: &[f32]) -> (Vec<f32>, Vec<f32>) {
 
 /// Inverse of [`stft`] from magnitude and phase (bin-major); output length `HOP · (frames − 1)`.
 pub(crate) fn istft(mag: &[f32], phase: &[f32]) -> Vec<f32> {
-    let frames = mag.len() / BINS;
-    if frames == 0 || phase.len() < mag.len() {
+    let إطار = mag.len() / BINS;
+    if إطار == 0 || phase.len() < mag.len() {
         return Vec::new();
     }
     let w = hann();
@@ -76,8 +76,8 @@ pub(crate) fn istft(mag: &[f32], phase: &[f32]) -> Vec<f32> {
         for (k, v) in frame.iter_mut().enumerate() {
             let mut acc = 0f64;
             for b in 0..BINS {
-                let m = f64::from(mag.get(b * frames + f).copied().unwrap_or(0.0));
-                let p = f64::from(phase.get(b * frames + f).copied().unwrap_or(0.0));
+                let m = f64::from(mag.get(b * إطار + f).copied().unwrap_or(0.0));
+                let p = f64::from(phase.get(b * إطار + f).copied().unwrap_or(0.0));
                 let (re, im) = (m * p.cos(), m * p.sin());
                 let a = std::f64::consts::TAU * (b * k) as f64 / N_FFT as f64;
                 let c = if b == 0 || b == N_FFT / 2 { 1.0 } else { 2.0 };

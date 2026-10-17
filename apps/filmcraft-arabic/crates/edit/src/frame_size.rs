@@ -7,7 +7,7 @@
 //! inside the new one (`min(W1/W0, H1/H0)`), so nothing is cropped and the old composition sits
 //! centred, letterboxed or pillarboxed, rather than filling the new frame.
 
-use filmcraft_project::{ParamValue, Sequence, TrackKind};
+use filmcraft_project::{ParamValue, تسلسل، TrackKind};
 
 /// Motion Scale's upper bound (the parameter's range, in %).
 const MAX_SCALE: f64 = 10_000.0;
@@ -34,7 +34,7 @@ fn fit(from: (u32, u32), to: (u32, u32)) -> Option<(f64, (f64, f64), (f64, f64))
 /// - Anchor Point (source pixels) and Rotation do not depend on the frame size and stay as they are.
 /// - Only the intrinsic Motion effect changes, as the option's name says: the points of standard
 ///   effects (a Mirror centre, the Transform effect's Position) keep their pixel values.
-pub fn scale_motion(seq: &mut Sequence, from: (u32, u32), to: (u32, u32)) -> usize {
+pub fn scale_motion(seq: &mut تسلسل، from: (u32, u32), to: (u32, u32)) -> usize {
     if from == to {
         return 0;
     }
@@ -117,14 +117,14 @@ mod tests {
         }
     }
 
-    fn pos(seq: &Sequence, i: usize) -> (f64, f64) {
+    fn pos(seq: &تسلسل، i: usize) -> (f64, f64) {
         match seq.video_tracks[0].items[i].effect("motion").unwrap().param("position").unwrap().value {
             ParamValue::Vec2(v) => (v.x, v.y),
             _ => panic!("position is a point"),
         }
     }
 
-    fn scale(seq: &Sequence, i: usize) -> f64 {
+    fn scale(seq: &تسلسل، i: usize) -> f64 {
         match seq.video_tracks[0].items[i].effect("motion").unwrap().param("scale").unwrap().value {
             ParamValue::Float(s) => s,
             _ => panic!("scale is a number"),

@@ -1,5 +1,5 @@
 //! Colour management in the renderer: source colour space resolution (Interpret Footage override
-//! or stream metadata), source → working conversion of decoded frames, and the working → monitor
+//! or stream metadata), source → working conversion of decoded إطار, and the working → monitor
 //! transform. The maths lives in `filmcraft_color::transform`.
 //!
 //! A sequence whose pipeline is "plain" (Rec. 709 working space without wide gamut) and media
@@ -57,7 +57,7 @@ pub fn input_transform(cs: ColorSpace, range: Range, pipe: &ColorPipeline, peak_
 /// The input transform of a frame the GPU compositor can colour manage itself (#965): a Y'CbCr
 /// frame of display-referred HDR or wide-gamut media (PQ, HLG, BT.2020, P3) on a plain pipeline,
 /// whose working → monitor transform is the identity. None for log media (camera-gamut
-/// compression), RGB frames and other pipelines, which [`decode`] converts on the CPU.
+/// compression), RGB إطار and other pipelines, which [`decode`] converts on the CPU.
 pub fn gpu_input(project: &Project, item: ItemId, pipe: &ColorPipeline, cs: ColorSpace, frame: &VideoFrame) -> Option<Arc<InputTransform>> {
     if !pipe.is_plain() || !matches!(frame.data, filmcraft_frame::PixelData::Yuv8 { .. } | filmcraft_frame::PixelData::Yuv16 { .. }) {
         return None;
@@ -80,7 +80,7 @@ pub fn decode(project: &Project, item: ItemId, frame: &VideoFrame, n: usize, pip
     };
     let t = input_transform(cs, range, pipe, source_peak_nits(project, item));
     let float_src = matches!(frame.data, filmcraft_frame::PixelData::RgbaF32(_));
-    // float frames are linear already: only the gamut/tone stages apply to them
+    // float إطار are linear already: only the gamut/tone stages apply to them
     let (w, h, px) = frame.to_linear_f32_decimated_with(n, if float_src { None } else { Some(&t.table) });
     let mut img = Image { w, h, px };
     if t.has_pixel_stage() {

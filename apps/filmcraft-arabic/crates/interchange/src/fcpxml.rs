@@ -9,7 +9,7 @@
 //! - Rational times (`1001/24000s`) map exactly onto ticks.
 //! - `adjust-transform` (position in percent of frame height, FCP y-up, counter-clockwise
 //!   rotation), `adjust-blend` (opacity), `adjust-volume` (dB) and their keyframes are mapped;
-//!   constant speed, reverse and freeze frames use a two-point `timeMap`.
+//!   constant speed, reverse and freeze إطار use a two-point `timeMap`.
 //! - Markers on primary-storyline elements become sequence markers; markers on connected clips stay
 //!   clip markers. Transitions are supported on the primary storyline (and read from secondary
 //!   storylines); transitions elsewhere are reported.
@@ -19,7 +19,7 @@ use std::collections::HashMap;
 use filmcraft_geom::Vec2;
 use filmcraft_media::MediaKind;
 use filmcraft_project::{
-    BinId, ItemId, ItemKind, Keyframe, Label, Marker, MarkerId, MarkerKind, Param, ParamValue, Project, Sequence, TrackItem, TrackKind, Transition,
+    BinId, ItemId, ItemKind, Keyframe, Label, Marker, MarkerId, MarkerKind, Param, ParamValue, Project, تسلسل، TrackItem, TrackKind, Transition,
     TransitionAlign, TransitionId, effect::find_effect_by_name,
 };
 use filmcraft_time::{FrameRate, TICKS_PER_SECOND, Tick};
@@ -199,7 +199,7 @@ pub(crate) fn import(text: &str, opts: &ImportOptions, report: &mut Report) -> R
             match c.tag_name().name() {
                 "project" => {
                     if let Some(s) = child(c, "sequence") {
-                        let name = c.attribute("name").unwrap_or("Project");
+                        let name = c.attribute("name").unwrap_or("المشروع");
                         let id = imp.sequence(s, name, Some(bin));
                         imp.b.top.push(id);
                     }
@@ -215,7 +215,7 @@ pub(crate) fn import(text: &str, opts: &ImportOptions, report: &mut Report) -> R
     }
     for p in children(root, "project") {
         if let Some(s) = child(p, "sequence") {
-            let id = imp.sequence(s, p.attribute("name").unwrap_or("Project"), None);
+            let id = imp.sequence(s, p.attribute("name").unwrap_or("المشروع"), None);
             imp.b.top.push(id);
         }
     }
@@ -313,7 +313,7 @@ impl<'a, 'i> Imp<'a, 'i, '_> {
 
     /// Lay out a storyline. `origin` maps the storyline's offsets to timeline time
     /// (`timeline = origin + offset`). `lane` is the storyline's lane (0 = primary).
-    fn storyline(&mut self, seq: &mut Sequence, ctx: &Ctx, spine: Node<'a, 'i>, origin: Tick, lane: i32, primary: bool) {
+    fn storyline(&mut self, seq: &mut تسلسل، ctx: &Ctx, spine: Node<'a, 'i>, origin: Tick, lane: i32, primary: bool) {
         // (timeline start, timeline end, video clip on this storyline's track)
         let mut laid: Vec<(Tick, Tick, Option<filmcraft_project::ClipId>)> = Vec::new();
         let mut transitions: Vec<(usize, Node)> = Vec::new();
@@ -371,13 +371,13 @@ impl<'a, 'i> Imp<'a, 'i, '_> {
     }
 
     /// Lay out one storyline element at timeline time `t0`. Returns (timeline end, video clip).
-    fn element(&mut self, seq: &mut Sequence, ctx: &Ctx, el: Node<'a, 'i>, t0: Tick, lane: i32, primary: bool) -> (Tick, Option<filmcraft_project::ClipId>) {
+    fn element(&mut self, seq: &mut تسلسل، ctx: &Ctx, el: Node<'a, 'i>, t0: Tick, lane: i32, primary: bool) -> (Tick, Option<filmcraft_project::ClipId>) {
         let tag = el.tag_name().name();
         let dur = attr_time(el, "duration").unwrap_or(Tick::ZERO);
         let local_start = attr_time(el, "start").unwrap_or(Tick::ZERO);
         let mut vclip = None;
         let mut placed: Vec<(TrackKind, filmcraft_project::ClipId)> = Vec::new();
-        let name = el.attribute("name").unwrap_or("Clip").to_string();
+        let name = el.attribute("name").unwrap_or("مقطع").to_string();
         // Media and source in.
         let media: Option<(ItemId, Tick, bool, bool)> = match tag {
             "asset-clip" => el.attribute("ref").and_then(|r| self.asset(r, None)).map(|a| (a.item, a.start, a.has_video, a.has_audio)),
@@ -940,7 +940,7 @@ impl Exp<'_, '_> {
 
     /// A clip element at `offset` (in its parent's local time).
     #[allow(clippy::too_many_arguments)]
-    fn clip_el(&mut self, it: &TrackItem, audio: Option<&TrackItem>, kind: TrackKind, offset: Tick, lane: Option<i32>, seq: &Sequence, primary: bool) -> El {
+    fn clip_el(&mut self, it: &TrackItem, audio: Option<&TrackItem>, kind: TrackKind, offset: Tick, lane: Option<i32>, seq: &تسلسل، primary: bool) -> El {
         let rate = seq.settings.frame_rate;
         let base = base_item(self.p, it.item);
         let is_seq = matches!(self.p.item(base).map(|i| &i.kind), Some(ItemKind::Sequence(_)));
@@ -1086,7 +1086,7 @@ impl Exp<'_, '_> {
         }
     }
 
-    fn transform(&mut self, it: &TrackItem, seq: &Sequence, to_local: &dyn Fn(Tick) -> Tick, out: &mut Vec<String>) {
+    fn transform(&mut self, it: &TrackItem, seq: &تسلسل، to_local: &dyn Fn(Tick) -> Tick, out: &mut Vec<String>) {
         let rate = seq.settings.frame_rate;
         let (fw, fh) = (seq.settings.width as f64, seq.settings.height as f64);
         let pos = |v: &ParamValue| {

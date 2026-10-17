@@ -749,7 +749,7 @@ fn custom(app: &mut FilmcraftApp, ui: &mut Ui, d: &mut SettingsDraft, name: &str
         }
         "memoryInfo" => {
             let (used, budget) = app.frames.cache_usage();
-            note(ui, &t, &tlf!("Decoded frames held for the monitors and thumbnails: {used} of {budget}.", used = mb(used as u64), budget = mb(budget as u64)));
+            note(ui, &t, &tlf!("Decoded إطار held for the monitors and thumbnails: {used} of {budget}.", used = mb(used as u64), budget = mb(budget as u64)));
             note(ui, &t, tl!("FilmCraft keeps the rest of the RAM free for other applications."));
         }
         "mediaCacheInfo" => {
@@ -906,7 +906,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
         ui.add_space(14.0);
         ui.horizontal(|ui| {
             ui.add_space(20.0);
-            if button(app, ui, "settings.help", tl!("Help"), false) {
+            if button(app, ui, "settings.help", tl!("مساعدة"), false) {
                 crate::links::open(app, ctx, &format!("{}/blob/main/docs/project-files.md#settings", crate::links::GITHUB));
             }
             if button(app, ui, "settings.reset", tl!("Reset…"), false) {
@@ -918,10 +918,10 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
             }
             ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                 ui.add_space(20.0);
-                if button(app, ui, "settings.ok", tl!("OK"), true) {
+                if button(app, ui, "settings.ok", tl!("موافق"), true) {
                     apply = true;
                 }
-                if button(app, ui, "settings.cancel", tl!("Cancel"), false) {
+                if button(app, ui, "settings.cancel", tl!("إلغاء"), false) {
                     close = true;
                 }
             });
@@ -964,7 +964,7 @@ mod tests {
         h.get_by_label("Add to favorites: Dark").click();
         h.run_steps(3);
         assert_eq!(*get(&h.state().ui.settings.as_ref().unwrap().values, "appearance.favoriteThemes"), json!(["dark"]));
-        h.get_by_label("OK").click();
+        h.get_by_label("موافق").click();
         h.run_steps(3);
         assert_eq!(h.state().session.prefs.appearance.favorite_themes, vec!["dark"]);
         let mut app = FilmcraftApp::new(filmcraft_engine::Session::default());

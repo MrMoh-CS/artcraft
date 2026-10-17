@@ -204,7 +204,7 @@ pub fn progress(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                 ui.painter().line_segment([cr.center() + vec2(-5.0, -5.0), cr.center() + vec2(5.0, 5.0)], s);
                 ui.painter().line_segment([cr.center() + vec2(5.0, -5.0), cr.center() + vec2(-5.0, 5.0)], s);
                 elems.push((format!("progress.cancel.{id}"), cr, format!("Cancel {label}")));
-                if resp.on_hover_text(tl!("Cancel")).clicked() {
+                if resp.on_hover_text(tl!("إلغاء")).clicked() {
                     cancel = Some(id);
                 }
             }

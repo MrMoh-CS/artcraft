@@ -4,7 +4,7 @@
 //!
 //!     cargo run --release -p filmcraft-render --example frame_bench
 //!
-//! Prints the median of 40 frames (after 6 warm-up frames) in milliseconds, wall time on the
+//! Prints the median of 40 إطار (after 6 warm-up إطار) in milliseconds, wall time on the
 //! global rayon pool, and a checksum of the final 8-bit picture of each scenario so two builds can
 //! be compared for identical output.
 
@@ -35,8 +35,8 @@ impl MediaSource for Still {
     fn video_frame(&self, _req: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
         Ok(self.frame.clone())
     }
-    fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        Ok(AudioBuffer::silence(sample_rate, 2, frames))
+    fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        Ok(AudioBuffer::silence(sample_rate, 2, إطار))
     }
 }
 
@@ -152,7 +152,7 @@ fn main() {
 
     // FC_RECYCLE=1 hands each frame's float image back to the pool, as the exporter does
     let recycle = std::env::var_os("FC_RECYCLE").is_some();
-    println!("\n-- whole frames: render_sequence + 8-bit conversion (ms per frame){} --", if recycle { ", buffers recycled" } else { "" });
+    println!("\n-- whole إطار: render_sequence + 8-bit conversion (ms per frame){} --", if recycle { ", buffers recycled" } else { "" });
     for (name, layers) in [("camera only", vec![cam.clone()]), ("camera + banner", vec![cam.clone(), ban.clone()])] {
         let (p, seq, map) = project(&layers);
         let opts = RenderOptions::default();

@@ -72,21 +72,21 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
     vec![
         (
             "sequence.matchFrame",
-            vec![spec("sequence.reverseMatchFrame", "Reverse Match Frame", &["تسلسل"], Some("Shift+R"), "{}", has_source, |s, _| reverse_match_frame(s))],
+            vec![spec("sequence.reverseMatchFrame", "Reverse Match Frame", &["التسلسل"], Some("Shift+R"), "{}", has_source, |s, _| reverse_match_frame(s))],
         ),
         (
             "sequence.closeGap",
             vec![
-                spec("sequence.goToNextGap", "Next in Sequence", &["تسلسل", "Go to Gap"], Some("Shift+;"), "{}", has_seq, |s, p| {
+                spec("sequence.goToNextGap", "Next in Sequence", &["التسلسل", "Go to Gap"], Some("Shift+;"), "{}", has_seq, |s, p| {
                     go_to_gap(s, p, true, false)
                 }),
-                spec("sequence.goToPrevGap", "Previous in Sequence", &["تسلسل", "Go to Gap"], Some("Cmd+Shift+;"), "{}", has_seq, |s, p| {
+                spec("sequence.goToPrevGap", "Previous in Sequence", &["التسلسل", "Go to Gap"], Some("Cmd+Shift+;"), "{}", has_seq, |s, p| {
                     go_to_gap(s, p, false, false)
                 }),
-                spec("sequence.goToNextGapInTrack", "Next in Track", &["تسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
+                spec("sequence.goToNextGapInTrack", "Next in Track", &["التسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
                     go_to_gap(s, p, true, true)
                 }),
-                spec("sequence.goToPrevGapInTrack", "Previous in Track", &["تسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
+                spec("sequence.goToPrevGapInTrack", "Previous in Track", &["التسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
                     go_to_gap(s, p, false, true)
                 }),
             ],
@@ -94,14 +94,14 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
         (
             "sequence.linkedSelection",
             vec![
-                spec("sequence.selectionFollowsPlayhead", "Selection Follows Playhead", &["تسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
+                spec("sequence.selectionFollowsPlayhead", "Selection Follows Playhead", &["التسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
                     s.state.selection_follows_playhead = bool_p(p, "on").unwrap_or(!s.state.selection_follows_playhead);
                     if s.state.selection_follows_playhead {
                         select_under_playhead(s);
                     }
                     Ok(json!({"selectionFollowsPlayhead": s.state.selection_follows_playhead}))
                 }),
-                spec("sequence.showThroughEdits", "Show Through Edits", &["تسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
+                spec("sequence.showThroughEdits", "Show Through Edits", &["التسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
                     s.state.show_through_edits = bool_p(p, "on").unwrap_or(!s.state.show_through_edits);
                     Ok(json!({"showThroughEdits": s.state.show_through_edits}))
                 }),
@@ -123,7 +123,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
                             .collect(),
                     ))
                 }),
-                spec("sequence.makeSubsequence", "Make Subsequence", &["تسلسل"], Some("Shift+U"), r#"{"name":str?}"#, has_seq, make_subsequence),
+                spec("sequence.makeSubsequence", "Make Subsequence", &["التسلسل"], Some("Shift+U"), r#"{"name":str?}"#, has_seq, make_subsequence),
             ],
         ),
         (
@@ -131,7 +131,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
             vec![spec(
                 "sequence.deleteTracks",
                 "Delete Tracks…",
-                &["تسلسل"],
+                &["التسلسل"],
                 None,
                 r#"{"video":"empty"|"V2"|id?,"audio":"empty"|"A2"|id?,"captions":"empty"|"C2"|id?}"#,
                 has_seq,
@@ -383,7 +383,7 @@ fn join_through_edit_at(s: &mut Session, cut: &Value) -> Result<Value> {
 /// they are set. The new sequence is added to the project and selected; the original is unchanged.
 /// Give a sequence made from part of `from` (Nest…, Make Subsequence) the track names and audio
 /// channel layouts of `from`'s tracks, track for track.
-pub(crate) fn lay_out_tracks_like(new: &mut filmcraft_project::Sequence, from: &filmcraft_project::Sequence) {
+pub(crate) fn lay_out_tracks_like(new: &mut filmcraft_project::تسلسل، from: &filmcraft_project::Sequence) {
     for (tr, src) in new.video_tracks.iter_mut().zip(&from.video_tracks) {
         tr.name = src.name.clone();
     }
@@ -574,7 +574,7 @@ pub(crate) fn place_sequence_clips(
             while p.sequence(seq_id).ok_or(EngineError::NoSequence)?.tracks(kind).len() <= index {
                 let id = TrackId(p.alloc_id());
                 let tracks = p.sequence_mut(seq_id).ok_or(EngineError::NoSequence)?.tracks_mut(kind);
-                let (word, n) = (if kind == TrackKind::Video { "Video" } else { "الصوت" }, tracks.len() + 1);
+                let (word, n) = (if kind == TrackKind::Video { "الفيديو" } else { "الصوت" }, tracks.len() + 1);
                 tracks.push(filmcraft_project::Track::new(id, kind, format!("{word} {n}")));
             }
             let id = p.sequence(seq_id).and_then(|q| q.tracks(kind).get(index)).map(|t| t.id).ok_or(EngineError::NoSequence)?;
@@ -700,7 +700,7 @@ pub(crate) fn add_tracks(s: &mut Session, p: &Value) -> Result<Value> {
         };
         let mut ids: [Vec<u64>; 3] = Default::default();
         for (k, (tracks, n, at, kind, prefix, ch)) in [
-            (&mut q.video_tracks, nv, at_v, TrackKind::Video, "Video", None),
+            (&mut q.video_tracks, nv, at_v, TrackKind::Video, "الفيديو", None),
             (&mut q.audio_tracks, na, at_a, TrackKind::Audio, "الصوت", Some(audio_type)),
             (&mut q.submix_tracks, ns, at_s, TrackKind::Audio, "Submix", Some(submix_type)),
         ]

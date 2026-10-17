@@ -20,7 +20,7 @@ const RAMP_S: f64 = 0.004;
 /// How long the stream stays open after the last move once the button is up.
 const LINGER_S: f64 = 0.25;
 
-/// What the audio callback plays next: `left` of `total` frames from `cursor`.
+/// What the audio callback plays next: `left` of `total` إطار from `cursor`.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 struct Grain {
     cursor: i64,
@@ -141,8 +141,8 @@ fn grain_fill(mut mix: impl FnMut(i64, &mut [f32], usize) + Send + 'static, grai
 mod tests {
     use super::*;
 
-    fn run(fill: &mut Box<dyn FnMut(&mut [f32], usize) + Send>, frames: usize) -> Vec<f32> {
-        let mut buf = vec![9.0; frames * 2];
+    fn run(fill: &mut Box<dyn FnMut(&mut [f32], usize) + Send>, إطار: usize) -> Vec<f32> {
+        let mut buf = vec![9.0; إطار * 2];
         fill(&mut buf, 2);
         buf
     }

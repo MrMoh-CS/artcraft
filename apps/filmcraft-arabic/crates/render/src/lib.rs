@@ -39,7 +39,7 @@ use std::sync::Arc;
 use filmcraft_frame::{PixelData, VideoFrame, pool};
 use filmcraft_geom::{Affine, Vec2};
 use filmcraft_media::{FrameRequest, SharedSource};
-use filmcraft_project::{ItemId, ItemKind, ParamValue, Project, Sequence, TrackItem};
+use filmcraft_project::{ItemId, ItemKind, ParamValue, Project, تسلسل، TrackItem};
 use filmcraft_time::{Tick, TimeDisplay, format_time};
 
 pub use blend::Blend;
@@ -84,7 +84,7 @@ impl Default for RenderOptions {
 }
 
 /// Output size for a sequence at a scale.
-pub fn output_size(seq: &Sequence, scale: f32) -> (usize, usize) {
+pub fn output_size(seq: &تسلسل، scale: f32) -> (usize, usize) {
     (((seq.settings.width as f32 * scale).round() as usize).max(1), ((seq.settings.height as f32 * scale).round() as usize).max(1))
 }
 
@@ -94,7 +94,7 @@ pub fn render_sequence(project: &Project, seq_id: ItemId, t: Tick, opts: RenderO
     render_seq(project, seq, t, opts, sources)
 }
 
-fn render_seq(project: &Project, seq: &Sequence, t: Tick, opts: RenderOptions, sources: &dyn SourceProvider) -> Image {
+fn render_seq(project: &Project, seq: &تسلسل، t: Tick, opts: RenderOptions, sources: &dyn SourceProvider) -> Image {
     render_seq_tracks(project, seq, t, opts, sources, None)
 }
 
@@ -170,7 +170,7 @@ impl Layer {
 
 /// Render a sequence, or only its video track `only` (a multi-camera angle; drawn even when the
 /// track's output is off).
-pub(crate) fn render_seq_tracks(project: &Project, seq: &Sequence, t: Tick, opts: RenderOptions, sources: &dyn SourceProvider, only: Option<usize>) -> Image {
+pub(crate) fn render_seq_tracks(project: &Project, seq: &تسلسل، t: Tick, opts: RenderOptions, sources: &dyn SourceProvider, only: Option<usize>) -> Image {
     let (w, h) = output_size(seq, opts.scale);
     let mut canvas = Canvas::new(w, h);
     if opts.depth > MAX_NEST_DEPTH {
@@ -276,7 +276,7 @@ fn is_adjustment(project: &Project, item: &TrackItem) -> bool {
 /// An adjustment layer as a layer over `below` (the composite of the tracks under it): `below`
 /// with the layer's effects, faded by its opacity and opacity masks and limited to its
 /// (Motion-transformed) frame, and the blend mode it mixes with.
-fn adjustment_layer(project: &Project, seq: &Sequence, item: &TrackItem, t: Tick, opts: RenderOptions, tc: &str, below: &Image) -> (Image, Blend) {
+fn adjustment_layer(project: &Project, seq: &تسلسل، item: &TrackItem, t: Tick, opts: RenderOptions, tc: &str, below: &Image) -> (Image, Blend) {
     let (w, h) = (below.w, below.h);
     let mt = item.effect_time_at(t);
     let mut adj = below.clone();
@@ -316,7 +316,7 @@ fn adjustment_layer(project: &Project, seq: &Sequence, item: &TrackItem, t: Tick
 
 /// Coverage of an adjustment layer's (Motion-transformed) frame in output pixels, or `None` when
 /// it covers the whole output.
-fn adjustment_region(seq: &Sequence, item: &TrackItem, project: &Project, mt: Tick, scale: f32, w: usize, h: usize) -> Option<Image> {
+fn adjustment_region(seq: &تسلسل، item: &TrackItem, project: &Project, mt: Tick, scale: f32, w: usize, h: usize) -> Option<Image> {
     let size = source_size(project, item.item).unwrap_or((seq.settings.width, seq.settings.height));
     let motion = motion_matrix(seq, item, size, source_par(project, item.item), mt);
     let s = scale as f64;
@@ -337,7 +337,7 @@ fn adjustment_region(seq: &Sequence, item: &TrackItem, project: &Project, mt: Ti
 }
 
 /// Rendered captions of the visible caption tracks at `t` for a `w`×`h` output.
-pub fn caption_overlays(seq: &Sequence, t: Tick, w: usize, h: usize) -> Vec<filmcraft_captions::burn::Overlay> {
+pub fn caption_overlays(seq: &تسلسل، t: Tick, w: usize, h: usize) -> Vec<filmcraft_captions::burn::Overlay> {
     if seq.caption_tracks.is_empty() {
         return Vec::new();
     }
@@ -383,7 +383,7 @@ pub fn source_par(project: &Project, item: ItemId) -> Option<(u32, u32)> {
 /// pixels, but Scale and Rotation see the picture at its display aspect, so a 1440 x 1080 clip with
 /// 4:3 pixels covers a 1920 x 1080 square-pixel frame at 100 %, and a square-pixel clip in a 4:3
 /// sequence is narrowed to its display width. Scale to Frame Size fits the display size too.
-pub fn motion_matrix(seq: &Sequence, item: &TrackItem, src: (u32, u32), src_par: Option<(u32, u32)>, mt: Tick) -> Affine {
+pub fn motion_matrix(seq: &تسلسل، item: &TrackItem, src: (u32, u32), src_par: Option<(u32, u32)>, mt: Tick) -> Affine {
     let (sw, sh) = (seq.settings.width as f64, seq.settings.height as f64);
     let seq_par = filmcraft_project::sane_par(seq.settings.par);
     let src_par = src_par.map_or(seq_par, filmcraft_project::sane_par);
@@ -575,7 +575,7 @@ pub(crate) fn video_source_time(item: &TrackItem, t: Tick, media_rate: filmcraft
 /// The linear image of a media clip's `frame`, colour managed, and blended (or, with Optical Flow,
 /// motion interpolated) with the next frame when the clip's speed asks for it.
 #[allow(clippy::too_many_arguments)]
-fn media_image(project: &Project, seq: &Sequence, item: &TrackItem, t: Tick, src: &SharedSource, frame: &VideoFrame, n: usize, want: f32) -> Image {
+fn media_image(project: &Project, seq: &تسلسل، item: &TrackItem, t: Tick, src: &SharedSource, frame: &VideoFrame, n: usize, want: f32) -> Image {
     let img = colorman::decode(project, item.item, frame, n, &seq.settings.color);
     match interpolation_blend(item, t, src.info().frame_rate()) {
         Some((next_time, wgt)) => match src.video_frame(FrameRequest { time: next_time, scale: want }) {
@@ -656,7 +656,7 @@ pub fn render_clip(
 /// Frame Blending / Optical Flow on a speed-changed clip: the later source frame to mix in and
 /// its weight (0..1) at timeline `t`, or None when the exact media time falls on a source frame
 /// (or the clip plays at 100 %, is frame-held, or uses Frame Sampling). Frame Blending cross-fades
-/// the two frames; Optical Flow synthesises the in-between frame from their motion ([`flow`]).
+/// the two إطار; Optical Flow synthesises the in-between frame from their motion ([`flow`]).
 pub fn interpolation_blend(item: &TrackItem, t: Tick, src_rate: filmcraft_time::FrameRate) -> Option<(Tick, f32)> {
     if item.time_interpolation == filmcraft_project::TimeInterpolation::FrameSampling || item.frame_hold.is_some() {
         return None;
@@ -668,7 +668,7 @@ pub fn interpolation_blend(item: &TrackItem, t: Tick, src_rate: filmcraft_time::
     if src_rate.frame_duration().0 <= 0 {
         return None;
     }
-    // position in source frames from the media origin
+    // position in source إطار from the media origin
     let f = src_rate.frame_at(mt);
     let f0 = src_rate.tick_of(f);
     let frac = (mt - f0).0 as f64 / (src_rate.tick_of(f + 1) - f0).0.max(1) as f64;

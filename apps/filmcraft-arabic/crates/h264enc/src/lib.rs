@@ -84,13 +84,13 @@ pub enum Preset {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum RateControl {
-    /// Constant quality; roughly the QP of P frames (0–51, lower is better).
+    /// Constant quality; roughly the QP of P إطار (0–51, lower is better).
     Crf(f32),
     /// Constant bitrate target (1-pass ABR with a 1-second VBV at `kbps`).
     Cbr { kbps: u32 },
     /// Variable bitrate: average `target_kbps`, VBV-limited to `max_kbps`. Use [`Pass`] for 2-pass.
     Vbr { target_kbps: u32, max_kbps: u32 },
-    /// Constant QP (B frames use QP + 2).
+    /// Constant QP (B إطار use QP + 2).
     Qp(u8),
 }
 
@@ -139,7 +139,7 @@ pub struct EncoderConfig {
     pub profile: Profile,
     pub preset: Preset,
     pub rate: RateControl,
-    /// Maximum distance between IDR frames.
+    /// Maximum distance between IDR إطار.
     pub keyint: u32,
     /// Consecutive B-frames (0–3). Ignored for Baseline.
     pub bframes: u8,
@@ -152,7 +152,7 @@ pub struct EncoderConfig {
     pub aq_strength: f32,
     /// Sample aspect ratio (1:1 by default).
     pub sar: (u16, u16),
-    /// Insert IDR frames at detected scene cuts.
+    /// Insert IDR إطار at detected scene cuts.
     pub scenecut: bool,
     /// Number of slices per picture (0 = derived from `threads`).
     pub slices: usize,
@@ -538,7 +538,7 @@ impl Encoder {
         nal::avcc(&self.sps_nal, &self.pps_nal, self.sps.profile_idc, self.sps.constraint_flags, self.sps.level_idc)
     }
 
-    /// Number of frames the output is delayed by (B-frame reordering).
+    /// Number of إطار the output is delayed by (B-frame reordering).
     pub fn delay(&self) -> usize {
         self.cfg.bframes as usize
     }
@@ -558,7 +558,7 @@ impl Encoder {
         if !self.record_pass1 {
             return None;
         }
-        Some(PassStats { frames: self.rc.pass1.clone(), fps: self.cfg.fps_num as f64 / self.cfg.fps_den as f64 })
+        Some(PassStats { إطار: self.rc.pass1.clone(), fps: self.cfg.fps_num as f64 / self.cfg.fps_den as f64 })
     }
 
     /// Encode one picture. Returns zero or more packets in decoding order, or

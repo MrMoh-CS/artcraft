@@ -62,7 +62,7 @@ const SWB_SHORT_24: &[u16] = &[0, 4, 8, 12, 16, 20, 24, 28, 36, 44, 52, 64, 76, 
 const SWB_SHORT_16: &[u16] = &[0, 4, 8, 12, 16, 20, 24, 28, 32, 40, 48, 60, 72, 88, 108, 128];
 const SWB_SHORT_8: &[u16] = &[0, 4, 8, 12, 16, 20, 24, 28, 36, 44, 52, 60, 72, 88, 108, 128];
 
-/// Scalefactor band offsets (`swb_offset_long_window`, 1024-line frames); `len() == num_swb + 1`.
+/// Scalefactor band offsets (`swb_offset_long_window`, 1024-line إطار); `len() == num_swb + 1`.
 pub fn swb_offsets_long(sf_index: u8) -> &'static [u16] {
     match sf_index {
         0 | 1 => SWB_LONG_96,

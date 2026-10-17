@@ -155,7 +155,7 @@ fn merged_drag_is_one_undo_step_and_project_round_trips() {
     assert_eq!(&back, &*s.project);
     let l = s.execute("masks.list", json!({})).unwrap();
     assert_eq!(l["masks"][0]["mode"], "Subtract");
-    assert_eq!(l["masks"][0]["trackMethod"], "الموضع");
+    assert_eq!(l["masks"][0]["trackMethod"], "Position");
     assert!(s.execute("masks.add", json!({"effect": "motion"})).is_err(), "Motion has no masks");
 }
 
@@ -211,8 +211,8 @@ impl filmcraft_media::MediaSource for Moving {
         }
         Ok(std::sync::Arc::new(filmcraft_frame::VideoFrame::rgba8(w as u32, h as u32, px)))
     }
-    fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-        Ok(filmcraft_frame::AudioBuffer::silence(sample_rate, 2, frames))
+    fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        Ok(filmcraft_frame::AudioBuffer::silence(sample_rate, 2, إطار))
     }
 }
 
@@ -286,7 +286,7 @@ fn tracking_follows_known_motion_forward_and_backward() {
             worst = worst.max((v.p - truth(f as f64).apply(*o)).length());
         }
     }
-    eprintln!("mask tracking: max vertex error {worst:.3} px over -8..+12 frames");
+    eprintln!("mask tracking: max vertex error {worst:.3} px over -8..+12 إطار");
     assert!(worst < 1.5, "max vertex error {worst} px");
     // the two tracking runs are two undo steps
     let h = s.execute("history.list", json!({})).unwrap();

@@ -71,7 +71,7 @@ pub fn decode(o: &Opts) -> Vec<Value> {
         let mut fps = Vec::new();
         let mut cpu = Vec::new();
         let mut first = Vec::new();
-        let mut frames = 0;
+        let mut إطار = 0;
         let mut rate = FrameRate::FPS_23_976;
         let hw0 = filmcraft_codecs::hw::hw_stats();
         for _ in 0..o.repeat {
@@ -85,7 +85,7 @@ pub fn decode(o: &Opts) -> Vec<Value> {
             rate = src.info().frame_rate();
             let n = rate.frame_at(src.info().duration).max(1);
             let n = if o.quick { n.min(48) } else { n };
-            frames = n;
+            إطار = n;
             let (t0, c0) = (Instant::now(), cpu_now());
             for f in 0..n {
                 if let Err(e) = src.video_frame(filmcraft_media::FrameRequest::full(rate.tick_of(f))) {
@@ -106,7 +106,7 @@ pub fn decode(o: &Opts) -> Vec<Value> {
         let best = fps.iter().cloned().fold(0.0, f64::max);
         let hw = filmcraft_codecs::hw::hw_stats();
         let row = json!({
-            "fixture": name, "codec": codec, "size": size, "frames": frames,
+            "fixture": name, "codec": codec, "size": size, "frames": إطار,
             "fps": best, "fps_min": fps.iter().cloned().fold(f64::MAX, f64::min), "fps_runs": fps,
             "cpu_ms_per_frame": median(&cpu), "first_frame_ms": median(&first), "realtime": best / rate.as_f64(),
             "decode_threads": rayon::current_num_threads(), "load": load_avg(),
@@ -179,7 +179,7 @@ fn new_bench(s: &Session, seconds: f64) -> Bench {
     Bench { server, refresh_hz: 60.0, seconds, draft: false }
 }
 
-/// Program-monitor playback through the real scheduler (see `playback.rs`), frames shown vs
+/// Program-monitor playback through the real scheduler (see `playback.rs`), إطار shown vs
 /// dropped over N seconds.
 pub fn playback(o: &Opts) -> Vec<Value> {
     let seconds = if o.quick { 4.0 } else { 8.0 };
@@ -220,8 +220,8 @@ pub fn playback(o: &Opts) -> Vec<Value> {
             let hw0 = filmcraft_codecs::hw::hw_stats();
             let r = bench.play(&s, seq, &mut display, scale, Tick::ZERO, &format!("{scenario} {res} #{}", rep + 1));
             let mut v = playback::to_json(&r, scenario, res, path);
-            let frames = (r.shown + r.dropped).max(1) as f64;
-            v["drop_pct"] = json!(100.0 * r.dropped as f64 / frames);
+            let إطار = (r.shown + r.dropped).max(1) as f64;
+            v["drop_pct"] = json!(100.0 * r.dropped as f64 / إطار);
             v["decode_ms"] = json!(r.src_wall.iter().sum::<f64>() / r.jobs.max(1) as f64);
             v["ui_p95_ms"] = json!(pct(&r.present, 0.95));
             v["seeks"] = json!(r.gop.seeks);
@@ -233,7 +233,7 @@ pub fn playback(o: &Opts) -> Vec<Value> {
             v["hw_sessions"] = json!(hw.sessions - hw0.sessions);
             v["hw_fallbacks"] = json!(hw.fallbacks - hw0.fallbacks);
             v["load"] = json!(r.load);
-            v["cores_needed"] = json!(r.process_cpu / frames * fps / 1000.0);
+            v["cores_needed"] = json!(r.process_cpu / إطار * fps / 1000.0);
             eprintln!("playback {scenario} {res}: {}/{} shown/dropped (load {})", r.shown, r.dropped, r.load);
             rows.push(v);
         }
@@ -361,7 +361,7 @@ pub fn timeline(o: &Opts) -> Vec<Value> {
         return Vec::new();
     };
     let gpu = o.gpu && Display::new(true).gpu_available();
-    let frames = if o.quick { 40 } else { 120 };
+    let إطار = if o.quick { 40 } else { 120 };
     let mut rows = Vec::new();
     for _ in 0..o.repeat {
         let mut s = Session::default();
@@ -433,7 +433,7 @@ pub fn timeline(o: &Opts) -> Vec<Value> {
             }
             eprintln!("timeline {view}: update p50 {:.2} ms, p95 {:.2} ms", pct(&upd, 0.5), pct(&upd, 0.95));
             rows.push(json!({
-                "view": view, "clips": clips, "frames": frames, "gpu": gpu,
+                "view": view, "clips": clips, "frames": إطار, "gpu": gpu,
                 "update_p50_ms": pct(&upd, 0.5), "update_p95_ms": pct(&upd, 0.95),
                 "tess_p50_ms": pct(&tess, 0.5), "tess_p95_ms": pct(&tess, 0.95),
                 "render_p50_ms": pct(&rend, 0.5), "render_p95_ms": pct(&rend, 0.95),
@@ -468,12 +468,12 @@ pub fn export(o: &Opts) -> Vec<Value> {
         let mut runs = Vec::new();
         let mut cpu = Vec::new();
         let mut bytes = 0u64;
-        let mut frames = 0i64;
+        let mut إطار = 0i64;
         let hw0 = filmcraft_engine::export::hw_encode_stats();
         let gpu0 = filmcraft_engine::export::gpu_render_stats();
         // The engine's headless session does not register the app's GPU export renderer; the bench
         // does it here so `--gpu-rendering auto` measures the GPU path (and the row reports the
-        // frames it actually rendered on the GPU).
+        // إطار it actually rendered on the GPU).
         filmcraft_engine::export::register_frame_renderer(gpu_export_frame_renderer_factory);
         for _ in 0..o.repeat {
             let mut s = Session::default();
@@ -496,7 +496,7 @@ pub fn export(o: &Opts) -> Vec<Value> {
                 Ok(())
             })
             .expect("audio");
-            frames = s.project.sequence(seq).map(|q| q.settings.frame_rate.frame_at(q.duration())).unwrap_or(0);
+            إطار = s.project.sequence(seq).map(|q| q.settings.frame_rate.frame_at(q.duration())).unwrap_or(0);
             let out = dir.join(format!("out.{ext}"));
             filmcraft_export::reset_export_lock_wait();
             filmcraft_gpu::export_renderer::timing::reset();
@@ -530,21 +530,21 @@ pub fn export(o: &Opts) -> Vec<Value> {
                 );
             }
             runs.push(dt);
-            cpu.push(ms(cpu_now() - c0) / frames.max(1) as f64);
+            cpu.push(ms(cpu_now() - c0) / إطار.max(1) as f64);
             bytes = std::fs::metadata(&out).map(|m| m.len()).unwrap_or(0);
         }
         if runs.is_empty() {
             continue;
         }
         let best = runs.iter().cloned().fold(f64::MAX, f64::min);
-        eprintln!("export {id}: {frames} frames in {best:.1} s");
+        eprintln!("export {id}: {frames} إطار in {best:.1} s");
         rows.push(json!({
-            "scene": id, "format": label, "frames": frames, "seconds": best, "fps": frames as f64 / best,
-            "realtime": frames as f64 / best / FrameRate::FPS_23_976.as_f64(), "cpu_ms_per_frame": median(&cpu),
+            "scene": id, "format": label, "frames": إطار, "seconds": best, "fps": إطار as f64 / best,
+            "realtime": إطار as f64 / best / FrameRate::FPS_23_976.as_f64(), "cpu_ms_per_frame": median(&cpu),
             "mbytes": bytes as f64 / 1e6, "runs_s": runs, "load": load_avg(),
             // pictures encoded by a hardware encoder during this row (zero with --hw off or where there is none)
             "hw_frames": filmcraft_engine::export::hw_encode_stats().frames.saturating_sub(hw0.frames),
-            // frames composited by the GPU export renderer (zero with --gpu-rendering off or where there is no adapter)
+            // إطار composited by the GPU export renderer (zero with --gpu-rendering off or where there is no adapter)
             "gpu_frames": filmcraft_engine::export::gpu_render_stats().frames.saturating_sub(gpu0.frames),
             "gpu_fallbacks": filmcraft_engine::export::gpu_render_stats().fallbacks.saturating_sub(gpu0.fallbacks),
         }));
