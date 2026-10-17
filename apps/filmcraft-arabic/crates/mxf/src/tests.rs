@@ -107,7 +107,7 @@ fn source_clip(uid: u8, def: [u8; 16], dur: i64, pkg: [u8; 32], track: u32) -> V
 }
 
 /// An OP1a file: `n` frame-wrapped content packages, each a picture element of `pic(i)` and a
-/// 16-bit stereo sound element of 1920 إطار (sample k of the file = k, -k on the channels);
+/// 16-bit stereo sound element of 1920 frames (sample k of the file = k, -k on the channels);
 /// a footer index with temporal offsets `to` and flags `flags`.
 fn build(n: usize, pic: impl Fn(usize) -> Vec<u8>, to: &[i8], flags: &[u8]) -> Vec<u8> {
     let mut md = Vec::new();
@@ -250,7 +250,7 @@ fn opens_synthetic_op1a() {
     for i in 0..7 {
         assert_eq!(m.read_sample(&f, v, i).unwrap(), vec![i as u8; 100 + i]);
     }
-    // sound: 7 × 1920 إطار, sample k = k on the left, -k on the right
+    // sound: 7 × 1920 frames, sample k = k on the left, -k on the right
     let a = m.track_of_kind(TrackKind::Sound).unwrap();
     let s = &m.tracks[a];
     assert_eq!(s.codec, Codec::Pcm);
@@ -293,7 +293,7 @@ fn missing_temporal_offsets_with_b_pictures_ask_for_reordering() {
     let m = open(&build(7, prores_like, &[], &flags)).unwrap();
     let t = &m.tracks[0];
     assert!(!t.temporal_offsets);
-    // ProRes is intra-only: the B flags are ignored for key إطار, reordering still reported
+    // ProRes is intra-only: the B flags are ignored for key frames, reordering still reported
     assert!(t.samples.iter().all(|s| s.key));
 }
 

@@ -168,7 +168,7 @@ fn exr_file(chans: &[Chan], data: [i32; 4], display: [i32; 4], comp: u8, value: 
 fn floats(d: &Decoded) -> &[f32] {
     match &d.frame.data {
         filmcraft_frame::PixelData::RgbaF32(p) => p,
-        _ => panic!("EXR إطار are float"),
+        _ => panic!("EXR frames are float"),
     }
 }
 

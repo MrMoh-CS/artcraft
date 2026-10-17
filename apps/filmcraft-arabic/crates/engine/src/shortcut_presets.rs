@@ -15,8 +15,8 @@ pub const FILMCRAFT_PANEL: &[Entry] = &[
     // application-wide it is Project ▸ Clear (#243)
     ("edit.clear", "حذف", "الخط الزمني"),
     ("file.newBin", "Cmd+B", "المشروع"),
-    ("edit.undo", "Left", "History"),
-    ("edit.redo", "Right", "History"),
+    ("edit.undo", "يسار", "History"),
+    ("edit.redo", "يمين", "History"),
     ("sequence.close", "Cmd+W", "الخط الزمني"),
 ];
 
@@ -159,9 +159,9 @@ pub const PREMIERE: &[Entry] = &[
     ("playhead.prevEdit", "Up", ""),
     ("playhead.start", "الرئيسية", ""),
     ("playhead.end", "End", ""),
-    ("playhead.stepBack", "Left", ""),
+    ("playhead.stepBack", "يسار", ""),
     ("playhead.stepBack5", "Shift+Left", ""),
-    ("playhead.stepForward", "Right", ""),
+    ("playhead.stepForward", "يمين", ""),
     ("playhead.stepForward5", "Shift+Right", ""),
     ("playback.toggle", "Space", ""),
     ("playback.reverse", "J", ""),
@@ -262,8 +262,8 @@ pub const PREMIERE: &[Entry] = &[
     ("edit.pasteInsert", "Cmd+Shift+V", "الخط الزمني"),
     ("project.delete", "Backspace", "المشروع"),
     ("source.open", "Shift+O", "المشروع"),
-    ("edit.undo", "Left", "History"),
-    ("edit.redo", "Right", "History"),
+    ("edit.undo", "يسار", "History"),
+    ("edit.redo", "يمين", "History"),
 ];
 
 /// Premiere's panel-scoped default keys for the keyboard-only commands (M3.12). FilmCraft Default
@@ -322,8 +322,8 @@ pub const PREMIERE_PANEL: &[Entry] = &[
     ("projectPanel.thumbnailSmaller", "-", "المشروع"),
     ("projectPanel.moveUp", "Up", "المشروع"),
     ("projectPanel.moveDown", "Down", "المشروع"),
-    ("projectPanel.moveLeft", "Left", "المشروع"),
-    ("projectPanel.moveRight", "Right", "المشروع"),
+    ("projectPanel.moveLeft", "يسار", "المشروع"),
+    ("projectPanel.moveRight", "يمين", "المشروع"),
     ("projectPanel.moveHome", "الرئيسية", "المشروع"),
     ("projectPanel.moveEnd", "End", "المشروع"),
     ("projectPanel.movePageUp", "PageUp", "المشروع"),
@@ -332,8 +332,8 @@ pub const PREMIERE_PANEL: &[Entry] = &[
     ("projectPanel.extendDown", "Shift+Down", "المشروع"),
     ("projectPanel.extendLeft", "Shift+Left", "المشروع"),
     ("projectPanel.extendRight", "Shift+Right", "المشروع"),
-    ("textPanel.prevWord", "Left", "النص"),
-    ("textPanel.nextWord", "Right", "النص"),
+    ("textPanel.prevWord", "يسار", "النص"),
+    ("textPanel.nextWord", "يمين", "النص"),
     ("textPanel.selectPrevWord", "Shift+Left", "النص"),
     ("textPanel.selectNextWord", "Shift+Right", "النص"),
     ("textPanel.prevLine", "Up", "النص"),

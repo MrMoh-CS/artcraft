@@ -389,8 +389,8 @@ impl MediaSource for YuvSource {
             pts: Tick::ZERO,
         }))
     }
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-        self.0.audio(start, إطار, sample_rate)
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        self.0.audio(start, frames, sample_rate)
     }
 }
 
@@ -438,9 +438,9 @@ fn a_multicam_clip_showing_itself_plans_and_renders_to_an_end() {
     assert!(img.w > 0 && img.h > 0);
 }
 
-/// A 24 fps source that picks إطار like the MP4 reader: the requested time is converted to the
+/// A 24 fps source that picks frames like the MP4 reader: the requested time is converted to the
 /// track timescale rounding to the nearest unit, then the frame at or before it is shown. It
-/// records the إطار it was asked for.
+/// records the frames it was asked for.
 struct NearestUnitSource {
     inner: GeneratorSource,
     asked: std::sync::Mutex<Vec<i64>>,
@@ -456,12 +456,12 @@ impl MediaSource for NearestUnitSource {
         self.asked.lock().unwrap().push(units.div_euclid(512));
         self.inner.video_frame(req)
     }
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-        self.inner.audio(start, إطار, sample_rate)
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        self.inner.audio(start, frames, sample_rate)
     }
 }
 
-/// #318: a trimmed clip (source إطار 10–29) played in reverse shows 29 down to 10. Its source
+/// #318: a trimmed clip (source frames 10–29) played in reverse shows 29 down to 10. Its source
 /// time is the instant just before the mirrored position; a reader that rounds to the nearest
 /// timescale unit used to land on the next frame, showing frame 30 (outside the clip) and never 10.
 #[test]

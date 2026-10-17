@@ -1,10 +1,10 @@
 //! Background frame rendering for monitors, thumbnails and playback prefetch.
 //!
 //! A small pool of worker threads pulls prioritised jobs (the frame on screen first, then the
-//! إطار playback will need next, then thumbnails). Results land in a byte-budgeted cache keyed
+//! frames playback will need next, then thumbnails). Results land in a byte-budgeted cache keyed
 //! by (target, frame, scale, revision); the UI shows the exact frame when ready and otherwise holds
 //! the nearest frame it already has, so scrubbing never flashes black and never blocks the UI.
-//! Sequence إطار inside a rendered segment come from its render preview instead of the live
+//! Sequence frames inside a rendered segment come from its render preview instead of the live
 //! render (see `filmcraft_engine::previews`).
 
 use std::cell::Cell;
@@ -40,7 +40,7 @@ pub enum Target {
 /// decoders are small and are not kept (`filmcraft_media::cancel::with_background`).
 pub const BACKGROUND_PRIO: u32 = 40;
 
-/// Whether a job is a thumbnail: a single item at a background priority. Sequence إطار are never
+/// Whether a job is a thumbnail: a single item at a background priority. Sequence frames are never
 /// background, whatever their priority (the scopes ask for the program frame at 40 while playing,
 /// and must not turn the program's decoders into small ones).
 fn is_background(job: &Job) -> bool {
@@ -60,7 +60,7 @@ pub struct FrameKey {
     pub revision: u64,
     /// Draft decoding (reduced-resolution playback with Settings ▸ Playback ▸ Draft decoding):
     /// sources may decode approximate non-reference pictures
-    /// ([`filmcraft_media::cancel::with_draft`]). Draft إطار have their own keys, so a paused
+    /// ([`filmcraft_media::cancel::with_draft`]). Draft frames have their own keys, so a paused
     /// monitor, an export or a render never shows one.
     pub draft: bool,
 }
@@ -84,8 +84,8 @@ struct Job {
     cancel: Arc<std::sync::atomic::AtomicBool>,
     /// Queued by playback prefetch (dropped when playback stops).
     prefetch: bool,
-    /// While playing: how far before this frame the إطار are late (the playhead's distance;
-    /// zero for the frame due now), so a decoder catching up may skip pictures only late إطار
+    /// While playing: how far before this frame the frames are late (the playhead's distance;
+    /// zero for the frame due now), so a decoder catching up may skip pictures only late frames
     /// need (`filmcraft_media::cancel::with_catch_up`).
     catch_up: Option<Tick>,
     time: Tick,
@@ -106,7 +106,7 @@ struct Shared {
     profiling: AtomicBool,
     records: Mutex<Vec<JobRecord>>,
     /// Running estimate (s) of the per-frame work of playback jobs that is not fetching source
-    /// إطار: compositing, CPU effects. Frames cannot be ready sooner than this after they are
+    /// frames: compositing, CPU effects. Frames cannot be ready sooner than this after they are
     /// started, and the workers can finish at most `workers / cost` of them per second.
     render_cost: Mutex<f64>,
     workers: usize,
@@ -130,7 +130,7 @@ pub struct FrameStats {
     pub request_hits: u64,
     /// Requests that queued a new job.
     pub request_misses: u64,
-    /// Totals over all jobs (ms): getting source إطار (decode), the rest (render), whole job.
+    /// Totals over all jobs (ms): getting source frames (decode), the rest (render), whole job.
     pub source_ms: f64,
     pub render_ms: f64,
     pub job_ms: f64,
@@ -173,7 +173,7 @@ pub struct JobRecord {
     pub finished: Instant,
     /// Thread-CPU time of the whole job (robust to machine load; zero where unsupported).
     pub cpu: Duration,
-    /// Wall and thread-CPU time spent getting source إطار (decode, including waits on a
+    /// Wall and thread-CPU time spent getting source frames (decode, including waits on a
     /// source's decoder lock; the decoder's own worker threads are not included in `source_cpu`).
     pub source_wall: Duration,
     pub source_cpu: Duration,
@@ -247,11 +247,11 @@ impl filmcraft_media::MediaSource for TimedSource {
     fn video_frame(&self, req: filmcraft_media::FrameRequest) -> filmcraft_media::Result<Arc<filmcraft_frame::VideoFrame>> {
         timed_source(|| self.0.video_frame(req))
     }
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-        self.0.audio(start, إطار, sample_rate)
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        self.0.audio(start, frames, sample_rate)
     }
-    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
-        self.0.audio_stream(stream, start, إطار, sample_rate)
+    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<filmcraft_frame::AudioBuffer> {
+        self.0.audio_stream(stream, start, frames, sample_rate)
     }
 }
 
@@ -275,10 +275,10 @@ pub struct GpuPlan {
 }
 
 impl GpuPlan {
-    /// Bytes this plan keeps alive (layer إطار + converted texels).
+    /// Bytes this plan keeps alive (layer frames + converted texels).
     fn bytes(&self) -> usize {
-        let إطار = self.plan.source_bytes();
-        إطار + self.prepared.bytes()
+        let frames = self.plan.source_bytes();
+        frames + self.prepared.bytes()
     }
 }
 
@@ -366,25 +366,25 @@ pub fn prefetch_depth(speed: f64) -> i64 {
     if speed.abs() > 1.5 { 24 } else { 14 }
 }
 
-/// Playback starts its clock once this many إطار from the playhead are ready, or after
-/// [`PREROLL_TIMEOUT_S`]: otherwise the first إطار after Play are due before any decoder had a
+/// Playback starts its clock once this many frames from the playhead are ready, or after
+/// [`PREROLL_TIMEOUT_S`]: otherwise the first frames after Play are due before any decoder had a
 /// chance to produce them (a seek decodes from the previous keyframe).
 pub const PREROLL_FRAMES: i64 = 6;
 
-/// Seconds before a scrubbed-to frame whose إطار a seek still decodes in full (see
+/// Seconds before a scrubbed-to frame whose frames a seek still decodes in full (see
 /// [`FrameServer::request`]); earlier non-reference pictures are skipped on the way.
 pub const SCRUB_KEEP_S: f64 = 2.0;
 pub const PREROLL_TIMEOUT_S: f64 = 0.5;
 
-/// Which إطار playback asks for, given the per-frame render cost (s), the displayed frame rate
+/// Which frames playback asks for, given the per-frame render cost (s), the displayed frame rate
 /// and the worker count: `(lead, stride)`. While the workers keep up, every frame from the
 /// playhead on (`(1, 1)`). When they cannot (CPU effects slower than real time), `lead` is the
 /// first frame ahead of the playhead worth starting (nearer ones would be late however soon they
-/// start) and `stride` the spacing the workers can finish in real time: the إطار in between
+/// start) and `stride` the spacing the workers can finish in real time: the frames in between
 /// are dropped on purpose and evenly, instead of every frame arriving late.
 pub fn playback_plan(render_cost: f64, fps: f64, workers: usize) -> (i64, i64) {
-    let إطار_per_job = render_cost * fps;
-    let load = إطار_per_job * 1.15 / workers.max(1) as f64;
+    let frames_per_job = render_cost * fps;
+    let load = frames_per_job * 1.15 / workers.max(1) as f64;
     if load <= 1.0 {
         return (1, 1);
     }
@@ -513,9 +513,9 @@ impl FrameServer {
 
     /// Queue a job unless it is cached, queued or in flight.
     ///
-    /// The frame on screen (`prio` 0: scrubbing, a seek) treats إطار more than
+    /// The frame on screen (`prio` 0: scrubbing, a seek) treats frames more than
     /// [`SCRUB_KEEP_S`] before it as not wanted: a decoder seeking from a keyframe skips their
-    /// non-reference pictures, while nearby إطار stay decoded (and cached) for scrubbing back.
+    /// non-reference pictures, while nearby frames stay decoded (and cached) for scrubbing back.
     pub fn request(&self, key: FrameKey, time: Tick, scale: f32, project: &Arc<Project>, prio: u32) {
         let late = (prio == 0).then(|| Tick::from_seconds_f64(SCRUB_KEEP_S));
         self.request_job(key, time, scale, project, prio, false, late);
@@ -554,7 +554,7 @@ impl FrameServer {
             //
             // A job already running for the same frame at an older revision (a value being
             // dragged asks for a new revision per refresh) is left to finish: it needs the same
-            // source إطار, so it holds no decoder back, and when إطار take longer than a
+            // source frames, so it holds no decoder back, and when frames take longer than a
             // refresh, cancelling each one for the next would show nothing until the mouse rests.
             let same_view = |k: &FrameKey| k.target == key.target && k.size == key.size;
             q.retain(|j| !(j.prio == 0 && !j.prefetch && same_view(&j.key)));
@@ -570,11 +570,11 @@ impl FrameServer {
     }
 
     /// Playback scheduling for the monitor showing `key` (the frame due now): request it first,
-    /// then the next إطار in display order, and drop queued jobs for this target that are
+    /// then the next frames in display order, and drop queued jobs for this target that are
     /// stale (old revision, behind the playhead or too far ahead).
     ///
-    /// When إطار cost more to render than the frame interval (CPU effects), إطار that could
-    /// not be ready in time are not started and the workers get evenly spaced إطار they can
+    /// When frames cost more to render than the frame interval (CPU effects), frames that could
+    /// not be ready in time are not started and the workers get evenly spaced frames they can
     /// finish ([`playback_plan`]). While `preroll` (clock not started yet) every frame is wanted.
     pub fn schedule_playback(&self, key: FrameKey, rate: filmcraft_time::FrameRate, scale: f32, project: &Arc<Project>, speed: f64, preroll: bool) {
         let dir = if speed < 0.0 { -1 } else { 1 };
@@ -582,16 +582,16 @@ impl FrameServer {
         let fps = rate.as_f64() * speed.abs().max(1.0) / step as f64;
         let (lead, stride) = if preroll { (1, 1) } else { playback_plan(self.render_cost(), fps, self.shared.workers) };
         if lead <= 1 {
-            // the frame due now; once the clock runs, the إطار before it are late
+            // the frame due now; once the clock runs, the frames before it are late
             self.request_job(key, rate.tick_of(key.frame), scale, project, 0, false, (!preroll && dir > 0).then_some(Tick::ZERO));
         }
-        // During preroll the clock has not started: only the إطار that gate start, not a
+        // During preroll the clock has not started: only the frames that gate start, not a
         // prefetch run that walks the rest of a LongGOP and evicts the playhead pictures.
         let ahead = if preroll { (PREROLL_FRAMES - 1).max(0) } else { prefetch_depth(speed) };
         for i in 0..ahead {
             let f = key.frame + (lead + i * stride) * dir * step;
             if f >= 0 {
-                // forward play: إطار before the playhead are late (reverse play skips nothing)
+                // forward play: frames before the playhead are late (reverse play skips nothing)
                 let late = (!preroll && dir > 0).then(|| rate.tick_of(f) - rate.tick_of(key.frame));
                 self.request_job(FrameKey { frame: f, ..key }, rate.tick_of(f), scale, project, i as u32 + 1, true, late);
             }
@@ -601,7 +601,7 @@ impl FrameServer {
         self.retain_queue(|k| k.target != target || (k.revision == rev && (k.frame - cur) * dir >= 0 && (k.frame - cur).abs() < span));
     }
 
-    /// Whether playback can start at `key`: the next [`PREROLL_FRAMES`] إطار (up to `last`)
+    /// Whether playback can start at `key`: the next [`PREROLL_FRAMES`] frames (up to `last`)
     /// are ready.
     pub fn preroll_ready(&self, key: FrameKey, speed: f64, last: i64) -> bool {
         let step = (speed.abs().max(1.0) as i64) * if speed < 0.0 { -1 } else { 1 };
@@ -613,8 +613,8 @@ impl FrameServer {
         *self.shared.render_cost.lock().unwrap_or_else(|e| e.into_inner())
     }
 
-    /// Drop queued jobs that fail `keep` (e.g. stale revisions or إطار far from the playhead).
-    /// Jobs already running for such إطار are cancelled: a worker blocked behind a decoder
+    /// Drop queued jobs that fail `keep` (e.g. stale revisions or frames far from the playhead).
+    /// Jobs already running for such frames are cancelled: a worker blocked behind a decoder
     /// would otherwise go on to decode a frame playback has passed, possibly from its keyframe.
     pub fn retain_queue(&self, keep: impl Fn(&FrameKey) -> bool) {
         self.shared.queue.lock().unwrap_or_else(|e| e.into_inner()).retain(|j| keep(&j.key));
@@ -626,7 +626,7 @@ impl FrameServer {
     }
 
     /// Playback stopped: drop its queued prefetch jobs and cancel the running ones (left alone,
-    /// they would keep the workers busy, e.g. rendering effects for إطار nobody will see).
+    /// they would keep the workers busy, e.g. rendering effects for frames nobody will see).
     pub fn stop_prefetch(&self) {
         self.shared.queue.lock().unwrap_or_else(|e| e.into_inner()).retain(|j| !j.prefetch);
         for (_, c, prefetch) in self.shared.in_flight.lock().unwrap_or_else(|e| e.into_inner()).iter() {
@@ -640,7 +640,7 @@ impl FrameServer {
         self.shared.queue.lock().unwrap_or_else(|e| e.into_inner()).len()
     }
 
-    /// The most recent cached frame for `target` at or before `frame` within `max_back` إطار.
+    /// The most recent cached frame for `target` at or before `frame` within `max_back` frames.
     pub fn nearest(&self, target: Target, frame: i64, size: u32, revision: u64, max_back: i64) -> Option<Arc<Rgba>> {
         for d in 0..=max_back {
             if let Some(v) = self.get(&FrameKey { target, frame: frame - d, size, revision, draft: false }) {
@@ -693,12 +693,12 @@ impl FrameServer {
     }
 }
 
-/// Counts shown and dropped إطار while playing.
+/// Counts shown and dropped frames while playing.
 ///
 /// A frame of the timeline is *shown* when its exact picture was on screen at some refresh while
-/// it was the frame due, and *dropped* otherwise — including إطار the playhead skipped because
+/// it was the frame due, and *dropped* otherwise — including frames the playhead skipped because
 /// no refresh happened during their interval. Frames left out on purpose (fast-forward speeds
-/// step over إطار) are not counted.
+/// step over frames) are not counted.
 #[derive(Clone, Debug, Default)]
 pub struct PlaybackMeter {
     pub shown: u64,
@@ -722,7 +722,7 @@ impl PlaybackMeter {
             Some((f, seen)) => {
                 self.close(seen);
                 let moved = (frame - f) / step;
-                // Forward progress: count إطار passed over without a refresh. A jump backwards
+                // Forward progress: count frames passed over without a refresh. A jump backwards
                 // (loop restart) or a huge jump is a discontinuity, not a drop.
                 if moved > 1 && moved < 1000 {
                     self.dropped += (moved - 1) as u64;
@@ -852,8 +852,8 @@ fn run_job(sh: &Shared, job: &Job, pool: &Arc<MediaPool>, services: &Arc<dyn Ser
     let cancelled = job.cancel.load(Ordering::Relaxed);
     sh.in_flight.lock().unwrap_or_else(|e| e.into_inner()).retain(|(k, c, _)| !(*k == job.key && Arc::ptr_eq(c, &job.cancel)));
     if job.prefetch {
-        // Work beyond fetching source إطار (decoding is sequential per source and is
-        // not saved by skipping إطار, so it is left out of the estimate). A cancelled job
+        // Work beyond fetching source frames (decoding is sequential per source and is
+        // not saved by skipping frames, so it is left out of the estimate). A cancelled job
         // only tells that the work takes at least this long.
         let cost = started.elapsed().saturating_sub(SOURCE_TIME.with(|s| s.get()).0).as_secs_f64();
         let mut c = sh.render_cost.lock().unwrap_or_else(|e| e.into_inner());
@@ -1003,10 +1003,10 @@ mod tests {
 
     #[test]
     fn playback_plan_skips_frames_only_when_workers_cannot_keep_up() {
-        // decode-only / light إطار: every frame from the playhead on
+        // decode-only / light frames: every frame from the playhead on
         assert_eq!(playback_plan(0.0, 24.0, 6), (1, 1));
         assert_eq!(playback_plan(0.15, 24.0, 6), (1, 1));
-        // 0.5 s of effects per frame at 24 fps on 6 workers: 12 إطار pass while one renders,
+        // 0.5 s of effects per frame at 24 fps on 6 workers: 12 frames pass while one renders,
         // so start 12 ahead, and every 3rd frame is what 6 workers can finish
         assert_eq!(playback_plan(0.5, 24.0, 6), (12, 3));
     }

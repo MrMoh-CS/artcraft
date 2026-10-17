@@ -12,7 +12,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{ItemId, تسلسل، TrackId};
+use crate::{ItemId, Sequence, TrackId};
 
 /// How a multi-camera source sequence plays audio (Create Multi-Camera Source Sequence ▸ Audio).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]

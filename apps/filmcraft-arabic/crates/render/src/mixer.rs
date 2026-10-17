@@ -48,7 +48,7 @@ use filmcraft_audio_dsp::AudioEffect;
 use filmcraft_audio_dsp::channels::{self as chans, Layout, Mixdown, Pan51};
 use filmcraft_frame::AudioBuffer;
 use filmcraft_project::mixer::{LANE_MUTE, LANE_PAN, LANE_PAN51_CENTER, LANE_PAN51_LFE, LANE_PAN51_X, LANE_PAN51_Y, LANE_VOLUME, fx_lane, send_lane};
-use filmcraft_project::{AudioChannels, EffectInstance, InputMap, Param, ParamValue, Project, تسلسل، Track, TrackId};
+use filmcraft_project::{AudioChannels, EffectInstance, InputMap, Param, ParamValue, Project, Sequence, Track, TrackId};
 use filmcraft_time::Tick;
 use rayon::prelude::*;
 
@@ -336,7 +336,7 @@ fn strip_keyframes(e: &EffectInstance) -> EffectInstance {
 }
 
 impl<'a> Plan<'a> {
-    fn build(seq: &'a تسلسل، ovs: &HashMap<(TrackId, String), Override>) -> Plan<'a> {
+    fn build(seq: &'a Sequence, ovs: &HashMap<(TrackId, String), Override>) -> Plan<'a> {
         let mut strips: Vec<Strip<'a>> = Vec::new();
         for t in &seq.audio_tracks {
             strips.push(Strip {
@@ -839,8 +839,8 @@ fn run_strip(plan: &Plan, si: usize, st: &mut StripState, mut buf: Bus, x0: i64,
 /// Mix `frames` samples of the sequence starting at sample `start` through the mixer graph, at the
 /// Mix's width (2 channels, or 6 in L, R, C, LFE, Ls, Rs order for a 5.1 Mix). `live` adds the UI's
 /// held controls and receives the meters.
-pub fn mix_graph(project: &Project, seq: &تسلسل، start: i64, إطار: usize, sources: &dyn SourceProvider, live: Option<&LiveMix>) -> AudioBuffer {
-    mix_graph_at(project, seq, start, إطار, sources, live, 0)
+pub fn mix_graph(project: &Project, seq: &Sequence, start: i64, frames: usize, sources: &dyn SourceProvider, live: Option<&LiveMix>) -> AudioBuffer {
+    mix_graph_at(project, seq, start, frames, sources, live, 0)
 }
 
 /// [`mix_graph`] for a sequence `depth` nests down from the one being mixed (see
@@ -849,7 +849,7 @@ pub(crate) fn mix_graph_at(
     project: &Project,
     seq: &Sequence,
     start: i64,
-    إطار: usize,
+    frames: usize,
     sources: &dyn SourceProvider,
     live: Option<&LiveMix>,
     depth: u32,
@@ -872,7 +872,7 @@ pub(crate) fn mix_graph_at(
     };
     let lat = st.latency as i64;
     let x0 = start + lat - skip as i64;
-    let total = skip + إطار;
+    let total = skip + frames;
     let ns = plan.strips.len();
     let mut bus: Vec<Option<Bus>> = (0..ns).map(|_| None).collect();
     let mut meters: Vec<(TrackId, Vec<f32>)> = Vec::new();
@@ -936,7 +936,7 @@ pub(crate) fn mix_graph_at(
             out = fin;
         }
     }
-    st.next_out = start + إطار as i64;
+    st.next_out = start + frames as i64;
     {
         let mut c = lock(cache());
         let v = c.entry(key).or_default();

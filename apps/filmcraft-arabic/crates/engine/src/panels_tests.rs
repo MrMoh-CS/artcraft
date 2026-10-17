@@ -41,7 +41,7 @@ fn metadata_edits_are_undoable_and_saved_in_the_project() {
     assert_eq!(s.history.undo.len(), undo0 + 1);
     assert_eq!(s.history.undo.last().unwrap().0, "Edit Metadata");
     // several fields in one step, including the name and the label
-    s.execute("metadata.set", json!({"item": id.0, "fields": {"Scene": "12", "Shot": "4B", "الاسم": "Hero Shot", "Label": "Mango"}})).unwrap();
+    s.execute("metadata.set", json!({"item": id.0, "fields": {"Scene": "12", "Shot": "4B", "الاسم": "Hero Shot", "لون التسمية": "Mango"}})).unwrap();
     assert_eq!(s.history.undo.len(), undo0 + 2);
     let it = s.project.item(id).unwrap();
     assert_eq!((it.name.as_str(), it.label, it.metadata["Scene"].as_str(), it.metadata["Shot"].as_str()), ("Hero Shot", Label::Mango, "12", "4B"));
@@ -62,7 +62,7 @@ fn metadata_edits_are_undoable_and_saved_in_the_project() {
     let n = s.history.undo.len();
     for bad in [
         json!({"field": "Media Start", "value": "01:00:00:00"}),
-        json!({"field": "Label", "value": "Plaid"}),
+        json!({"field": "لون التسمية", "value": "Plaid"}),
         json!({"field": "الاسم", "value": " "}),
         json!({}),
     ] {
@@ -137,12 +137,12 @@ fn events_report_background_jobs() {
     let mut s = demo();
     s.execute("events.clear", json!({})).unwrap();
     let job = |id, label: &str| crate::Job { id, label: label.into(), progress: Arc::new(Default::default()), result: Arc::new(std::sync::Mutex::new(None)) };
-    let (a, b, c) = (job(901, "Export a.mp4"), job(902, "Create Proxies"), job(903, "Scene Edit Detection"));
+    let (a, b, c) = (job(901, "Export a.mp4"), job(902, "Create Proxies"), job(903, "اكتشاف تحرير المشهد"));
     s.jobs.extend([a.clone(), b.clone(), c.clone()]);
     s.poll_persistence();
     assert_eq!(s.log.entries.iter().filter(|e| e.message.starts_with("Started:")).count(), 3);
     *a.result.lock().unwrap() =
-        Some(Ok(filmcraft_export::Report { path: "a.mp4".into(), إطار: 1, seconds: 0.1, bytes: 1, render_fps: 10.0, extra_files: Vec::new() }));
+        Some(Ok(filmcraft_export::Report { path: "a.mp4".into(), frames: 1, seconds: 0.1, bytes: 1, render_fps: 10.0, extra_files: Vec::new() }));
     *b.result.lock().unwrap() = Some(Err("disk full".into()));
     c.progress.cancel.store(true, std::sync::atomic::Ordering::Relaxed);
     *c.result.lock().unwrap() = Some(Err("cancelled".into()));

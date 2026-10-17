@@ -108,7 +108,7 @@ struct NoiseState {
     cur_min: Vec<f32>,
     ring: Vec<f32>,
     ring_pos: usize,
-    إطار_in_sub: usize,
+    frames_in_sub: usize,
     gains: Vec<f32>,
     started: bool,
 }
@@ -120,7 +120,7 @@ impl NoiseState {
             cur_min: vec![f32::INFINITY; bins],
             ring: vec![f32::INFINITY; bins * MS_SUBWINDOWS],
             ring_pos: 0,
-            إطار_in_sub: 0,
+            frames_in_sub: 0,
             gains: vec![1.0; bins],
             started: false,
         }

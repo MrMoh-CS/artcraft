@@ -95,7 +95,7 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
     let Some(mut d) = app.ui.sync_dialog.clone() else { return };
     crate::widgets::revert_drag_on_escape(ctx, egui::Id::new("sync-dialog-before-drag"), &mut d);
     let (title, pre) = match d.kind.as_str() {
-        "merge" => (tl!("Merge Clips"), "merge"),
+        "merge" => (tl!("دمج المقاطع"), "merge"),
         "multicam" => (tl!("Create Multi-Camera Source Sequence"), "mcam"),
         _ => (tl!("Synchronize Clips"), "sync"),
     };
@@ -151,7 +151,7 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 }
                 ui.horizontal(|ui| {
                     ui.label(if pre == "merge" { tl!("Offset Audio by:") } else { tl!("Offset:") });
-                    let r = ui.add(crate::widgets::number_drag(&mut d.offset).range(-100_000..=100_000).suffix(tl!(" إطار")));
+                    let r = ui.add(crate::widgets::number_drag(&mut d.offset).range(-100_000..=100_000).suffix(tl!(" frames")));
                     push(&mut elems, format!("{pre}.offset"), &r, "offset");
                 });
             });
@@ -272,7 +272,7 @@ pub fn show_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
     app.ui.sync_dialog = Some(d);
 }
 
-/// A revision for grid إطار: changes when the multi-camera source (or its cameras' media)
+/// A revision for grid frames: changes when the multi-camera source (or its cameras' media)
 /// changes, not with every edit of the cut (cuts recorded live must not throw away the grid).
 fn grid_revision(app: &FilmcraftApp, src: ItemId) -> u64 {
     use std::hash::{Hash, Hasher};
@@ -293,7 +293,7 @@ pub fn grid(app: &mut FilmcraftApp, ui: &mut egui::Ui, area: Rect) {
     let t = app.tokens;
     let ctx = ui.ctx().clone();
     ui.painter().rect_filled(area, 0.0, t.panel_bg);
-    app.auto.add("program.multicam.grid", area, "Multi-Camera");
+    app.auto.add("program.multicam.grid", area, "متعدد الكاميرات");
     let playhead = app.session.playhead();
     let info = filmcraft_engine::multicam::inspect_at(&app.session, playhead);
     let Some(src) = info["source"].as_u64().map(ItemId) else {

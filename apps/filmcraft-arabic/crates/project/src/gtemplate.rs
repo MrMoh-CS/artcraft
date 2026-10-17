@@ -587,7 +587,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
                 ctl("text_color", "Text Color", 1, "fill_color"),
                 ctl("box_color", "Box Color", 1, "background_color"),
                 slider("box_opacity", "Box Opacity", 1, "background_opacity", 0.0, 100.0),
-                ctl("position", "Position", 1, "position"),
+                ctl("position", "الموضع", 1, "position"),
             ],
         ));
     }
@@ -619,7 +619,7 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
     }
     // Callout: a label on a box with a pointer that follows it.
     {
-        let mut label = text(1, "Label", "Look here", (1260.0, 380.0), 48.0, "SemiBold");
+        let mut label = text(1, "لون التسمية", "Look here", (1260.0, 380.0), 48.0, "SemiBold");
         set(&mut label, "fill_color", rgb(0xffffff));
         set(&mut label, "background", ParamValue::Bool(true));
         set(&mut label, "background_color", rgb(0xdc2626));
@@ -639,10 +639,10 @@ pub fn builtin_templates() -> Vec<GraphicsTemplate> {
             4,
             vec![dot, label],
             vec![
-                ctl("label", "Label", 1, "text"),
+                ctl("label", "لون التسمية", 1, "text"),
                 ctl("color", "Color", 1, "background_color"),
                 ctl("pointer", "Pointer Color", 2, "fill_color"),
-                ctl("position", "Position", 1, "position"),
+                ctl("position", "الموضع", 1, "position"),
             ],
         ));
     }

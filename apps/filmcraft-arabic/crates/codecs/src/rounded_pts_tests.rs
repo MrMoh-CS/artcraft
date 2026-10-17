@@ -85,7 +85,7 @@ fn mp4_1ms(rate: FrameRate, stamp: Stamp) -> Arc<[u8]> {
 }
 
 /// Plays the stream back at its own rate (every frame's start), and asks for every frame's
-/// midpoint too. Returns what went wrong: إطار never shown, إطار shown twice, wrong midpoints.
+/// midpoint too. Returns what went wrong: frames never shown, frames shown twice, wrong midpoints.
 fn problems(src: &dyn MediaSource, rate: FrameRate) -> Vec<String> {
     let n = frame_count(rate);
     let at = |t: Tick| index_of(&src.video_frame(FrameRequest::full(t)).unwrap());
@@ -98,7 +98,7 @@ fn problems(src: &dyn MediaSource, rate: FrameRate) -> Vec<String> {
     let repeated: Vec<usize> = (0..n).filter(|&k| shown[k] > 1).collect();
     if !dropped.is_empty() || !repeated.is_empty() {
         out.push(format!(
-            "{} of {n} إطار never shown {:?}…, {} shown twice {:?}…",
+            "{} of {n} frames never shown {:?}…, {} shown twice {:?}…",
             dropped.len(),
             &dropped[..dropped.len().min(4)],
             repeated.len(),
@@ -135,7 +135,7 @@ fn mp4_with_a_1ms_timescale_shows_every_frame_once() {
     check("mov", mp4_1ms);
 }
 
-/// An MP4 at a 90 kHz timescale whose إطار after the first start `late` units after the frame
+/// An MP4 at a 90 kHz timescale whose frames after the first start `late` units after the frame
 /// grid, as phone footage does (issue #1282): the first sample lasts `late` units longer.
 fn mp4_90k_late(rate: FrameRate, late: i64) -> Arc<[u8]> {
     let mut w = Mp4Writer::new(Cursor::new(Vec::new()), WriterOptions::new(Brand::Mov)).unwrap();
@@ -156,7 +156,7 @@ fn check_90k_late(late: i64) {
     for rate in RATES {
         let src = crate::open_bytes("synthetic.mov", mp4_90k_late(rate, late)).unwrap();
         for p in problems(src.as_ref(), rate) {
-            failures.push(format!("{rate}, إطار {late}/90000 s late: {p}"));
+            failures.push(format!("{rate}, frames {late}/90000 s late: {p}"));
         }
     }
     assert!(failures.is_empty(), "mov:\n{}", failures.join("\n"));
@@ -190,7 +190,7 @@ fn mp4_variable_rate_and_on_grid_frame_times_stay_put() {
     let cases: [(&str, Vec<u32>); 5] = [
         // 1/30 s and 1/20 s in turn
         ("alternating", (0..60).map(|k| if k % 2 == 0 { 3000 } else { 4500 }).collect()),
-        // 30 fps, then every frame 0.4 frame later (one frame lasts 1.4 إطار)
+        // 30 fps, then every frame 0.4 frame later (one frame lasts 1.4 frames)
         ("shifted", (0..80).map(|k| if k == 40 { 4200 } else { 3000 }).collect()),
         // 30 fps with a frame shown for a fifth of a frame: it and the next are both near one grid point
         (
@@ -203,7 +203,7 @@ fn mp4_variable_rate_and_on_grid_frame_times_stay_put() {
                 })
                 .collect(),
         ),
-        // 30 fps with two إطار by one grid point, one a unit after it and one five units after
+        // 30 fps with two frames by one grid point, one a unit after it and one five units after
         (
             "one unit and five after one point",
             (0..80)

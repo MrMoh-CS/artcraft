@@ -20,7 +20,7 @@ use crate::keyframe::{Param, ParamValue};
 pub const TEXT_LAYER: &str = "graphic_text";
 pub const SHAPE_LAYER: &str = "graphic_shape";
 
-pub const ALIGN_OPTS: &[&str] = &["Left", "Center", "Right", "Justify"];
+pub const ALIGN_OPTS: &[&str] = &["يسار", "Center", "يمين", "Justify"];
 pub const CAPS_OPTS: &[&str] = &["Normal", "All Caps", "Small Caps"];
 pub const STROKE_OPTS: &[&str] = &["Outer", "Center", "Inner"];
 pub const SHAPE_OPTS: &[&str] = &["Rectangle", "Ellipse", "Polygon", "Path"];
@@ -87,15 +87,15 @@ fn appearance() -> Vec<ParamDef> {
 }
 
 fn transform() -> Vec<ParamDef> {
-    const T: &str = "Transform";
+    const T: &str = "التحويل";
     vec![
-        p("position", "Position", ParamKind::Point, ParamValue::Vec2(Vec2::new(f64::NAN, f64::NAN)), true, T),
-        p("anchor", "Anchor Point", ParamKind::Point, ParamValue::Vec2(Vec2::new(0.0, 0.0)), true, T),
-        fl("scale", "Scale", 100.0, (0.0, 100_000.0), (0.0, 400.0), "%", T),
+        p("position", "الموضع", ParamKind::Point, ParamValue::Vec2(Vec2::new(f64::NAN, f64::NAN)), true, T),
+        p("anchor", "نقطة الارتكاز", ParamKind::Point, ParamValue::Vec2(Vec2::new(0.0, 0.0)), true, T),
+        fl("scale", "الحجم", 100.0, (0.0, 100_000.0), (0.0, 400.0), "%", T),
         fl("scale_width", "Scale Width", 100.0, (0.0, 100_000.0), (0.0, 400.0), "%", T),
         bo("uniform_scale", "Uniform Scale", true, T),
-        p("rotation", "Rotation", ParamKind::Angle, ParamValue::Float(0.0), true, T),
-        fl("opacity", "Opacity", 100.0, (0.0, 100.0), (0.0, 100.0), "%", T),
+        p("rotation", "الدوران", ParamKind::Angle, ParamValue::Float(0.0), true, T),
+        fl("opacity", "الشفافية", 100.0, (0.0, 100.0), (0.0, 100.0), "%", T),
     ]
 }
 

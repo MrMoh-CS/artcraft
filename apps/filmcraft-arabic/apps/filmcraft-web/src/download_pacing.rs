@@ -2,7 +2,7 @@
 //! anchor clicks live in [`crate::fs::download`]).
 //!
 //! Chrome drops anchor-click downloads that start in one tight burst, so an image-sequence export
-//! (one file per frame) delivered only about half of its إطار (#378). Each download is given a
+//! (one file per frame) delivered only about half of its frames (#378). Each download is given a
 //! slot [`GAP_MS`] after the previous one.
 
 /// Milliseconds between two download clicks.

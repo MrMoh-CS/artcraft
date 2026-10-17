@@ -1586,11 +1586,11 @@ pub fn properties(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                     }
                 }
             });
-            cx.point(ui, tl!("Position"), "position");
-            cx.point(ui, tl!("Anchor point"), "anchor");
-            cx.number(ui, tl!("Scale"), "scale", 0.5, (0.0, 100_000.0), 0, " %");
-            cx.number(ui, tl!("Rotation"), "rotation", 0.5, (-36_000.0, 36_000.0), 1, " °");
-            cx.number(ui, tl!("Opacity"), "opacity", 0.5, (0.0, 100.0), 0, " %");
+            cx.point(ui, tl!("الموضع"), "position");
+            cx.point(ui, tl!("نقطة الارتكاز"), "anchor");
+            cx.number(ui, tl!("الحجم"), "scale", 0.5, (0.0, 100_000.0), 0, " %");
+            cx.number(ui, tl!("الدوران"), "rotation", 0.5, (-36_000.0, 36_000.0), 1, " °");
+            cx.number(ui, tl!("الشفافية"), "opacity", 0.5, (0.0, 100.0), 0, " %");
         }
         // ---- text
         let text_open = e.effect == graphic::TEXT_LAYER && {
@@ -1772,7 +1772,7 @@ pub fn properties(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             let bg = cx.check(&mut vui, "background", "");
             cx.color(&mut vui, "background_color");
             if bg {
-                cx.number(ui, tl!("   Opacity"), "background_opacity", 0.5, (0.0, 100.0), 0, " %");
+                cx.number(ui, tl!("   الشفافية"), "background_opacity", 0.5, (0.0, 100.0), 0, " %");
                 cx.number(ui, tl!("   Size"), "background_size", 0.5, (0.0, 1000.0), 0, "");
                 cx.number(ui, tl!("   Corner Radius"), "background_radius", 0.5, (0.0, 1000.0), 0, "");
             }
@@ -1780,7 +1780,7 @@ pub fn properties(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             let sh = cx.check(&mut vui, "shadow", "");
             cx.color(&mut vui, "shadow_color");
             if sh {
-                cx.number(ui, tl!("   Opacity"), "shadow_opacity", 0.5, (0.0, 100.0), 0, " %");
+                cx.number(ui, tl!("   الشفافية"), "shadow_opacity", 0.5, (0.0, 100.0), 0, " %");
                 cx.number(ui, tl!("   Angle"), "shadow_angle", 0.5, (-36_000.0, 36_000.0), 0, " °");
                 cx.number(ui, tl!("   Distance"), "shadow_distance", 0.5, (0.0, 1000.0), 0, "");
                 cx.number(ui, tl!("   Size"), "shadow_size", 0.5, (0.0, 1000.0), 0, "");

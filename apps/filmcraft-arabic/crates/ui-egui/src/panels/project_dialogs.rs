@@ -35,7 +35,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             ProjectDialog::MetadataDisplay { columns, filter } => metadata_display(app, ui, columns, filter, &mut run),
             ProjectDialog::SavePresetAs { name } => {
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Name:"));
+                    ui.label(tl!("الاسم:"));
                     let r = ui.add(egui::TextEdit::singleline(name).desired_width(240.0));
                     push(app, "projectDialog.name", &r, "الاسم");
                 });
@@ -73,7 +73,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             }
             ProjectDialog::SaveArrangement { name, bin } => {
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Name:"));
+                    ui.label(tl!("الاسم:"));
                     let r = ui.add(egui::TextEdit::singleline(name).desired_width(240.0));
                     push(app, "projectDialog.name", &r, "الاسم");
                 });
@@ -216,7 +216,7 @@ fn manage_presets(app: &mut FilmcraftApp, ui: &mut egui::Ui, selected: &mut usiz
     });
     let filled = presets.get(*selected).is_some_and(Option::is_some);
     ui.horizontal(|ui| {
-        ui.label(tl!("Name:"));
+        ui.label(tl!("الاسم:"));
         let r = ui.add_enabled(filled, egui::TextEdit::singleline(name).desired_width(200.0));
         push(app, "projectDialog.name", &r, "الاسم");
         let b = ui.add_enabled(filled, egui::Button::new(tl!("Rename")));

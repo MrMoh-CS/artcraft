@@ -459,7 +459,7 @@ const BUILTIN_LABEL_PRESETS: [(&str, [(&str, &str); 16]); 2] = [
             ("Dialogue", "#4cb87a"),
             ("Graphics", "#e8913a"),
             ("Interview", "#d9c040"),
-            ("التسلسل", "#7f9e3c"),
+            ("تسلسل", "#7f9e3c"),
             ("Visual Effects", "#c95bc4"),
             ("Bin", "#8a94a6"),
             ("Titles", "#e86f5c"),
@@ -765,7 +765,7 @@ fn duration_in(value: f64, unit: &str, rate: FrameRate) -> Tick {
 }
 
 impl TimelinePrefs {
-    /// "Still Image Default Duration" at a sequence rate (whole إطار, at least one).
+    /// "Still Image Default Duration" at a sequence rate (whole frames, at least one).
     pub fn still_duration(&self, rate: FrameRate) -> Tick {
         duration_in(self.still_image_duration, &self.still_image_unit, rate)
     }
@@ -1193,7 +1193,7 @@ static CATEGORIES: &[Category] = &[
                     f("labels.defaults.video", "الفيديو", Kind::Label, true),
                     f("labels.defaults.audio", "الصوت", Kind::Label, true),
                     f("labels.defaults.still", "Still", Kind::Label, true),
-                    f("labels.defaults.sequence", "التسلسل", Kind::Label, true),
+                    f("labels.defaults.sequence", "تسلسل", Kind::Label, true),
                     f("labels.defaults.dynamicLink", "Dynamic Link", Kind::Label, false),
                     f("labels.defaults.bin", "Bin", Kind::Label, false),
                     f("labels.defaults.captions", "الترجمة النصية", Kind::Label, false),
@@ -1263,7 +1263,7 @@ static CATEGORIES: &[Category] = &[
                 &[
                     f("mediaCache.location", "المسار", Kind::Path, true),
                     b("mediaCache.saveNextToMedia", "Save .cfa and .pek media cache files next to original media files when possible", false),
-                    Row::Button { id: "mediaCache.clean", label: "Delete…", command: "mediaCache.clean" },
+                    Row::Button { id: "mediaCache.clean", label: "حذف…", command: "mediaCache.clean" },
                     Row::Custom("mediaCacheInfo"),
                 ],
             ),
@@ -1300,7 +1300,7 @@ static CATEGORIES: &[Category] = &[
             b("playback.pauseEncoderQueue", "Pause Media Encoder queue during playback", false),
             b("playback.enableTransmit", "Enable Mercury Transmit", false),
             b("playback.disableVideoInBackground", "Disable video output when in the background", false),
-            b("playback.draftDecode", "Draft decoding at reduced playback resolution (H.264: faster, some إطار less filtered)", true),
+            b("playback.draftDecode", "Draft decoding at reduced playback resolution (H.264: faster, some frames less filtered)", true),
             f("playback.hardwareDecoding", "Hardware decoding", Kind::Choice(HW_DECODE), true),
             Row::Note(
                 "Hardware decoding: Auto uses the system's video decoder (VideoToolbox on macOS, Media Foundation on Windows, VA-API or NVDEC for H.264 and HEVC on Linux) for the streams it supports, and FilmCraft's own decoder for everything else or if the hardware fails. Media that is already open keeps its decoder until it is reopened.",
@@ -1698,7 +1698,7 @@ pub fn enforce_policy(dir: &Path, prefs: &MediaCachePrefs, keep: Option<&Path>, 
     removed
 }
 
-/// Delete everything in the media cache except `keep` ("Delete…" ▸ unused files).
+/// Delete everything in the media cache except `keep` ("حذف…" ▸ unused files).
 pub fn clean(dir: &Path, keep: Option<&Path>) -> (usize, u64) {
     let files = cache_files(dir);
     let r = remove_files(&files, keep);

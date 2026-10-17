@@ -5,7 +5,7 @@
 //! clips in a background job (`jobs.list` shows the progress, `jobs.cancel` stops it without
 //! changing anything). Every sequence frame of each clip is decoded at reduced size and compared
 //! with the previous one ([`filmcraft_render::scene`]). When the job finishes, the results are
-//! applied in one undo step ("Scene Edit Detection"):
+//! applied in one undo step ("اكتشاف تحرير المشهد"):
 //!
 //! - **Apply a cut at each detected cut point**: the clip (and its linked audio) is cut at the
 //!   first frame of each new shot;
@@ -24,13 +24,13 @@ use serde_json::{Value, json};
 use crate::commands::{CommandSpec, bad, bool_p, clips_p, f64_p, has_seq, u64_p};
 use crate::{EngineError, Result, Session};
 
-/// Longest side of the إطار analysed (speed; the measures don't need detail).
+/// Longest side of the frames analysed (speed; the measures don't need detail).
 const ANALYSIS_WIDTH: f64 = 256.0;
 
 pub(crate) fn commands() -> Vec<CommandSpec> {
     vec![CommandSpec {
         id: "clip.sceneEditDetection",
-        label: "Scene Edit Detection…",
+        label: "اكتشاف تحرير المشهد…",
         menu: &["مقطع"],
         shortcut: None,
         params: r#"{"clips":[id]?,"sensitivity":0..100=50,"minShotFrames":n=6,"applyCuts":bool=true,"createSubclips":bool=false,"generateMarkers":bool=false,"wait":bool=false}"#,
@@ -93,7 +93,7 @@ struct Work {
     src: filmcraft_media::SharedSource,
     scale: f32,
     /// (timeline time, media time) of every sequence frame of the clip.
-    إطار: Vec<(Tick, Tick)>,
+    frames: Vec<(Tick, Tick)>,
 }
 
 fn detect(s: &mut Session, p: &Value) -> Result<Value> {
@@ -125,13 +125,13 @@ fn detect(s: &mut Session, p: &Value) -> Result<Value> {
         let Some(src) = s.source(it.item) else { continue };
         let Some(v) = src.info().video.clone() else { continue };
         let n = (it.duration.0 / fd.0.max(1)).max(1);
-        let إطار: Vec<(Tick, Tick)> = (0..n)
+        let frames: Vec<(Tick, Tick)> = (0..n)
             .map(|j| {
                 let t = it.start + Tick(fd.0 * j);
                 (t, it.source_time_at(t))
             })
             .collect();
-        work.push(Work { clip: c, name: it.name.clone(), media_item, src, scale: (ANALYSIS_WIDTH / v.width.max(1) as f64).min(1.0) as f32, إطار });
+        work.push(Work { clip: c, name: it.name.clone(), media_item, src, scale: (ANALYSIS_WIDTH / v.width.max(1) as f64).min(1.0) as f32, frames });
     }
     if work.is_empty() {
         return Err(EngineError::Other("none of the selected clips is a video clip with media to analyse".into()));
@@ -193,7 +193,7 @@ fn detect(s: &mut Session, p: &Value) -> Result<Value> {
                 *lock(&out) = Some(found);
                 Ok(filmcraft_export::Report {
                     path: String::new(),
-                    إطار: done,
+                    frames: done,
                     seconds: secs,
                     bytes: 0,
                     render_fps: done as f64 / secs.max(1e-6),
@@ -257,7 +257,7 @@ fn apply_results(s: &mut Session, seq_id: ItemId, apply: SceneApply, results: Ve
         return Ok(json!({"cuts": 0}));
     }
     let media = s.media.clone();
-    s.edit("Scene Edit Detection", move |pr, _| {
+    s.edit("اكتشاف تحرير المشهد", move |pr, _| {
         let snapshot = pr.clone();
         let durations = move |id: ItemId| crate::media_duration(&snapshot, &media, id);
         for r in &results {

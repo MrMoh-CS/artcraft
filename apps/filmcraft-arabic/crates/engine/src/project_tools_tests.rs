@@ -81,8 +81,8 @@ fn file_edit_clip_menu_order_and_shortcuts_match_premiere() {
         ("file.exportSelectionProject", "Selection as FilmCraft Project…", None),
         ("file.exportAle", "Avid Log Exchange…", None),
         ("edit.find", "Find…", Some("Cmd+F")),
-        ("edit.editOriginal", "Edit Original", Some("Cmd+E")),
-        ("clip.sceneEditDetection", "Scene Edit Detection…", None),
+        ("edit.editOriginal", "تحرير الأصلي", Some("Cmd+E")),
+        ("clip.sceneEditDetection", "اكتشاف تحرير المشهد…", None),
         ("clip.automateToSequence", "Automate to Sequence…", None),
     ] {
         let c = crate::commands::find(id).unwrap();
@@ -144,7 +144,7 @@ fn find_and_find_next_in_the_project_and_timeline() {
     let r = s
         .execute(
             "edit.find",
-            json!({"rows": [{"column": "الاسم", "operator": "beginsWith", "text": "Neon"}, {"column": "Label", "operator": "matches", "text": "Caribbean"}], "matchAll": false}),
+            json!({"rows": [{"column": "الاسم", "operator": "beginsWith", "text": "Neon"}, {"column": "لون التسمية", "operator": "matches", "text": "Caribbean"}], "matchAll": false}),
         )
         .unwrap();
     assert_eq!(r["matches"], 2);
@@ -413,7 +413,7 @@ fn automate_to_sequence_places_clips_with_overlap_and_transitions() {
     let q = s.active_sequence().unwrap();
     let v1 = &q.video_tracks[0].items;
     assert_eq!(v1.len(), 3);
-    // selection order; each clip starts 12 إطار before the previous one ends
+    // selection order; each clip starts 12 frames before the previous one ends
     assert_eq!(v1.iter().map(|i| i.item).collect::<Vec<_>>(), ids);
     assert_eq!(v1[0].start, Tick::ZERO);
     assert_eq!(v1[1].start, rate.tick_of(72 - 12));

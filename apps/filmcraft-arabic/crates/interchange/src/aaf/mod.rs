@@ -58,7 +58,7 @@ pub struct AafOptions {
 /// Export `sequence` as an AAF file.
 pub fn export(project: &Project, sequence: ItemId, opts: &AafOptions) -> Result<(Vec<u8>, Report)> {
     let mut report = Report::default();
-    let name = opts.name.clone().or_else(|| project.item(sequence).map(|i| i.name.clone())).unwrap_or_else(|| "التسلسل".into());
+    let name = opts.name.clone().or_else(|| project.item(sequence).map(|i| i.name.clone())).unwrap_or_else(|| "تسلسل".into());
     let doc = comp::from_project(project, sequence, &name, &opts.media, comp::Nests::Compositions, &mut report)?;
     let version = if opts.small_sectors { filmcraft_cfb::Version::V3 } else { filmcraft_cfb::Version::V4 };
     let bytes = write::write(&doc, version, &mut report)?;

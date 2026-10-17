@@ -3,8 +3,8 @@
 //! Attention alignment places every word boundary on the next word's start, so silence between
 //! words is absorbed into the word before it (and leading silence into the first word). Pause
 //! detection and text-based editing need the silences, so each word's start and end are moved
-//! inward past 10 ms إطار whose level is below a threshold set between the clip's noise floor
-//! (10th percentile of the levels of إطار above −100 dBFS) and its speech level (95th percentile): 30 % of the way up,
+//! inward past 10 ms frames whose level is below a threshold set between the clip's noise floor
+//! (10th percentile of the levels of frames above −100 dBFS) and its speech level (95th percentile): 30 % of the way up,
 //! and at least 6 dB above the floor. A word keeps at least 60 ms.
 
 use filmcraft_project::Word;
@@ -41,7 +41,7 @@ pub fn threshold(db: &[f32]) -> f32 {
     (floor + 0.3 * (speech - floor)).max(floor + 6.0)
 }
 
-/// Move word bounds inward past silent إطار (see the module docs).
+/// Move word bounds inward past silent frames (see the module docs).
 pub fn tighten_words(audio: &[f32], words: &mut [Word]) {
     let db = frame_db(audio);
     if db.is_empty() {

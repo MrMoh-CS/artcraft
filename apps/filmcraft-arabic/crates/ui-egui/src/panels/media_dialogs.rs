@@ -200,7 +200,7 @@ fn link_media(app: &mut FilmcraftApp, ctx: &egui::Context) {
                         ("fileName", tl!("اسم الملف"), &mut d.file_name),
                         ("extension", tl!("File Extension"), &mut d.extension),
                         ("clipId", tl!("Clip ID (fingerprint)"), &mut d.clip_id),
-                        ("duration", tl!("Duration"), &mut d.duration),
+                        ("duration", tl!("المدة"), &mut d.duration),
                         ("mediaStart", tl!("Media Start"), &mut d.media_start),
                         ("metadata", tl!("Frame Size / Rate"), &mut d.metadata),
                     ] {
@@ -542,8 +542,8 @@ fn project_manager(app: &mut FilmcraftApp, ctx: &egui::Context) {
             ui.horizontal(|ui| {
                 ui.add_enabled_ui(d.mode == "consolidate", |ui| {
                     ui.label(tl!("Include Handles:"));
-                    let r = ui.add(crate::widgets::number_drag(&mut d.handles).range(0..=600).suffix(tl!(" إطار")));
-                    push(&mut elems, "pm.handles", &r, format!("{} إطار", d.handles));
+                    let r = ui.add(crate::widgets::number_drag(&mut d.handles).range(0..=600).suffix(tl!(" frames")));
+                    push(&mut elems, "pm.handles", &r, format!("{} frames", d.handles));
                 });
             });
             ui.add_enabled_ui(d.mode == "collect", |ui| {

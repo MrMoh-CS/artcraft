@@ -206,7 +206,7 @@ fn typed_body(ui: &mut egui::Ui, cx: &mut Ctx, st: &EssentialSound, items: &[Tra
     }
     ui.add_space(6.0);
     // Preset: [▾] save delete
-    ui.label(egui::RichText::new(tl!("Preset:")).color(t.text_dim).size(12.0));
+    ui.label(egui::RichText::new(tl!("الإعداد المسبق:")).color(t.text_dim).size(12.0));
     let mine: Vec<&es::Preset> = presets.iter().filter(|p| p.kind == kind).collect();
     let current = if st.preset.is_empty() { tl!("(Custom)").to_string() } else { crate::i18n::t(&st.preset).to_string() };
     let mut picked = None;
@@ -305,7 +305,7 @@ fn typed_body(ui: &mut egui::Ui, cx: &mut Ctx, st: &EssentialSound, items: &[Tra
                 }
                 Section::Creative => {
                     switch_row(ui, cx, tl!("Reverb"), "creative.reverb.on", st.creative.reverb.on, on);
-                    ui.label(egui::RichText::new(tl!("Preset:")).color(t.text_dim).size(12.0));
+                    ui.label(egui::RichText::new(tl!("الإعداد المسبق:")).color(t.text_dim).size(12.0));
                     let names: Vec<&str> = es::REVERB_PRESETS.iter().map(|p| p.name).collect();
                     combo(ui, cx, "creative.reverbPreset", &names, &st.creative.reverb_preset, on && st.creative.reverb.on);
                     slider(ui, cx, tl!("Amount"), "creative.reverb.amount", st.creative.reverb.amount, (0.0, 10.0), 1, "", on && st.creative.reverb.on);

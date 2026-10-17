@@ -101,7 +101,7 @@ impl OggSource {
                 (Kind::Pcm { rate, samples }, rate, ch, "Vorbis")
             }
         };
-        let إطار = match &kind {
+        let frames = match &kind {
             Kind::Opus { timing, .. } => timing.total,
             Kind::Pcm { samples, .. } => samples.first().map_or(0, Vec::len) as i64,
         };
@@ -209,16 +209,16 @@ impl MediaSource for OggSource {
         Err(MediaError::NoStream("video"))
     }
 
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
         let (head, timing, state) = match &self.kind {
-            Kind::Pcm { rate, samples } => return Ok(read_resampled(samples, *rate, start, إطار, sample_rate)),
+            Kind::Pcm { rate, samples } => return Ok(read_resampled(samples, *rate, start, frames, sample_rate)),
             Kind::Opus { head, timing, state } => (head, timing, state),
         };
         let ch = head.channels.max(1);
         let ratio = OPUS_RATE as f64 / sample_rate as f64;
         let exact = sample_rate == OPUS_RATE;
         let s0 = if exact { start } else { (start as f64 * ratio).floor() as i64 };
-        let need = if exact { إطار as i64 } else { (frames as f64 * ratio).ceil() as i64 + 2 };
+        let need = if exact { frames as i64 } else { (frames as f64 * ratio).ceil() as i64 + 2 };
         let mut src: Vec<Vec<f32>> = vec![vec![0.0; need.max(0) as usize]; ch];
         let mut st = state.lock().unwrap_or_else(|e| e.into_inner());
         let n = timing.starts.len();
@@ -246,7 +246,7 @@ impl MediaSource for OggSource {
             i += 1;
         }
         drop(st);
-        let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
+        let mut out = AudioBuffer::silence(sample_rate, ch, frames);
         if exact {
             out.channels = src;
             return Ok(out);

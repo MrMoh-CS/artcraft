@@ -65,7 +65,7 @@ fn pes_packet(stream_id: u8, payload: &[u8]) -> Vec<u8> {
 
 /// Two audio streams interleaved in maximal PES packets over more than three window refills,
 /// with a pack header per PES packet; MPEG-2 or MPEG-1 pack headers.
-fn big_program_stream(mpeg1: bool, إطار: usize) -> (Vec<u8>, Vec<Vec<u8>>, Vec<Vec<u8>>) {
+fn big_program_stream(mpeg1: bool, frames: usize) -> (Vec<u8>, Vec<Vec<u8>>, Vec<Vec<u8>>) {
     let a: Vec<Vec<u8>> = (0..frames).map(|k| mp2_frame(k, 0)).collect();
     let b: Vec<Vec<u8>> = (0..frames).map(|k| mp2_frame(k, 0x55)).collect();
     let (ea, eb) = (a.concat(), b.concat());
@@ -92,9 +92,9 @@ fn program_stream_with_large_pes_packets_gives_back_every_frame() {
         let f = open(&data).unwrap();
         assert_eq!(f.format, Format::Ps { mpeg1 });
         assert_eq!(f.streams.len(), 2);
-        for (s, إطار) in f.streams.iter().zip([&a, &b]) {
-            assert_eq!(s.units.len(), إطار.len());
-            for (i, fr) in إطار.iter().enumerate() {
+        for (s, frames) in f.streams.iter().zip([&a, &b]) {
+            assert_eq!(s.units.len(), frames.len());
+            for (i, fr) in frames.iter().enumerate() {
                 assert_eq!(&f.read_unit(&data, f.streams.iter().position(|x| std::ptr::eq(x, s)).unwrap(), i).unwrap(), fr, "mpeg1 {mpeg1} unit {i}");
             }
         }
@@ -102,10 +102,10 @@ fn program_stream_with_large_pes_packets_gives_back_every_frame() {
         for cut in [data.len() - 1, data.len() - 4, data.len() - 30_000, data.len() - 61_000, 100_000, 1 << 20] {
             let d = &data[..cut];
             let Ok(f) = open(d) else { continue };
-            for (si, إطار) in [&a, &b].into_iter().enumerate() {
+            for (si, frames) in [&a, &b].into_iter().enumerate() {
                 let Some(s) = f.streams.get(si) else { continue };
                 for i in 0..s.units.len().saturating_sub(1) {
-                    assert_eq!(f.read_unit(d, si, i).unwrap(), إطار[i], "cut {cut} stream {si} unit {i}");
+                    assert_eq!(f.read_unit(d, si, i).unwrap(), frames[i], "cut {cut} stream {si} unit {i}");
                 }
             }
         }

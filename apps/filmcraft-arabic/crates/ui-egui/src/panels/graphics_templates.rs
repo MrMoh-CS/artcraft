@@ -459,10 +459,10 @@ pub fn responsive_time(app: &FilmcraftApp, ui: &mut egui::Ui, clip: ClipId, it: 
     let t = app.tokens;
     let rate = app.session.sequence_rate();
     let m = it.graphic.as_deref().cloned().unwrap_or_default();
-    let إطار = |x: Tick| rate.frame_at(rate.snap_nearest(x)) as f64;
+    let frames = |x: Tick| rate.frame_at(rate.snap_nearest(x)) as f64;
     for (key, label, v) in [("intro", tl!("Intro Duration"), m.intro), ("outro", tl!("Outro Duration"), m.outro)] {
         let mut vui = row_label(ui, label, &t);
-        let mut f = إطار(v);
+        let mut f = frames(v);
         let r = vui.add(crate::widgets::number_drag(&mut f).speed(0.2).range(0.0..=100_000.0).suffix(" fr"));
         autos.push((format!("graphics.time.{key}"), r.rect, label.into()));
         if r.changed() {
@@ -507,7 +507,7 @@ pub fn responsive_time(app: &FilmcraftApp, ui: &mut egui::Ui, clip: ClipId, it: 
         ("postroll", tl!("Postroll"), m.roll.postroll),
     ] {
         let mut vui = row_label(ui, label, &t);
-        let mut f = إطار(v);
+        let mut f = frames(v);
         let r = vui.add(crate::widgets::number_drag(&mut f).speed(0.2).range(0.0..=100_000.0).suffix(" fr"));
         autos.push((format!("graphics.roll.{key}"), r.rect, label.into()));
         if r.changed() {
@@ -654,7 +654,7 @@ fn export_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
         .centered(ctx)
         .show(ctx, |ui| {
             egui::Grid::new("gfx-export-grid").num_columns(2).show(ui, |ui| {
-                ui.label(tl!("Name:"));
+                ui.label(tl!("الاسم:"));
                 let r = ui.add(egui::TextEdit::singleline(&mut d.name).desired_width(260.0));
                 elems.push(("exportTemplate.name".into(), r.rect, "الاسم".into()));
                 ui.end_row();

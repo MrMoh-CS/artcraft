@@ -1,6 +1,6 @@
 //! Media Browser panel (M12.7): a directory tree (Favorites, Local Drives, Network, Recent
 //! Directories) beside the media list (List or Thumbnails view with hover scrub), back / forward /
-//! up navigation, the path field, the file-type filter, Ingest and Import as Image تسلسل، Edit
+//! up navigation, the path field, the file-type filter, Ingest and Import as Image Sequence, Edit
 //! Columns…, Import / Open In Source Monitor and dragging files to the Project panel or Timeline.
 //!
 //! Listing, navigation, Favorites, settings and import are engine commands
@@ -276,7 +276,7 @@ fn tree(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, dir: &str) {
             let hr = ui.label(egui::RichText::new(title).size(11.0).color(app.tokens.text_dim).strong());
             app.auto.add(&format!("mediaBrowser.tree.{key}"), hr.rect, title);
             if list.is_empty() {
-                ui.label(egui::RichText::new(tl!("  (none)")).size(10.5).color(app.tokens.text_faint));
+                ui.label(egui::RichText::new(tl!("  (لا يوجد)")).size(10.5).color(app.tokens.text_faint));
             }
             for (name, path) in list {
                 let expandable = matches!(key, "localDrives" | "network" | "favorites");

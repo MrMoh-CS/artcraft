@@ -15,7 +15,7 @@
 
 use egui::{Align2, Color32, Rect, Sense, Stroke, StrokeKind, pos2, vec2};
 use filmcraft_edit::Edge;
-use filmcraft_project::{ClipId, ItemKind, تسلسل، Track, TrackId};
+use filmcraft_project::{ClipId, ItemKind, Sequence, Track, TrackId};
 use filmcraft_time::{Tick, TimeDisplay, format_time};
 use serde_json::{Value, json};
 
@@ -66,7 +66,7 @@ pub fn route_transport(app: &mut FilmcraftApp, ctx: &egui::Context, id: &str) ->
 }
 
 /// Paint the selected edit points that sit on `tr` as brackets at the clip edges.
-pub fn paint_edit_points(app: &FilmcraftApp, p: &egui::Painter, seq: &تسلسل، tr: &Track, row: &Row, layout: &Layout) {
+pub fn paint_edit_points(app: &FilmcraftApp, p: &egui::Painter, seq: &Sequence, tr: &Track, row: &Row, layout: &Layout) {
     use filmcraft_engine::trim::{TrimKind, roll_pair};
     for ep in &app.session.state.edit_points {
         let mut marks = Vec::new(); // (clip on this track, out edge)
@@ -100,7 +100,7 @@ pub fn paint_bracket(p: &egui::Painter, x: f32, row: &Row, out: bool, col: Color
 
 /// The bracket on the edge a press would grab (#259): an edit point's bracket at half strength,
 /// red for a ripple and yellow otherwise; a roll marks both sides of the cut.
-pub fn paint_hover_bracket(p: &egui::Painter, seq: &تسلسل، layout: &Layout, track: TrackId, clip: ClipId, edge: Edge, kind: EdgeKind) {
+pub fn paint_hover_bracket(p: &egui::Painter, seq: &Sequence, layout: &Layout, track: TrackId, clip: ClipId, edge: Edge, kind: EdgeKind) {
     let Some(row) = layout.rows.iter().find(|r| r.track == track) else { return };
     let Some(tr) = seq.track(track) else { return };
     let full = if kind == EdgeKind::Ripple { RIPPLE_RED } else { ROLL_YELLOW };
@@ -168,7 +168,7 @@ fn picture(app: &mut FilmcraftApp, ui: &mut egui::Ui, area: Rect, side: &Value, 
 }
 
 fn shift_text(frames: i64) -> String {
-    if إطار > 0 { format!("+{frames}") } else { إطار.to_string() }
+    if frames > 0 { format!("+{frames}") } else { frames.to_string() }
 }
 
 /// The two-up Trim Monitor in the Program monitor's `rect`.
@@ -236,7 +236,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     let mid = Rect::from_min_max(pos2(lp.max.x, area.min.y), pos2(rp.min.x, area.max.y));
     app.auto.add("trimMonitor.roll", mid, "Drag to roll the edit");
 
-    // drag to trim: px → إطار (6 px per frame), applied on release as one trim
+    // drag to trim: px → frames (6 px per frame), applied on release as one trim
     let fpp = 1.0 / 6.0;
     for (r, which) in [(lp, "out"), (rp, "in"), (mid, "roll")] {
         let resp = ui.interact(r, egui::Id::new(("trim-monitor-drag", which)), Sense::drag());
@@ -342,7 +342,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
 }
 
 /// A drag in the Trim Monitor: re-target the primary edit point to the dragged side, then trim.
-fn drag_trim(app: &mut FilmcraftApp, which: &str, إطار: i64) {
+fn drag_trim(app: &mut FilmcraftApp, which: &str, frames: i64) {
     use filmcraft_engine::trim::{TrimKind, sides};
     let Some(seq) = app.session.active_sequence() else { return };
     let Some(ep) = app.session.state.edit_points.first().copied() else { return };
@@ -358,7 +358,7 @@ fn drag_trim(app: &mut FilmcraftApp, which: &str, إطار: i64) {
         let kind = serde_json::to_value(kind).unwrap_or(json!("trim"));
         let _ = app.session.execute("trim.selectEditPoint", json!({"clip": clip.0, "edge": edge, "kind": kind}));
     }
-    if let Err(e) = app.session.execute("trim.nudge", json!({"frames": إطار})) {
+    if let Err(e) = app.session.execute("trim.nudge", json!({"frames": frames})) {
         app.ui.status = e.to_string();
     }
 }

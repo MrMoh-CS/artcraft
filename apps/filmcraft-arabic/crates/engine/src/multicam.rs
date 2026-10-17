@@ -31,7 +31,7 @@ use filmcraft_edit as edit;
 use filmcraft_edit::EditCtx;
 use filmcraft_edit::multicam::Cut;
 use filmcraft_project::{
-    BinEntry, Camera, ClipId, ItemId, ItemKind, Label, MergedClip, MulticamAudio, MulticamSel, MulticamSource, Project, تسلسل، SequenceSettings, Track,
+    BinEntry, Camera, ClipId, ItemId, ItemKind, Label, MergedClip, MulticamAudio, MulticamSel, MulticamSource, Project, Sequence, SequenceSettings, Track,
     TrackId, TrackItem, TrackKind, resolve_auto_points,
 };
 use filmcraft_time::{FrameRate, Tick, TimeRange};
@@ -138,7 +138,7 @@ fn base_commands() -> Vec<CommandSpec> {
     vec![
         spec(
             "clip.synchronize",
-            "Synchronize…",
+            "مزامنة…",
             &["مقطع"],
             r#"{"method":"in|out|timecode|marker|audio","clips":[id]?,"reference":clip?,"track":"V1"|"A1"?,"ignoreHours":bool?,"marker":str?,"offset":frames?}"#,
             can_synchronize,
@@ -147,7 +147,7 @@ fn base_commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.mergeClips",
-            "Merge Clips…",
+            "دمج المقاطع…",
             &["مقطع"],
             r#"{"items":[id]?,"method":"in|out|timecode|marker|audio","name":str?,"removeVideoAudio":bool?,"ignoreHours":bool?,"marker":str?,"offset":frames?}"#,
             has_two_items,
@@ -163,8 +163,8 @@ fn base_commands() -> Vec<CommandSpec> {
             create_multicam,
             true,
         ),
-        spec("clip.multicamEnable", "Enable", &["مقطع", "Multi-Camera"], r#"{"clips":[id]?,"enabled":bool?}"#, has_selection, enable, true),
-        spec("clip.multicamFlatten", "Flatten", &["مقطع", "Multi-Camera"], r#"{"clips":[id]?}"#, has_selection, flatten, true),
+        spec("clip.multicamEnable", "تفعيل", &["مقطع", "متعدد الكاميرات"], r#"{"clips":[id]?,"enabled":bool?}"#, has_selection, enable, true),
+        spec("clip.multicamFlatten", "Flatten", &["مقطع", "متعدد الكاميرات"], r#"{"clips":[id]?}"#, has_selection, flatten, true),
         spec(
             "multicam.switchAngle",
             "Switch Multi-Camera Angle",
@@ -275,7 +275,7 @@ fn offset_p(p: &Value, rate: FrameRate) -> Tick {
 }
 
 /// Run `f` on sequence `seq_id` of `p` with an edit context (ids, media durations), then check it.
-fn seq_edit<R>(p: &mut Project, seq_id: ItemId, media: &Arc<MediaPool>, f: impl FnOnce(&mut تسلسل، &mut EditCtx) -> Result<R>) -> Result<R> {
+fn seq_edit<R>(p: &mut Project, seq_id: ItemId, media: &Arc<MediaPool>, f: impl FnOnce(&mut Sequence, &mut EditCtx) -> Result<R>) -> Result<R> {
     let snapshot = Arc::new(p.clone());
     let snap = snapshot.clone();
     let media = media.clone();
@@ -310,8 +310,8 @@ fn placed_item(p: &mut Project, item: ItemId, kind: TrackKind, exact: Tick, rang
     let (start, shift) = frame_align(exact, rate);
     let src = TimeRange::from_bounds(range.start + shift, range.end());
     let mut ti = p.make_track_item(item, kind, start, src, rate)?;
-    // whole إطار that fit in the media
-    let إطار = rate.frame_at(src.duration).max(1);
+    // whole frames that fit in the media
+    let frames = rate.frame_at(src.duration).max(1);
     ti.duration = rate.tick_of(frames);
     if kind == TrackKind::Video {
         let size = sync_source_size(p, item).unwrap_or((settings.width, settings.height));
@@ -530,7 +530,7 @@ fn merge_clips(s: &mut Session, p: &Value) -> Result<Value> {
     let n_audio = audio_items.len() + vid_audio as usize;
     let rep = sync::report(&clips, &anchors, &starts, rate);
     let bin = s.project.root.parent_of(clips[0].item).filter(|b| *b != s.project.root.id);
-    let id = s.edit("Merge Clips", |pr, st| {
+    let id = s.edit("دمج المقاطع", |pr, st| {
         let sid = pr.new_sequence(&name, settings.clone(), video.is_some() as usize, n_audio, bin);
         let mut v_items = Vec::new();
         let mut a_items = Vec::new();
@@ -706,7 +706,7 @@ fn angle_p(s: &Session, p: &Value, source: ItemId, cmd: &str) -> Result<u32> {
 }
 
 /// Linked audio clips of `video` that are multi-camera clips.
-fn audio_partners(q: &تسلسل، video: &TrackItem) -> Vec<ClipId> {
+fn audio_partners(q: &Sequence, video: &TrackItem) -> Vec<ClipId> {
     let Some(l) = video.link else { return Vec::new() };
     q.audio_tracks.iter().flat_map(|t| t.items.iter()).filter(|i| i.link == Some(l) && i.multicam.is_some()).map(|i| i.id).collect()
 }
@@ -841,7 +841,7 @@ fn flatten(s: &mut Session, p: &Value) -> Result<Value> {
 }
 
 /// Audio tracks of `nested` a multi-camera audio clip plays.
-fn audible(nested: &تسلسل، it: &TrackItem) -> Vec<TrackId> {
+fn audible(nested: &Sequence, it: &TrackItem) -> Vec<TrackId> {
     let angle = it.multicam_angle(nested);
     match &nested.multicam {
         Some(mc) => mc.audible_tracks(if mc.audio == MulticamAudio::SwitchAudio { angle } else { None }),

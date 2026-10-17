@@ -5,7 +5,7 @@
 //! 59.94, 60, 120 …) and every common audio sample duration (8 k … 192 kHz, including the 44.1 k
 //! family), so edits, frame math and audio alignment never drift.
 //!
-//! Timecode (SMPTE drop/non-drop, إطار, feet+frames, samples) is only a *display* of ticks.
+//! Timecode (SMPTE drop/non-drop, frames, feet+frames, samples) is only a *display* of ticks.
 //!
 //! Every conversion is total: a zero or negative rate (from a damaged file or project) gives
 //! zero instead of a division-by-zero panic, and an invalid [`FrameRate`] counts as the default.
@@ -153,7 +153,7 @@ impl TimeRange {
     }
 }
 
-/// A frame rate as an exact rational (`num / den` إطار per second).
+/// A frame rate as an exact rational (`num / den` frames per second).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct FrameRate {
     pub num: i64,
@@ -352,14 +352,14 @@ impl TimeDisplay {
     }
 }
 
-/// Drop-frame parameters: إطار dropped per minute and nominal base.
+/// Drop-frame parameters: frames dropped per minute and nominal base.
 fn df_params(rate: FrameRate) -> (i64, i64) {
     let base = rate.timecode_base();
     (base / 15, base) // 30 → 2, 60 → 4, 120 → 8
 }
 
 /// Convert a frame count to SMPTE fields `(negative, h, m, s, f)`.
-pub fn إطار_to_fields(frame: i64, rate: FrameRate, drop_frame: bool) -> (bool, i64, i64, i64, i64) {
+pub fn frames_to_fields(frame: i64, rate: FrameRate, drop_frame: bool) -> (bool, i64, i64, i64, i64) {
     let neg = frame < 0;
     let mut n = i128::from(frame).abs();
     let (drop, base) = df_params(rate);
@@ -397,7 +397,7 @@ pub fn fields_to_frames(h: i64, m: i64, s: i64, f: i64, rate: FrameRate, drop_fr
 /// Format a frame count as SMPTE timecode (`HH:MM:SS:FF`, or `HH;MM;SS;FF` for drop-frame).
 pub fn format_timecode_frames(frame: i64, rate: FrameRate, drop_frame: bool) -> String {
     let df = drop_frame && rate.supports_drop_frame();
-    let (neg, h, m, s, f) = إطار_to_fields(frame, rate, df);
+    let (neg, h, m, s, f) = frames_to_fields(frame, rate, df);
     let sep = if df { ';' } else { ':' };
     let fw = if rate.timecode_base() >= 100 { 3 } else { 2 };
     format!("{}{h:02}{sep}{m:02}{sep}{s:02}{sep}{f:0fw$}", if neg { "-" } else { "" })
@@ -438,7 +438,7 @@ impl std::error::Error for ParseError {}
 /// Parse user-typed timecode into a frame count, the way Premiere's timecode fields do:
 /// - `01:02:03:04`, `01;02;03;04`, `1.2.3.4` (any of `:;.,` separators),
 /// - bare digits are read right-aligned as `HHMMSSFF` (`1000` = 00:00:10:00),
-/// - a leading `+`/`-` makes the value relative to `current` (`+15` = 15 إطار later, `-1.00` = 1 s earlier).
+/// - a leading `+`/`-` makes the value relative to `current` (`+15` = 15 frames later, `-1.00` = 1 s earlier).
 pub fn parse_timecode(input: &str, rate: FrameRate, drop_frame: bool, current: i64) -> Result<i64, ParseError> {
     let s = input.trim();
     if s.is_empty() {
@@ -455,7 +455,7 @@ pub fn parse_timecode(input: &str, rate: FrameRate, drop_frame: bool, current: i
         if digits.is_empty() || !digits.bytes().all(|b| b.is_ascii_digit()) {
             return Err(ParseError(format!("not a timecode: `{input}`")));
         }
-        // Right-aligned pairs: "12345" -> [1, 23, 45]; relative bare numbers are إطار.
+        // Right-aligned pairs: "12345" -> [1, 23, 45]; relative bare numbers are frames.
         if rel.is_some() {
             vec![digits.parse().map_err(|_| ParseError("number too large".into()))?]
         } else {
@@ -483,9 +483,9 @@ pub fn parse_timecode(input: &str, rate: FrameRate, drop_frame: bool, current: i
     let off = 4 - nums.len();
     f4[off..].copy_from_slice(&nums);
     let [h, m, sec, fr] = f4;
-    // Overflowing fields (e.g. 90 إطار) are allowed, as in Premiere.
+    // Overflowing fields (e.g. 90 frames) are allowed, as in Premiere.
     let base = rate.timecode_base();
-    let إطار = if nums.len() == 1 && rel.is_some() {
+    let frames = if nums.len() == 1 && rel.is_some() {
         fr
     } else if drop_frame && rate.supports_drop_frame() && m < 60 && sec < 60 && fr < base {
         fields_to_frames(h, m, sec, fr, rate, true)
@@ -495,7 +495,7 @@ pub fn parse_timecode(input: &str, rate: FrameRate, drop_frame: bool, current: i
     };
     Ok(match rel {
         Some(sign) => current.saturating_add(frames.saturating_mul(sign)),
-        None => إطار,
+        None => frames,
     })
 }
 
@@ -562,7 +562,7 @@ mod tests {
         assert_eq!(fast.frame_at(Tick(i64::MIN)), i64::MIN);
         assert_eq!(fast.timecode_base(), i64::MAX);
         for t in [i64::MIN, -TICKS_PER_SECOND, -1, 0, 1, TICKS_PER_SECOND, i64::MAX] {
-            assert_eq!(fast.snap(Tick(t)), Tick(t), "sub-tick إطار include every integer tick");
+            assert_eq!(fast.snap(Tick(t)), Tick(t), "sub-tick frames include every integer tick");
             assert_eq!(fast.snap_nearest(Tick(t)), Tick(t));
         }
         let balanced = FrameRate { num: i64::MAX, den: i64::MAX };
@@ -595,12 +595,12 @@ mod tests {
     fn drop_frame_fields_keep_cancelling_terms_wide_at_storage_limits() {
         for rate in [FrameRate::FPS_29_97, FrameRate::FPS_59_94, FrameRate::FPS_119_88] {
             for frame in [0, 1, 999_999, i64::MAX - 1, i64::MAX] {
-                let (negative, h, m, s, f) = إطار_to_fields(frame, rate, true);
+                let (negative, h, m, s, f) = frames_to_fields(frame, rate, true);
                 assert!(!negative);
                 assert_eq!(fields_to_frames(h, m, s, f, rate, true), frame, "{rate}: {frame}");
                 assert_eq!(fields_to_frames(-h, -m, -s, -f, rate, true), -frame);
             }
-            let (negative, h, m, s, f) = إطار_to_fields(i64::MIN, rate, true);
+            let (negative, h, m, s, f) = frames_to_fields(i64::MIN, rate, true);
             assert!(negative);
             assert_eq!(fields_to_frames(-h, -m, -s, -f, rate, true), i64::MIN);
         }
@@ -652,7 +652,7 @@ mod tests {
                     for display in TimeDisplay::ALL {
                         let _ = format_time(tick, r, true, display, 48_000);
                     }
-                    let (_, h, m, sec, f) = إطار_to_fields(value, r, true);
+                    let (_, h, m, sec, f) = frames_to_fields(value, r, true);
                     let _ = fields_to_frames(h, m, sec, f, r, true);
                 }
             }
@@ -734,7 +734,7 @@ mod tests {
         // 254_016_000_000 * 250 / 9379 = 6_770_871_094.999… ticks — not an
         // integer.  Floor division in `tick_of` truncated to 6_770_871_094,
         // losing ~1 tick/frame so `frame_at(tick_of(f))` returned `f - 1`.
-        // Ceiling division makes the round-trip exact for all integer إطار.
+        // Ceiling division makes the round-trip exact for all integer frames.
         let rates: &[(FrameRate, &str)] = &[
             (FrameRate::from_f64(37.516), "37.516"),
             (FrameRate::from_f64(37.5161), "37.5161"),
@@ -793,7 +793,7 @@ mod tests {
     #[test]
     fn exotic_frame_rate_durations() {
         // frame_duration uses floor (not round) so that `end - frame_duration()`
-        // lands on the previous frame, not two إطار back, for exotic rates.
+        // lands on the previous frame, not two frames back, for exotic rates.
         let r = FrameRate::from_f64(37.516);
         // 254_016_000_000 * 250 / 9379 = 6_770_871_094.999… → floor = 6_770_871_094
         assert_eq!(r.frame_duration().0, 6_770_871_094);
@@ -840,7 +840,7 @@ mod tests {
         #[test]
         fn drop_frame_bijection(f in 0i64..(24 * 107_892)) {
             let r = FrameRate::FPS_29_97;
-            let (_, h, m, s, fr) = إطار_to_fields(f, r, true);
+            let (_, h, m, s, fr) = frames_to_fields(f, r, true);
             // dropped labels never appear
             prop_assert!(!(s == 0 && fr < 2 && m % 10 != 0));
             prop_assert_eq!(fields_to_frames(h, m, s, fr, r, true), f);

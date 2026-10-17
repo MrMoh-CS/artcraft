@@ -309,7 +309,7 @@ fn prepared_upload_matches_inline_conversion() {
 
 /// The upload cache is keyed by pixel-buffer address, so it must keep the buffer alive: otherwise
 /// a new frame allocated at a freed frame's address is drawn with the stale texture (seen as
-/// whole إطار from a previous composite in `crates/golden` GPU parity).
+/// whole frames from a previous composite in `crates/golden` GPU parity).
 #[test]
 fn upload_cache_keeps_buffers_alive() {
     let Some((dev, q)) = device() else {

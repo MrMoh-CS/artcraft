@@ -1,15 +1,15 @@
 //! Scene Edit Detection: find the shot changes (hard cuts) in a clip.
 //!
 //! Each frame is reduced to a [`Signature`]: a 32×18 grid of mean luma and a 16-bin histogram per
-//! RGB channel. The difference of two consecutive إطار ([`difference`]) mixes the histogram
+//! RGB channel. The difference of two consecutive frames ([`difference`]) mixes the histogram
 //! distance (half the L1 distance of the normalised histograms, 0…1) with the mean absolute luma
 //! difference of the grids (0…1). A hard cut changes both; camera or subject motion moves the grid
-//! but keeps the histogram, and a lighting change shifts the histogram smoothly over many إطار.
+//! but keeps the histogram, and a lighting change shifts the histogram smoothly over many frames.
 //!
 //! [`detect_cuts`] marks frame *i* as the first frame of a new shot when its difference is above an
 //! absolute threshold set by the sensitivity **and** clearly above the local activity (the median of
 //! the differences around it), so busy footage needs a bigger jump than static footage. Shots
-//! shorter than `min_shot_frames` are merged into the previous one (flashes, single bad إطار).
+//! shorter than `min_shot_frames` are merged into the previous one (flashes, single bad frames).
 
 /// Grid size of a signature.
 const GW: usize = 32;
@@ -31,7 +31,7 @@ pub fn signature(rgba: &[u8], w: usize, h: usize) -> Signature {
     if w == 0 || h == 0 || rgba.len() < w * h * 4 {
         return Signature { grid, hist };
     }
-    // sample at most ~256×144 pixels: plenty for both measures and cheap for 4K إطار
+    // sample at most ~256×144 pixels: plenty for both measures and cheap for 4K frames
     let step_x = (w / 256).max(1);
     let step_y = (h / 144).max(1);
     let mut n = 0u32;
@@ -58,7 +58,7 @@ pub fn signature(rgba: &[u8], w: usize, h: usize) -> Signature {
     Signature { grid, hist }
 }
 
-/// How different two إطار look, 0 (identical) … 1.
+/// How different two frames look, 0 (identical) … 1.
 pub fn difference(a: &Signature, b: &Signature) -> f32 {
     // per channel: half the L1 distance of two distributions is in 0..1
     let h: f32 = a.hist.iter().zip(&b.hist).map(|(x, y)| (x - y).abs()).sum::<f32>() / 6.0;
@@ -72,7 +72,7 @@ pub fn difference(a: &Signature, b: &Signature) -> f32 {
 pub struct SceneOptions {
     /// 0 (only the most obvious cuts) … 100 (also subtle ones). Default 50.
     pub sensitivity: f32,
-    /// Shortest shot kept, in إطار (a cut closer than this to the previous one is ignored).
+    /// Shortest shot kept, in frames (a cut closer than this to the previous one is ignored).
     pub min_shot_frames: usize,
 }
 
@@ -127,7 +127,7 @@ pub fn detect_cuts(diffs: &[f32], opt: &SceneOptions) -> Vec<usize> {
     cuts
 }
 
-/// Incremental detector: push إطار in order, read the cuts at the end.
+/// Incremental detector: push frames in order, read the cuts at the end.
 #[derive(Clone, Debug, Default)]
 pub struct SceneDetector {
     prev: Option<Signature>,
@@ -210,7 +210,7 @@ mod tests {
     #[test]
     fn min_shot_length_merges_flashes() {
         // a 2-frame flash of another shot inside shot 0: one cut into the flash is kept, the cut
-        // back out (2 إطار later) is closer than the minimum shot length
+        // back out (2 frames later) is closer than the minimum shot length
         let cuts = run(&[(0, 20), (1, 2), (0, 20)], &SceneOptions::default());
         assert_eq!(cuts, vec![20]);
         let cuts = run(&[(0, 20), (1, 2), (0, 20)], &SceneOptions { min_shot_frames: 1, ..Default::default() });

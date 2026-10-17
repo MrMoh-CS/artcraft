@@ -130,15 +130,15 @@ fn transport_stream_units_round_trip() {
         let mut mux = TsMux::new(m2ts);
         mux.psi(&[(0x02, 0x1011), (0x03, 0x1100)]);
         // decode order I0 P3 B1 B2 with PTS = display time, DTS on anchors
-        let إطار = [(1u8, 0u16, false), (2, 3, false), (3, 1, true), (3, 2, false)];
+        let frames = [(1u8, 0u16, false), (2, 3, false), (3, 1, true), (3, 2, false)];
         let mut expect_video = Vec::new();
-        for (k, &(t, tref, fields)) in إطار.iter().enumerate() {
+        for (k, &(t, tref, fields)) in frames.iter().enumerate() {
             let f = mpeg2_frame(t, tref, fields, 300 + 97 * k);
             let pts = 90_000 + tref as i64 * 3600;
             let dts = (t != 3).then_some(90_000 - 3600 + k as i64 * 3600);
             mux.pes(0x1011, &pes(0xE0, Some(pts), dts, &f, false));
             expect_video.push((f, pts, t));
-            // two audio إطار per PES, the second without its own timestamp
+            // two audio frames per PES, the second without its own timestamp
             let a: Vec<u8> = [mp2_frame(2 * k as u8), mp2_frame(2 * k as u8 + 1)].concat();
             mux.pes(0x1100, &pes(0xC0, Some(90_000 + 2160 * 2 * k as i64), None, &a, true));
         }
@@ -173,9 +173,9 @@ fn transport_stream_units_round_trip() {
 
 #[test]
 fn program_stream_units_round_trip() {
-    // packs of ≤ 2048 bytes: إطار are split across PES packets
-    let إطار: Vec<Vec<u8>> = (0..5).map(|k| mpeg2_frame(if k == 0 { 1 } else { 2 }, k as u16, k == 3, 2500 + 300 * k)).collect();
-    let es: Vec<u8> = إطار.concat();
+    // packs of ≤ 2048 bytes: frames are split across PES packets
+    let frames: Vec<Vec<u8>> = (0..5).map(|k| mpeg2_frame(if k == 0 { 1 } else { 2 }, k as u16, k == 3, 2500 + 300 * k)).collect();
+    let es: Vec<u8> = frames.concat();
     let mut starts = Vec::new();
     let mut acc = 0;
     for f in &frames {
@@ -192,7 +192,7 @@ fn program_stream_units_round_trip() {
         let k = starts.iter().position(|&s| s >= p && s < p + n);
         out.extend(pes(0xE0, k.map(|k| 3600 * k as i64), None, &es[p..p + n], true));
         p += n;
-        // AC-3 in private stream 1 (sub-stream 0x80, 4-byte header), 448 kb/s إطار
+        // AC-3 in private stream 1 (sub-stream 0x80, 4-byte header), 448 kb/s frames
         let mut ac3 = vec![0x80, 1, 0, 1, 0x0B, 0x77, 0, 0, 30, 0x40];
         ac3.extend(std::iter::repeat_n(a, 1792 - 6));
         a += 1;
@@ -203,7 +203,7 @@ fn program_stream_units_round_trip() {
     assert_eq!(f.format, Format::Ps { mpeg1: false });
     let v = f.find(Kind::Video, |_| true).unwrap();
     assert_eq!(f.streams[v].units.len(), 5);
-    for (i, fr) in إطار.iter().enumerate() {
+    for (i, fr) in frames.iter().enumerate() {
         assert_eq!(&f.read_unit(&out, v, i).unwrap(), fr);
         assert_eq!(f.streams[v].units[i].pts, Some(3600 * i as i64));
     }
@@ -245,7 +245,7 @@ fn truncation_and_mutation_never_panic() {
     let data = mux.out;
     let full = open(&data).unwrap();
     assert_eq!(full.streams.len(), 3);
-    assert_eq!(full.streams[1].units.len(), 6, "ADTS إطار");
+    assert_eq!(full.streams[1].units.len(), 6, "ADTS frames");
     assert!(full.streams[2].units.iter().all(|u| u.key), "IDR access units");
     for cut in (0..data.len()).step_by(37) {
         if let Ok(f) = open(&data[..cut].to_vec()) {
@@ -300,8 +300,8 @@ fn program_stream_cut_inside_a_pack_header_never_panics() {
 
 #[test]
 fn program_stream_truncation_at_every_length_never_panics() {
-    let إطار: Vec<Vec<u8>> = (0..3).map(|k| mpeg2_frame(if k == 0 { 1 } else { 2 }, k as u16, false, 300)).collect();
-    let es: Vec<u8> = إطار.concat();
+    let frames: Vec<Vec<u8>> = (0..3).map(|k| mpeg2_frame(if k == 0 { 1 } else { 2 }, k as u16, false, 300)).collect();
+    let es: Vec<u8> = frames.concat();
     for mpeg1 in [false, true] {
         let mut out = Vec::new();
         for (k, chunk) in es.chunks(500).enumerate() {
@@ -340,7 +340,7 @@ fn adts_frame(k: u8) -> Vec<u8> {
 #[test]
 fn non_pes_payload_is_dropped_until_the_next_unit_start() {
     // a unit start whose payload is not a PES header, then continuation packets that happen to
-    // hold ADTS إطار: nothing of it may become a unit
+    // hold ADTS frames: nothing of it may become a unit
     let mut mux = TsMux::new(false);
     mux.psi(&[(0x0F, 0x1100)]);
     mux.packet(0x1100, true, &[0x55; 184]);
@@ -460,7 +460,7 @@ fn transport_stream_resyncs_after_garbage() {
     for m2ts in [false, true] {
         let ps = if m2ts { 192 } else { 188 };
         // garbage in front of the stream (shorter than 8 packets) and, at a few places around the
-        // first block boundary, between two إطار; lengths that are not a multiple of the packet
+        // first block boundary, between two frames; lengths that are not a multiple of the packet
         for (delta, glen) in [(0usize, 100usize), (1, 37), (2, 188), (3, 301), (5, 5), (8, 1000)] {
             let edge = (BLOCK_PACKETS - delta) * ps;
             let mut mux = TsMux::new(m2ts);

@@ -1,7 +1,7 @@
 //! Multi-camera rendering: one angle of a multi-camera source sequence, and the Multi-Camera
 //! view's grid of angles.
 //!
-//! The grid renders every shown angle at a reduced scale (sources are asked for small إطار, so
+//! The grid renders every shown angle at a reduced scale (sources are asked for small frames, so
 //! YUV→RGB conversion and compositing run at the cell size) in parallel, and tiles them into one
 //! image. A 2×2 grid of 1080p angles at ¼ scale costs about as much as one ½-resolution frame of
 //! compositing plus the four decodes.
@@ -56,7 +56,7 @@ pub fn page_layout(n: usize, side: Option<usize>, page: usize) -> PageLayout {
 /// Decode / composite scale of the grid's cells: the cell's on-screen size relative to the
 /// sequence frame, never more than the playback resolution. With Auto-Adjust Multi-Camera Playback
 /// Quality on, playback renders the cells at half that (a quarter for grids of more than four
-/// angles), so many angles keep up in real time; paused إطار are always at the cell's size.
+/// angles), so many angles keep up in real time; paused frames are always at the cell's size.
 pub fn grid_cell_scale(seq_width: u32, cell_px: f32, playback_scale: f32, playing: bool, auto_adjust: bool, cells: usize) -> f32 {
     let base = playback_scale.min(cell_px / seq_width.max(1) as f32).clamp(1.0 / 32.0, 1.0);
     if playing && auto_adjust {
@@ -70,7 +70,7 @@ pub fn grid_cell_scale(seq_width: u32, cell_px: f32, playback_scale: f32, playin
 /// Render angle `angle` of the multi-camera source sequence `seq` at its time `t` (transparent
 /// for an audio-only angle). The image is in the sequence's working space unless `opts.depth == 0`
 /// and `!opts.working_output` (then display-ready like [`crate::render_sequence`]).
-pub fn render_angle(project: &Project, seq: &تسلسل، angle: usize, t: Tick, opts: RenderOptions, sources: &dyn SourceProvider) -> Image {
+pub fn render_angle(project: &Project, seq: &Sequence, angle: usize, t: Tick, opts: RenderOptions, sources: &dyn SourceProvider) -> Image {
     match seq.angle_video_track_index(angle) {
         Some(ti) => crate::render_seq_tracks(project, seq, t, opts, sources, Some(ti)),
         None => {
@@ -89,7 +89,7 @@ pub fn render_grid(project: &Project, item: ItemId, t: Tick, cell_scale: f32, so
 }
 
 /// One page of the angle grid (see [`page_layout`]); only that page's angles are decoded, each at
-/// `cell_scale` (sources are asked for إطار of that scale).
+/// `cell_scale` (sources are asked for frames of that scale).
 pub fn render_grid_page(
     project: &Project,
     item: ItemId,

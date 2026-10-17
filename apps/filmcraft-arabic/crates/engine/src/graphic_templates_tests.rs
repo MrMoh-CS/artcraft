@@ -179,7 +179,7 @@ fn responsive_time_protects_intro_and_outro_when_trimmed() {
     let d0 = item(&s, c).duration;
     assert!(near(op(&s, 0.5), 50.0));
     assert!(near(op_end(&s, 0.5), 50.0));
-    // extend by 150 إطار: the intro and outro keep their timing, the middle holds
+    // extend by 150 frames: the intro and outro keep their timing, the middle holds
     let rate = s.sequence_rate();
     s.execute("timeline.trim", json!({"clip": c.0, "edge": "out", "deltaFrames": 150})).unwrap();
     assert_eq!(item(&s, c).duration, d0 + rate.tick_of(150));
@@ -187,7 +187,7 @@ fn responsive_time_protects_intro_and_outro_when_trimmed() {
     assert!(near(op(&s, 5.0), 100.0));
     assert!(near(op_end(&s, 0.5), 50.0));
     assert!(near(op_end(&s, 0.25), 25.0));
-    // trim the head by 60 إطار: the intro plays from the new start
+    // trim the head by 60 frames: the intro plays from the new start
     s.execute("timeline.trim", json!({"clip": c.0, "edge": "in", "deltaFrames": 60})).unwrap();
     assert!(near(op(&s, 0.0), 0.0));
     assert!(near(op(&s, 0.5), 50.0));

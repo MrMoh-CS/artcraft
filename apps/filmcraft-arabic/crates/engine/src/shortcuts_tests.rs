@@ -166,13 +166,13 @@ fn reassigning_new_bin_moves_its_project_panel_key_too() {
     assert!(s.shortcuts.resolve(&Chord::parse("Cmd+B").unwrap(), Some("المشروع"), Platform::Mac).is_none());
     // a panel key of its own (History ▸ Left for Undo) is not a copy of the application one: it stays
     s.execute("shortcuts.set", json!({"command": "edit.undo", "keys": "Cmd+Alt+Z"})).unwrap();
-    assert!(s.shortcuts.for_command("edit.undo").iter().any(|b| b.panel.as_deref() == Some("History") && b.keys == "Left"));
+    assert!(s.shortcuts.for_command("edit.undo").iter().any(|b| b.panel.as_deref() == Some("History") && b.keys == "يسار"));
 }
 
 #[test]
 fn panel_shortcuts_override_application_ones_with_focus() {
     let s = Session::default();
-    let left = Chord::parse("Left").unwrap();
+    let left = Chord::parse("يسار").unwrap();
     let p = Platform::Mac;
     assert_eq!(s.shortcuts.resolve(&left, None, p).unwrap().command, "playhead.stepBack");
     assert_eq!(s.shortcuts.resolve(&left, Some("الخط الزمني"), p).unwrap().command, "playhead.stepBack");
@@ -181,7 +181,7 @@ fn panel_shortcuts_override_application_ones_with_focus() {
     assert_eq!(s.shortcuts.resolve(&bs, Some("المشروع"), p).unwrap().command, "project.delete");
     assert_eq!(s.shortcuts.resolve(&bs, None, p).unwrap().command, "edit.clear");
     let ov = s.shortcuts.overrides(p);
-    assert!(ov.iter().any(|(panel, k, cmd, app)| panel == "History" && k == "Left" && cmd == "edit.undo" && app == "playhead.stepBack"), "{ov:?}");
+    assert!(ov.iter().any(|(panel, k, cmd, app)| panel == "History" && k == "يسار" && cmd == "edit.undo" && app == "playhead.stepBack"), "{ov:?}");
     // Windows: macOS-Control shortcuts fold into Ctrl and can clash
     let mut t = Session::default();
     t.execute("shortcuts.set", json!({"command": "edit.copy", "keys": "Ctrl+C", "add": true, "keepConflicts": true})).unwrap();

@@ -1,8 +1,8 @@
 //! Step-wise export of the encoded-video formats (H.264 MP4/MOV, ProRes / DNxHR / Motion-JPEG MOV).
 //!
-//! [`Exporter::step`] renders, encodes and muxes one batch of إطار (plus the audio up to its
+//! [`Exporter::step`] renders, encodes and muxes one batch of frames (plus the audio up to its
 //! end) per call, so a host without threads (the web app) can run an export a slice at a time
-//! between UI إطار; [`crate::export`] simply loops it on a worker thread.
+//! between UI frames; [`crate::export`] simply loops it on a worker thread.
 //!
 //! Before the first batch, loudness normalization (when enabled) measures the export range. A
 //! two-pass VBR H.264 export renders and analyses every frame once (first pass, nothing written),
@@ -10,11 +10,11 @@
 //!
 //! When a source's bytes are not available yet (asynchronous web reads mark
 //! [`filmcraft_media::pending`]), the video batch is rendered again on the next call: nothing is encoded
-//! from إطار with missing media. Known, pre-existing web issue (TODO, separate fix): the audio pull
+//! from frames with missing media. Known, pre-existing web issue (TODO, separate fix): the audio pull
 //! has already advanced its position when it hits a pending source, so a retried group loses its audio.
 //!
-//! The file does not depend on how many إطار a step renders (one per core natively, one on the
-//! web): packets go to the muxer in fixed groups of [`INTERLEAVE`] output إطار, each followed by
+//! The file does not depend on how many frames a step renders (one per core natively, one on the
+//! web): packets go to the muxer in fixed groups of [`INTERLEAVE`] output frames, each followed by
 //! the audio up to its end, so the same project and settings give the same bytes on any machine.
 //!
 //! # Overlapping render and encode
@@ -23,10 +23,10 @@
 //! encoder, the container writer and the audio state. Run one after the other the wall time was
 //! `render + encode + audio + mux`. A step now renders batch *k+1* on the rayon pool
 //! ([`rayon::in_place_scope`] + `spawn`) while the *calling* thread encodes, muxes and mixes the
-//! audio of batch *k*, and keeps the finished إطار in `ahead` for the next step: the wall time
+//! audio of batch *k*, and keeps the finished frames in `ahead` for the next step: the wall time
 //! is about `max(render, encode + audio + mux)`. Design points:
 //!
-//! * **Bytes do not change.** Batches are cut exactly as before (`next .. next + batch`), إطار
+//! * **Bytes do not change.** Batches are cut exactly as before (`next .. next + batch`), frames
 //!   are encoded in order, and the audio / mux interleave still follows [`INTERLEAVE`] groups, so
 //!   the file is identical with or without overlap, on any core count and for any step size
 //!   (`determinism_tests`).
@@ -43,14 +43,14 @@
 //!   after pulling, before a frame is encoded (the batch is then not encoded; its audio is not
 //!   recovered, see the known issue above) and the prefetched batch is dropped too, because the step
 //!   did not advance `next`.
-//! * **Cancellation** is checked at the start of every step, which drops the prefetched إطار;
+//! * **Cancellation** is checked at the start of every step, which drops the prefetched frames;
 //!   the prefetch is not started once it is set.
 //! * **Panics.** The prefetch runs under `catch_unwind` and becomes an [`ExportError`]; a panic of
 //!   the encode side unwinds the calling thread as before (the job guard turns it into an error).
 //! * **Memory.** Two batches are in flight instead of one, so the batch is capped by
 //!   [`IN_FLIGHT_BUDGET`]: `2 * batch * frame_bytes <= budget`, at least one frame
 //!   ([`overlap_batch`]). A batch never grows over what it was without overlap, so the peak is the
-//!   old peak plus at most the finished إطار of the batch being encoded (half the budget,
+//!   old peak plus at most the finished frames of the batch being encoded (half the budget,
 //!   256 MiB); a 4K HDR export (100 MB a frame) runs 2-frame batches and 4K SDR 8-frame ones instead of 16. Frames are
 //!   dropped as soon as they are encoded.
 //! * **Two-pass** exports overlap in the analysis pass (encode only) and in the real pass; the
@@ -78,12 +78,12 @@ use crate::{
     audio_factories, export_range, frame_span, note_stage, timed, video_factories,
 };
 
-/// Output إطار per interleaved group: the video packets of these إطار, then the audio up to
+/// Output frames per interleaved group: the video packets of these frames, then the audio up to
 /// their end, form one chunk of each track. Fixed (not the batch size, which follows the core
 /// count) so the file layout is the same on every machine.
 pub const INTERLEAVE: i64 = 16;
 
-/// Most bytes of rendered إطار an overlapped export keeps in flight (the batch being encoded and
+/// Most bytes of rendered frames an overlapped export keeps in flight (the batch being encoded and
 /// the one being rendered), see [`overlap_batch`].
 pub const IN_FLIGHT_BUDGET: u64 = 1 << 29;
 
@@ -96,7 +96,7 @@ pub(crate) fn frame_bytes(w: u32, h: u32, hdr: bool) -> u64 {
 }
 
 /// Frames per batch when two batches are in flight: `batch` (what a sequential export would use),
-/// lowered so that `2 * إطار * frame_bytes` stays within `budget`, but never below one frame.
+/// lowered so that `2 * frames * frame_bytes` stays within `budget`, but never below one frame.
 pub(crate) fn overlap_batch(batch: i64, frame_bytes: u64, budget: u64) -> i64 {
     let want = u64::try_from(batch.max(1)).unwrap_or(1);
     let fit = (budget / 2) / frame_bytes.max(1);
@@ -107,15 +107,15 @@ pub(crate) fn overlap_batch(batch: i64, frame_bytes: u64, budget: u64) -> i64 {
 struct Ahead {
     /// First frame.
     first: i64,
-    إطار: Vec<Frame>,
+    frames: Vec<Frame>,
 }
 
-/// Render إطار `f..end` in parallel. `None` when a source was not ready for one of them (the
+/// Render frames `f..end` in parallel. `None` when a source was not ready for one of them (the
 /// pending flag, taken after every frame because it is per thread): the batch is incomplete and
 /// must be rendered again.
 fn render_batch(pipe: &Pipeline, f: i64, end: i64, sources: &dyn SourceProvider) -> Option<Vec<Frame>> {
     let pending = AtomicBool::new(false);
-    let إطار: Vec<Frame> = (f..end)
+    let frames: Vec<Frame> = (f..end)
         .into_par_iter()
         .map(|fi| {
             let frame = pipe.frame(fi, sources);
@@ -157,7 +157,7 @@ pub struct Exporter {
     batch: i64,
     /// Render the next batch while this one is encoded (see the module docs).
     overlap: bool,
-    /// Bytes of إطار the overlap may keep in flight ([`IN_FLIGHT_BUDGET`]; tests lower it).
+    /// Bytes of frames the overlap may keep in flight ([`IN_FLIGHT_BUDGET`]; tests lower it).
     budget: u64,
     /// The batch starting at `next`, already rendered.
     ahead: Option<Ahead>,
@@ -249,7 +249,7 @@ impl Exporter {
         let nframes = (f1 - f0) as u64;
         if !settings.part_of_batch {
             progress.total.store(nframes * if two_pass { 2 } else { 1 }, Ordering::Relaxed);
-            progress.set_status(format!("Exporting {} إطار ({})", nframes, settings.format.label()));
+            progress.set_status(format!("Exporting {} frames ({})", nframes, settings.format.label()));
         }
         let venc = make_venc(&settings, pipe.w, pipe.h, pipe.rate)?;
         let brand = if settings.format.is_mp4_with(settings.multiplexer) { Brand::Mp4 } else { Brand::Mov };
@@ -293,12 +293,12 @@ impl Exporter {
     }
 
     /// Frames in the export.
-    pub fn إطار(&self) -> u64 {
+    pub fn frames(&self) -> u64 {
         (self.f1 - self.f0).max(0) as u64
     }
 
-    /// Requested إطار per [`Self::step`] (default: one per core), capped by GPU renderer
-    /// capacity and the overlap memory budget. 1 keeps web UI إطار short.
+    /// Requested frames per [`Self::step`] (default: one per core), capped by GPU renderer
+    /// capacity and the overlap memory budget. 1 keeps web UI frames short.
     pub fn set_batch(&mut self, n: i64) {
         self.batch = n.max(1);
     }
@@ -312,7 +312,7 @@ impl Exporter {
         }
     }
 
-    /// Lower the in-flight byte budget (tests make small إطار hit the cap).
+    /// Lower the in-flight byte budget (tests make small frames hit the cap).
     #[cfg(test)]
     pub(crate) fn set_budget(&mut self, bytes: u64) {
         self.budget = bytes;
@@ -330,7 +330,7 @@ impl Exporter {
     }
 
     /// Frames rendered ahead of the encoder now (memory held by the overlap).
-    pub fn إطار_ahead(&self) -> usize {
+    pub fn frames_ahead(&self) -> usize {
         self.ahead.as_ref().map_or(0, |a| a.frames.len())
     }
 
@@ -457,7 +457,7 @@ impl Exporter {
             *progress.loudness.lock().unwrap_or_else(|e| e.into_inner()) = a.loudness;
             self.measured = true;
             if !self.settings.part_of_batch {
-                progress.set_status(format!("Exporting {} إطار ({})", self.frames(), self.settings.format.label()));
+                progress.set_status(format!("Exporting {} frames ({})", self.frames(), self.settings.format.label()));
             }
             return Ok(Step::Progress);
         }
@@ -517,7 +517,7 @@ impl Exporter {
         }
         Ok(Step::Done(Report {
             path: self.settings.path.clone(),
-            إطار: nframes,
+            frames: nframes,
             seconds: secs,
             bytes,
             render_fps: nframes as f64 / secs.max(1e-6),
@@ -527,13 +527,13 @@ impl Exporter {
 
     /// Encode (and mux) the batch starting at `self.next`, rendering the one after it meanwhile.
     fn step_batch(&mut self, sources: &dyn SourceProvider, progress: &Progress) -> Result<Step> {
-        let (f, إطار) = match self.ahead.take() {
+        let (f, frames) = match self.ahead.take() {
             Some(a) if a.first == self.next => (a.first, a.frames),
             _ => {
                 let (f, end) = (self.next, self.next.saturating_add(self.batch_len()).min(self.f1));
                 let pipe = &self.pipe;
                 match timed(Stage::Render, || render_batch(pipe, f, end, sources)) {
-                    Some(frames) => (f, إطار),
+                    Some(frames) => (f, frames),
                     None => return Ok(Step::Pending),
                 }
             }
@@ -546,7 +546,7 @@ impl Exporter {
         let plan =
             (end < self.f1 && self.overlapping() && !progress.cancel.load(Ordering::Relaxed)).then(|| (end, end.saturating_add(self.batch_len()).min(self.f1)));
         let Some((a, b)) = plan else {
-            return match self.encode_batch(f, إطار, sources)? {
+            return match self.encode_batch(f, frames, sources)? {
                 Encoded::Pending => Ok(Step::Pending),
                 Encoded::Done => {
                     progress.done.fetch_add((end - f) as u64, Ordering::Relaxed);
@@ -562,7 +562,7 @@ impl Exporter {
             s.spawn(|_| {
                 slot = Some(catch_unwind(AssertUnwindSafe(|| timed(Stage::Render, || render_batch(&pipe, a, b, sources)))));
             });
-            let r = self.encode_batch(f, إطار, sources);
+            let r = self.encode_batch(f, frames, sources);
             encode_done = Some(web_time::Instant::now());
             r
         });
@@ -577,7 +577,7 @@ impl Exporter {
                 progress.done.fetch_add((end - f) as u64, Ordering::Relaxed);
                 self.next = end;
                 match slot {
-                    Some(Ok(Some(frames))) => self.ahead = Some(Ahead { first: a, إطار }),
+                    Some(Ok(Some(frames))) => self.ahead = Some(Ahead { first: a, frames }),
                     // a source was not ready: the next step renders this batch again
                     Some(Ok(None)) | None => {}
                     Some(Err(_)) => return Err(ExportError::Encode("internal error while rendering a frame (the panic was logged by the panic hook)".into())),
@@ -587,11 +587,11 @@ impl Exporter {
         }
     }
 
-    /// Encode the rendered إطار `f..` (the analysis pass of a two-pass export only encodes), mux
+    /// Encode the rendered frames `f..` (the analysis pass of a two-pass export only encodes), mux
     /// them with their audio, and drop each frame as soon as it is encoded.
-    fn encode_batch(&mut self, f: i64, إطار: Vec<Frame>, sources: &dyn SourceProvider) -> Result<Encoded> {
+    fn encode_batch(&mut self, f: i64, frames: Vec<Frame>, sources: &dyn SourceProvider) -> Result<Encoded> {
         if self.first_pass {
-            for (k, frame) in إطار.into_iter().enumerate() {
+            for (k, frame) in frames.into_iter().enumerate() {
                 timed(Stage::Encode, || self.encode(std::slice::from_ref(&frame), f + k as i64))?;
             }
             return Ok(Encoded::Done);
@@ -615,7 +615,7 @@ impl Exporter {
             return Ok(Encoded::Pending);
         }
         let mut mixed = mixed.into_iter();
-        for (k, frame) in إطار.into_iter().enumerate() {
+        for (k, frame) in frames.into_iter().enumerate() {
             let fi = f + k as i64;
             let packets = timed(Stage::Encode, || self.encode(std::slice::from_ref(&frame), fi))?;
             self.queued.extend(packets);
@@ -634,9 +634,9 @@ impl Exporter {
         Ok(Encoded::Done)
     }
 
-    fn encode(&mut self, إطار: &[(Vec<u8>, Vec<f32>)], f: i64) -> Result<Vec<EncodedPacket>> {
+    fn encode(&mut self, frames: &[(Vec<u8>, Vec<f32>)], f: i64) -> Result<Vec<EncodedPacket>> {
         let mut packets = Vec::new();
-        for (k, (rgba, hdr)) in إطار.iter().enumerate() {
+        for (k, (rgba, hdr)) in frames.iter().enumerate() {
             let fr = EncoderFrame {
                 width: self.pipe.w,
                 height: self.pipe.h,
@@ -667,10 +667,10 @@ mod tests {
     #[test]
     fn the_overlap_batch_fits_the_memory_budget() {
         let budget = IN_FLIGHT_BUDGET;
-        // 1080p keeps the full 16 إطار, 4K SDR (33 MB a frame) 8 + 8 in flight (2 x 8 x 33 MB = 512 MiB)
+        // 1080p keeps the full 16 frames, 4K SDR (33 MB a frame) 8 + 8 in flight (2 x 8 x 33 MB = 512 MiB)
         assert_eq!(overlap_batch(16, frame_bytes(1920, 1080, false), budget), 16);
         assert_eq!(overlap_batch(16, frame_bytes(3840, 2160, false), budget), 8);
-        // 4K HDR (100 MB a frame): 256 MiB per batch is 2 إطار, not 16
+        // 4K HDR (100 MB a frame): 256 MiB per batch is 2 frames, not 16
         let hdr4k = frame_bytes(3840, 2160, true);
         let n = overlap_batch(16, hdr4k, budget);
         assert_eq!(n, 2);

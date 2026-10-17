@@ -39,7 +39,7 @@ pub mod credits;
 pub mod dock;
 mod dock_shared;
 mod dock_ui;
-pub mod إطار;
+pub mod frames;
 pub mod graphics_notice;
 pub mod header;
 pub mod i18n;
@@ -71,7 +71,7 @@ use serde_json::{Value, json};
 
 pub use control::ControlRequest;
 use dock::PanelKind;
-use إطار::{FrameKey, FrameServer, Target};
+use frames::{FrameKey, FrameServer, Target};
 use native_dialogs::FileDialog;
 use state::UiState;
 use theme::{ThemeKind, Tokens};
@@ -224,7 +224,7 @@ pub struct Playback {
     /// Wall-clock (egui time, s) and timeline tick when playback (re)started.
     anchor_time: f64,
     anchor_tick: Tick,
-    /// Audio إطار played at anchor (when the audio clock drives).
+    /// Audio frames played at anchor (when the audio clock drives).
     pub audio_clock: bool,
     /// The audio clock's last reading and when (egui time, s) it last moved: a device that stops
     /// consuming samples hands the clock back to the wall clock (see [`AUDIO_STALL_S`]).
@@ -233,8 +233,8 @@ pub struct Playback {
     #[cfg(not(target_arch = "wasm32"))]
     pub audio_stats: std::sync::Arc<play_ahead::AudioStats>,
     /// Shown / dropped frame accounting for the current (or last) play.
-    pub meter: إطار::PlaybackMeter,
-    /// Waiting for the first إطار before starting the clock: when the wait began (egui time,
+    pub meter: frames::PlaybackMeter,
+    /// Waiting for the first frames before starting the clock: when the wait began (egui time,
     /// s; negative = not yet stamped), and whether the Program monitor has them ready.
     pub preroll: Option<f64>,
     pub preroll_ready: bool,
@@ -255,7 +255,7 @@ pub const AUDIO_STALL_S: f64 = 1.0;
 
 /// How long `ui.screenshot` waits for the window to present the frame.
 const SCREENSHOT_TIMEOUT_S: f64 = 10.0;
-/// How long `ui.screenshot` waits for the UI to settle (monitors showing their exact إطار, the
+/// How long `ui.screenshot` waits for the UI to settle (monitors showing their exact frames, the
 /// timeline zoom animation finished) before capturing what is there.
 const SCREENSHOT_SETTLE_MAX_S: f64 = 5.0;
 
@@ -275,7 +275,7 @@ pub struct FilmcraftApp {
     pub session: Session,
     pub ui: UiState,
     pub tokens: Tokens,
-    pub إطار: Arc<FrameServer>,
+    pub frames: Arc<FrameServer>,
     pub playback: Playback,
     pub source_playback: source_playback::SourcePlayback,
     pub audio: Option<Box<dyn AudioOut>>,
@@ -296,7 +296,7 @@ pub struct FilmcraftApp {
     pub(crate) control_input_only: bool,
     /// Backend focus before synthetic input changes egui's effective focus for this frame.
     pub(crate) native_window_focused: Option<bool>,
-    /// Modifiers owned by an in-flight control gesture, carried between its input إطار.
+    /// Modifiers owned by an in-flight control gesture, carried between its input frames.
     synthetic_modifiers: egui::Modifiers,
     /// Requests waiting for the UI to show an element: (request, give-up time).
     deferred: Vec<(ControlRequest, f64)>,
@@ -321,12 +321,12 @@ pub struct FilmcraftApp {
     /// A paused monitor drew a stand-in (nearest cached) picture last frame: its exact frame is
     /// still decoding.
     pub(crate) monitor_inexact: bool,
-    /// Per monitor: the إطار it asked for on its latest paused passes, oldest first (stand-ins
+    /// Per monitor: the frames it asked for on its latest paused passes, oldest first (stand-ins
     /// while the newest renders, see `panels::monitor`).
     pub(crate) monitor_asked: HashMap<String, std::collections::VecDeque<FrameKey>>,
     /// The frame whose picture the Program monitor drew last: the frame due, or its stand-in.
     pub(crate) program_shown: Option<FrameKey>,
-    /// Consecutive إطار the timeline zoom / scroll has been at rest. `ui.elements` answers from
+    /// Consecutive frames the timeline zoom / scroll has been at rest. `ui.elements` answers from
     /// the frame before the last one, so its timeline rects are final from 2 on.
     pub(crate) timeline_still: u32,
     input_waiters: Vec<Sender<Value>>,
@@ -425,9 +425,9 @@ fn rasterizer_reason(name: &str, device_type: eframe::wgpu::DeviceType) -> Optio
 }
 
 /// Whether the GPU compositor can run on this adapter: it renders and blends Rgba16Float
-/// targets and uploads whole إطار as textures. Older or OpenGL-backed GPUs (some Intel Macs,
+/// targets and uploads whole frames as textures. Older or OpenGL-backed GPUs (some Intel Macs,
 /// VMs, Linux without Vulkan, WebGL) can't; those use the CPU compositor, which renders the same
-/// إطار. Returns the reason when unsupported.
+/// frames. Returns the reason when unsupported.
 pub fn gpu_compositor_unsupported(adapter: &eframe::wgpu::Adapter) -> Option<String> {
     use eframe::wgpu::{TextureFormat, TextureFormatFeatureFlags as F, TextureUsages as U};
     if let Some(why) = software_rasterizer(&adapter.get_info()) {
@@ -533,7 +533,7 @@ impl FilmcraftApp {
     pub fn new(mut session: Session) -> Self {
         session.shortcuts.register_external(menus::external_commands());
         let recovery = !session.recovery_candidates().is_empty();
-        let إطار = Arc::new(FrameServer::new(session.media.clone(), session.services.clone(), session.previews.clone(), FrameServer::default_workers()));
+        let frames = Arc::new(FrameServer::new(session.media.clone(), session.services.clone(), session.previews.clone(), FrameServer::default_workers()));
         let workspaces =
             session.prefs_path.as_ref().and_then(|p| p.parent()).map(|d| dock::WorkspacePrefs::load(&d.join(dock::WORKSPACES_FILE))).unwrap_or_default();
         let language = i18n::Language::parse(&session.prefs.general.interface_language).unwrap_or_default();
@@ -541,7 +541,7 @@ impl FilmcraftApp {
             session,
             ui: UiState { language, ..UiState::default() },
             tokens: Tokens::for_kind(ThemeKind::Dark),
-            إطار,
+            frames,
             playback: Playback { speed: 1.0, ..Default::default() },
             source_playback: Default::default(),
             audio: None,
@@ -965,7 +965,7 @@ impl FilmcraftApp {
         self.playback.audio_clock = false;
     }
 
-    /// Start the clock (and audio) once the first إطار are ready or the preroll timed out.
+    /// Start the clock (and audio) once the first frames are ready or the preroll timed out.
     fn end_preroll(&mut self, now: f64) {
         self.playback.preroll = None;
         self.playback.anchor_time = now;
@@ -1038,7 +1038,7 @@ impl FilmcraftApp {
         let start_tick = self.session.playhead();
         let Some(a) = self.audio.as_mut() else { return };
         let sr = a.sample_rate();
-        // Output إطار still follow the accelerated timeline. The pitch preference selects
+        // Output frames still follow the accelerated timeline. The pitch preference selects
         // either the original rate conversion or pitch-corrected program audio.
         let Some((mix_rate, mix)) = shuttle::mix(&self.session, seq_id, sr, self.playback.speed) else {
             a.stop();
@@ -1080,7 +1080,7 @@ impl FilmcraftApp {
         if let Some(since) = self.playback.preroll {
             let since = if since < 0.0 { now } else { since };
             self.playback.preroll = Some(since);
-            if self.playback.preroll_ready || now - since >= إطار::PREROLL_TIMEOUT_S {
+            if self.playback.preroll_ready || now - since >= frames::PREROLL_TIMEOUT_S {
                 self.end_preroll(now);
             } else {
                 ctx.request_repaint();
@@ -1183,7 +1183,7 @@ impl FilmcraftApp {
         name: &str,
         key: FrameKey,
         img: &frames::Rgba,
-        map: impl FnOnce(&frames::Rgba) -> إطار::Rgba,
+        map: impl FnOnce(&frames::Rgba) -> frames::Rgba,
     ) -> egui::TextureId {
         if let Some((k, tex)) = self.textures.get_mut(name) {
             if *k != key {
@@ -1216,8 +1216,8 @@ impl FilmcraftApp {
     }
 
     /// Get a thumbnail texture for an item at a media time (requested at low priority).
-    /// Cache revision of a project item's own إطار: media changes only when its file does
-    /// (relink, Make Offline, proxies on/off), so its إطار survive unrelated edits; other items
+    /// Cache revision of a project item's own frames: media changes only when its file does
+    /// (relink, Make Offline, proxies on/off), so its frames survive unrelated edits; other items
     /// (sequences) follow the project revision.
     pub fn item_revision(&self, item: filmcraft_project::ItemId) -> u64 {
         let p = &self.session.project;
@@ -1583,7 +1583,7 @@ impl FilmcraftApp {
         let now = ctx.input(|i| i.time);
         let mut reqs: Vec<(ControlRequest, f64)> = std::mem::take(&mut self.deferred);
         while let Ok(req) = rx.try_recv() {
-            // UI requests need rendered إطار: raise the window if `ui` hasn't run recently
+            // UI requests need rendered frames: raise the window if `ui` hasn't run recently
             // (occluded macOS windows stop running `ui`).
             if req.method.starts_with("ui.") && now - self.last_ui_time > 0.25 {
                 self.raise_for_control(ctx);
@@ -1623,7 +1623,7 @@ impl FilmcraftApp {
     fn issue_screenshots(&mut self, ctx: &egui::Context, settled: bool) {
         let now = ctx.input(|i| i.time);
         let mut any = false;
-        self.queued_screenshots.retain_mut(|(token, at, إطار)| {
+        self.queued_screenshots.retain_mut(|(token, at, frames)| {
             *frames += 1;
             any = true;
             if now >= *at && *frames >= 3 && (settled || now >= *at + SCREENSHOT_SETTLE_MAX_S) {
@@ -2103,7 +2103,7 @@ impl eframe::App for FilmcraftApp {
             ui.ctx().request_repaint();
             return;
         }
-        // No frame worker threads on the web: render queued إطار here, within a time budget
+        // No frame worker threads on the web: render queued frames here, within a time budget
         // that leaves room for the UI pass (a no-op where workers run).
         self.frames.pump(std::time::Duration::from_millis(if self.playback.playing { 24 } else { 40 }));
         // A panic in one panel must not close the app (losing unsaved work) or leave a blank
@@ -2649,11 +2649,11 @@ mod audio_recovery_tests {
         output.textures_delta.clear();
         assert!(app.playback.audio_clock, "the restarted stream is still the master clock");
         assert!(!app.ui.status.contains("Audio output failed"));
-        // 48 000 إطار played at 48 kHz: one second in, on a frame boundary
+        // 48 000 frames played at 48 kHz: one second in, on a frame boundary
         let (shown, second) = (app.session.playhead(), Tick::from_seconds_f64(1.0));
         assert!(
             shown <= second && shown + app.session.sequence_rate().frame_duration() > second,
-            "the playhead follows the إطار the device played: {shown:?}"
+            "the playhead follows the frames the device played: {shown:?}"
         );
         app.stop();
     }

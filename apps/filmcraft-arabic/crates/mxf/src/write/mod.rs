@@ -228,7 +228,7 @@ impl SoundDesc {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StartTimecode {
     /// Frame count of the first frame (at the timecode rate).
-    pub إطار: i64,
+    pub frames: i64,
     /// Timecode frame rate (the track's edit rate; 30000/1001 for 29.97).
     pub rate: Rational,
     pub drop_frame: bool,
@@ -660,7 +660,7 @@ impl<W: Write + Seek> MxfWriter<W> {
         out
     }
 
-    /// Sound sample إطار of edit unit `i` of OP1a track `k`.
+    /// Sound sample frames of edit unit `i` of OP1a track `k`.
     fn unit_samples(&self, k: usize, i: u64) -> u64 {
         let sr = self.cfg.sound[k].sample_rate as u128;
         let r = self.cfg.edit_rate;
@@ -704,14 +704,14 @@ impl<W: Write + Seek> MxfWriter<W> {
         }
     }
 
-    /// Push interleaved little-endian PCM of sound track `track` (whole sample إطار).
+    /// Push interleaved little-endian PCM of sound track `track` (whole sample frames).
     pub fn push_sound(&mut self, track: usize, pcm: &[u8]) -> io::Result<()> {
         let Some(sd) = self.cfg.sound.get(track).copied() else {
             return Err(io::Error::new(io::ErrorKind::InvalidInput, format!("no sound track {track}")));
         };
         let ba = sd.block_align() as usize;
         if !pcm.len().is_multiple_of(ba) {
-            return Err(io::Error::new(io::ErrorKind::InvalidInput, "PCM data is not a whole number of sample إطار"));
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "PCM data is not a whole number of sample frames"));
         }
         match self.cfg.pattern {
             Pattern::Op1a => {
@@ -821,7 +821,7 @@ impl<W: Write + Seek> MxfWriter<W> {
             }
             s.write(&mut out);
             // timecode track (id 1)
-            let tc = cfg.timecode.unwrap_or(StartTimecode { إطار: 0, rate: cfg.edit_rate, drop_frame: false });
+            let tc = cfg.timecode.unwrap_or(StartTimecode { frames: 0, rate: cfg.edit_rate, drop_frame: false });
             let tc_rate = if cfg.picture.is_some() || !tc.rate.is_valid() { cfg.edit_rate } else { tc.rate };
             let tc_dur = if d.essence < 0 {
                 -1
@@ -1177,7 +1177,7 @@ pub fn write_opatom_pcm(opts: &OpAtomPcm, samples: &[i32]) -> io::Result<Vec<u8>
     cfg.timecode = opts.timecode;
     let mut w = MxfWriter::new(io::Cursor::new(Vec::new()), cfg)?;
     let bps = sd.bits.div_ceil(8).clamp(1, 4) as usize;
-    let إطار = samples.len() / sd.channels as usize;
+    let frames = samples.len() / sd.channels as usize;
     let mut pcm = Vec::with_capacity(frames * sd.channels as usize * bps);
     for &s in &samples[..frames * sd.channels as usize] {
         if bps == 1 {

@@ -122,7 +122,7 @@ pub enum IndexSource {
     OpenDml,
     /// The AVI 1.0 `idx1` (plus a scan of the `AVIX` extensions).
     Idx1,
-    /// No usable index: the `movi` lists were scanned (key إطار unknown).
+    /// No usable index: the `movi` lists were scanned (key frames unknown).
     Scan,
 }
 

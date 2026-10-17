@@ -85,7 +85,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 elems.push((format!("{p}.mixdownVideo"), r.rect, d.mixdown_video.to_string()));
                 ui.end_row();
             }
-            ui.label(tl!("Audio:"));
+            ui.label(tl!("الصوت:"));
             ui.horizontal(|ui| {
                 let modes: Vec<(&'static str, &str)> = if d.omf {
                     vec![("embedded", tl!("Encapsulate")), ("separate", tl!("Separate Audio"))]
@@ -114,7 +114,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 }
             });
             ui.end_row();
-            ui.label(tl!("Sample Rate:"));
+            ui.label(tl!("معدل العينة:"));
             ui.horizontal(|ui| {
                 for r in RATES {
                     let b = ui.radio(d.sample_rate == r, format!("{r}"));
@@ -177,7 +177,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
     if apply {
         close = true;
         let (ext, filter) = if d.omf { ("omf", "OMF") } else { ("aaf", "AAF") };
-        let stem = if d.title.is_empty() { "التسلسل".to_string() } else { d.title.replace(['/', '\\', ':'], "_") };
+        let stem = if d.title.is_empty() { "تسلسل".to_string() } else { d.title.replace(['/', '\\', ':'], "_") };
         let suggested = format!("{stem}.{ext}");
         let dialog = FileDialog::save_as(filter, &[ext], &suggested);
         if dialog.available(&app.hooks) {

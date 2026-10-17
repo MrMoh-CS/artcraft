@@ -233,7 +233,7 @@ impl AudioSpecificConfig {
         let _extension_flag = br.read_bits(1)?;
         let pce = if channel_config == 0 { Some(ProgramConfig::parse(&mut br)?) } else { None };
         if frame_length_flag {
-            return Err(Error::Unsupported("960-sample إطار"));
+            return Err(Error::Unsupported("960-sample frames"));
         }
         let cfg = AudioSpecificConfig { object_type: aot, sample_rate, sf_index, channel_config, frame_length_flag, sbr, ps, extension_sample_rate, pce };
         if cfg.channels() == 0 {
@@ -349,7 +349,7 @@ impl AdtsHeader {
     }
 }
 
-/// Split an ADTS stream into `(header, raw payload)` إطار. Stops at the first malformed or
+/// Split an ADTS stream into `(header, raw payload)` frames. Stops at the first malformed or
 /// truncated frame (returning what was parsed so far); errors only if nothing parses.
 pub fn split_adts(mut data: &[u8]) -> Result<Vec<(AdtsHeader, &[u8])>> {
     let mut out = Vec::new();
@@ -370,7 +370,7 @@ pub fn split_adts(mut data: &[u8]) -> Result<Vec<(AdtsHeader, &[u8])>> {
         data = &data[h.frame_length..];
     }
     if out.is_empty() {
-        return Err(Error::Bitstream("no ADTS إطار"));
+        return Err(Error::Bitstream("no ADTS frames"));
     }
     Ok(out)
 }
@@ -439,7 +439,7 @@ mod tests {
         let p = AdtsHeader::parse(&frame).unwrap();
         assert_eq!(p.frame_length, 107);
         assert_eq!((p.object_type, p.sf_index, p.channel_config), (2, 4, 2));
-        let إطار = split_adts(&frame).unwrap();
+        let frames = split_adts(&frame).unwrap();
         assert_eq!(frames.len(), 1);
         assert_eq!(frames[0].1.len(), 100);
     }

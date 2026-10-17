@@ -180,7 +180,7 @@ pub fn f16_to_f32_fast(h: u16) -> f32 {
 }
 
 /// Half-float texel data for one frame (one byte vector per plane), converted off the UI thread.
-/// 8-bit إطار need no conversion and have none.
+/// 8-bit frames need no conversion and have none.
 #[derive(Clone, Debug, Default)]
 pub struct Prepared {
     planes: Vec<Vec<u8>>,

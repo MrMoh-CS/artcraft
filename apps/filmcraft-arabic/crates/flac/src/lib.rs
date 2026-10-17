@@ -1,10 +1,10 @@
 //! Clean-room FLAC encoder (RFC 9639, Free Lossless Audio Codec).
 //!
 //! - [`Encoder`]: planar integer samples (8–32 bit, 1–8 channels) → a `.flac` stream: the
-//!   [`Encoder::header`] (`fLaC`, STREAMINFO, a VORBIS_COMMENT naming the encoder), then إطار of
+//!   [`Encoder::header`] (`fLaC`, STREAMINFO, a VORBIS_COMMENT naming the encoder), then frames of
 //!   a fixed block size. Each channel of each frame is coded as constant, verbatim, a fixed
 //!   polynomial predictor or linear prediction, whichever is smallest, with partitioned Rice codes;
-//!   stereo إطار also try left/side, side/right and mid/side.
+//!   stereo frames also try left/side, side/right and mid/side.
 //! - The STREAMINFO sizes and MD5 are only known at the end: write the header first, then overwrite
 //!   [`STREAMINFO_OFFSET`] with [`Encoder::streaminfo`] once [`Encoder::finish`] has run (or keep
 //!   the placeholder, whose zeros mean "unknown" and decode fine).
@@ -157,7 +157,7 @@ impl Encoder {
         out
     }
 
-    /// Add samples (one slice per channel, equal lengths); returns the إطار completed.
+    /// Add samples (one slice per channel, equal lengths); returns the frames completed.
     pub fn encode(&mut self, planar: &[&[i32]]) -> Result<Vec<u8>, Error> {
         Ok(self.encode_frames(planar)?.concat())
     }

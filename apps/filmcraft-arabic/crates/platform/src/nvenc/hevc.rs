@@ -72,7 +72,7 @@ const PTL_LEN: usize = 12;
 /// 10 is Main 10 (profile 2), both 4:2:0 with equal luma and chroma depth; any other depth is refused.
 pub fn hevc_config(vps: &[u8], sps: &[u8], pps: &[u8], size: (u32, u32), bit_depth: u8) -> Result<HevcConfig, String> {
     let (profile_idc, profile_name) = match bit_depth {
-        8 => (1u8, "رئيسي"),
+        8 => (1u8, "Main"),
         10 => (2, "Main 10"),
         other => return Err(format!("{other}-bit HEVC is not written by this backend")),
     };

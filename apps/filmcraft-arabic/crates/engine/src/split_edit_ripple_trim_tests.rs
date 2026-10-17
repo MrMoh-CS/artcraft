@@ -12,7 +12,7 @@ fn start(s: &Session, c: ClipId) -> Tick {
 }
 
 /// Two clips in a row on V1. The first has its sound on A1, the second on A2, and the second's
-/// sound starts 12 إطار before its picture. Returns (first picture, second picture, second sound).
+/// sound starts 12 frames before its picture. Returns (first picture, second picture, second sound).
 fn j_cut(s: &mut Session) -> (ClipId, ClipId, ClipId) {
     s.execute("file.openDemoProject", json!({})).unwrap();
     s.execute("file.newSequence", json!({"name": "J cut", "video": 1, "audio": 2})).unwrap();
@@ -27,12 +27,12 @@ fn j_cut(s: &mut Session) -> (ClipId, ClipId, ClipId) {
     s.execute("sequence.linkedSelection", json!({"on": false})).unwrap();
     s.execute("timeline.trim", json!({"clip": sound.0, "edge": "in", "mode": "regular", "deltaFrames": -12})).unwrap();
     s.execute("sequence.linkedSelection", json!({"on": true})).unwrap();
-    assert_eq!(start(s, second) - start(s, sound), rate.tick_of(12), "the sound leads its picture by 12 إطار");
+    assert_eq!(start(s, second) - start(s, sound), rate.tick_of(12), "the sound leads its picture by 12 frames");
     (first, second, sound)
 }
 
 /// Lengthening the clip before a J cut moved the later picture and left its sound behind: a lead
-/// of 12 إطار became 20, with no error.
+/// of 12 frames became 20, with no error.
 #[test]
 fn lengthening_before_a_j_cut_keeps_the_sound_with_its_picture() {
     ripple_and_check(8);
@@ -51,11 +51,11 @@ fn ripple_and_check(frames: i64) {
     let rate = s.sequence_rate();
     let (picture_at, sound_at) = (start(&s, second), start(&s, sound));
     let before = s.project.clone();
-    let r = s.execute("timeline.trim", json!({"clip": first.0, "edge": "out", "mode": "ripple", "deltaFrames": إطار})).unwrap();
+    let r = s.execute("timeline.trim", json!({"clip": first.0, "edge": "out", "mode": "ripple", "deltaFrames": frames})).unwrap();
     let by = rate.tick_of(frames);
     assert_eq!(r["delta"], json!(by.0));
     assert_eq!(start(&s, second), picture_at + by, "the later picture ripples");
-    assert_eq!(start(&s, sound), sound_at + by, "its sound still leads by 12 إطار");
+    assert_eq!(start(&s, sound), sound_at + by, "its sound still leads by 12 frames");
     s.active_sequence().unwrap().check().unwrap();
     let after = s.project.clone();
     s.execute("edit.undo", json!({})).unwrap();
@@ -72,7 +72,7 @@ fn ripple_trim_is_refused_when_the_early_sound_has_no_room() {
     let (first, second, sound) = j_cut(&mut s);
     let rate = s.sequence_rate();
     let before = s.project.clone();
-    // the sound starts at frame 36: 40 إطار earlier is before the sequence starts
+    // the sound starts at frame 36: 40 frames earlier is before the sequence starts
     let e = s.execute("timeline.trim", json!({"clip": first.0, "edge": "out", "mode": "ripple", "deltaFrames": -40})).unwrap_err();
     assert!(e.to_string().contains("sync"), "{e}");
     assert_eq!(*s.project, *before, "a refused trim changes nothing");
@@ -86,7 +86,7 @@ fn ripple_trim_is_refused_when_the_early_sound_has_no_room() {
     assert_eq!(start(&s, second) - start(&s, sound), rate.tick_of(12));
 }
 
-/// The mirror, an L cut: the first clip's sound runs 6 إطار on into the second picture. Shortening
+/// The mirror, an L cut: the first clip's sound runs 6 frames on into the second picture. Shortening
 /// the second clip's head was refused as a sync-lock conflict, because the first clip's sound crossed
 /// the cut. The first clip never moves, so its sound stays and the L cut still ends where it did.
 #[test]
@@ -94,20 +94,20 @@ fn shortening_the_head_after_an_l_cut_keeps_the_earlier_sound_in_place() {
     let mut s = Session::default();
     let (first, second, sound) = j_cut(&mut s);
     let rate = s.sequence_rate();
-    // undo the J cut, then run the first clip's sound (A1) 6 إطار past its picture
+    // undo the J cut, then run the first clip's sound (A1) 6 frames past its picture
     s.execute("sequence.linkedSelection", json!({"on": false})).unwrap();
     s.execute("timeline.trim", json!({"clip": sound.0, "edge": "in", "mode": "regular", "deltaFrames": 12})).unwrap();
     let first_sound = s.active_sequence().unwrap().audio_tracks[0].items[0].id;
     s.execute("timeline.trim", json!({"clip": first_sound.0, "edge": "out", "mode": "regular", "deltaFrames": 6})).unwrap();
     s.execute("sequence.linkedSelection", json!({"on": true})).unwrap();
     let end = |s: &Session, c: ClipId| s.active_sequence().unwrap().find_item(c).map(|(_, i)| i.end()).unwrap();
-    assert_eq!(end(&s, first_sound), start(&s, second) + rate.tick_of(6), "the L cut runs 6 إطار into the second picture");
+    assert_eq!(end(&s, first_sound), start(&s, second) + rate.tick_of(6), "the L cut runs 6 frames into the second picture");
     let (l_cut_ends, picture_at, picture_ends) = (end(&s, first_sound), start(&s, second), end(&s, second));
     let before = s.project.clone();
     s.execute("timeline.trim", json!({"clip": second.0, "edge": "in", "mode": "ripple", "deltaFrames": 3})).unwrap();
     assert_eq!(end(&s, first_sound), l_cut_ends, "the L cut still ends where it did");
     assert_eq!((start(&s, first), start(&s, first_sound)), (Tick::ZERO, Tick::ZERO));
-    assert_eq!((start(&s, second), end(&s, second)), (picture_at, picture_ends - rate.tick_of(3)), "the second picture is 3 إطار shorter");
+    assert_eq!((start(&s, second), end(&s, second)), (picture_at, picture_ends - rate.tick_of(3)), "the second picture is 3 frames shorter");
     assert_eq!((start(&s, sound), end(&s, sound)), (start(&s, second), end(&s, second)), "its own sound with it");
     s.active_sequence().unwrap().check().unwrap();
     s.execute("edit.undo", json!({})).unwrap();

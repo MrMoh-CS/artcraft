@@ -10,7 +10,7 @@
 //!   clip; its timeline bounds are clamped to the clip, so a word cut by an edit is shown cut;
 //! - disabled clips, reversed clips and frame holds contribute no words (they don't play speech).
 //!
-//! Text edits turn word ranges into timeline ranges ([`word_range`]) snapped outward to إطار, then
+//! Text edits turn word ranges into timeline ranges ([`word_range`]) snapped outward to frames, then
 //! reuse the ordinary [`crate::extract`] / [`crate::lift`] edits. Pause and filler-word removal
 //! ([`find_pauses`], [`find_fillers`]) produce many ranges that [`ripple_delete_ranges`] removes in
 //! one pass, right to left. Captions come from [`caption_blocks`].
@@ -18,7 +18,7 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
-use filmcraft_project::{Caption, ClipId, ItemId, تسلسل، TrackId, Transcript};
+use filmcraft_project::{Caption, ClipId, ItemId, Sequence, TrackId, Transcript};
 use filmcraft_time::{FrameRate, TICKS_PER_SECOND, Tick, TimeRange};
 
 use crate::EditCtx;
@@ -59,7 +59,7 @@ fn ticks(t: f64) -> Tick {
 
 /// The sequence transcript: words of every transcribed clip on the audio tracks, in sequence
 /// time order (see the module docs for the rules).
-pub fn sequence_words(seq: &تسلسل، transcripts: &Transcripts) -> Vec<SeqWord> {
+pub fn sequence_words(seq: &Sequence, transcripts: &Transcripts) -> Vec<SeqWord> {
     let mut out: Vec<SeqWord> = Vec::new();
     // timeline ranges already served by a higher track's transcribed clips
     let mut claimed: Vec<TimeRange> = Vec::new();
@@ -141,7 +141,7 @@ pub fn search(words: &[SeqWord], query: &str) -> Vec<std::ops::Range<usize>> {
     out
 }
 
-/// Timeline range of words `a..=b`, snapped outward to إطار.
+/// Timeline range of words `a..=b`, snapped outward to frames.
 pub fn word_range(words: &[SeqWord], a: usize, b: usize, rate: FrameRate) -> Option<TimeRange> {
     let (a, b) = (a.min(b), a.max(b));
     let (s, e) = (words.get(a)?.start, words.get(b)?.end);
@@ -153,7 +153,7 @@ pub fn word_range(words: &[SeqWord], a: usize, b: usize, rate: FrameRate) -> Opt
     Some(TimeRange::from_bounds(s, e2))
 }
 
-/// Media range of words `a..=b` of a clip transcript, snapped outward to the media's إطار (for
+/// Media range of words `a..=b` of a clip transcript, snapped outward to the media's frames (for
 /// Source-monitor In/Out from a text selection).
 pub fn media_word_range(t: &Transcript, a: usize, b: usize, rate: FrameRate) -> Option<TimeRange> {
     let (a, b) = (a.min(b), a.max(b));
@@ -167,7 +167,7 @@ pub fn media_word_range(t: &Transcript, a: usize, b: usize, rate: FrameRate) -> 
 }
 
 /// Pauses between consecutive words of at least `min`, as the ranges to remove: each keeps `keep`
-/// of silence next to both words and is snapped inward to إطار (pauses shorter than one frame
+/// of silence next to both words and is snapped inward to frames (pauses shorter than one frame
 /// after that are skipped).
 pub fn find_pauses(words: &[SeqWord], min: Tick, keep: Tick, rate: FrameRate) -> Vec<TimeRange> {
     let mut out = Vec::new();
@@ -219,8 +219,8 @@ pub fn find_fillers(words: &[SeqWord], fillers: &[String]) -> Vec<std::ops::Rang
     out
 }
 
-/// Timeline ranges removing the filler words `hits`: each word range snapped to the nearest إطار
-/// (never into the neighbouring words' إطار).
+/// Timeline ranges removing the filler words `hits`: each word range snapped to the nearest frames
+/// (never into the neighbouring words' frames).
 pub fn filler_ranges(words: &[SeqWord], hits: &[std::ops::Range<usize>], rate: FrameRate) -> Vec<TimeRange> {
     let mut out = Vec::new();
     for h in hits {
@@ -257,7 +257,7 @@ pub fn merge_ranges(mut r: Vec<TimeRange>) -> Vec<TimeRange> {
 
 /// Ripple-delete every range on every unlocked track (and sync-locked caption tracks), right to
 /// left so earlier ranges keep their positions. Returns the total time removed.
-pub fn ripple_delete_ranges(seq: &mut تسلسل، ranges: Vec<TimeRange>, ctx: &mut EditCtx) -> Tick {
+pub fn ripple_delete_ranges(seq: &mut Sequence, ranges: Vec<TimeRange>, ctx: &mut EditCtx) -> Tick {
     let tracks: Vec<TrackId> = seq.all_tracks().filter(|t| !t.locked).map(|t| t.id).collect();
     let mut total = Tick::ZERO;
     for r in merge_ranges(ranges).into_iter().rev() {
@@ -316,7 +316,7 @@ pub struct CaptionBlock {
 /// Lay words out as caption blocks: words fill lines of at most `max_chars` (a longer single word
 /// gets a line of its own) and blocks of `lines` lines; a new block starts at a speaker change,
 /// at a pause of `break_pause`, after `max_duration`, or after sentence-ending punctuation once the
-/// block is past half full. Times are snapped to إطار, blocks never overlap and keep
+/// block is past half full. Times are snapped to frames, blocks never overlap and keep
 /// `gap_frames` between them.
 pub fn caption_blocks(words: &[SeqWord], rules: &CaptionRules, rate: FrameRate) -> Vec<CaptionBlock> {
     let max_chars = rules.max_chars.max(1);

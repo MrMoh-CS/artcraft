@@ -43,7 +43,7 @@ const BAR_H: f32 = 18.0;
 /// How far into the transition from either end a press grabs that end (the Timeline's width).
 const EDGE_PX: f32 = 7.0;
 
-/// The selected transition, when it still exists, with its alignment and how many إطار it may
+/// The selected transition, when it still exists, with its alignment and how many frames it may
 /// last at most (the clips it joins).
 fn lookup(app: &FilmcraftApp, id: TransitionId) -> Option<(Transition, Alignment, i64)> {
     let seq = app.session.active_sequence()?;
@@ -65,9 +65,9 @@ fn timecode(frames: f64, rate: FrameRate, drop_frame: bool) -> String {
     filmcraft_time::format_timecode_frames(frames.round() as i64, rate, drop_frame)
 }
 
-/// A duration field in إطار that reads and takes timecode (or a frame count, or, when the text is
-/// neither, a calculation in إطار such as `48/2`).
-fn duration_field(ui: &mut egui::Ui, إطار: &mut i64, max: i64, rate: FrameRate, drop_frame: bool) -> egui::Response {
+/// A duration field in frames that reads and takes timecode (or a frame count, or, when the text is
+/// neither, a calculation in frames such as `48/2`).
+fn duration_field(ui: &mut egui::Ui, frames: &mut i64, max: i64, rate: FrameRate, drop_frame: bool) -> egui::Response {
     let current = *frames as f64;
     ui.add(egui::DragValue::new(frames).range(1..=max.max(1)).speed(0.25).custom_formatter(move |v, _| timecode(v, rate, drop_frame)).custom_parser(move |s| {
         match s.trim().parse::<i64>() {
@@ -114,12 +114,12 @@ pub fn effect_controls(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, id
     };
     egui::ScrollArea::vertical().id_salt(("tr-ec-scroll", id.0)).auto_shrink([false, false]).show(&mut child, |ui| {
         egui::Grid::new(("tr-ec-grid", id.0)).num_columns(2).spacing([14.0, 8.0]).show(ui, |ui| {
-            ui.label(tl!("Duration"));
-            let mut إطار = rate.frame_at(x.duration).max(1);
-            let r = duration_field(ui, &mut إطار, max_frames, rate, drop_frame);
+            ui.label(tl!("المدة"));
+            let mut frames = rate.frame_at(x.duration).max(1);
+            let r = duration_field(ui, &mut frames, max_frames, rate, drop_frame);
             elems.push(("effectControls.transition.duration".into(), r.rect, timecode(frames as f64, rate, drop_frame)));
             if r.changed() {
-                changes.push(json!({"frames": إطار, "merge": true, "begin": r.drag_started() || !r.dragged()}));
+                changes.push(json!({"frames": frames, "merge": true, "begin": r.drag_started() || !r.dragged()}));
             }
             ui.end_row();
             row_line(ui);
@@ -372,7 +372,7 @@ fn paint_ruler(p: &egui::Painter, ruler: Rect, view: (Tick, Tick), rate: FrameRa
     let span = (view.1 - view.0).0.max(1) as f64;
     let frame_px = f64::from(ruler.width()) * rate.frame_duration().0.max(1) as f64 / span;
     let base = rate.timecode_base();
-    // إطار, then seconds (a rate's timecode base) multiplied up; saturating, as a damaged rate may be huge
+    // frames, then seconds (a rate's timecode base) multiplied up; saturating, as a damaged rate may be huge
     let steps: Vec<i64> = [1, 2, 5, 10, base / 2, base].into_iter().chain([2, 5, 10, 30, 60, 300, 600, 3600].map(|m| base.saturating_mul(m))).collect();
     // labels far enough apart to read; the small ticks divide the labelled ones evenly
     let label_step = steps.iter().copied().find(|s| *s > 0 && *s as f64 * frame_px >= 80.0);
@@ -488,7 +488,7 @@ fn param_widget(ui: &mut egui::Ui, elems: &mut Elems, pid: &str, kind: &ParamKin
 pub fn open_duration(app: &mut FilmcraftApp, id: TransitionId) {
     let Some((x, ..)) = lookup(app, id) else { return };
     let rate = app.session.active_sequence().map(|q| q.settings.frame_rate.sane()).unwrap_or_default();
-    app.ui.transition_duration = TransitionDurationDraft { transition: id.0, إطار: rate.frame_at(x.duration).max(1) };
+    app.ui.transition_duration = TransitionDurationDraft { transition: id.0, frames: rate.frame_at(x.duration).max(1) };
     let _ = app.session.execute("timeline.select", json!({"transitions": [id.0]}));
     app.dialog = Some(crate::Dialog::TransitionDuration);
 }
@@ -511,7 +511,7 @@ pub fn duration_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
         .default_pos(crate::widgets::dialog_center(ctx))
         .show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.label(tl!("Duration:"));
+                ui.label(tl!("المدة:"));
                 let r = duration_field(ui, &mut d.frames, max_frames, rate, drop_frame);
                 elems.push(("transitionDuration.value".into(), r.rect, timecode(d.frames as f64, rate, drop_frame)));
             });

@@ -725,7 +725,7 @@ pub fn wrench_items(app: &mut FilmcraftApp, ui: &mut egui::Ui, w: Which) {
         }
     });
     if w == Which::Program {
-        pick(ui, &mut out, "display.multicam", tl!("Multi-Camera"), v.multicam);
+        pick(ui, &mut out, "display.multicam", tl!("متعدد الكاميرات"), v.multicam);
         pick(ui, &mut out, "display.comparison", tl!("Comparison View"), mode == Some(DisplayMode::Comparison));
     } else {
         pick(ui, &mut out, "display.audioWaveform", tl!("Audio Waveform"), mode == Some(DisplayMode::AudioWaveform));
@@ -826,9 +826,9 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     }
                 });
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Position:"));
+                    ui.label(tl!("الموضع:"));
                     let r = ui.add(crate::widgets::number_drag(position).speed(1.0).suffix(" px"));
-                    push(&mut elems, "guides.add.position", &r, "Position");
+                    push(&mut elems, "guides.add.position", &r, "الموضع");
                 });
                 ui.horizontal(|ui| {
                     let r = ui.button(tl!("إلغاء"));
@@ -847,7 +847,7 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
             GuideDialog::SaveTemplate { name, source } => {
                 let m = if *source { "source" } else { "program" };
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Name:"));
+                    ui.label(tl!("الاسم:"));
                     let r = ui.text_edit_singleline(name);
                     push(&mut elems, "guides.save.name", &r, "الاسم");
                 });

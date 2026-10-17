@@ -575,7 +575,7 @@ fn template_thumbnail(s: &mut Session, p: &Value) -> Result<Value> {
 // Responsive design
 // ------------------------------------------------------------------------------------------------
 
-/// Duration parameter: `<key>Frames` (sequence إطار), `<key>Seconds`, or `<key>` in ticks.
+/// Duration parameter: `<key>Frames` (sequence frames), `<key>Seconds`, or `<key>` in ticks.
 fn dur_p(s: &Session, p: &Value, key: &str) -> Option<Tick> {
     let rate = s.sequence_rate();
     if let Some(f) = f64_p(p, &format!("{key}Frames")) {

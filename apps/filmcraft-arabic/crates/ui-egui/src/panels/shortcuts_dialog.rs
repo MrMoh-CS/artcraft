@@ -213,7 +213,7 @@ fn header(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) {
     let builtin: Vec<String> = presets["builtin"].as_array().into_iter().flatten().filter_map(|v| v.as_str().map(str::to_string)).collect();
     let custom: Vec<String> = presets["custom"].as_array().into_iter().flatten().filter_map(|v| v.as_str().map(str::to_string)).collect();
     ui.horizontal(|ui| {
-        ui.label(RichText::new(tl!("Preset:")).size(13.0).color(t.text_dim));
+        ui.label(RichText::new(tl!("الإعداد المسبق:")).size(13.0).color(t.text_dim));
         let shown = if modified { tlf!("{active} (modified)", active) } else { active.clone() };
         let r = egui::ComboBox::from_id_salt("shortcuts-preset").width(280.0).selected_text(shown).show_ui(ui, |ui| {
             for name in builtin.iter().chain(custom.iter()) {
@@ -227,7 +227,7 @@ fn header(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) {
         });
         app.auto.add("shortcuts.preset", r.response.rect, "الإعداد المسبق");
         ui.add_space(8.0);
-        if small_button(app, ui, "shortcuts.saveAs", tl!("Save As…"), true) {
+        if small_button(app, ui, "shortcuts.saveAs", tl!("حفظ باسم…"), true) {
             app.shortcut_editor.save_name = Some(if builtin.contains(&active) { tl!("My Shortcuts").into() } else { active.clone() });
         }
         let can_delete = custom.contains(&active);
@@ -235,7 +235,7 @@ fn header(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) {
             exec(app, "shortcuts.deletePreset", json!({"name": active}));
             app.shortcut_editor.message = tlf!("Deleted preset “{active}”", active);
         }
-        if small_button(app, ui, "shortcuts.export", tl!("Export…"), true) {
+        if small_button(app, ui, "shortcuts.export", tl!("تصدير…"), true) {
             app.pick_ui(FileDialog::save_as(tl!("Keyboard Shortcuts"), &["json"], &format!("{active}.json")), |app, paths| match paths.into_iter().next() {
                 Some(path) => {
                     if exec(app, "shortcuts.export", json!({"path": path})).is_some() {
@@ -245,7 +245,7 @@ fn header(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) {
                 None => app.shortcut_editor.message = tl!("Export: no file chosen (agents: shortcuts.export {path})").into(),
             });
         }
-        if small_button(app, ui, "shortcuts.import", tl!("Import…"), true) {
+        if small_button(app, ui, "shortcuts.import", tl!("استيراد…"), true) {
             app.pick_ui(FileDialog::open_file(tl!("Keyboard Shortcuts"), &["json"]), |app, paths| match paths.into_iter().next() {
                 Some(path) => {
                     if let Some(r) = exec(app, "shortcuts.import", json!({"path": path})) {
@@ -391,7 +391,7 @@ const NAV_ROWS: [&[(&str, f32)]; 6] = [
     &[("حذف", 0.0), ("End", 1.0), ("PageDown", 2.0)],
     &[],
     &[("Up", 1.0)],
-    &[("Left", 0.0), ("Down", 1.0), ("Right", 2.0)],
+    &[("يسار", 0.0), ("Down", 1.0), ("يمين", 2.0)],
 ];
 
 fn key_legend(name: &str, mac: bool) -> String {
@@ -439,8 +439,8 @@ fn key_legend(name: &str, mac: bool) -> String {
         "PageDown" => "Page Down".into(),
         "Up" => "↑".into(),
         "Down" => "↓".into(),
-        "Left" => "←".into(),
-        "Right" => "→".into(),
+        "يسار" => "←".into(),
+        "يمين" => "→".into(),
         k => k.into(),
     }
 }
@@ -799,7 +799,7 @@ fn footer(app: &mut FilmcraftApp, ui: &mut egui::Ui, t: &Tokens) -> Option<bool>
             ui.add_space(16.0);
             let sel = app.shortcut_editor.selected.clone();
             let panel = app.shortcut_editor.panel().map(str::to_string);
-            if small_button(app, ui, "shortcuts.clear", tl!("Clear"), sel.is_some())
+            if small_button(app, ui, "shortcuts.clear", tl!("مسح"), sel.is_some())
                 && let Some(c) = sel
                 && let Some(r) = exec(app, "shortcuts.clear", json!({"command": c, "panel": panel.clone().unwrap_or_else(|| APPLICATION.into())}))
             {

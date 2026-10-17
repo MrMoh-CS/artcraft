@@ -21,7 +21,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
-use filmcraft_project::{ClipId, Project, تسلسل، TrackId, TrackKind};
+use filmcraft_project::{ClipId, Project, Sequence, TrackId, TrackKind};
 use filmcraft_time::{Tick, TimeRange};
 
 use crate::{EngineError, Result, Session};
@@ -65,13 +65,13 @@ pub struct EditPoint {
 }
 
 /// Time of an edit point in the sequence.
-pub fn edit_time(seq: &تسلسل، ep: &EditPoint) -> Option<Tick> {
+pub fn edit_time(seq: &Sequence, ep: &EditPoint) -> Option<Tick> {
     let (_, it) = seq.find_item(ep.clip)?;
     Some(if ep.out { it.end() } else { it.start })
 }
 
 /// The (left, right) clips of a roll at this edit point.
-pub fn roll_pair(seq: &تسلسل، ep: &EditPoint) -> Option<(ClipId, ClipId)> {
+pub fn roll_pair(seq: &Sequence, ep: &EditPoint) -> Option<(ClipId, ClipId)> {
     let (tid, it) = seq.find_item(ep.clip)?;
     let track = seq.track(tid)?;
     if ep.out {
@@ -198,7 +198,7 @@ fn reset_shift(s: &mut Session) {
 }
 
 /// Trim every selected edit point; `delta_for` gives each point's own movement, read from the sequence as it is when that point is reached.
-fn trim_all_raw(s: &mut Session, delta_for: &dyn Fn(&تسلسل، &EditPoint) -> Option<Tick>) -> Result<Vec<Value>> {
+fn trim_all_raw(s: &mut Session, delta_for: &dyn Fn(&Sequence, &EditPoint) -> Option<Tick>) -> Result<Vec<Value>> {
     if s.state.edit_points.is_empty() {
         return Err(EngineError::Other("no edit points selected".into()));
     }
@@ -224,7 +224,7 @@ fn trim_all_raw(s: &mut Session, delta_for: &dyn Fn(&تسلسل، &EditPoint) ->
 
 /// `trim.nudge {frames}`: Trim Forward/Backward (±1), Many (±5 by default).
 pub fn nudge(s: &mut Session, p: &Value) -> Result<Value> {
-    let إطار = p.get("frames").and_then(Value::as_i64).unwrap_or(1);
+    let frames = p.get("frames").and_then(Value::as_i64).unwrap_or(1);
     let d = s.sequence_rate().tick_of(frames);
     trim_all(s, d)
 }
@@ -293,7 +293,7 @@ pub fn to_playhead(s: &mut Session, p: &Value) -> Result<Value> {
 // ------------------------------------------------------------------ Trim Monitor
 
 /// One side of the Trim Monitor: the clip and the frame shown for it.
-fn side_json(s: &Session, seq: &تسلسل، clip: ClipId, outgoing: bool) -> Option<Value> {
+fn side_json(s: &Session, seq: &Sequence, clip: ClipId, outgoing: bool) -> Option<Value> {
     let (tid, it) = seq.find_item(clip)?;
     let rate = seq.settings.frame_rate;
     let fd = rate.frame_duration();
@@ -312,7 +312,7 @@ fn side_json(s: &Session, seq: &تسلسل، clip: ClipId, outgoing: bool) -> Op
 }
 
 /// The (outgoing, incoming) clips at an edit point.
-pub fn sides(seq: &تسلسل، ep: &EditPoint) -> (Option<ClipId>, Option<ClipId>) {
+pub fn sides(seq: &Sequence, ep: &EditPoint) -> (Option<ClipId>, Option<ClipId>) {
     match roll_pair(seq, ep) {
         Some((l, r)) => (Some(l), Some(r)),
         None if ep.out => (Some(ep.clip), None),
@@ -387,7 +387,7 @@ pub struct DynamicTrim {
     /// update re-applies the offset to (so updates never accumulate rounding or clamping).
     before: Arc<Project>,
     shift_before: TrimShift,
-    /// Edit point movement applied so far (whole إطار).
+    /// Edit point movement applied so far (whole frames).
     pub offset: Tick,
     /// Shuttle speed (× real time); negative = backward, 0 = held (stopped at a limit).
     pub speed: f64,
@@ -418,8 +418,8 @@ fn direction_p(p: &Value) -> f64 {
     }
 }
 
-/// Whole إطار of movement for `secs` of edit point travel (truncated toward zero).
-fn إطار_for(s: &Session, secs: f64) -> Tick {
+/// Whole frames of movement for `secs` of edit point travel (truncated toward zero).
+fn frames_for(s: &Session, secs: f64) -> Tick {
     let rate = s.sequence_rate();
     let mag = rate.frame_at(Tick::from_seconds_f64(secs.abs()));
     rate.tick_of(if secs < 0.0 { -mag } else { mag })
@@ -466,7 +466,7 @@ pub fn shuttle(s: &mut Session, p: &Value) -> Result<Value> {
 /// `trim.tick {clock}`: advance dynamic trimming / loop playback to `clock` (call once per frame).
 pub fn tick(s: &mut Session, clock: f64) -> Result<Value> {
     if let Some(d) = s.trim_play.dynamic.clone() {
-        let want = d.anchor_offset + إطار_for(s, (clock - d.anchor_clock).max(0.0) * d.speed);
+        let want = d.anchor_offset + frames_for(s, (clock - d.anchor_clock).max(0.0) * d.speed);
         if want != d.offset {
             let got = apply_dynamic(s, want)?;
             if let Some(dd) = s.trim_play.dynamic.as_mut() {

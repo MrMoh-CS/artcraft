@@ -74,7 +74,7 @@ fn aaf_embedded_trimmed_audio_round_trips_sample_exact() {
         let p = path_of(&s, c.item);
         assert!(p.ends_with(".wav") && std::path::Path::new(&p).exists(), "{p}");
         assert!(!s.project.item(c.item).unwrap().as_media().unwrap().offline);
-        // trimmed: the essence starts 6 إطار (handles) before the clip
+        // trimmed: the essence starts 6 frames (handles) before the clip
         assert_eq!(c.source_in, FrameRate::FPS_24.tick_of(6));
         let got = audio_of(&s, c.item, c.source_in.to_units_floor(48_000), 4800);
         let want = audio_of(&s, oc.item, oc.source_in.to_units_floor(48_000), 4800);
@@ -359,14 +359,14 @@ mod selected_streams {
         fn video_frame(&self, _: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
             Err(MediaError::NoStream("video"))
         }
-        fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-            self.audio_stream(0, start, إطار, sample_rate)
+        fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+            self.audio_stream(0, start, frames, sample_rate)
         }
-        fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
             if stream >= self.info.audio_streams.len() {
                 return Err(MediaError::NoStream("audio"));
             }
-            self.calls.lock().unwrap().push((stream, start, إطار, sample_rate));
+            self.calls.lock().unwrap().push((stream, start, frames, sample_rate));
             Ok(AudioBuffer {
                 sample_rate,
                 channels: (0..2).map(|channel| (0..frames).map(|i| Self::sample(stream, channel, start + i as i64, sample_rate)).collect()).collect(),

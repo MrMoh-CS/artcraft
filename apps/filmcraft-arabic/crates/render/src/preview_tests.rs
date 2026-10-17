@@ -149,7 +149,7 @@ fn renaming_relabelling_and_moving_keep_hashes() {
     for it in q.video_tracks[0].items.iter_mut() {
         it.name = "renamed".into();
         it.label = Label::Mango;
-        // ripple both clips 10 إطار later
+        // ripple both clips 10 frames later
         it.start += FrameRate::FPS_24.tick_of(10);
     }
     let after = video_segments(&p, seq);
@@ -250,7 +250,7 @@ fn effect_costs() {
     }
 }
 
-/// Put `item` on track 0 of `kind` in `seq` from frame `start_f` for `dur_f` إطار.
+/// Put `item` on track 0 of `kind` in `seq` from frame `start_f` for `dur_f` frames.
 fn place_kind(p: &mut Project, seq: ItemId, kind: TrackKind, item: ItemId, start_f: i64, dur_f: i64) -> ClipId {
     let r = FrameRate::FPS_24;
     let ti = p.make_track_item(item, kind, r.tick_of(start_f), TimeRange::new(Tick::ZERO, r.tick_of(dur_f)), r).unwrap();

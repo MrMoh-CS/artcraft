@@ -14,12 +14,12 @@ use std::collections::{BTreeSet, HashMap};
 
 use filmcraft_media::Generator;
 use filmcraft_project::{
-    ItemId, ItemKind, Label, Marker, MarkerId, MarkerKind, ParamValue, Project, تسلسل، TrackKind, Transition, TransitionAlign, TransitionId, find_effect,
+    ItemId, ItemKind, Label, Marker, MarkerId, MarkerKind, ParamValue, Project, Sequence, TrackKind, Transition, TransitionAlign, TransitionId, find_effect,
 };
 use filmcraft_time::{FrameRate, Tick, fields_to_frames, format_timecode_frames};
 
 use crate::common::{
-    Builder, MediaSpec, empty_sequence, file_name, file_stem, إطار_round, generator_of, item_path, on_frame, overwrite, relative_path, resolve_path,
+    Builder, MediaSpec, empty_sequence, file_name, file_stem, frames_round, generator_of, item_path, on_frame, overwrite, relative_path, resolve_path,
     sanitize_reel, scaled, settings_for, transition_effect, transition_name,
 };
 use crate::{ExportOptions, Format, ImportOptions, Imported, ReelMode, Report, Result};
@@ -295,7 +295,7 @@ struct Ctx<'a> {
 }
 
 impl Ctx<'_> {
-    fn إطار(&self, tc: Tc, df: bool) -> i64 {
+    fn frames(&self, tc: Tc, df: bool) -> i64 {
         fields_to_frames(tc.h, tc.m, tc.s, tc.f, self.rate, tc.df || df)
     }
 
@@ -679,7 +679,7 @@ impl Exp<'_> {
         r
     }
 
-    fn tc(&self, إطار: i64) -> String {
+    fn tc(&self, frames: i64) -> String {
         format_timecode_frames(frames, self.rate, self.df)
     }
 
@@ -691,11 +691,11 @@ impl Exp<'_> {
             .and_then(|i| i.as_media())
             .and_then(|m| m.info.start_timecode.map(|tc| self.rate.frame_at(m.frame_rate().tick_of(tc))))
             .unwrap_or(0);
-        start + إطار_round(self.rate, t)
+        start + frames_round(self.rate, t)
     }
 
     fn rec_frames(&self, t: Tick) -> i64 {
-        self.seq.start_timecode + إطار_round(self.rate, t)
+        self.seq.start_timecode + frames_round(self.rate, t)
     }
 
     fn file_comment(&self, item: ItemId) -> Option<String> {
@@ -767,7 +767,7 @@ pub(crate) fn export(p: &Project, seq_id: ItemId, opts: &ExportOptions, report: 
         };
         for it in &track.items {
             if !on_frame(rate, it.start) || !on_frame(rate, it.duration) {
-                report.warn("sub-frame clip positions were rounded to إطار in the EDL");
+                report.warn("sub-frame clip positions were rounded to frames in the EDL");
             }
             if matches!(p.item(it.item).map(|i| &i.kind), Some(ItemKind::Sequence(_))) {
                 report.warn("nested sequences are exported to EDL as a single source (reel AX)");
@@ -984,7 +984,7 @@ pub(crate) fn export(p: &Project, seq_id: ItemId, opts: &ExportOptions, report: 
 fn src_tc(x: &Exp, l: &OutLine, t: Tick) -> i64 {
     match l.item {
         Some(i) if l.reel != "BL" => x.src_frames(i, t),
-        _ => إطار_round(x.rate, t),
+        _ => frames_round(x.rate, t),
     }
 }
 

@@ -1,8 +1,8 @@
 //! Log-mel spectrogram front end (Whisper's), computed from the published recipe:
-//! 16 kHz audio, 400-sample periodic Hann window, hop 160 (100 إطار/s), reflect padding of
-//! 200 samples at both ends (centred إطار), power spectrum, Slaney-style mel filterbank with
+//! 16 kHz audio, 400-sample periodic Hann window, hop 160 (100 frames/s), reflect padding of
+//! 200 samples at both ends (centred frames), power spectrum, Slaney-style mel filterbank with
 //! Slaney area normalisation (0–8 kHz), `log10(max(x, 1e-10))`, floor at `max − 8`, then
-//! `(x + 4) / 4`. The last STFT frame is dropped, so `n` samples give `n / 160` إطار.
+//! `(x + 4) / 4`. The last STFT frame is dropped, so `n` samples give `n / 160` frames.
 //!
 //! The filterbank is computed here, not loaded from a file.
 
@@ -48,7 +48,7 @@ pub fn mel_filters(n_mels: usize) -> Vec<f32> {
     w
 }
 
-/// Power spectrum إطار (`frames × N_BINS`) of `audio`, Whisper framing (see module docs).
+/// Power spectrum frames (`frames × N_BINS`) of `audio`, Whisper framing (see module docs).
 pub fn power_spectrum(audio: &[f32]) -> (usize, Vec<f32>) {
     let pad = N_FFT / 2;
     let n = audio.len();
@@ -67,10 +67,10 @@ pub fn power_spectrum(audio: &[f32]) -> (usize, Vec<f32>) {
         }
         audio[j as usize]
     };
-    let إطار = n / HOP; // the last centred frame (n / HOP + 1) is dropped
+    let frames = n / HOP; // the last centred frame (n / HOP + 1) is dropped
     let window: Vec<f32> = (0..N_FFT).map(|i| (0.5 - 0.5 * (2.0 * std::f64::consts::PI * i as f64 / N_FFT as f64).cos()) as f32).collect();
     let (cos, sin) = twiddles();
-    let mut out = vec![0f32; إطار * N_BINS];
+    let mut out = vec![0f32; frames * N_BINS];
     let work = |f: usize, row: &mut [f32]| {
         let mut x = [0f32; N_FFT];
         let base = (f * HOP) as isize - pad as isize;
@@ -108,22 +108,22 @@ fn twiddles() -> (Vec<f32>, Vec<f32>) {
     (c, s)
 }
 
-/// Mel energies `n_mels × إطار` (row-major by mel band, like Whisper's input) before the log.
+/// Mel energies `n_mels × frames` (row-major by mel band, like Whisper's input) before the log.
 pub fn mel_energies(audio: &[f32], n_mels: usize) -> (usize, Vec<f32>) {
     let (frames, pow) = power_spectrum(audio);
     let filters = mel_filters(n_mels);
-    let mut out = vec![0f32; n_mels * إطار];
+    let mut out = vec![0f32; n_mels * frames];
     for f in 0..frames {
         let p = &pow[f * N_BINS..(f + 1) * N_BINS];
         for m in 0..n_mels {
             let w = &filters[m * N_BINS..(m + 1) * N_BINS];
-            out[m * إطار + f] = w.iter().zip(p).map(|(a, b)| a * b).sum();
+            out[m * frames + f] = w.iter().zip(p).map(|(a, b)| a * b).sum();
         }
     }
     (frames, out)
 }
 
-/// Whisper's normalised log-mel spectrogram, `n_mels × إطار` row-major.
+/// Whisper's normalised log-mel spectrogram, `n_mels × frames` row-major.
 pub fn log_mel(audio: &[f32], n_mels: usize) -> (usize, Vec<f32>) {
     let (frames, mut m) = mel_energies(audio, n_mels);
     for v in &mut m {
@@ -161,7 +161,7 @@ mod tests {
         let (frames, m) = log_mel(&audio, 80);
         assert_eq!(frames, 100);
         let f = 50;
-        let col: Vec<f32> = (0..80).map(|b| m[b * إطار + f]).collect();
+        let col: Vec<f32> = (0..80).map(|b| m[b * frames + f]).collect();
         let peak = col.iter().enumerate().max_by(|a, b| a.1.total_cmp(b.1)).unwrap().0;
         let w = mel_filters(80);
         let k = 1000 * N_FFT / 16_000; // bin 25

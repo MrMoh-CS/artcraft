@@ -78,7 +78,7 @@ fn mjpeg_mov_roundtrip() {
 #[test]
 fn wav_png_gif() {
     let (p, seq, m) = project();
-    for (fmt, name) in [(Format::Wav, "a.wav"), (Format::Gif, "a.gif"), (Format::Pngتسلسل، "seq.png")] {
+    for (fmt, name) in [(Format::Wav, "a.wav"), (Format::Gif, "a.gif"), (Format::PngSequence, "seq.png")] {
         let path = tmp(name);
         let prog = Progress::default();
         let mut s = ExportSettings { format: fmt, path: path.clone(), scale: 0.5, ..Default::default() };
@@ -90,13 +90,13 @@ fn wav_png_gif() {
 }
 
 /// GIF delays are whole centiseconds (#854): at 24 fps they alternate 4/4/5 cs so a second of
-/// إطار lasts 1000 ms, not 24 × 40 ms = 960 ms.
+/// frames lasts 1000 ms, not 24 × 40 ms = 960 ms.
 #[test]
 fn gif_frame_delays_add_up_to_the_duration() {
     let d: Vec<u16> = (0..6).map(|i| gif_delay_cs(FrameRate::FPS_24, i)).collect();
     assert_eq!(d, [4, 4, 5, 4, 4, 4]);
     let ntsc: u64 = (0..30).map(|i| u64::from(gif_delay_cs(FrameRate::FPS_29_97, i))).sum();
-    assert_eq!(ntsc, 100, "30 إطار at 29.97 fps last 1.001 s");
+    assert_eq!(ntsc, 100, "30 frames at 29.97 fps last 1.001 s");
     // hostile rates neither panic nor overflow
     assert_eq!(gif_delay_cs(FrameRate { num: 0, den: 0 }, 3), 0);
     let _ = gif_delay_cs(FrameRate { num: 1, den: i64::MAX }, i64::MAX);
@@ -108,9 +108,9 @@ fn gif_frame_delays_add_up_to_the_duration() {
     export(&p, seq, &s, &m, &Progress::default()).unwrap();
     use image::AnimationDecoder;
     let dec = image::codecs::gif::GifDecoder::new(std::io::Cursor::new(std::fs::read(&path).unwrap())).unwrap();
-    let إطار = dec.into_frames().collect_frames().unwrap();
+    let frames = dec.into_frames().collect_frames().unwrap();
     assert_eq!(frames.len(), 24);
-    let ms: u32 = إطار.iter().map(|f| f.delay().numer_denom_ms()).map(|(n, d)| n / d.max(1)).sum();
+    let ms: u32 = frames.iter().map(|f| f.delay().numer_denom_ms()).map(|(n, d)| n / d.max(1)).sum();
     assert_eq!(ms, 1000);
 }
 
@@ -126,7 +126,7 @@ fn prores_export_roundtrip() {
     assert!(f[0] > 240 && f[1] < 15 && f[2] < 15, "{:?}", &f[..4]);
 }
 
-/// ProRes 4444 / 4444 XQ export (#342): 4:4:4 إطار under the `ap4h` / `ap4x` codes, and with
+/// ProRes 4444 / 4444 XQ export (#342): 4:4:4 frames under the `ap4h` / `ap4x` codes, and with
 /// Include Alpha Channel the picture's alpha survives instead of being flattened over black.
 #[test]
 fn prores_4444_export_roundtrip() {
@@ -340,7 +340,7 @@ fn gpu_hook_scenarios() {
     crate::register_frame_renderer(|| None);
     let (p, seq, m) = project();
     let mk = |path: &String, gpu: Option<bool>| {
-        let mut s = ExportSettings { format: Format::Pngتسلسل، path: path.clone(), ..Default::default() };
+        let mut s = ExportSettings { format: Format::PngSequence, path: path.clone(), ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(2)));
         s.gpu_rendering = match gpu {
             Some(true) | None => crate::GpuRendering::Auto,
@@ -359,7 +359,7 @@ fn gpu_hook_scenarios() {
     crate::reset_frame_renderers_for_tests();
     crate::register_frame_renderer(|| Some(Box::new(FakeRenderer) as Box<dyn FrameRenderer>));
     mk(&tmp("fake-gpu.png"), Some(true));
-    assert!(gpu_render_stats().frames >= 2, "gpu إطار counted: {:?}", gpu_render_stats());
+    assert!(gpu_render_stats().frames >= 2, "gpu frames counted: {:?}", gpu_render_stats());
     assert_eq!(gpu_render_stats().fallbacks, 0);
     mk(&tmp("fake-off.png"), Some(false));
     assert_eq!(gpu_render_stats().fallbacks, 0, "Off must not count as fallback");
@@ -393,7 +393,7 @@ fn gpu_hook_scenarios() {
         p.sequence_mut(seq).unwrap().video_tracks[0].items.push(v);
         let mut m = SourceMap::default();
         m.0.insert(red, Arc::new(g));
-        let mut s = ExportSettings { format: Format::Pngتسلسل، path: tmp("hostile.png"), ..Default::default() };
+        let mut s = ExportSettings { format: Format::PngSequence, path: tmp("hostile.png"), ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(1)));
         s.gpu_rendering = crate::GpuRendering::Auto;
         let r = export(&Arc::new(p), seq, &s, &m, &Progress::default());
@@ -411,7 +411,7 @@ fn gpu_hook_scenarios() {
     crate::register_frame_renderer(|| Some(Box::new(PanickingRenderer) as Box<dyn FrameRenderer>));
     let (p, seq, m) = project();
     let mk12 = |path: &String, gpu: crate::GpuRendering| {
-        let mut s = ExportSettings { format: Format::Pngتسلسل، path: path.clone(), ..Default::default() };
+        let mut s = ExportSettings { format: Format::PngSequence, path: path.clone(), ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, FrameRate::FPS_24.tick_of(12)));
         s.gpu_rendering = gpu;
         export(&p, seq, &s, &m, &Progress::default()).unwrap()
@@ -430,7 +430,7 @@ fn gpu_hook_scenarios() {
 
     // 5. A frame the planner hands back as one CPU image (an adjustment layer over the clip from
     //    frame 12) is rendered by the CPU without taking a pooled renderer: it counts as a
-    //    fallback, and the renderer's picture reaches only the إطار before it.
+    //    fallback, and the renderer's picture reaches only the frames before it.
     crate::reset_frame_renderers_for_tests();
     crate::register_frame_renderer(|| Some(Box::new(FakeRenderer) as Box<dyn FrameRenderer>));
     let (p, seq, m) = project();
@@ -444,7 +444,7 @@ fn gpu_hook_scenarios() {
     q.video_tracks[1].items.push(over);
     let p = Arc::new(p);
     let mk24 = |path: &String, gpu: crate::GpuRendering| {
-        let mut s = ExportSettings { format: Format::Pngتسلسل، path: path.clone(), ..Default::default() };
+        let mut s = ExportSettings { format: Format::PngSequence, path: path.clone(), ..Default::default() };
         s.range = Some(TimeRange::new(Tick::ZERO, r.tick_of(24)));
         s.gpu_rendering = gpu;
         export(&p, seq, &s, &m, &Progress::default()).unwrap()

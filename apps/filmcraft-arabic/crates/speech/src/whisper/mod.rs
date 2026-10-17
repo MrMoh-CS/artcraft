@@ -3,7 +3,7 @@
 //! Transcription follows the procedure described with the model (sequential 30-second windows):
 //!
 //! 1. The whole clip's log-mel spectrogram is computed once ([`crate::mel`]), padded with 30 s of
-//!    silence. A window of 3000 إطار starting at `seek` is encoded.
+//!    silence. A window of 3000 frames starting at `seek` is encoded.
 //! 2. **Language**: unless given, the first window's decoder logits after `<|startoftranscript|>`
 //!    are compared over the language tokens and the most likely language is used.
 //! 3. **Decoding** is greedy with timestamp tokens: the first token must be a timestamp (≤ 1 s),
@@ -15,11 +15,11 @@
 //! 5. **Word timestamps**: the window's text tokens are run once more through the decoder
 //!    (`<|notimestamps|>` prompt) and the cross-attention logits of the model's alignment heads
 //!    (`generation_config.json`; default: every head of the second half of the decoder) are
-//!    softmaxed over the window's audio إطار, standardised per token, median-filtered (width 7)
+//!    softmaxed over the window's audio frames, standardised per token, median-filtered (width 7)
 //!    and averaged; dynamic time warping through the negated matrix gives each token's start frame
 //!    (20 ms resolution). Tokens are grouped into words at spaces, punctuation joins its word.
 //!
-//! 6. Word bounds are tightened past silent إطار ([`crate::vad`]), so pauses stay pauses.
+//! 6. Word bounds are tightened past silent frames ([`crate::vad`]), so pauses stay pauses.
 //!
 //! Optional speaker labelling runs afterwards ([`crate::diarize`]).
 
@@ -37,9 +37,9 @@ use crate::{Options, ProgressFn, SpeechError, Transcriber, sample_tick};
 use model::{Config, Model};
 use tokenizer::Tokenizer;
 
-/// Mel إطار per window (30 s).
+/// Mel frames per window (30 s).
 const N_FRAMES: usize = 3000;
-/// Mel إطار per timestamp step (0.02 s).
+/// Mel frames per timestamp step (0.02 s).
 const FRAMES_PER_TS: usize = 2;
 const SAMPLES_PER_FRAME: usize = crate::mel::HOP;
 const MAX_TOKENS: usize = 224;
@@ -88,12 +88,12 @@ impl Whisper {
         self.tok.languages.iter().map(|l| l.0.clone()).collect()
     }
 
-    fn window(mel: &[f32], n_mels: usize, إطار: usize, seek: usize) -> Vec<f32> {
+    fn window(mel: &[f32], n_mels: usize, frames: usize, seek: usize) -> Vec<f32> {
         let mut w = vec![0f32; n_mels * N_FRAMES];
         for m in 0..n_mels {
             let end = (seek + N_FRAMES).min(frames);
             if seek < end {
-                w[m * N_FRAMES..m * N_FRAMES + end - seek].copy_from_slice(&mel[m * إطار + seek..m * إطار + end]);
+                w[m * N_FRAMES..m * N_FRAMES + end - seek].copy_from_slice(&mel[m * frames + seek..m * frames + end]);
             }
         }
         w
@@ -263,7 +263,7 @@ impl Transcriber for Whisper {
                 return Err(SpeechError::Cancelled);
             }
             let seg_frames = N_FRAMES.min(content_frames - seek);
-            let win = Self::window(&mel, n_mels, إطار, seek);
+            let win = Self::window(&mel, n_mels, frames, seek);
             let x = Tensor::from_vec(win, (1, n_mels, N_FRAMES), &m.device).map_err(merr)?;
             let xa = m.encoder.forward(&x).map_err(merr)?;
             if trace {

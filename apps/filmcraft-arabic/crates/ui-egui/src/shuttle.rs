@@ -8,7 +8,7 @@ use filmcraft_project::ItemId;
 type Mixer = Box<dyn FnMut(i64, &mut [f32], usize) + Send>;
 const BLOCK: usize = 1024;
 const MAX_CHANNELS: usize = 64;
-// Two shifters have at most 16384 إطار of latency; leave room for priming and interpolation.
+// Two shifters have at most 16384 frames of latency; leave room for priming and interpolation.
 const FRAME_MARGIN: i128 = 65_536;
 
 pub(crate) fn mix(session: &Session, seq_id: ItemId, device_rate: u32, speed: f64) -> Option<(u32, Mixer)> {
@@ -50,7 +50,7 @@ fn corrected(mix: impl FnMut(i64, &mut [f32], usize) + Send + 'static, from: u32
         }
         for (b, chunk) in buf.chunks_mut(BLOCK * ch).enumerate() {
             let start = cursor + (b * BLOCK) as i64;
-            let planar = resampler.process(start, chunk.len() / ch, |s, إطار| source.pull(s, إطار));
+            let planar = resampler.process(start, chunk.len() / ch, |s, frames| source.pull(s, frames));
             for (i, frame) in chunk.chunks_exact_mut(ch).enumerate() {
                 for (sample, plane) in frame.iter_mut().zip(&planar) {
                     *sample = plane.get(i).copied().filter(|x| x.is_finite()).unwrap_or(0.0);
@@ -67,7 +67,7 @@ struct PitchedStream {
     channels: usize,
     stages: Vec<PitchShifter>,
     latency: usize,
-    // Expected next source output frame; mixer input is latency إطار ahead of it.
+    // Expected next source output frame; mixer input is latency frames ahead of it.
     next: Option<i64>,
 }
 
@@ -205,11 +205,11 @@ mod tests {
         let mut cut = Vec::new();
         let mut n = 0;
         for size in [1, 7, 333, 1024].into_iter().cycle() {
-            let إطار = size.min(12_000 - n);
-            let mut block = vec![0.0; إطار * 2];
+            let frames = size.min(12_000 - n);
+            let mut block = vec![0.0; frames * 2];
             cut_mix(i64::from(to) + n as i64, &mut block, 2);
             cut.extend(block);
-            n += إطار;
+            n += frames;
             if n == 12_000 {
                 break;
             }

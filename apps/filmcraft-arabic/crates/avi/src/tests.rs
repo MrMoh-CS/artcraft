@@ -48,7 +48,7 @@ fn strl(video: bool) -> Vec<u8> {
     list(b"strl", &body)
 }
 
-/// A small AVI: 3 video إطار (the second a delta, the third odd-sized) and 2 audio chunks,
+/// A small AVI: 3 video frames (the second a delta, the third odd-sized) and 2 audio chunks,
 /// optionally inside a `rec ` list, with an `idx1` whose offsets are relative to `movi` or absolute.
 fn avi(idx1: bool, absolute: bool, rec: bool) -> Vec<u8> {
     let mut avih = vec![0u8; 56];
@@ -142,7 +142,7 @@ fn not_avi_and_truncated_recordings() {
     assert_eq!(open(&b"RIFF\0\0\0\0WAVEfmt ".to_vec()), Err(Error::NotAvi));
     assert_eq!(open(&Vec::new()), Err(Error::NotAvi));
     assert!(sniff(&avi(true, false, false)) && !sniff(b"RIFF"));
-    // a recording cut off in its last frame: the headers and the whole إطار are there
+    // a recording cut off in its last frame: the headers and the whole frames are there
     let full = avi(false, false, false);
     let cut = full[..full.len() - 4].to_vec();
     let f = open(&cut).unwrap();
@@ -182,7 +182,7 @@ fn mutations_never_panic() {
 }
 
 /// An OpenDML file: each stream's `indx` super index points at an `ix##` standard index (base
-/// offset + offsets to the data, bit 31 of the size marking delta إطار). Built twice: the second
+/// offset + offsets to the data, bit 31 of the size marking delta frames). Built twice: the second
 /// pass knows where the `ix##` chunks landed.
 fn avi_odml(ix_at: [u64; 2]) -> (Vec<u8>, [u64; 2]) {
     let indx = |stream: u8, at: u64| {

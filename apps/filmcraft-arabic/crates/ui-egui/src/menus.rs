@@ -53,12 +53,12 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("view.zoomIn", "Zoom In", ["عرض"], Some("=")),
     uic!("view.zoomOut", "Zoom Out", ["عرض"], Some("-")),
     uic!("view.zoomToSequence", "Zoom to Sequence", ["عرض"], Some("\\")),
-    uic!("view.playbackRes.full", "كامل", ["عرض", "Playback Resolution"], None),
+    uic!("view.playbackRes.full", "Full", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.half", "1/2", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.quarter", "1/4", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.eighth", "1/8", ["عرض", "Playback Resolution"], None),
     uic!("view.playbackRes.sixteenth", "1/16", ["عرض", "Playback Resolution"], None),
-    uic!("view.pausedRes.full", "كامل", ["عرض", "Paused Resolution"], None),
+    uic!("view.pausedRes.full", "Full", ["عرض", "Paused Resolution"], None),
     uic!("view.pausedRes.half", "1/2", ["عرض", "Paused Resolution"], None),
     uic!("view.pausedRes.quarter", "1/4", ["عرض", "Paused Resolution"], None),
     uic!("view.pausedRes.eighth", "1/8", ["عرض", "Paused Resolution"], None),
@@ -69,7 +69,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("view.display.red", "Red", ["عرض", "Display Mode"], None),
     uic!("view.display.green", "Green", ["عرض", "Display Mode"], None),
     uic!("view.display.blue", "Blue", ["عرض", "Display Mode"], None),
-    uic!("view.display.multicam", "Multi-Camera", ["عرض", "Display Mode"], None),
+    uic!("view.display.multicam", "متعدد الكاميرات", ["عرض", "Display Mode"], None),
     uic!("view.display.audioWaveform", "Audio Waveform", ["عرض", "Display Mode"], None),
     uic!("view.display.comparison", "Comparison View", ["عرض", "Display Mode"], None),
     uic!("view.display.videoAndWaveform", "Video and Audio Waveform Split", ["عرض", "Display Mode"], None),
@@ -107,7 +107,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("view.theme.medium", "Dark", ["عرض", "Appearance"], None),
     uic!("view.theme.light", "Light", ["عرض", "Appearance"], None),
     uic!("view.appearanceMode.next", "Next Appearance Mode", ["عرض", "Appearance"], None),
-    uic!("window.workspace.editing", "التحرير", ["نافذة", "Workspaces"], Some("Alt+Shift+1")),
+    uic!("window.workspace.editing", "Editing", ["نافذة", "Workspaces"], Some("Alt+Shift+1")),
     uic!("window.workspace.assembly", "Assembly", ["نافذة", "Workspaces"], Some("Alt+Shift+2")),
     uic!("window.workspace.color", "Color", ["نافذة", "Workspaces"], Some("Alt+Shift+3")),
     uic!("window.workspace.effects", "المؤثرات", ["نافذة", "Workspaces"], Some("Alt+Shift+4")),
@@ -147,7 +147,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("app.keyboardShortcuts", "Keyboard Shortcuts…", ["تحرير"], Some("Cmd+Alt+K")),
     uic!("app.settings.general", "General…", ["تحرير", "Preferences"], Some("Cmd+,")),
     uic!("app.settings.appearance", "Appearance…", ["تحرير", "Preferences"], None),
-    uic!("app.settings.audio", "Audio…", ["تحرير", "Preferences"], None),
+    uic!("app.settings.audio", "الصوت…", ["تحرير", "Preferences"], None),
     uic!("app.settings.audioHardware", "Audio Hardware…", ["تحرير", "Preferences"], None),
     uic!("app.settings.autoSave", "Auto Save…", ["تحرير", "Preferences"], None),
     uic!("app.settings.color", "Color…", ["تحرير", "Preferences"], None),
@@ -159,7 +159,7 @@ pub const UI_COMMANDS: &[UiCommand] = &[
     uic!("app.settings.memory", "Memory…", ["تحرير", "Preferences"], None),
     uic!("app.settings.playback", "Playback…", ["تحرير", "Preferences"], None),
     uic!("app.settings.plugins", "Plugins…", ["تحرير", "Preferences"], None),
-    uic!("app.settings.timeline", "Timeline…", ["تحرير", "Preferences"], None),
+    uic!("app.settings.timeline", "الخط الزمني…", ["تحرير", "Preferences"], None),
     uic!("app.settings.trim", "Trim…", ["تحرير", "Preferences"], None),
 ];
 
@@ -673,12 +673,12 @@ pub struct MenuItem {
     pub checked: Option<bool>,
 }
 
-pub const MENUS: [&str; 9] = ["ملف", "تحرير", "مقطع", "التسلسل", "العلامات", "الرسوميات والعناوين", "عرض", "نافذة", "مساعدة"];
+pub const MENUS: [&str; 9] = ["ملف", "تحرير", "مقطع", "تسلسل", "العلامات", "الرسوميات والعناوين", "عرض", "نافذة", "مساعدة"];
 
 /// Labels only the native macOS app menu shows, with no command in the menu tree behind them: the
 /// Settings submenu and the predefined Hide, Hide Others and Quit items. They are translated through
 /// the catalogs like menu labels (`apps/filmcraft/src/native_menu.rs`).
-pub const NATIVE_APP_MENU: [&str; 4] = ["Settings", "Hide FilmCraft", "Hide Others", "Quit FilmCraft"];
+pub const NATIVE_APP_MENU: [&str; 4] = ["الإعدادات", "Hide FilmCraft", "Hide Others", "Quit FilmCraft"];
 
 pub fn menu_items(app: &FilmcraftApp) -> Vec<MenuItem> {
     let mut v = menu_items_for(&app.session);
@@ -1077,7 +1077,7 @@ mod tests {
         for name in crate::dock::WORKSPACES {
             assert!(ws.iter().any(|it| it.label == name && it.checked.is_none()), "no workspace {name}");
         }
-        let editing = ws.iter().position(|it| it.label == "التحرير");
+        let editing = ws.iter().position(|it| it.label == "Editing");
         let reset = ws.iter().position(|it| it.id == "window.workspace.reset");
         assert!(matches!((editing, reset), (Some(e), Some(r)) if e < r), "workspaces come before the layout commands");
         assert!(items.iter().any(|it| it.id == "file.save" && it.path == ["ملف"]));

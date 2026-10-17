@@ -25,7 +25,7 @@ use filmcraft_engine::mixer::strip_label;
 use filmcraft_project::mixer::{
     FADER_MAX_DB, FADER_MIN_DB, LANE_MUTE, LANE_PAN, LANE_PAN51_CENTER, LANE_PAN51_LFE, LANE_PAN51_X, LANE_PAN51_Y, LANE_VOLUME, MASTER_STRIP,
 };
-use filmcraft_project::{AutomationMode, InputMap, تسلسل، Track, TrackId};
+use filmcraft_project::{AutomationMode, InputMap, Sequence, Track, TrackId};
 use filmcraft_time::{TimeDisplay, format_time};
 use serde_json::{Value, json};
 
@@ -198,7 +198,7 @@ fn insert_effects() -> Vec<&'static filmcraft_project::EffectDef> {
 }
 
 /// Submixes a strip may route to (all of them for tracks; only later ones for submixes).
-fn targets(seq: &تسلسل، id: TrackId) -> Vec<&Track> {
+fn targets(seq: &Sequence, id: TrackId) -> Vec<&Track> {
     let me = seq.submix_tracks.iter().position(|t| t.id == id);
     seq.submix_tracks.iter().enumerate().filter(|(i, _)| me.is_none_or(|m| *i > m)).map(|(_, t)| t).collect()
 }
@@ -401,8 +401,8 @@ fn strip(app: &mut FilmcraftApp, ui: &mut egui::Ui, cx: &mut Ctx, id: TrackId, s
                 match fx {
                     Some(e) => {
                         if crate::panels::audio_fx_editor::has_editor(&e.effect) {
-                            let r0 = ui.button(tl!("Edit…"));
-                            app.auto.add(&format!("{ap}.fx.{k}.edit"), r0.rect, "Edit…");
+                            let r0 = ui.button(tl!("تحرير…"));
+                            app.auto.add(&format!("{ap}.fx.{k}.edit"), r0.rect, "تحرير…");
                             if r0.clicked() {
                                 open_editor = Some(crate::panels::audio_fx_editor::FxTarget::Insert { strip: id.0, slot: k });
                             }

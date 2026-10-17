@@ -95,7 +95,7 @@ pub struct Packet {
     /// Length-prefixed (4 bytes) NAL units, without parameter sets or access unit delimiters.
     pub data: Vec<u8>,
     pub key: bool,
-    /// Presentation / decoding time in إطار.
+    /// Presentation / decoding time in frames.
     pub pts: i64,
     pub dts: i64,
 }
@@ -276,7 +276,7 @@ impl Nvenc {
         if w < caps.min_size.0 || h < caps.min_size.1 || w > caps.max_size.0 || h > caps.max_size.1 {
             return Err(format!("{w}x{h} is outside NVENC's {}x{} - {}x{}", caps.min_size.0, caps.min_size.1, caps.max_size.0, caps.max_size.1));
         }
-        // NVENC wants a GOP longer than the B-frame pattern: HEVC with a إطار مفتاحي كل one or two
+        // NVENC wants a GOP longer than the B-frame pattern: HEVC with a keyframe every one or two
         // pictures is simply written without B-frames (H.264 keeps declining those, to the software encoder)
         let room_for_bframes = codec == Codec::H264 || cfg.keyint > 2;
         let bframes = u32::from(cfg.bframes && cfg.profile != Profile::Baseline && caps.max_bframes >= 1 && room_for_bframes);

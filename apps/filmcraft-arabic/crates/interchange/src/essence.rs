@@ -66,8 +66,8 @@ pub struct AudioEssence {
     pub channel: Option<u32>,
     /// Media time of the first sample (trimmed essence starts after the media's 0).
     pub start: Tick,
-    /// Sample إطار.
-    pub إطار: u64,
+    /// Sample frames.
+    pub frames: u64,
     pub sample_rate: u32,
     pub bits: u16,
     pub channels: u32,

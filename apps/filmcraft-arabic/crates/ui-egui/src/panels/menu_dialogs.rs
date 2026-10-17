@@ -1,7 +1,7 @@
 //! Menu long tail (M3.11): the dialogs of Find, Create Search Bin, Project Settings (General /
 //! Scratch Disks / Ingest Settings), Get Media File Properties, Edit Offline, Source Settings,
-//! Update Metadata, Automate to تسلسل، Scene Edit Detection, Normalize Mix Track, Simplify
-//! تسلسل، Transcribe تسلسل، Save as Template, Add Flash Cue Marker and the System
+//! Update Metadata, Automate to Sequence, Scene Edit Detection, Normalize Mix Track, Simplify
+//! Sequence, Transcribe Sequence, Save as Template, Add Flash Cue Marker and the System
 //! Compatibility Report; plus the frontend side of Edit Original / Reveal Log Files (the OS
 //! opener), Reveal in Finder, Generate Audio Waveform (the timeline's peak cache), Import from
 //! Media Browser (the Media Browser selection) and View ▸ Dynamic Audio Waveforms.
@@ -62,7 +62,7 @@ fn meta(command: &str) -> Option<(&'static str, &'static str, &'static str)> {
         "clip.sourceSettings" => (tl!("Source Settings"), "sourceSettings", tl!("موافق")),
         "clip.updateMetadata" => (tl!("Update Metadata"), "updateMetadata", tl!("موافق")),
         "clip.automateToSequence" => (tl!("Automate To Sequence"), "automate", tl!("موافق")),
-        "clip.sceneEditDetection" => (tl!("Scene Edit Detection"), "sceneDetect", tl!("Analyze")),
+        "clip.sceneEditDetection" => (tl!("اكتشاف تحرير المشهد"), "sceneDetect", tl!("Analyze")),
         "sequence.normalizeMixTrack" => (tl!("Normalize Mix Track"), "normalizeMix", tl!("موافق")),
         "sequence.simplify" => (tl!("Simplify Sequence"), "simplify", tl!("Simplify")),
         "sequence.transcribe" => (tl!("Transcribe Sequence"), "transcribe", tl!("Transcribe")),
@@ -519,7 +519,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 }
             }
             "file.newSearchBin" => {
-                text(ui, &mut elems, pre, p, "name", tl!("Name:"), 220.0);
+                text(ui, &mut elems, pre, p, "name", tl!("الاسم:"), 220.0);
                 combo(ui, &mut elems, "searchBin.column", tl!("Search:"), &mut p["column"], &pairs(&COLUMNS));
                 let ops: Vec<(String, String)> = FindOp::ALL.iter().map(|o| (o.name().to_string(), o.label().to_string())).collect();
                 combo(ui, &mut elems, "searchBin.operator", "", &mut p["operator"], &ops);
@@ -642,7 +642,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                         };
                         let s = |x: &Value| x.as_str().map(str::to_string).unwrap_or_else(|| if x.is_null() { String::new() } else { x.to_string() });
                         line(ui, tl!("File Path"), s(&v["path"]));
-                        line(ui, tl!("Type"), format!("{} ({})", s(&v["type"]), s(&v["container"])));
+                        line(ui, tl!("النوع"), format!("{} ({})", s(&v["type"]), s(&v["container"])));
                         line(ui, tl!("File Size"), v["fileSize"].as_u64().map(|b| format!("{:.2} MB", b as f64 / 1e6)).unwrap_or_default());
                         line(ui, tl!("Total Duration"), s(&v["duration"]["timecode"]));
                         line(ui, tl!("Average Data Rate"), v["dataRateKbps"].as_f64().map(|k| format!("{k} kbit/s")).unwrap_or_default());
@@ -704,8 +704,8 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     &[("sequentially", tl!("Sequentially")), ("unnumberedMarkers", tl!("At Unnumbered Markers"))],
                 );
                 radios(ui, &mut elems, pre, p, "method", tl!("Method:"), &[("insert", tl!("Insert Edit")), ("overwrite", tl!("Overwrite Edit"))]);
-                number(ui, &mut elems, pre, p, "overlapFrames", tl!("Clip Overlap:"), 0.0..=600.0, " إطار");
-                number(ui, &mut elems, pre, p, "stillFrames", tl!("Frames per Still:"), 1.0..=100_000.0, " إطار");
+                number(ui, &mut elems, pre, p, "overlapFrames", tl!("Clip Overlap:"), 0.0..=600.0, " frames");
+                number(ui, &mut elems, pre, p, "stillFrames", tl!("Frames per Still:"), 1.0..=100_000.0, " frames");
                 ui.label(RichText::new(tl!("Transitions")).strong());
                 check(ui, &mut elems, pre, p, "audioTransition", tl!("Apply Default Audio Transition"));
                 check(ui, &mut elems, pre, p, "videoTransition", tl!("Apply Default Video Transition"));
@@ -766,14 +766,14 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             "file.saveAsTemplate" => text(ui, &mut elems, pre, p, "name", tl!("Template Name:"), 240.0),
             "file.newColorMatte" => {
                 color(ui, &mut elems, pre, p, "color", tl!("Color:"));
-                text(ui, &mut elems, pre, p, "name", tl!("Name:"), 220.0);
+                text(ui, &mut elems, pre, p, "name", tl!("الاسم:"), 220.0);
                 number(ui, &mut elems, pre, p, "width", tl!("Width:"), 1.0..=16384.0, " px");
                 number(ui, &mut elems, pre, p, "height", tl!("Height:"), 1.0..=16384.0, " px");
-                number(ui, &mut elems, pre, p, "seconds", tl!("Duration:"), 0.04..=36000.0, " s");
+                number(ui, &mut elems, pre, p, "seconds", tl!("المدة:"), 0.04..=36000.0, " s");
             }
             "project.matteColor" => color(ui, &mut elems, pre, p, "color", tl!("Color:")),
             "markers.addFlashCue" => {
-                text(ui, &mut elems, pre, p, "name", tl!("Name:"), 220.0);
+                text(ui, &mut elems, pre, p, "name", tl!("الاسم:"), 220.0);
                 text(ui, &mut elems, pre, p, "comment", tl!("Comments:"), 220.0);
             }
             "help.systemCompatibilityReport" => {

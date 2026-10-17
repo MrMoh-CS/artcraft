@@ -125,7 +125,7 @@ pub const COMMANDS: &[UiCommand] = &[
     uic!("textPanel.selectToSegmentStart", "Select to Segment Start", [], None),
     uic!("textPanel.selectToSegmentEnd", "Select to Segment End", [], None),
     uic!("textPanel.delete", "حذف", [], None),
-    uic!("textPanel.rippleDelete", "Ripple Delete", [], None),
+    uic!("textPanel.rippleDelete", "حذف متموج", [], None),
     uic!("textPanel.showProgramTranscript", "Show Program Transcript", [], None),
     uic!("graphics.beginTextEditing", "Begin Text Editing for a Graphic Layer", [], Some("Cmd+Alt+'")),
     uic!("help.filmcraftHelp", "FilmCraft Help…", ["مساعدة"], Some("F1")),
@@ -230,7 +230,7 @@ pub fn route(app: &mut FilmcraftApp, ctx: &egui::Context, id: &str, params: &Val
     Some(r)
 }
 
-// ------------------------------------------------------------------ إطار and panels
+// ------------------------------------------------------------------ frames and panels
 
 /// Maximize `p`, or restore the layout when a panel is maximized (also the panel menu's Maximize /
 /// Restore Frame). A maximized panel that has since been closed counts as restored.

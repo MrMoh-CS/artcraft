@@ -138,11 +138,11 @@ pub fn probe(path: &str, image_sequence: bool) -> Result<Value, String> {
         let dir = if n.dir.is_empty() { ".".to_string() } else { n.dir.clone() };
         let names: Vec<String> =
             std::fs::read_dir(&dir).map_err(|e| format!("{dir}: {e}"))?.flatten().map(|e| e.file_name().to_string_lossy().to_string()).collect();
-        let إطار = sequence_frames(&n, &names);
+        let frames = sequence_frames(&n, &names);
         let name = std::path::Path::new(path).file_name().map(|s| s.to_string_lossy().to_string()).unwrap_or_default();
         let loader: filmcraft_media::sequence::FrameLoader = Arc::new(|p: &str| std::fs::read(p));
         // the timebase of a fresh install (Settings ▸ Media ▸ Indeterminate Media Timebase)
-        let src = ImageSequenceSource::new(&name, إطار, filmcraft_time::FrameRate::FPS_29_97, loader).map_err(|e| format!("{path}: {e}"))?;
+        let src = ImageSequenceSource::new(&name, frames, filmcraft_time::FrameRate::FPS_29_97, loader).map_err(|e| format!("{path}: {e}"))?;
         let mut v = serde_json::to_value(filmcraft_media::MediaSource::info(&src)).unwrap_or_default();
         v["imageSequence"] = json!({
             "first": src.frame_path(0),

@@ -155,7 +155,7 @@ impl PlaybackRes {
     }
     pub fn label(self) -> &'static str {
         match self {
-            PlaybackRes::Full => "كامل",
+            PlaybackRes::Full => "Full",
             PlaybackRes::Half => "1/2",
             PlaybackRes::Quarter => "1/4",
             PlaybackRes::Eighth => "1/8",
@@ -190,7 +190,7 @@ pub struct TimelineView {
     pub audio_track_h: f32,
     pub header_w: f32,
     pub show_thumbnails: bool,
-    /// Which إطار a video clip shows while `show_thumbnails` is on (the wrench menu).
+    /// Which frames a video clip shows while `show_thumbnails` is on (the wrench menu).
     #[serde(default)]
     pub thumbnail_mode: ThumbnailMode,
     pub show_waveforms: bool,
@@ -358,7 +358,7 @@ impl Default for MonitorView {
 }
 
 impl MonitorView {
-    /// The resolution إطار are rendered at: Playback Resolution while playing (or the higher
+    /// The resolution frames are rendered at: Playback Resolution while playing (or the higher
     /// of it and Paused Resolution with High Quality Playback), Paused Resolution when stopped.
     pub fn effective_res(&self, playing: bool) -> PlaybackRes {
         if !playing || (self.high_quality && self.paused_res.scale() > self.res.scale()) { self.paused_res } else { self.res }
@@ -835,12 +835,12 @@ impl Default for AddTracksDraft {
 }
 
 /// The Set Transition Duration dialog (double-click a transition in the Timeline): which
-/// transition, and its duration in إطار.
+/// transition, and its duration in frames.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TransitionDurationDraft {
     pub transition: u64,
-    pub إطار: i64,
+    pub frames: i64,
 }
 
 /// The Sequence Settings dialog (Sequence ▸ Sequence Settings…), filled from the active sequence
@@ -958,9 +958,9 @@ impl Default for UiState {
             language: crate::i18n::Language::default(),
             tool: Tool::Selection,
             mode: Mode::Edit,
-            workspace: "التحرير".into(),
+            workspace: "Editing".into(),
             floating: vec![],
-            dock: crate::dock::workspace("التحرير"),
+            dock: crate::dock::workspace("Editing"),
             focused: PanelKind::Timeline,
             timeline: TimelineView::default(),
             program: MonitorView::default(),

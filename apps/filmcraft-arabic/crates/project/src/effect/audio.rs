@@ -215,7 +215,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             "channel_volume_a",
             "Channel Volume",
             A_AMP,
-            vec![fs("left", "Left", 0.0, (-96.0, 24.0), (-60.0, 6.0), "dB", 1), fs("right", "Right", 0.0, (-96.0, 24.0), (-60.0, 6.0), "dB", 1)],
+            vec![fs("left", "يسار", 0.0, (-96.0, 24.0), (-60.0, 6.0), "dB", 1), fs("right", "يمين", 0.0, (-96.0, 24.0), (-60.0, 6.0), "dB", 1)],
         ),
         audio(
             "deesser",
@@ -336,7 +336,7 @@ pub(super) fn defs() -> Vec<EffectDef> {
             "Scientific Filter",
             A_FILTER,
             vec![
-                ch("type", "Type", &["Bessel", "Butterworth", "Chebyshev", "Elliptical"], 1),
+                ch("type", "النوع", &["Bessel", "Butterworth", "Chebyshev", "Elliptical"], 1),
                 ch("mode", "Mode", &["Low Pass", "High Pass", "Band Pass", "Band Stop"], 0),
                 fixed(num("order", "Order", 6.0, 1.0, 12.0, "", 0)),
                 hz("cutoff", "Cutoff", 1000.0, 20.0, 20000.0),

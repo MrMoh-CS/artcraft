@@ -60,7 +60,7 @@ pub const MARKER_FILTER: [filmcraft_project::Label; 7] = {
 /// A marker's Label menu. An explicit program target keeps panel focus and clip/project
 /// selections from routing colour changes to another item (#1143).
 pub(crate) fn marker_label_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, marker: &filmcraft_project::Marker, prefix: &str) {
-    let label = crate::i18n::t("Label");
+    let label = crate::i18n::t("لون التسمية");
     let menu = ui.menu_button(label, |ui| {
         for color in filmcraft_project::Label::ALL {
             let name = crate::i18n::t(color.name());
@@ -121,7 +121,7 @@ pub fn markers(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             }
             let c = m.color.marker_rgb();
             ui.painter().rect_filled(Rect::from_min_size(r.min + vec2(4.0, 6.0), vec2(4.0, 26.0)), 2.0, Color32::from_rgb(c[0], c[1], c[2]));
-            let name = if m.name.is_empty() { tl!("علامة") } else { &m.name };
+            let name = if m.name.is_empty() { tl!("Marker") } else { &m.name };
             ui.painter().text(pos2(r.min.x + 16.0, r.min.y + 12.0), Align2::LEFT_CENTER, name, Tokens::ui(12.0), t.text);
             let mut tc = format_time(m.start, seq.settings.frame_rate, seq.settings.drop_frame, TimeDisplay::Timecode, 48000);
             if m.duration > filmcraft_time::Tick::ZERO {
@@ -170,17 +170,17 @@ pub fn info(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     if let Some(item) = super::metadata::target(app).and_then(|id| app.session.project.item(id)).cloned() {
         let header = ui.label(egui::RichText::new(&item.name).strong());
         app.auto.add_response("info.item", &header, &item.name);
-        line(ui, tl!("Type:"), crate::i18n::t(item.type_label()).to_string());
+        line(ui, tl!("النوع:"), crate::i18n::t(item.type_label()).to_string());
         if let Some(m) = item.as_media() {
             if let Some(v) = &m.info.video {
-                line(ui, tl!("Video:"), format!("{} fps, {} x {} ({:.4})", v.frame_rate.label(), v.width, v.height, v.par.0 as f32 / v.par.1 as f32));
-                line(ui, tl!("Codec:"), v.codec.clone());
+                line(ui, tl!("الفيديو:"), format!("{} fps, {} x {} ({:.4})", v.frame_rate.label(), v.width, v.height, v.par.0 as f32 / v.par.1 as f32));
+                line(ui, tl!("الترميز:"), v.codec.clone());
             }
             if let Some(a) = m.info.audio() {
-                line(ui, tl!("Audio:"), format!("{} Hz - {} ch - {}", a.sample_rate, a.channels, a.codec));
+                line(ui, tl!("الصوت:"), format!("{} Hz - {} ch - {}", a.sample_rate, a.channels, a.codec));
             }
         }
-        line(ui, tl!("Duration:"), format_time(item.duration(), item.frame_rate(), false, TimeDisplay::Timecode, 48000));
+        line(ui, tl!("المدة:"), format_time(item.duration(), item.frame_rate(), false, TimeDisplay::Timecode, 48000));
         ui.separator();
     }
     if let Some(seq) = app.session.active_sequence() {
@@ -189,19 +189,19 @@ pub fn info(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         app.auto.add_response("info.sequence", &header, &name);
         line(
             ui,
-            tl!("Settings:"),
+            tl!("الإعدادات:"),
             format!("{}x{} · {} fps · {} Hz", seq.settings.width, seq.settings.height, seq.settings.frame_rate.label(), seq.settings.sample_rate),
         );
-        line(ui, tl!("Playhead:"), format_time(app.session.playhead(), seq.settings.frame_rate, seq.settings.drop_frame, TimeDisplay::Timecode, 48000));
+        line(ui, tl!("مؤشر التشغيل:"), format_time(app.session.playhead(), seq.settings.frame_rate, seq.settings.drop_frame, TimeDisplay::Timecode, 48000));
         for (i, tr) in seq.video_tracks.iter().enumerate().rev() {
             let at = tr.item_at(app.session.playhead()).map(|x| x.name.clone()).unwrap_or_default();
-            line(ui, &tlf!("Video {n}:", n = i + 1), at);
+            line(ui, &tlf!("فيديو {n}:", n = i + 1), at);
         }
         for (i, tr) in seq.audio_tracks.iter().enumerate() {
             let at = tr.item_at(app.session.playhead()).map(|x| x.name.clone()).unwrap_or_default();
-            line(ui, &tlf!("Audio {n}:", n = i + 1), at);
+            line(ui, &tlf!("صوت {n}:", n = i + 1), at);
         }
     }
     ui.separator();
-    line(ui, tl!("UI:"), tlf!("{fps} fps · {n} إطار queued", fps = format!("{:.0}", app.fps), n = app.frames.queue_len()));
+    line(ui, tl!("UI:"), tlf!("{fps} fps · {n} frames queued", fps = format!("{:.0}", app.fps), n = app.frames.queue_len()));
 }

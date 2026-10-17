@@ -185,7 +185,7 @@ fn native_options(agent: bool) -> eframe::NativeOptions {
 }
 
 /// Creates the app once eframe has its window and graphics device; sets `created` when it runs,
-/// and confirms the graphics mode once two إطار have painted.
+/// and confirms the graphics mode once two frames have painted.
 fn app_creator(launch: Launch, graphics: graphics::GraphicsStart, created: Arc<AtomicBool>) -> eframe::AppCreator<'static> {
     let Launch { control_port, control_input_only, files, demo, startup_flag, recover, data_dir, graphics: _ } = launch;
     Box::new(move |cc| {

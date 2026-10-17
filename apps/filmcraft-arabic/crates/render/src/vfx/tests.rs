@@ -980,7 +980,7 @@ fn posterize_time_and_echo_read_other_frames() {
         [v, v, v]
     }
     let mk = |now: f64| ClipEnv { w: 64, h: 8, fps: 24.0, secs: 1.0, now, key: 77, seq: (64, 8), pic: moving };
-    // 12 fps: إطار 0.0 and 1/24 show the same picture; 2/24 is new
+    // 12 fps: frames 0.0 and 1/24 show the same picture; 2/24 is new
     let e = inst("posterize_time");
     let at = |now: f64| {
         let env = mk(now);
@@ -1009,7 +1009,7 @@ fn warp_stabilizer_removes_camera_jitter() {
     set(&mut e, "result", ParamValue::Choice(1)); // No Motion
     set(&mut e, "framing", ParamValue::Choice(0)); // Stabilize Only
     clear_stabilizer_cache();
-    let إطار: Vec<(Image, Image)> = [3usize, 9, 15, 21]
+    let frames: Vec<(Image, Image)> = [3usize, 9, 15, 21]
         .iter()
         .map(|&f| {
             let now = f as f64 / 24.0;
@@ -1020,7 +1020,7 @@ fn warp_stabilizer_removes_camera_jitter() {
             (raw, st)
         })
         .collect();
-    // compare the interior of every pair of إطار: stabilised إطار agree, raw ones don't
+    // compare the interior of every pair of frames: stabilised frames agree, raw ones don't
     let interior = |a: &Image, b: &Image| {
         let mut s = 0.0f64;
         let mut n = 0;
@@ -1159,7 +1159,7 @@ mod pipeline {
 #[test]
 fn transform_shutter_uses_the_sequence_frame_rate_without_env() {
     // An adjustment layer has no env: the shutter must still span one 60 fps frame at 360°, so
-    // the إطار just before the motion starts and just after it ends stay sharp (#1088).
+    // the frames just before the motion starts and just after it ends stay sharp (#1088).
     let mut e = inst("transform");
     set(&mut e, "shutter_override", ParamValue::Bool(true));
     setf(&mut e, "shutter_angle", 360.0);

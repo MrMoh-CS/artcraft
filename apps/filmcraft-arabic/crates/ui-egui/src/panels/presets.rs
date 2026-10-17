@@ -106,14 +106,14 @@ pub fn save_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
         ctx,
         |ui| {
             ui.horizontal(|ui| {
-                ui.label(tl!("Name:"));
+                ui.label(tl!("الاسم:"));
                 let r = ui.text_edit_singleline(&mut d.name);
                 app.auto.add("savePreset.name", r.rect, "الاسم");
             });
             ui.add_space(4.0);
-            ui.label(egui::RichText::new(tl!("Type")).strong());
+            ui.label(egui::RichText::new(tl!("النوع")).strong());
             for (key, label) in [
-                ("scale", tl!("Scale")),
+                ("scale", tl!("الحجم")),
                 ("anchorIn", tl!("Anchor to In Point")),
                 ("anchorOut", tl!("Anchor to Out Point")),
                 ("none", tl!("Without keyframes")),

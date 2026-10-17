@@ -113,7 +113,7 @@ fn files_in(dir: &Path) -> Vec<String> {
     v
 }
 
-/// Every built-in preset: a quarter second of the demo sequence (seven إطار at 23.976) exported
+/// Every built-in preset: a quarter second of the demo sequence (seven frames at 23.976) exported
 /// with `file.exportMedia {preset}`; ffprobe checks container, codec, profile, frame size, frame
 /// rate and audio format, and the data rate where the codec fixes it.
 #[test]
@@ -128,7 +128,7 @@ fn every_builtin_preset_exports_and_ffprobe_confirms() {
         std::fs::create_dir_all(&sub).unwrap();
         let path = sub.join("Demo").to_string_lossy().to_string();
         let params = json!({"preset": name, "path": path, "range": "custom", "startSeconds": 1.0, "endSeconds": 1.25, "wait": true});
-        let إطار = s.execute("export.resolve", params.clone()).unwrap()["frames"].as_u64().unwrap();
+        let frames = s.execute("export.resolve", params.clone()).unwrap()["frames"].as_u64().unwrap();
         let r = s.execute("file.exportMedia", params).unwrap_or_else(|e| panic!("{name}: {e}"));
         let out = r["path"].as_str().unwrap().to_string();
         let settings = s.execute("export.presets.get", json!({"name": name})).unwrap()["settings"].clone();
@@ -645,18 +645,18 @@ fn ranges_resolve_and_sidecar_captions_are_written() {
     let mut s = demo();
     let dir = Scratch::new("ranges");
     let fps = 24000.0 / 1001.0;
-    let إطار = |s: &mut Session, p: Value| s.execute("export.resolve", p).unwrap()["frames"].as_i64().unwrap();
-    let whole = إطار(&mut s, json!({"preset": "PNG Sequence", "range": "entire"}));
+    let frames = |s: &mut Session, p: Value| s.execute("export.resolve", p).unwrap()["frames"].as_i64().unwrap();
+    let whole = frames(&mut s, json!({"preset": "PNG Sequence", "range": "entire"}));
     let dur = s.active_sequence().unwrap().duration();
     assert_eq!(whole, (dur.seconds() * fps).ceil() as i64);
     s.execute("markers.markIn", json!({"seconds": 1.0})).unwrap();
     s.execute("markers.markOut", json!({"seconds": 2.0})).unwrap();
-    let io = إطار(&mut s, json!({"preset": "PNG Sequence", "range": "inOut"}));
+    let io = frames(&mut s, json!({"preset": "PNG Sequence", "range": "inOut"}));
     assert!((24..=26).contains(&io), "{io}");
     assert_eq!(frames(&mut s, json!({"preset": "PNG Sequence"})), io, "In/Out is the default");
     assert!(s.execute("export.resolve", json!({"range": "workArea"})).is_err(), "no work area");
     assert_eq!(frames(&mut s, json!({"preset": "Animated GIF 640×360", "range": "custom", "startSeconds": 0, "endSeconds": 2})), 30, "15 fps");
-    let bare = إطار(&mut s, json!({"preset": "Animated GIF 640×360", "startSeconds": 0, "endSeconds": 2}));
+    let bare = frames(&mut s, json!({"preset": "Animated GIF 640×360", "startSeconds": 0, "endSeconds": 2}));
     assert_eq!(bare, 30, "start/end times without `range` are a custom range, not the In/Out or whole sequence");
     assert!(s.execute("export.resolve", json!({"startSeconds": 1})).is_err(), "a start without an end is an error");
     let res = s.execute("export.resolve", json!({"preset": "YouTube 2160p 4K Ultra HD"})).unwrap();

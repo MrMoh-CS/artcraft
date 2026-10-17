@@ -47,16 +47,16 @@ fn push(elems: &mut Elems, id: impl Into<String>, r: &egui::Response, label: imp
 /// Dialog title and automation prefix of a command's dialog.
 fn meta(command: &str) -> Option<(&'static str, &'static str)> {
     Some(match command {
-        "edit.pasteAttributes" => (tl!("Paste Attributes"), "pasteAttributes"),
-        "edit.removeAttributes" => (tl!("Remove Attributes"), "removeAttributes"),
+        "edit.pasteAttributes" => (tl!("لصق الخصائص"), "pasteAttributes"),
+        "edit.removeAttributes" => (tl!("إزالة الخصائص"), "removeAttributes"),
         "file.newOfflineFile" => (tl!("New Offline File"), "offlineFile"),
         "clip.nest" => (tl!("Nested Sequence Name"), "nest"),
         "clip.makeSubclip" => (tl!("Make Subclip"), "makeSubclip"),
         "clip.editSubclip" => (tl!("Edit Subclip"), "editSubclip"),
         "clip.audioChannels" => (tl!("Modify Clip: Audio Channels"), "audioChannels"),
         "clip.modifyTimecode" => (tl!("Modify Clip: Timecode"), "timecode"),
-        "clip.frameHoldOptions" => (tl!("Frame Hold Options"), "frameHold"),
-        "clip.fieldOptions" => (tl!("Field Options"), "fieldOptions"),
+        "clip.frameHoldOptions" => (tl!("خيارات تجميد الإطار"), "frameHold"),
+        "clip.fieldOptions" => (tl!("خيارات الحقول"), "fieldOptions"),
         "clip.speedDuration" => (tl!("Clip Speed / Duration"), "speedDuration"),
         "file.closeProject" => (tl!("Save Project"), "closeProject"),
         "app.quit" => (tl!("Save Project"), "quit"),
@@ -65,7 +65,7 @@ fn meta(command: &str) -> Option<(&'static str, &'static str)> {
 }
 
 fn intrinsic_video() -> [(&'static str, &'static str); 3] {
-    [("motion", tl!("Motion")), ("opacity", tl!("Opacity")), ("timeRemapping", tl!("Time Remapping"))]
+    [("motion", tl!("Motion")), ("opacity", tl!("الشفافية")), ("timeRemapping", tl!("Time Remapping"))]
 }
 fn intrinsic_audio() -> [(&'static str, &'static str); 3] {
     [("volume", tl!("Volume")), ("channelVolume", tl!("Channel Volume")), ("panner", tl!("Panner"))]
@@ -77,7 +77,7 @@ fn hold_on() -> [(&'static str, &'static str); 5] {
     [
         ("in", tl!("In Point")),
         ("out", tl!("Out Point")),
-        ("playhead", tl!("Playhead")),
+        ("playhead", tl!("مؤشر التشغيل")),
         ("sourceTimecode", tl!("Source Timecode")),
         ("sequenceTime", tl!("Sequence Time")),
     ]
@@ -283,7 +283,7 @@ fn number(ui: &mut egui::Ui, elems: &mut Elems, pre: &str, p: &mut Value, key: &
     });
 }
 
-fn إطار(ui: &mut egui::Ui, elems: &mut Elems, pre: &str, p: &mut Value, key: &str, label: &str, fps: f64) {
+fn frames(ui: &mut egui::Ui, elems: &mut Elems, pre: &str, p: &mut Value, key: &str, label: &str, fps: f64) {
     ui.horizontal(|ui| {
         ui.label(label);
         let mut v = p.get(key).and_then(Value::as_i64).unwrap_or(0);
@@ -352,7 +352,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 }
             }
             "file.newOfflineFile" => {
-                text(ui, &mut elems, pre, p, "fileName", tl!("File Name:"), 220.0);
+                text(ui, &mut elems, pre, p, "fileName", tl!("اسم الملف:"), 220.0);
                 text(ui, &mut elems, pre, p, "name", tl!("Clip Name:"), 220.0);
                 text(ui, &mut elems, pre, p, "tapeName", tl!("Tape Name:"), 220.0);
                 text(ui, &mut elems, pre, p, "description", tl!("Description:"), 220.0);
@@ -365,19 +365,19 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 ui.add_enabled_ui(has_v, |ui| {
                     number(ui, &mut elems, pre, p, "width", tl!("Width:"), 16.0..=16384.0, " px");
                     number(ui, &mut elems, pre, p, "height", tl!("Height:"), 16.0..=16384.0, " px");
-                    number(ui, &mut elems, pre, p, "fps", tl!("Frame Rate:"), 1.0..=240.0, " fps");
+                    number(ui, &mut elems, pre, p, "fps", tl!("معدل الإطارات:"), 1.0..=240.0, " fps");
                 });
                 text(ui, &mut elems, pre, p, "timecode", tl!("Media Start:"), 120.0);
-                number(ui, &mut elems, pre, p, "seconds", tl!("Duration:"), 0.05..=86_400.0, " s");
+                number(ui, &mut elems, pre, p, "seconds", tl!("المدة:"), 0.05..=86_400.0, " s");
             }
             "clip.nest" => {
                 // the name is ready to type over, and Enter accepts it
                 let mut v = p["name"].as_str().unwrap_or_default().to_string();
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Name:"));
+                    ui.label(tl!("الاسم:"));
                     let id = egui::Id::new("nest-name");
                     let r = ui.add(egui::TextEdit::singleline(&mut v).desired_width(240.0).id(id));
-                    push(&mut elems, format!("{pre}.name"), &r, "Name:");
+                    push(&mut elems, format!("{pre}.name"), &r, "الاسم:");
                     if r.changed() {
                         p["name"] = json!(v);
                     }
@@ -394,12 +394,12 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
             "clip.makeSubclip" | "clip.editSubclip" => {
                 let fps = d.info["fps"].as_f64().unwrap_or(24.0);
                 if d.command == "clip.makeSubclip" {
-                    text(ui, &mut elems, pre, p, "name", tl!("Name:"), 240.0);
+                    text(ui, &mut elems, pre, p, "name", tl!("الاسم:"), 240.0);
                 } else {
                     ui.label(tlf!("Subclip: {name}", name = d.info["name"].as_str().unwrap_or_default()));
                 }
-                إطار(ui, &mut elems, pre, p, "startFrame", tl!("Start:"), fps);
-                إطار(ui, &mut elems, pre, p, "endFrame", tl!("End:"), fps);
+                frames(ui, &mut elems, pre, p, "startFrame", tl!("Start:"), fps);
+                frames(ui, &mut elems, pre, p, "endFrame", tl!("End:"), fps);
                 check(ui, &mut elems, pre, p, "restrictTrims", tl!("Restrict Trims To Subclip Boundaries"), true);
                 if d.command == "clip.editSubclip" {
                     check(ui, &mut elems, pre, p, "convertToMaster", tl!("Convert to Master Clip"), true);
@@ -524,7 +524,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
                     let rate = filmcraft_time::FrameRate::from_f64(if fps > 0.0 { fps } else { 24.0 });
                     let ticks = filmcraft_time::Tick((dur as f64 * was / now).round() as i64);
                     ui.horizontal(|ui| {
-                        ui.label(tl!("Duration:"));
+                        ui.label(tl!("المدة:"));
                         ui.label(RichText::new(filmcraft_time::format_timecode_frames(rate.frame_at(ticks), rate, false)).monospace());
                     });
                 }

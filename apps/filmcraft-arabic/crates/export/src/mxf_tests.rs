@@ -219,7 +219,7 @@ fn ffmpeg_oracle_op1a_and_op_atom() {
         let raw = ["-f", "rawvideo", "-pix_fmt", "yuv422p10le"];
         let a_mxf = ffmpeg_raw(&ffmpeg, &path, "0:v:0", &raw);
         let a_mov = ffmpeg_raw(&ffmpeg, &mov, "0:v:0", &raw);
-        assert_eq!(a_mxf.len(), 24 * 320 * 180 * 4, "{codec:?}: 24 إطار decoded");
+        assert_eq!(a_mxf.len(), 24 * 320 * 180 * 4, "{codec:?}: 24 frames decoded");
         assert!(a_mxf == a_mov, "{codec:?}: ffmpeg decodes the MXF and the MOV essence differently");
         // PCM exact: ffmpeg's samples are what our demuxer reads back
         let pcm = ffmpeg_raw(&ffmpeg, &path, "0:a:0", &["-f", "s32le", "-acodec", "pcm_s32le"]);

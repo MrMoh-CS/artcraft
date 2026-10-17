@@ -1,5 +1,5 @@
-//! Image sequences: File ▸ Import with Image تسلسل، the Import image sequences setting,
-//! missing إطار, the indeterminate media timebase, timeline placement and project reopen.
+//! Image sequences: File ▸ Import with Image Sequence, the Import image sequences setting,
+//! missing frames, the indeterminate media timebase, timeline placement and project reopen.
 
 use std::path::Path;
 
@@ -64,7 +64,7 @@ fn red_at(s: &Session, item: ItemId, frame: i64) -> u8 {
     let f = src.video_frame(FrameRequest::full(rate.tick_of(frame))).unwrap();
     match &f.data {
         filmcraft_frame::PixelData::Rgba8(p) => p[0],
-        _ => panic!("rgba إطار"),
+        _ => panic!("rgba frames"),
     }
 }
 
@@ -86,7 +86,7 @@ fn check_image_sequence_with_missing_frames(prefix: &str) {
     let dir = tmp_dir(&format!("imgseq-import-{prefix}"));
     let mut s = demo();
     s.execute("prefs.set", json!({"key": "media.indeterminateTimebase", "value": "25"})).unwrap();
-    // إطار 1..=6 with 4 missing, plus an unrelated file
+    // frames 1..=6 with 4 missing, plus an unrelated file
     let paths = write_frames(&dir, prefix, &[1, 2, 3, 5, 6], "png");
     write_frames(&dir, "other_", &[1], "png");
     let r = s.execute("file.import", json!({"paths": [paths[0]], "imageSequence": true})).unwrap();
@@ -198,7 +198,7 @@ fn import_cinemadng_folder_as_one_clip() {
     let src = s.media.source_for(&s.project, id, &*s.services).unwrap();
     for i in 0..4 {
         let f = src.video_frame(FrameRequest::full(FrameRate::FPS_23_976.tick_of(i))).unwrap();
-        let filmcraft_frame::PixelData::RgbaF32(px) = &f.data else { panic!("linear float إطار") };
+        let filmcraft_frame::PixelData::RgbaF32(px) = &f.data else { panic!("linear float frames") };
         let want = 0.1 + 0.2 * i as f32;
         for k in 0..3 {
             assert!((px[(8 * 24 + 8) * 4 + k] - want).abs() < 2e-3, "frame {i} channel {k}: {}", px[(8 * 24 + 8) * 4 + k]);

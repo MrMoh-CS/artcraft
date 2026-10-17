@@ -1,5 +1,5 @@
 //! Optical Flow time interpolation: the in-between frame of a speed-changed clip synthesised from
-//! the motion between its two neighbouring source إطار, so a moving object appears once, at its
+//! the motion between its two neighbouring source frames, so a moving object appears once, at its
 //! interpolated position, instead of as the double image of Frame Blending.
 //!
 //! The method (textbook, implemented from the published equations):
@@ -20,7 +20,7 @@
 //!    `x + (1−t)·u`, weighted `(1−t, t)` times how well the fetched pixel's own flow agrees with
 //!    `u` (a pixel that moves elsewhere is hidden at time `t`), so background an object uncovers
 //!    comes from the frame that shows it. Where neither fetch agrees, or the pixel looks the same in
-//!    both إطار, it fades to the plain cross-fade (Frame Blending).
+//!    both frames, it fades to the plain cross-fade (Frame Blending).
 //!
 //! Everything is deterministic (no randomness, per-pixel parallel work only).
 
@@ -29,7 +29,7 @@ use rayon::prelude::*;
 use crate::image::Image;
 use crate::track::Gray;
 
-/// Widest luma image the flow is estimated on (larger إطار are box-reduced to it first).
+/// Widest luma image the flow is estimated on (larger frames are box-reduced to it first).
 pub const WORK_W: usize = 640;
 /// Window radius of the per-pixel Lucas–Kanade sums.
 pub const WIN: usize = 4;
@@ -48,7 +48,7 @@ const MAX_STEP: f32 = 2.0;
 const FB_WEIGHT: f32 = 0.05;
 /// Flow disagreement (working pixels) at which a fetch counts half.
 const AGREE_PX: f32 = 1.0;
-/// Luma change (square-root luma) below which a pixel counts as unchanged between the إطار;
+/// Luma change (square-root luma) below which a pixel counts as unchanged between the frames;
 /// the motion-compensated result fades in over the next `STILL_LUMA`.
 const STILL_LUMA: f32 = 0.004;
 /// Hole-filling passes after splatting (remaining holes keep zero motion).
@@ -455,7 +455,7 @@ pub fn interpolate(a: &Image, b: &Image, t: f32) -> Image {
             let i = (y * a.w + x) * 4;
             let (Some(pa), Some(pb)) = (a.px.get(i..i + 4), b.px.get(i..i + 4)) else { continue };
             let sum = wa + wb;
-            // a pixel that looks the same in both إطار needs no motion compensation (static
+            // a pixel that looks the same in both frames needs no motion compensation (static
             // content, flat interiors): the cross-fade is right there and immune to flow errors
             let changed = (luma([pa[0], pa[1], pa[2], 0.0]) - luma([pb[0], pb[1], pb[2], 0.0])).abs().max((pa[3] - pb[3]).abs());
             let changed = if changed.is_finite() { ((changed - STILL_LUMA) / STILL_LUMA).clamp(0.0, 1.0) } else { 0.0 };
@@ -552,7 +552,7 @@ mod tests {
 
     #[test]
     fn flicker_on_static_content_is_not_dragged_around() {
-        // static rows of lit windows; between the إطار some switch on and some grow a pixel:
+        // static rows of lit windows; between the frames some switch on and some grow a pixel:
         // brightness change, not motion, so the result is the plain cross-fade
         let (w, h) = (160usize, 96usize);
         let mut a = Image::filled(w, h, [0.004, 0.004, 0.006, 1.0]);
@@ -597,7 +597,7 @@ mod tests {
     #[test]
     fn hostile_inputs_do_not_panic() {
         let a = texture(32, 24, 0.0, 0.0);
-        // size mismatch and empty إطار fall back to the cross-fade
+        // size mismatch and empty frames fall back to the cross-fade
         let small = texture(16, 24, 0.0, 0.0);
         assert_eq!(interpolate(&a, &small, 0.5), a.clone().lerp(&small, 0.5));
         let empty = Image::new(0, 0);
@@ -611,7 +611,7 @@ mod tests {
         assert_eq!(interpolate(&a, &b, 0.0), a);
         assert_eq!(interpolate(&a, &b, 7.0), b);
         assert_eq!(interpolate(&a, &b, f32::NAN), a);
-        // NaN / infinite pixels and tiny إطار
+        // NaN / infinite pixels and tiny frames
         let mut nan = b.clone();
         nan.px[40] = f32::NAN;
         nan.px[41] = f32::INFINITY;

@@ -36,7 +36,7 @@
 use filmcraft_edit as edit;
 pub use filmcraft_export::still::StillFormat;
 use filmcraft_geom::Vec2;
-use filmcraft_project::{ClipId, ItemKind, ParamValue, تسلسل، TrackId, TrackKind};
+use filmcraft_project::{ClipId, ItemKind, ParamValue, Sequence, TrackId, TrackKind};
 use filmcraft_time::Tick;
 use serde_json::{Value, json};
 
@@ -61,7 +61,7 @@ pub fn poster_frame(item: &filmcraft_project::ProjectItem) -> Option<Tick> {
 // ------------------------------------------------------------------ navigation
 
 /// Edit points on the given tracks (all tracks when `tracks` is None), sorted and unique.
-fn edits_on(seq: &تسلسل، tracks: Option<&[TrackId]>) -> Vec<Tick> {
+fn edits_on(seq: &Sequence, tracks: Option<&[TrackId]>) -> Vec<Tick> {
     let mut v: Vec<Tick> =
         seq.all_tracks().filter(|t| tracks.is_none_or(|ts| ts.contains(&t.id))).flat_map(|t| t.items.iter().flat_map(|i| [i.start, i.end()])).collect();
     v.sort_unstable();
@@ -204,7 +204,7 @@ fn extend_edit(s: &mut Session, next: bool) -> Result<Value> {
 }
 
 /// Nudge the selection (with linked partners) by `frames` along the timeline (overwrite).
-fn nudge_time(s: &mut Session, إطار: i64) -> Result<Value> {
+fn nudge_time(s: &mut Session, frames: i64) -> Result<Value> {
     let d = s.sequence_rate().tick_of(frames);
     let clips = with_links(s, &s.state.selection.clone());
     let seq = s.active_sequence().ok_or(EngineError::NoSequence)?;
@@ -251,12 +251,12 @@ fn nudge_track(s: &mut Session, up: bool) -> Result<Value> {
     Ok(json!({"moved": moves.len()}))
 }
 
-fn slip_selection(s: &mut Session, إطار: i64) -> Result<Value> {
+fn slip_selection(s: &mut Session, frames: i64) -> Result<Value> {
     let rate = s.sequence_rate();
     let clips = with_links(s, &s.state.selection.clone());
     let seq = s.active_sequence().ok_or(EngineError::NoSequence)?;
     let linked = s.state.linked_selection;
-    // media delta per clip (source إطار run at the clip's speed); linked partners slip as one group
+    // media delta per clip (source frames run at the clip's speed); linked partners slip as one group
     let mut groups: Vec<(Option<u64>, Vec<(ClipId, Tick)>)> = Vec::new();
     for c in &clips {
         let Some((_, i)) = seq.find_item(*c) else { continue };
@@ -276,7 +276,7 @@ fn slip_selection(s: &mut Session, إطار: i64) -> Result<Value> {
     Ok(Value::Null)
 }
 
-fn slide_selection(s: &mut Session, إطار: i64) -> Result<Value> {
+fn slide_selection(s: &mut Session, frames: i64) -> Result<Value> {
     let d = s.sequence_rate().tick_of(frames);
     let clips = with_links(s, &s.state.selection.clone());
     // one common delta, clamped by the most restrictive member, keeps linked partners in sync
@@ -719,7 +719,7 @@ pub fn commands() -> Vec<CommandSpec> {
         spec("playhead.prevEditAnyTrack", "Go to Previous Edit Point on Any Track", Some("Shift+Up"), "{}", has_seq, |s, _| go_to_edit(s, false, true)),
         spec("playhead.selectedClipStart", "Go to Selected Clip Start", Some("Shift+Home"), "{}", has_selection, |s, _| go_to_selected(s, false)),
         spec("playhead.selectedClipEnd", "Go to Selected Clip End", Some("Shift+End"), "{}", has_selection, |s, _| go_to_selected(s, true)),
-        spec("sequence.revealNested", "Reveal Nested Sequence", Some("Cmd+Alt+F"), "{}", has_seq, |s, _| reveal_nested(s)),
+        spec("sequence.revealNested", "إظهار التسلسل المضمّن", Some("Cmd+Alt+F"), "{}", has_seq, |s, _| reveal_nested(s)),
         // ---- selection
         spec("timeline.selectClipAtPlayhead", "Select Clip at Playhead", Some("D"), "{}", has_seq, |s, _| select_clip_at_playhead(s)),
         spec("timeline.selectNextClip", "Select Next Clip", Some("Cmd+Down"), "{}", has_seq, |s, _| select_step(s, true)),

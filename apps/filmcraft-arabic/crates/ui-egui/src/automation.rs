@@ -24,7 +24,7 @@ pub struct Element {
 #[derive(Default)]
 pub struct Registry {
     pub elements: Vec<Element>,
-    /// Last frame's elements (for lookups from control handlers between إطار).
+    /// Last frame's elements (for lookups from control handlers between frames).
     pub previous: Vec<Element>,
 }
 

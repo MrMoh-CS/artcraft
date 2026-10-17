@@ -1,4 +1,4 @@
-//! DNG camera raw stills and CinemaDNG إطار (decoded by `filmcraft-dng`).
+//! DNG camera raw stills and CinemaDNG frames (decoded by `filmcraft-dng`).
 //!
 //! The raw image is developed the way the DNG specification describes (linearisation, black and
 //! white levels, the camera's as-shot white balance, demosaic, default crop, colour matrices and
@@ -6,7 +6,7 @@
 //! format, so highlights above 1.0 survive into effects and colour work, exactly as with OpenEXR.
 //! A white the sensor clipped is 1.0 × 2^BaselineExposure.
 //!
-//! A numbered folder of `.dng` إطار imports as an image sequence (CinemaDNG); the first frame's
+//! A numbered folder of `.dng` frames imports as an image sequence (CinemaDNG); the first frame's
 //! CinemaDNG FrameRate and TimeCodes tags give the sequence its frame rate and start time code.
 
 use std::sync::Arc;
@@ -23,7 +23,7 @@ pub fn sniff(b: &[u8]) -> bool {
     filmcraft_dng::sniff(b)
 }
 
-/// The colour of developed إطار: scene-linear light, Rec. 709 primaries.
+/// The colour of developed frames: scene-linear light, Rec. 709 primaries.
 const LINEAR_709: ColorInfo = ColorInfo { transfer: Transfer::Linear, ..ColorInfo::SRGB_FULL };
 
 /// A developed DNG frame.
@@ -82,7 +82,7 @@ pub fn still(name: &str, bytes: &[u8]) -> Result<StillSource> {
     Ok(StillSource { info, frame: Arc::new(d.frame) })
 }
 
-/// The frame rate and start time code (in إطار at that rate) of a CinemaDNG sequence whose first
+/// The frame rate and start time code (in frames at that rate) of a CinemaDNG sequence whose first
 /// frame is `info`: the FrameRate tag when present (else `default`), the TimeCodes tag when present.
 pub fn sequence_timing(info: &filmcraft_dng::Info, default: FrameRate) -> (FrameRate, Option<i64>) {
     let rate = info.frame_rate.map(|(n, d)| FrameRate::new(n, d).sane()).unwrap_or(default);
@@ -130,7 +130,7 @@ mod tests {
     fn red(f: &VideoFrame) -> f32 {
         match &f.data {
             PixelData::RgbaF32(p) => p[(5 * 16 + 5) * 4],
-            _ => panic!("float إطار"),
+            _ => panic!("float frames"),
         }
     }
 
@@ -178,9 +178,9 @@ mod tests {
         let files: HashMap<String, Vec<u8>> = (0..3).map(|i| (format!("/c/A_{i:04}.dng"), grey_dng(0.2 + 0.2 * f64::from(i), tags()))).collect();
         let loader: FrameLoader =
             Arc::new(move |p: &str| files.get(p).cloned().ok_or_else(|| std::io::Error::new(std::io::ErrorKind::NotFound, p.to_string())));
-        let إطار = (0..3).map(|i| Some(format!("/c/A_{i:04}.dng"))).collect();
-        // the caller's (Indeterminate Media Timebase) rate is 25; the إطار say 24
-        let s = ImageSequenceSource::new("A_0000.dng", إطار, FrameRate::FPS_25, loader).unwrap();
+        let frames = (0..3).map(|i| Some(format!("/c/A_{i:04}.dng"))).collect();
+        // the caller's (Indeterminate Media Timebase) rate is 25; the frames say 24
+        let s = ImageSequenceSource::new("A_0000.dng", frames, FrameRate::FPS_25, loader).unwrap();
         let info = s.info();
         assert_eq!(info.kind, MediaKind::ImageSequence);
         assert_eq!(info.frame_rate(), FrameRate::FPS_24);
@@ -202,7 +202,7 @@ mod tests {
         // drop frame only where the rate has it
         let mut i = info.clone();
         i.frame_rate = Some((30_000, 1001));
-        i.timecode = Some(filmcraft_dng::Timecode { hours: 0, minutes: 1, seconds: 0, إطار: 2, drop_frame: true });
+        i.timecode = Some(filmcraft_dng::Timecode { hours: 0, minutes: 1, seconds: 0, frames: 2, drop_frame: true });
         assert_eq!(sequence_timing(&i, FrameRate::FPS_25), (FrameRate::FPS_29_97, Some(1800)));
         i.frame_rate = Some((25, 1));
         assert_eq!(sequence_timing(&i, FrameRate::FPS_24), (FrameRate::FPS_25, Some(1502)));

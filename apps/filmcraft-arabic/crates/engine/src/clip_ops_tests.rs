@@ -43,7 +43,7 @@ fn menus_and_shortcuts_follow_premiere() {
     let ids: Vec<&str> = crate::commands::command_specs().iter().map(|c| c.id).collect();
     let pos = |id: &str| ids.iter().position(|x| *x == id).unwrap_or_else(|| panic!("{id} missing"));
     // Edit ▸ Label: Select Label Group, then the 16 colours in Premiere's order
-    let label: Vec<&str> = crate::commands::command_specs().iter().filter(|c| c.menu == ["تحرير", "Label"]).map(|c| c.label).collect();
+    let label: Vec<&str> = crate::commands::command_specs().iter().filter(|c| c.menu == ["تحرير", "لون التسمية"]).map(|c| c.label).collect();
     assert_eq!(label[0], "Select Label Group");
     assert_eq!(&label[1..], Label::ALL.iter().map(|l| l.name()).collect::<Vec<_>>().as_slice());
     assert!(crate::commands::find("edit.label").unwrap().menu.is_empty(), "the parameterised label command is for agents only");
@@ -64,16 +64,16 @@ fn menus_and_shortcuts_follow_premiere() {
     assert_eq!(
         vo,
         [
-            "Frame Hold Options…",
-            "Add Frame Hold",
-            "Insert Frame Hold Segment",
-            "Field Options…",
+            "خيارات تجميد الإطار…",
+            "إضافة تجميد إطار",
+            "إدراج مقطع إطار مجمّد",
+            "خيارات الحقول…",
             "Frame Sampling",
             "Frame Blending",
             "Optical Flow",
-            "Scale to Frame Size",
-            "Fit to frame",
-            "Fill frame"
+            "تحجيم لحجم الإطار",
+            "ملاءمة للإطار",
+            "ملء الإطار"
         ]
     );
     let sc = |id: &str| crate::commands::find(id).unwrap().shortcut;
@@ -487,7 +487,7 @@ fn frame_blending_renders_in_between_frames() {
     select(&mut s, &[c.id.0]);
     s.execute("clip.speedDuration", json!({"speed": 50.0})).unwrap();
     let rate = s.sequence_rate();
-    // an odd frame at 50 % lands half-way between two source إطار
+    // an odd frame at 50 % lands half-way between two source frames
     let t = c.start + rate.tick_of(31);
     s.execute("playhead.set", json!({"time": t.0})).unwrap();
     let it = clip(&s, c.id.0);
@@ -501,7 +501,7 @@ fn frame_blending_renders_in_between_frames() {
     assert_eq!(next, src_rate.tick_of(src_rate.frame_at(it.source_time_at(t)) + 1));
     let blended = s.render_program(0.125).unwrap();
     assert!(mean_abs_diff(&sampled, &blended) > 1e-4, "blending changes the frame");
-    // the blend is the average of the two source إطار: the next timeline frame samples the later one
+    // the blend is the average of the two source frames: the next timeline frame samples the later one
     s.execute("clip.timeInterpolation.frameSampling", json!({})).unwrap();
     s.execute("playhead.set", json!({"time": (t + rate.frame_duration()).0})).unwrap();
     let later = s.render_program(0.125).unwrap();
@@ -707,7 +707,7 @@ fn replace_from_bin_keeps_the_source_in_on_request() {
 
 /// A replacement shorter than the clip's slot left the clip running past the end of its media
 /// without a word. The three Replace With Clip commands now say which clips are short, by how
-/// many sequence إطار.
+/// many sequence frames.
 #[test]
 fn replace_with_clip_reports_clips_that_run_past_the_new_media() {
     let mut s = demo();
@@ -718,14 +718,14 @@ fn replace_with_clip_reports_clips_that_run_past_the_new_media() {
     let slot = rate.frame_at(c.duration);
     let forest = item_named(&s, "Misty_Forest.mp4");
     let forest_len = s.project.item(forest).unwrap().as_media().unwrap().info.duration;
-    assert!(slot > 12 && forest_len > c.duration + rate.tick_of(40), "the clip is longer than 12 إطار and shorter than the media");
+    assert!(slot > 12 && forest_len > c.duration + rate.tick_of(40), "the clip is longer than 12 frames and shorter than the media");
     let state = |s: &Session| {
         let it = clip(s, c.id.0);
         (it.item, it.source_in, it.start, it.duration)
     };
     select(&mut s, &[c.id.0]);
 
-    // From Bin, with 12 إطار of media (a subclip that restricts trims): the edit is what it
+    // From Bin, with 12 frames of media (a subclip that restricts trims): the edit is what it
     // always was, and the result says the clip is short
     let r = s.execute("clip.makeSubclip", json!({"item": forest.0, "start": rate.tick_of(10).0, "end": rate.tick_of(22).0})).unwrap();
     let short = ItemId(r["item"].as_u64().unwrap());
@@ -743,14 +743,14 @@ fn replace_with_clip_reports_clips_that_run_past_the_new_media() {
     assert_eq!(s.execute("clip.replaceFromBin", json!({"item": forest.0})).unwrap()["short"], json!([]));
     s.execute("edit.undo", json!({})).unwrap();
 
-    // From Source Monitor, with the Source In 20 إطار before the end of the media
-    let إطار = |t: Tick| (t.0 + rate.frame_duration().0 - 1) / rate.frame_duration().0;
+    // From Source Monitor, with the Source In 20 frames before the end of the media
+    let frames = |t: Tick| (t.0 + rate.frame_duration().0 - 1) / rate.frame_duration().0;
     s.execute("source.open", json!({"item": forest.0})).unwrap();
     let mark = forest_len - rate.tick_of(20);
     s.execute("project.setMarks", json!({"item": forest.0, "in": mark.0})).unwrap();
     let r = s.execute("clip.replaceFromSource", json!({})).unwrap();
     let got = clip(&s, c.id.0);
-    assert_eq!(r["short"], json!([{"clip": c.id.0, "shortByFrames": إطار(got.source_out() - forest_len)}]));
+    assert_eq!(r["short"], json!([{"clip": c.id.0, "shortByFrames": frames(got.source_out() - forest_len)}]));
     assert_eq!(frames(got.source_out() - forest_len), slot - 20);
     s.execute("edit.undo", json!({})).unwrap();
     // Match Frame: the last frame of the media on the clip's first frame
@@ -799,7 +799,7 @@ fn subclip_source_monitor_trims_and_markers() {
     let ocean = item_named(&s, "Ocean_Sunset.mp4");
     let r24 = filmcraft_time::FrameRate::FPS_23_976;
     let f = |n: i64| r24.tick_of(n);
-    // clip markers on the master clip at إطار 10, 30, 60 and 90
+    // clip markers on the master clip at frames 10, 30, 60 and 90
     let mut p = (*s.project).clone();
     if let Some(ItemKind::Media(m)) = p.item_mut(ocean).map(|i| &mut i.kind) {
         for (k, n) in [10, 30, 60, 90].into_iter().enumerate() {
@@ -829,7 +829,7 @@ fn subclip_source_monitor_trims_and_markers() {
     assert_eq!(names, ["m30", "m60"]);
     assert_eq!(s.execute("source.setPlayhead", json!({"frame": 0})).unwrap()["time"], f(24).0);
     assert_eq!(s.execute("source.setPlayhead", json!({"frame": 500})).unwrap()["time"], f(71).0);
-    // edited in on V3 at 100 s: In 24, 48 إطار
+    // edited in on V3 at 100 s: In 24, 48 frames
     let r = s.execute("timeline.place", json!({"item": sub.0, "track": "V3", "seconds": 100.0})).unwrap();
     let c = r["clips"][0].as_u64().unwrap();
     let start = clip(&s, c).start;
@@ -849,7 +849,7 @@ fn subclip_source_monitor_trims_and_markers() {
     s.execute("timeline.slip", json!({"clip": c, "deltaFrames": -20})).unwrap();
     assert_eq!(r24.frame_at(clip(&s, c).source_in), 24);
     s.execute("timeline.slip", json!({"clip": c, "deltaFrames": 20})).unwrap();
-    assert_eq!(r24.frame_at(clip(&s, c).source_in), 32, "In + 40 إطار used = the subclip's Out");
+    assert_eq!(r24.frame_at(clip(&s, c).source_in), 32, "In + 40 frames used = the subclip's Out");
     // without the restriction the master clip's media is the limit (and the monitor shows it all,
     // with the subclip's range as In / Out)
     s.execute("project.select", json!({"items": [sub.0]})).unwrap();
@@ -868,7 +868,7 @@ fn subclip_source_monitor_trims_and_markers() {
     assert!(matches!(s.project.item(sub).unwrap().kind, ItemKind::Subclip { restrict_trims: false, .. }));
 }
 
-/// #29: a Color Matte's color can be changed after it is created; the generated إطار follow,
+/// #29: a Color Matte's color can be changed after it is created; the generated frames follow,
 /// and undo brings the old color back (the media pool regenerates the matte, it doesn't keep
 /// serving the first one).
 #[test]
@@ -895,7 +895,7 @@ fn color_matte_color_changes_and_undoes() {
 }
 
 /// #918: non-ripple Speed/Duration 200% halves a 100-frame clip; a 10-frame fade-out must
-/// move from إطار 90–100 to 40–50 (the new clip end), not stay past the clip.
+/// move from frames 90–100 to 40–50 (the new clip end), not stay past the clip.
 #[test]
 fn speed_duration_moves_fade_out_to_the_new_clip_end() {
     let mut s = Session::default();
@@ -959,7 +959,7 @@ fn add_edit_cuts_only_the_selected_clips() {
 fn linked_slip_keeps_picture_and_sound_aligned_at_unequal_media_limits() {
     let mut s = Session::default();
     s.execute("file.newProject", json!({"name": "Slip"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "التسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
     let r = s.execute("file.newOfflineFile", json!({"name": "Media", "seconds": 4, "fps": 25, "video": true, "audio": true})).unwrap();
     let item = r["item"].as_u64().unwrap();
     let fr = s.sequence_rate().tick_of(1);
@@ -1015,14 +1015,14 @@ fn reset_keeps_keyframes_and_resets_one_parameter() {
 fn keyboard_slip_keeps_linked_clips_in_sync_past_the_shorter_handle() {
     let mut s = Session::default();
     s.execute("file.newProject", json!({"name": "Slip"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "التسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
     let r = s.execute("file.newOfflineFile", json!({"name": "Media", "seconds": 4, "fps": 25, "video": true, "audio": true})).unwrap();
     let item = r["item"].as_u64().unwrap();
     let fr = s.sequence_rate().tick_of(1);
     let r =
         s.execute("timeline.place", json!({"item": item, "track": "V1", "audioTrack": "A1", "time": 0, "sourceIn": fr.0 * 20, "duration": fr.0 * 60})).unwrap();
     let (v, a) = (r["clips"][0].as_u64().unwrap(), r["clips"][1].as_u64().unwrap());
-    // lengthen only the picture: it keeps 10 إطار of tail handle, the sound keeps 20
+    // lengthen only the picture: it keeps 10 frames of tail handle, the sound keeps 20
     s.execute("sequence.linkedSelection", json!({"on": false})).unwrap();
     s.execute("timeline.trim", json!({"clip": v, "edge": "out", "deltaFrames": 10})).unwrap();
     s.execute("sequence.linkedSelection", json!({"on": true})).unwrap();
@@ -1042,7 +1042,7 @@ fn keyboard_slip_keeps_linked_clips_in_sync_past_the_shorter_handle() {
 fn linked_rate_stretch_keeps_one_speed_when_a_neighbour_blocks_the_sound() {
     let mut s = Session::default();
     s.execute("file.newProject", json!({"name": "Stretch"})).unwrap();
-    s.execute("file.newSequence", json!({"name": "التسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
+    s.execute("file.newSequence", json!({"name": "تسلسل", "fps": 25, "video": 1, "audio": 1, "width": 16, "height": 16})).unwrap();
     let r = s.execute("file.newOfflineFile", json!({"name": "A", "seconds": 8, "fps": 25, "video": true, "audio": true})).unwrap();
     let a = r["item"].as_u64().unwrap();
     let r = s.execute("file.newOfflineFile", json!({"name": "B", "seconds": 2, "fps": 25, "video": true, "audio": true})).unwrap();

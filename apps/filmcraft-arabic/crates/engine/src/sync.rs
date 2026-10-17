@@ -200,7 +200,7 @@ pub fn anchors(s: &Session, clips: &[SyncClip], reference: usize, method: &Metho
 }
 
 /// Where each clip's range starts on a common timeline that begins at 0 (the earliest clip), at
-/// the given frame rate (snapped to إطار when `snap`).
+/// the given frame rate (snapped to frames when `snap`).
 pub fn placements(clips: &[SyncClip], anchors: &[Anchor], rate: FrameRate, snap: bool) -> Vec<Tick> {
     let raw: Vec<Tick> = clips.iter().zip(anchors).map(|(c, a)| c.range.start - a.anchor).collect();
     let min = raw.iter().copied().min().unwrap_or(Tick::ZERO);

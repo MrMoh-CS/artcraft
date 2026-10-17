@@ -1,5 +1,5 @@
 //! Render previews end to end: render → green, edit → stale, undo → green, save/open keeps them,
-//! delete, audio previews, playback إطار from previews.
+//! delete, audio previews, playback frames from previews.
 
 use std::sync::Arc;
 
@@ -76,7 +76,7 @@ fn render_turns_green_edit_invalidates_and_undo_restores() {
     job_ok(&s, &v);
     assert_eq!(states(&s), vec!["green", "none"]);
     assert_eq!(s.previews.count(), 1);
-    // playback reads preview إطار for the rendered segment only
+    // playback reads preview frames for the rendered segment only
     let seq = s.state.active_sequence.unwrap();
     let f = s.previews.frame(&s.media, &s.project, seq, 5, 1.0).expect("preview frame");
     assert_eq!((f.width, f.height), (64, 36));
@@ -153,9 +153,9 @@ fn spans(s: &Session) -> Vec<(i64, i64, BarState)> {
     s.previews.bar(&s.project, s.state.active_sequence.unwrap()).iter().map(|b| (r.frame_at(b.start), r.frame_at(b.end), b.state)).collect()
 }
 
-/// #424: Render Effects In to Out renders the إطار between In and Out, not every segment that
+/// #424: Render Effects In to Out renders the frames between In and Out, not every segment that
 /// In/Out touches; a later render fills only the gaps, and Delete Render Files In to Out removes
-/// only the files holding marked إطار.
+/// only the files holding marked frames.
 #[test]
 fn render_in_to_out_renders_only_the_marked_frames() {
     use BarState::{Green, None as NoBar, Yellow};
@@ -171,7 +171,7 @@ fn render_in_to_out_renders_only_the_marked_frames() {
     for f in [5, 12, 30] {
         assert!(s.previews.frame(&s.media, &s.project, seq, f, 1.0).is_none(), "frame {f} has no preview");
     }
-    // the preview's إطار line up with the sequence (the leader changes from frame to frame)
+    // the preview's frames line up with the sequence (the leader changes from frame to frame)
     let live = |s: &Session, f: i64| {
         filmcraft_render::render_sequence(
             &s.project,
@@ -183,7 +183,7 @@ fn render_in_to_out_renders_only_the_marked_frames() {
         .over_black_rgba8()
     };
     let prev = s.previews.frame(&s.media, &s.project, seq, 9, 1.0).expect("frame 9 has a preview").to_rgba8();
-    assert!(max_diff(&live(&s, 9), &live(&s, 3)) > 16, "the test needs إطار that differ");
+    assert!(max_diff(&live(&s, 9), &live(&s, 3)) > 16, "the test needs frames that differ");
     let d = max_diff(&live(&s, 9), &prev);
     assert!(d <= 4, "preview of frame 9 differs from the live frame 9 by {d}");
     // the files survive re-indexing the folder (as on reopening the project)
@@ -268,7 +268,7 @@ fn render_commands_are_registered_like_premiere() {
         "sequence.deleteRenderFiles",
         "sequence.deleteRenderFilesInToOut",
     ] {
-        assert_eq!(f(id).menu, &["التسلسل"]);
+        assert_eq!(f(id).menu, &["تسلسل"]);
     }
 }
 

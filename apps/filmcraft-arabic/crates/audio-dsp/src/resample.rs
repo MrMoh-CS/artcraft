@@ -3,7 +3,7 @@
 //!
 //! Every output sample's source position comes from its absolute output frame, as an exact
 //! rational (`frame × from / to`), and is linearly interpolated, so the output is identical however
-//! the stream is cut into blocks: no phase jump at block boundaries. Source إطار are pulled in
+//! the stream is cut into blocks: no phase jump at block boundaries. Source frames are pulled in
 //! contiguous, non-overlapping spans, so whatever produces them (the mixer, with its effect state)
 //! sees one continuous stream. Output lags the source by one source sample (≈21 µs at 48 kHz),
 //! which is what lets each block interpolate without reading ahead.
@@ -13,7 +13,7 @@
 pub struct StreamResampler {
     from: u32,
     to: u32,
-    /// Source إطار `[held_start, held_start + held[c].len())` kept from the last pull.
+    /// Source frames `[held_start, held_start + held[c].len())` kept from the last pull.
     held_start: i64,
     held: Vec<Vec<f32>>,
     /// The output frame the next block is expected to start at (contiguous playback).
@@ -37,8 +37,8 @@ impl StreamResampler {
         (p.div_euclid(to) as i64, (p.rem_euclid(to) as f64 / to as f64) as f32)
     }
 
-    /// Output إطار `[out, out + n)`, planar. `pull(start, إطار)` returns source إطار
-    /// `[start, start + إطار)`, planar (missing samples read as silence). A block that does not
+    /// Output frames `[out, out + n)`, planar. `pull(start, frames)` returns source frames
+    /// `[start, start + frames)`, planar (missing samples read as silence). A block that does not
     /// continue the previous one (a seek) starts the stream afresh.
     pub fn process(&mut self, out: i64, n: usize, mut pull: impl FnMut(i64, usize) -> Vec<Vec<f32>>) -> Vec<Vec<f32>> {
         if n == 0 {
@@ -46,7 +46,7 @@ impl StreamResampler {
         }
         let (first, _) = self.source_index(out);
         let (last, _) = self.source_index(out.saturating_add(n as i64 - 1));
-        // interpolation reads source إطار first - 1 ..= last
+        // interpolation reads source frames first - 1 ..= last
         if self.next_out != Some(out) || self.held.is_empty() {
             self.held_start = first - 1;
             self.held.clear();
@@ -94,8 +94,8 @@ mod tests {
 
     /// A sine at `hz`, sampled at `rate`, from absolute frame `start`; logs every pull.
     fn sine(hz: f64, rate: u32, pulls: &mut Vec<(i64, usize)>) -> impl FnMut(i64, usize) -> Vec<Vec<f32>> + '_ {
-        move |start, إطار| {
-            pulls.push((start, إطار));
+        move |start, frames| {
+            pulls.push((start, frames));
             let ch: Vec<f32> = (0..frames).map(|i| (2.0 * std::f64::consts::PI * hz * (start + i as i64) as f64 / rate as f64).sin() as f32).collect();
             vec![ch.clone(), ch]
         }

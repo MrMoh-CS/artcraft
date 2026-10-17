@@ -7,7 +7,7 @@
 //!   first random-access picture; display order comes from the PTS (or, without timestamps, the
 //!   GOP and temporal reference). Leading pictures of an open GOP decode from the previous GOP.
 //! - Audio: MPEG audio layers I-III (symphonia), AAC in ADTS or LATM (our decoder), AC-3 (our
-//!   decoder), Blu-ray / AVCHD and DVD LPCM. Every audio PID is a stream (capped). Audio إطار
+//!   decoder), Blu-ray / AVCHD and DVD LPCM. Every audio PID is a stream (capped). Audio frames
 //!   are placed on the timeline from their PTS relative to the first video frame,
 //!   sample-contiguously (re-anchored only at gaps).
 
@@ -360,7 +360,7 @@ impl MpegSource {
         (self.video.as_ref().filter(|_| self.es.is_none()).map(|v| v.stream), self.audios.first().map(|a| a.stream))
     }
 
-    /// Presentation timestamps (90 kHz) of the presented video إطار in display order. Frames
+    /// Presentation timestamps (90 kHz) of the presented video frames in display order. Frames
     /// whose PES packet carried none are interpolated at the frame duration from the nearest
     /// frame with one (`None` only when no frame has a timestamp, and for elementary streams).
     pub fn video_pts(&self) -> Vec<Option<i64>> {
@@ -402,7 +402,7 @@ impl MpegSource {
             VKind::Mpeg2 => {
                 let info = filmcraft_mpeg2v::probe(&first).ok_or_else(|| CodecError::Decode("no MPEG video sequence header at the first I picture".into()))?;
                 let header = crate::video::mpeg2_sequence_header(&first).unwrap_or_default();
-                // field order from the first إطار' picture coding extensions
+                // field order from the first frames' picture coding extensions
                 let mut d = filmcraft_mpeg2v::Decoder::new();
                 let mut fo = None;
                 for i in 0..v.units.len().min(4) {
@@ -802,11 +802,11 @@ impl MediaSource for MpegSource {
         Ok(self.gop.frame_late(&MpegVideo { src: self, v }, f, late)?)
     }
 
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
-        self.audio_stream(0, start, إطار, sample_rate)
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+        self.audio_stream(0, start, frames, sample_rate)
     }
 
-    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
         if self.audios.is_empty()
             && let Some(why) = &self.unsupported_audio
         {
@@ -817,7 +817,7 @@ impl MediaSource for MpegSource {
         let ratio = a.rate as f64 / sample_rate as f64;
         let exact = a.rate == sample_rate;
         let s0 = if exact { start } else { (start as f64 * ratio).floor() as i64 };
-        let need = if exact { إطار as i64 } else { (frames as f64 * ratio).ceil() as i64 + 2 };
+        let need = if exact { frames as i64 } else { (frames as f64 * ratio).ceil() as i64 + 2 };
         let mut src: Vec<Vec<f32>> = vec![vec![0.0; need.max(0) as usize]; ch];
         let mut st = a.state.lock().unwrap_or_else(|e| e.into_inner());
         // units overlapping [s0, s0 + need)
@@ -838,7 +838,7 @@ impl MediaSource for MpegSource {
             i += 1;
         }
         drop(st);
-        let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
+        let mut out = AudioBuffer::silence(sample_rate, ch, frames);
         if exact {
             for (c, s) in src.into_iter().enumerate() {
                 out.channels[c][..frames.min(s.len())].copy_from_slice(&s[..frames.min(s.len())]);

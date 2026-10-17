@@ -132,7 +132,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             export_selection,
         ),
         spec("file.exportAle", "Avid Log Exchange…", &["ملف", "تصدير"], None, r#"{"path":str,"items":[id]?}"#, has_loggable, export_ale),
-        query("file.mediaPropertiesFile", "File…", &["ملف", "Get Media File Properties for"], None, r#"{"path":str}"#, always, media_properties_file),
+        query("file.mediaPropertiesFile", "ملف…", &["ملف", "Get Media File Properties for"], None, r#"{"path":str}"#, always, media_properties_file),
         query(
             "file.mediaProperties",
             "Selection…",
@@ -163,7 +163,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         // ---------------- Edit ----------------
         spec("edit.find", "Find…", &["تحرير"], Some("Cmd+F"), FIND_PARAMS, always, find),
         spec("edit.findNext", "Find Next", &["تحرير"], None, "{}", has_find, find_next),
-        spec("edit.editOriginal", "Edit Original", &["تحرير"], Some("Cmd+E"), r#"{"items":[id]?}"#, has_original, edit_original),
+        spec("edit.editOriginal", "تحرير الأصلي", &["تحرير"], Some("Cmd+E"), r#"{"items":[id]?}"#, has_original, edit_original),
         // Project panel context menu (not in the File menu): reveal the clip's media file.
         query("file.reveal", "Reveal in Finder", &[], None, r#"{"items":[id]?}"#, has_file_selection, edit_original),
         // ---------------- Clip ----------------
@@ -1170,7 +1170,7 @@ fn automate_to_sequence(s: &mut Session, p: &Value) -> Result<Value> {
         if is_still && let Some(d) = still {
             r = TimeRange::new(r.start, d);
         }
-        // snap to whole sequence إطار
+        // snap to whole sequence frames
         let d = rate.tick_of(rate.frame_at(r.duration + Tick(fd.0 / 2)).max(1));
         plan.push((*id, TimeRange::new(r.start, d)));
     }
@@ -1247,7 +1247,7 @@ fn automate_to_sequence(s: &mut Session, p: &Value) -> Result<Value> {
         let default_frames = s.project.settings.default_transition_duration_frames;
         let mut edges = Vec::new();
         for ((_, ids), ov) in placed.iter().skip(1).zip(cut_overlap.iter().chain(std::iter::repeat(&overlap))) {
-            let إطار = if *ov > Tick::ZERO { rate.frame_at(*ov) } else { default_frames };
+            let frames = if *ov > Tick::ZERO { rate.frame_at(*ov) } else { default_frames };
             for c in ids {
                 let Some((tid, _)) = q.find_item(*c) else { continue };
                 let kind = q.track(tid).map(|t| t.kind);
@@ -1256,11 +1256,11 @@ fn automate_to_sequence(s: &mut Session, p: &Value) -> Result<Value> {
                     Some(TrackKind::Audio) if at => "sequence.applyAudioTransition",
                     _ => continue,
                 };
-                edges.push((cmd, *c, إطار));
+                edges.push((cmd, *c, frames));
             }
         }
-        for (cmd, c, إطار) in edges {
-            if s.execute(cmd, json!({"clip": c.0, "edge": "in", "frames": إطار})).is_ok() {
+        for (cmd, c, frames) in edges {
+            if s.execute(cmd, json!({"clip": c.0, "edge": "in", "frames": frames})).is_ok() {
                 transitions += 1;
             }
         }

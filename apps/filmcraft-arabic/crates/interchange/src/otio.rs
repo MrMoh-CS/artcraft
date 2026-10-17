@@ -5,7 +5,7 @@
 //! `GeneratorReference.1`, `LinearTimeWarp.1`, `FreezeFrame.1`, `Effect.1`, `RationalTime.1`,
 //! `TimeRange.1` and `SerializableCollection.1` (several timelines).
 //!
-//! Times are written as إطار at the sequence rate (`rate` is the exact rate as a float, e.g.
+//! Times are written as frames at the sequence rate (`rate` is the exact rate as a float, e.g.
 //! 23.976023976023978) and read back exactly by snapping the rate to its rational form. Fields
 //! OTIO has no schema for (effects and their keyframes, labels, links, groups, clip gain, track
 //! state, sequence settings, media info, generators) round-trip through `metadata.filmcraft`.
@@ -15,7 +15,7 @@ use std::collections::HashMap;
 
 use filmcraft_media::{Generator, MediaInfo};
 use filmcraft_project::{
-    ClipId, EffectInstance, ItemId, ItemKind, Label, Marker, MarkerId, MarkerKind, MediaRef, ParamValue, Project, تسلسل، SequenceSettings, Track, TrackItem,
+    ClipId, EffectInstance, ItemId, ItemKind, Label, Marker, MarkerId, MarkerKind, MediaRef, ParamValue, Project, Sequence, SequenceSettings, Track, TrackItem,
     TrackKind, Transition, TransitionAlign, TransitionId,
 };
 use filmcraft_time::{FrameRate, TICKS_PER_SECOND, Tick};
@@ -464,7 +464,7 @@ impl Imp<'_, '_> {
         id
     }
 
-    fn track(&mut self, seq: &mut تسلسل، t: &Value, kind: TrackKind) {
+    fn track(&mut self, seq: &mut Sequence, t: &Value, kind: TrackKind) {
         let idx = seq.tracks(kind).len();
         let mut track = self.b.track(kind, idx);
         let n = name_of(t);

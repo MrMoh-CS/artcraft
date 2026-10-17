@@ -17,9 +17,9 @@ fn a1_clip(s: &Session) -> u64 {
     s.active_sequence().unwrap().audio_tracks[0].items[0].id.0
 }
 
-fn render(s: &Session, إطار: usize) -> filmcraft_frame::AudioBuffer {
+fn render(s: &Session, frames: usize) -> filmcraft_frame::AudioBuffer {
     let provider = s.media.provider(s.project.clone(), s.services.clone());
-    filmcraft_render::audio::mix_sequence(&s.project, s.active_sequence().unwrap(), 0, إطار, &provider)
+    filmcraft_render::audio::mix_sequence(&s.project, s.active_sequence().unwrap(), 0, frames, &provider)
 }
 
 #[test]

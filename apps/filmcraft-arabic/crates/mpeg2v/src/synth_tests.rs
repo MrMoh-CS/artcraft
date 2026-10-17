@@ -3,7 +3,7 @@
 //! field and frame pictures, concealment motion vectors in every picture type, skipped
 //! macroblocks of field pictures, 4:2:2 field DCT... A random but valid stream is written here
 //! (random macroblock types, vectors, field selects and coefficients) and decoded by both our
-//! decoder and ffmpeg (the oracle); the إطار must agree up to IDCT rounding.
+//! decoder and ffmpeg (the oracle); the frames must agree up to IDCT rounding.
 
 use std::collections::HashMap;
 
@@ -53,7 +53,7 @@ struct Cfg {
     q_scale_type: bool,
     dc_prec: u8,
     concealment: bool,
-    إطار: usize,
+    frames: usize,
 }
 
 #[derive(Clone, Copy, Default)]
@@ -643,7 +643,7 @@ fn dual(v: [i32; 2], dmv: [i32; 2], m: i32, e: i32) -> [i32; 2] {
 }
 
 /// Write a stream: closed GOP, I/P/B frame order I0 P3 B1 B2 P6 B4 B5 … (or I0 P1 P2 … without
-/// B pictures); field-coded إطار are a pair of field pictures (I + P for the first frame).
+/// B pictures); field-coded frames are a pair of field pictures (I + P for the first frame).
 fn stream(cfg: Cfg) -> Vec<u8> {
     let mut e = Enc::new(cfg);
     e.sequence();
@@ -724,7 +724,7 @@ fn check(cfg: Cfg) {
         }
     }
     let psnr = 10.0 * (255f64 * 255.0 * n as f64 / sse.max(1e-9)).log10();
-    println!("{}: {} إطار, max diff {worst}, {:.3}% differ, PSNR {psnr:.2} dB", cfg.name, pics.len(), 100.0 * differ as f64 / n as f64);
+    println!("{}: {} frames, max diff {worst}, {:.3}% differ, PSNR {psnr:.2} dB", cfg.name, pics.len(), 100.0 * differ as f64 / n as f64);
     // the same criteria as the ffmpeg-encoded fixtures (tests/oracle.rs)
     assert!(worst <= 4 && psnr >= 58.0, "{} (seed {:#x}): max diff {worst}, PSNR {psnr:.2}, first at {first_bad:?}", cfg.name, cfg.seed);
 }
@@ -744,7 +744,7 @@ const BASE: Cfg = Cfg {
     q_scale_type: false,
     dc_prec: 0,
     concealment: true,
-    إطار: 7,
+    frames: 7,
 };
 
 /// Every configuration with more random streams.
@@ -752,8 +752,8 @@ const BASE: Cfg = Cfg {
 fn seed_sweep() {
     let cfgs = [
         Cfg { name: "sweep_field_ibp", ..BASE },
-        Cfg { name: "sweep_field_dual_422", b_frames: false, dual: true, chroma: 2, tff: false, إطار: 4, ..BASE },
-        Cfg { name: "sweep_frame_dual", field_pics: false, b_frames: false, dual: true, إطار: 4, dc_prec: 3, ..BASE },
+        Cfg { name: "sweep_field_dual_422", b_frames: false, dual: true, chroma: 2, tff: false, frames: 4, ..BASE },
+        Cfg { name: "sweep_frame_dual", field_pics: false, b_frames: false, dual: true, frames: 4, dc_prec: 3, ..BASE },
         Cfg { name: "sweep_frame_ib_422", field_pics: false, chroma: 2, tff: false, q_scale_type: true, ..BASE },
     ];
     for seed in 1..=8u64 {
@@ -782,7 +782,7 @@ fn field_pictures_with_b_and_16x8() {
 
 #[test]
 fn dual_prime_in_field_pictures() {
-    check(Cfg { name: "synth_field_dual_tff", seed: 0x0bad_cafe_0042, b_frames: false, dual: true, إطار: 5, ..BASE });
+    check(Cfg { name: "synth_field_dual_tff", seed: 0x0bad_cafe_0042, b_frames: false, dual: true, frames: 5, ..BASE });
     check(Cfg {
         name: "synth_field_dual_bff_422",
         seed: 0x1357_9bdf_2468,
@@ -791,14 +791,14 @@ fn dual_prime_in_field_pictures() {
         tff: false,
         chroma: 2,
         concealment: false,
-        إطار: 5,
+        frames: 5,
         ..BASE
     });
 }
 
 #[test]
 fn frame_pictures_field_mc_and_dual_prime() {
-    check(Cfg { name: "synth_frame_dual_tff", seed: 0x5555_aaaa_1111, field_pics: false, b_frames: false, dual: true, إطار: 6, ..BASE });
+    check(Cfg { name: "synth_frame_dual_tff", seed: 0x5555_aaaa_1111, field_pics: false, b_frames: false, dual: true, frames: 6, ..BASE });
     check(Cfg {
         name: "synth_frame_dual_bff_422",
         seed: 0x7777_3333_9999,
@@ -808,7 +808,7 @@ fn frame_pictures_field_mc_and_dual_prime() {
         tff: false,
         chroma: 2,
         dc_prec: 1,
-        إطار: 6,
+        frames: 6,
         ..BASE
     });
     check(Cfg {

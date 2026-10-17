@@ -21,7 +21,7 @@ pub fn tmp_dir(name: &str) -> PathBuf {
 
 /// Write a `frames`-frame `w`×`h` 24 fps movie of a demo scene (with its audio) to `path`.
 /// `.mov` = ProRes 422 HQ + PCM, `.mp4` = H.264 + AAC.
-pub fn make_movie(path: &Path, scene: DemoScene, w: u32, h: u32, إطار: i64) {
+pub fn make_movie(path: &Path, scene: DemoScene, w: u32, h: u32, frames: i64) {
     let rate = FrameRate::FPS_24;
     let dur = rate.tick_of(frames);
     let src = GeneratorSource::new(Generator::Demo(scene), w, h, rate, dur);

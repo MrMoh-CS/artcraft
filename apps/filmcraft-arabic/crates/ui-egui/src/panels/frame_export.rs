@@ -107,11 +107,11 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         close = response.clicked();
         egui::Frame::NONE.inner_margin(14).show(ui, |ui| {
             egui::Grid::new("frame-export-settings").num_columns(2).spacing([12.0, 10.0]).show(ui, |ui| {
-                ui.label("Name:");
+                ui.label("الاسم:");
                 let r = ui.add(egui::TextEdit::singleline(&mut d.name).desired_width(300.0));
                 elems.push(("exportFrame.name".into(), r.rect, d.name.clone()));
                 ui.end_row();
-                ui.label("Format:");
+                ui.label("الصيغة:");
                 let combo = egui::ComboBox::from_id_salt("frame-export-format").width(292.0).selected_text(d.format.label()).show_ui(ui, |ui| {
                     for format in StillFormat::ALL {
                         let r = ui.selectable_value(&mut d.format, format, format.label());
@@ -200,7 +200,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) {
         });
     }
     if shown.is_some() && movement != egui::Vec2::ZERO {
-        // Keep the unrounded requested pivot between drag إطار so subpixel deltas cannot accumulate rounding drift.
+        // Keep the unrounded requested pivot between drag frames so subpixel deltas cannot accumulate rounding drift.
         if let Some(pivot) = position.or_else(|| egui::containers::AreaState::load(ctx, window_id).and_then(|state| state.pivot_pos)) {
             ctx.data_mut(|m| m.insert_temp(position_id, pivot + movement));
         }

@@ -50,8 +50,8 @@ impl Rig {
         self.p.new_sequence(name, SequenceSettings { width: w, height: h, frame_rate: rate, ..Default::default() }, 2, 1, None)
     }
 
-    /// `frames` إطار of `item` from its start, at the start of V1 of `seq`.
-    fn put(&mut self, seq: ItemId, item: ItemId, إطار: i64) -> ClipId {
+    /// `frames` frames of `item` from its start, at the start of V1 of `seq`.
+    fn put(&mut self, seq: ItemId, item: ItemId, frames: i64) -> ClipId {
         let rate = self.p.sequence(seq).unwrap().settings.frame_rate;
         let ti = self.p.make_track_item(item, TrackKind::Video, Tick::ZERO, TimeRange::new(Tick::ZERO, rate.tick_of(frames)), rate).unwrap();
         let id = ti.id;
@@ -166,7 +166,7 @@ fn speed_reverse_and_frame_hold_on_a_nest_pick_the_frame_of_its_sequence() {
     // double speed: frame 10 of the nest is frame 20 of its sequence
     r.clip(outer, nest).speed = 2.0;
     assert!(worst(&r.frame(outer, f(10)), &r.frame(inner, f(20))) < 0.01);
-    // reversed (48 إطار at normal speed): 10 إطار in is 10 إطار back from the end of what it
+    // reversed (48 frames at normal speed): 10 frames in is 10 frames back from the end of what it
     // covers, a tick short of frame 38
     let c = r.clip(outer, nest);
     c.speed = 1.0;

@@ -9,7 +9,7 @@
 //!   writers are strict. WebVTT cue identifiers, cue settings, `<v Speaker>` voices and
 //!   STYLE/REGION/NOTE blocks are kept.
 //! - **Time:** cue times are exact [`Tick`]s. SRT/VTT milliseconds and SCC 29.97 fps timecodes
-//!   (drop-frame or not) convert exactly; [`Document::snap_to_frames`] snaps to a sequence's إطار.
+//!   (drop-frame or not) convert exactly; [`Document::snap_to_frames`] snaps to a sequence's frames.
 //! - **Model:** [`track_from_document`] / [`document_from_track`] convert to and from the project's
 //!   [`CaptionTrack`].
 //! - **Burn-in:** [`burn`] lays a caption out with the track style and draws it with the

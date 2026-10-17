@@ -1,7 +1,7 @@
 //! Programmatic control of the running app (agents, tests, MCP bridge).
 //!
 //! Transport-agnostic: a transport thread (TCP in the desktop app) sends [`ControlRequest`]s; the
-//! UI thread handles them between إطار and replies with `{"ok":…, "result"|"error":…}`.
+//! UI thread handles them between frames and replies with `{"ok":…, "result"|"error":…}`.
 //!
 //! Methods:
 //! - `engine.execute {command, params}` / `ui.menu.invoke {id}`: run any engine or UI command

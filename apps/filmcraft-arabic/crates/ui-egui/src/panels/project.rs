@@ -1,6 +1,6 @@
 //! Project panel (M12.7): bins and items in List, Icon or Freeform view, with the breadcrumb, search
 //! and selection count, the Preview Area, the footer (views, thumbnail size, Sort Icons, Automate to
-//! تسلسل، Find, New Bin, New Item, Clear) and the panel menu.
+//! Sequence, Find, New Bin, New Item, Clear) and the panel menu.
 //!
 //! View settings, columns, sorting and view presets are engine preferences
 //! (`filmcraft_engine::project_panel`, `project.view.*`, `project.columns.*`, `project.viewPreset.*`);
@@ -653,9 +653,9 @@ fn footer(app: &mut FilmcraftApp, ui: &mut egui::Ui, bar: Rect, v: &View, action
 }
 
 pub const NEW_ITEMS: [(&str, &str); 8] = [
-    ("Sequence…", "file.newSequence"),
+    ("تسلسل…", "file.newSequence"),
     ("Adjustment Layer…", "file.newAdjustmentLayer"),
-    ("Bars and Tone…", "file.newBarsAndTone"),
+    ("أشرطة الألوان والنغمة…", "file.newBarsAndTone"),
     ("Black Video…", "file.newBlackVideo"),
     ("Color Matte…", "file.newColorMatte"),
     ("Universal Counting Leader…", "file.newCountingLeader"),
@@ -677,7 +677,7 @@ pub fn new_item_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, pre: &str, actio
 fn sort_icons_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, pre: &str, actions: &mut Actions) {
     let cur = app.session.prefs.project_panel.view.icon_sort.clone();
     let mut entries: Vec<(String, String)> = vec![("".into(), tl!("User Order").into())];
-    for c in ["الاسم", "Label", "Media Type", "معدل الإطارات", "Media Start", "Media End", "Media Duration", "Video Info", "Audio Info", "Date Created"] {
+    for c in ["الاسم", "لون التسمية", "Media Type", "معدل الإطارات", "Media Start", "Media End", "Media Duration", "Video Info", "Audio Info", "Date Created"] {
         entries.push((c.into(), crate::i18n::t(c).into()));
     }
     for (col, label) in entries {

@@ -4,7 +4,7 @@
 //! WebCodecs path plugs in one level up, as a media source: [`reader_opener`] (registered ahead of
 //! the built-in openers with `filmcraft_codecs::register_reader_opener`) opens H.264, HEVC, VP9 and
 //! AV1 MP4/MOV files as a [`WcSource`]. Its audio and media info come from our own
-//! [`filmcraft_codecs::Mp4Source`]; its video إطار from a browser `VideoDecoder`:
+//! [`filmcraft_codecs::Mp4Source`]; its video frames from a browser `VideoDecoder`:
 //!
 //! - A frame request finds the frame in the decoded-frame cache, or (re)starts a decode session at
 //!   the sample's sync sample, feeds samples up to a little past it (read through the Blob chunk
@@ -49,7 +49,7 @@ struct Transfers {
 
 /// Samples fed past the wanted one (decoders hold pictures for reordering).
 const LOOKAHEAD: usize = 8;
-/// Decoded إطار kept per source.
+/// Decoded frames kept per source.
 const CACHE_FRAMES: usize = 40;
 /// Chunks allowed in the decoder's queue before feeding pauses.
 const MAX_QUEUE: u32 = 24;
@@ -248,7 +248,7 @@ struct Config {
     description: Option<Vec<u8>>,
     width: u32,
     height: u32,
-    /// Clockwise quarter turns from the track matrix, applied to decoded إطار.
+    /// Clockwise quarter turns from the track matrix, applied to decoded frames.
     rotation: u8,
     color: filmcraft_color::ColorInfo,
     par: (u32, u32),
@@ -256,7 +256,7 @@ struct Config {
 
 #[derive(Default)]
 struct Cache {
-    إطار: BTreeMap<i64, Arc<VideoFrame>>,
+    frames: BTreeMap<i64, Arc<VideoFrame>>,
     failed: bool,
 }
 
@@ -588,7 +588,7 @@ impl MediaSource for WcSource {
         }
         let t = &self.file.tracks[self.track];
         let n = t.samples.len();
-        // nearest, as `Mp4Source` looks إطار up (sample times are rounded to the timescale)
+        // nearest, as `Mp4Source` looks frames up (sample times are rounded to the timescale)
         let target = req.time.max(Tick::ZERO).to_rational_round(1, t.timescale.max(1) as i64);
         let i = t.sample_at_presentation_time(target).unwrap_or(n - 1).min(n - 1);
         let want = t.samples[i].pts;
@@ -615,10 +615,10 @@ impl MediaSource for WcSource {
         }
     }
 
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
-        self.inner.audio(start, إطار, sample_rate)
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+        self.inner.audio(start, frames, sample_rate)
     }
-    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
-        self.inner.audio_stream(stream, start, إطار, sample_rate)
+    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+        self.inner.audio_stream(stream, start, frames, sample_rate)
     }
 }

@@ -144,7 +144,7 @@ impl R<'_, '_> {
     }
 
     fn composition(&mut self, m: u32) -> Composition {
-        let name = self.string(m, "OMFI:MOBJ:Name").unwrap_or_else(|| "التسلسل".into());
+        let name = self.string(m, "OMFI:MOBJ:Name").unwrap_or_else(|| "تسلسل".into());
         let mut comp = Composition {
             name,
             rate: FrameRate::FPS_25,

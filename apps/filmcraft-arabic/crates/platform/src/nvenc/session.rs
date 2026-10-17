@@ -407,7 +407,7 @@ impl Session {
                     }
                     h.maxNumRefFramesInDPB = 0;
                     // the stream's colour description (BT.709 unless the signal says otherwise), limited
-                    // range; an HEVC VUI counts إطار, not fields: frame rate = time_scale / num_units_in_tick
+                    // range; an HEVC VUI counts frames, not fields: frame rate = time_scale / num_units_in_tick
                     let vui = &mut h.hevcVUIParameters;
                     vui.videoSignalTypePresentFlag = 1;
                     vui.videoFormat = NV_ENC_VUI_VIDEO_FORMAT_UNSPECIFIED;

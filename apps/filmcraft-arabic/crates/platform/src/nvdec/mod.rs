@@ -66,7 +66,7 @@ impl NvDecoder {
     }
 }
 
-fn إطار(out: Vec<(i64, filmcraft_frame::VideoFrame)>) -> Vec<DecodedFrame> {
+fn frames(out: Vec<(i64, filmcraft_frame::VideoFrame)>) -> Vec<DecodedFrame> {
     out.into_iter().map(|(pts, frame)| DecodedFrame { pts, frame, draft: false }).collect()
 }
 
@@ -96,7 +96,7 @@ impl VideoDecoder for NvDecoder {
         // the parser starts over after an end of stream
         self.primed = false;
         match self.session.flush() {
-            Ok(out) => إطار(out),
+            Ok(out) => frames(out),
             Err(e) => {
                 log::warn!("{}: {e} while flushing", self.name);
                 Vec::new()

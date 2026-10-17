@@ -140,8 +140,8 @@ pub const KEYS: &[&str] = &[
     "PageDown",
     "Up",
     "Down",
-    "Left",
-    "Right",
+    "يسار",
+    "يمين",
 ];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -218,8 +218,8 @@ fn canon_key(tok: &str) -> Option<&'static str> {
         "⌫" | "back" => "Backspace",
         "arrowup" | "↑" => "Up",
         "arrowdown" | "↓" => "Down",
-        "arrowleft" | "←" => "Left",
-        "arrowright" | "→" => "Right",
+        "arrowleft" | "←" => "يسار",
+        "arrowright" | "→" => "يمين",
         "pgup" | "pageup" => "PageUp",
         "pgdn" | "pagedown" => "PageDown",
         "spacebar" | "␣" => "Space",
@@ -321,8 +321,8 @@ impl Chord {
                 "Enter" => "↩",
                 "Escape" => "⎋",
                 "Tab" => "⇥",
-                "Left" => "←",
-                "Right" => "→",
+                "يسار" => "←",
+                "يمين" => "→",
                 "Up" => "↑",
                 "Down" => "↓",
                 "PageUp" => "Page Up",

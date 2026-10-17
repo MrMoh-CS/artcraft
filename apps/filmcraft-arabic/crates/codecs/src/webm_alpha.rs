@@ -5,7 +5,7 @@
 //!
 //! [`AlphaDecoder`] wraps the colour decoder: every sample it decodes, it also decodes that
 //! sample's alpha frame with a second (software) decoder and attaches the luma plane to the
-//! colour picture with the same timestamp, holding a colour picture back until its alpha is out. The alpha stream has key إطار of its own, which need
+//! colour picture with the same timestamp, holding a colour picture back until its alpha is out. The alpha stream has key frames of its own, which need
 //! not coincide with the colour ones: after a seek (or any other break in the order samples are
 //! fed), the alpha decoder restarts from the nearest alpha key frame at or before the sample.
 //!
@@ -86,8 +86,8 @@ impl AlphaDecoder {
         Self { color, alpha, layer, next: None, pending: VecDeque::new(), alpha_max: None, held: VecDeque::new() }
     }
 
-    fn keep(&mut self, إطار: Vec<DecodedFrame>) {
-        for f in إطار {
+    fn keep(&mut self, frames: Vec<DecodedFrame>) {
+        for f in frames {
             self.alpha_max = Some(self.alpha_max.map_or(f.pts, |m| m.max(f.pts)));
             self.pending.push_back((f.pts, f.frame));
         }

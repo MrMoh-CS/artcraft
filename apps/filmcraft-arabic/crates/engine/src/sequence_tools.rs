@@ -72,21 +72,21 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
     vec![
         (
             "sequence.matchFrame",
-            vec![spec("sequence.reverseMatchFrame", "Reverse Match Frame", &["التسلسل"], Some("Shift+R"), "{}", has_source, |s, _| reverse_match_frame(s))],
+            vec![spec("sequence.reverseMatchFrame", "Reverse Match Frame", &["تسلسل"], Some("Shift+R"), "{}", has_source, |s, _| reverse_match_frame(s))],
         ),
         (
             "sequence.closeGap",
             vec![
-                spec("sequence.goToNextGap", "Next in Sequence", &["التسلسل", "Go to Gap"], Some("Shift+;"), "{}", has_seq, |s, p| {
+                spec("sequence.goToNextGap", "Next in Sequence", &["تسلسل", "Go to Gap"], Some("Shift+;"), "{}", has_seq, |s, p| {
                     go_to_gap(s, p, true, false)
                 }),
-                spec("sequence.goToPrevGap", "Previous in Sequence", &["التسلسل", "Go to Gap"], Some("Cmd+Shift+;"), "{}", has_seq, |s, p| {
+                spec("sequence.goToPrevGap", "Previous in Sequence", &["تسلسل", "Go to Gap"], Some("Cmd+Shift+;"), "{}", has_seq, |s, p| {
                     go_to_gap(s, p, false, false)
                 }),
-                spec("sequence.goToNextGapInTrack", "Next in Track", &["التسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
+                spec("sequence.goToNextGapInTrack", "Next in Track", &["تسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
                     go_to_gap(s, p, true, true)
                 }),
-                spec("sequence.goToPrevGapInTrack", "Previous in Track", &["التسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
+                spec("sequence.goToPrevGapInTrack", "Previous in Track", &["تسلسل", "Go to Gap"], None, r#"{"track":"V1"|id?}"#, has_seq, |s, p| {
                     go_to_gap(s, p, false, true)
                 }),
             ],
@@ -94,20 +94,20 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
         (
             "sequence.linkedSelection",
             vec![
-                spec("sequence.selectionFollowsPlayhead", "Selection Follows Playhead", &["التسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
+                spec("sequence.selectionFollowsPlayhead", "Selection Follows Playhead", &["تسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
                     s.state.selection_follows_playhead = bool_p(p, "on").unwrap_or(!s.state.selection_follows_playhead);
                     if s.state.selection_follows_playhead {
                         select_under_playhead(s);
                     }
                     Ok(json!({"selectionFollowsPlayhead": s.state.selection_follows_playhead}))
                 }),
-                spec("sequence.showThroughEdits", "Show Through Edits", &["التسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
+                spec("sequence.showThroughEdits", "Show Through Edits", &["تسلسل"], None, r#"{"on":bool?}"#, always, |s, p| {
                     s.state.show_through_edits = bool_p(p, "on").unwrap_or(!s.state.show_through_edits);
                     Ok(json!({"showThroughEdits": s.state.show_through_edits}))
                 }),
                 spec(
                     "sequence.joinThroughEdits",
-                    "Join Through Edits",
+                    "دمج عبر نقاط القطع",
                     &[],
                     None,
                     r#"{"clips":[id]?,"cut":[id,id]?,"all":bool?}"#,
@@ -123,7 +123,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
                             .collect(),
                     ))
                 }),
-                spec("sequence.makeSubsequence", "Make Subsequence", &["التسلسل"], Some("Shift+U"), r#"{"name":str?}"#, has_seq, make_subsequence),
+                spec("sequence.makeSubsequence", "إنشاء تسلسل فرعي", &["تسلسل"], Some("Shift+U"), r#"{"name":str?}"#, has_seq, make_subsequence),
             ],
         ),
         (
@@ -131,7 +131,7 @@ fn groups() -> Vec<(&'static str, Vec<CommandSpec>)> {
             vec![spec(
                 "sequence.deleteTracks",
                 "Delete Tracks…",
-                &["التسلسل"],
+                &["تسلسل"],
                 None,
                 r#"{"video":"empty"|"V2"|id?,"audio":"empty"|"A2"|id?,"captions":"empty"|"C2"|id?}"#,
                 has_seq,
@@ -348,7 +348,7 @@ fn join_through_edits(s: &mut Session, p: &Value) -> Result<Value> {
     if !any {
         return Err(EngineError::Other("there are no through edits to join".into()));
     }
-    let n = s.edit_sequence("Join Through Edits", |q, _, st| {
+    let n = s.edit_sequence("دمج عبر نقاط القطع", |q, _, st| {
         let n = edit::through::join_through_edits(q, &only);
         st.selection.retain(|c| q.find_item(*c).is_some());
         Ok(n)
@@ -368,7 +368,7 @@ fn join_through_edit_at(s: &mut Session, cut: &Value) -> Result<Value> {
         return Err(EngineError::Other("that cut is not a through edit".into()));
     }
     let (lefts, rights) = (with_links(s, &[left]), with_links(s, &[right]));
-    let n = s.edit_sequence("Join Through Edits", |q, _, st| {
+    let n = s.edit_sequence("دمج عبر نقاط القطع", |q, _, st| {
         let n = edit::through::join_through_edits_where(q, |a, b| lefts.contains(&a) && rights.contains(&b));
         st.selection.retain(|c| q.find_item(*c).is_some());
         Ok(n)
@@ -383,7 +383,7 @@ fn join_through_edit_at(s: &mut Session, cut: &Value) -> Result<Value> {
 /// they are set. The new sequence is added to the project and selected; the original is unchanged.
 /// Give a sequence made from part of `from` (Nest…, Make Subsequence) the track names and audio
 /// channel layouts of `from`'s tracks, track for track.
-pub(crate) fn lay_out_tracks_like(new: &mut filmcraft_project::تسلسل، from: &filmcraft_project::Sequence) {
+pub(crate) fn lay_out_tracks_like(new: &mut filmcraft_project::Sequence, from: &filmcraft_project::Sequence) {
     for (tr, src) in new.video_tracks.iter_mut().zip(&from.video_tracks) {
         tr.name = src.name.clone();
     }
@@ -431,7 +431,7 @@ fn make_subsequence(s: &mut Session, p: &Value) -> Result<Value> {
             .find(|n| !s.project.items.values().any(|i| &i.name == n))
             .unwrap_or_else(|| format!("{seq_name}_Sub")),
     };
-    let id = s.edit("Make Subsequence", |pr, st| {
+    let id = s.edit("إنشاء تسلسل فرعي", |pr, st| {
         let nid = pr.new_sequence(&name, q.settings.clone(), q.video_tracks.len(), q.audio_tracks.len(), None);
         let mut ids = std::collections::HashMap::new();
         let mut links = std::collections::HashMap::new();

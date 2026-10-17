@@ -749,7 +749,7 @@ fn custom(app: &mut FilmcraftApp, ui: &mut Ui, d: &mut SettingsDraft, name: &str
         }
         "memoryInfo" => {
             let (used, budget) = app.frames.cache_usage();
-            note(ui, &t, &tlf!("Decoded إطار held for the monitors and thumbnails: {used} of {budget}.", used = mb(used as u64), budget = mb(budget as u64)));
+            note(ui, &t, &tlf!("Decoded frames held for the monitors and thumbnails: {used} of {budget}.", used = mb(used as u64), budget = mb(budget as u64)));
             note(ui, &t, tl!("FilmCraft keeps the rest of the RAM free for other applications."));
         }
         "mediaCacheInfo" => {
@@ -909,7 +909,7 @@ pub fn show(app: &mut FilmcraftApp, ctx: &egui::Context) -> bool {
             if button(app, ui, "settings.help", tl!("مساعدة"), false) {
                 crate::links::open(app, ctx, &format!("{}/blob/main/docs/project-files.md#settings", crate::links::GITHUB));
             }
-            if button(app, ui, "settings.reset", tl!("Reset…"), false) {
+            if button(app, ui, "settings.reset", tl!("إعادة ضبط…"), false) {
                 // this category back to its defaults (OK applies it)
                 let defaults = filmcraft_engine::autosave::Preferences::default().to_value();
                 let keep = get(&d.values, "general.recentProjects").clone();

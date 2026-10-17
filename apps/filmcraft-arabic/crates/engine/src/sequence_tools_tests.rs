@@ -18,12 +18,12 @@ fn fresh() -> (Session, u64) {
     (s, item)
 }
 
-fn f(s: &Session, إطار: i64) -> Tick {
+fn f(s: &Session, frames: i64) -> Tick {
     s.sequence_rate().tick_of(frames)
 }
 
-fn place(s: &mut Session, item: u64, track: &str, at: i64, source_in: i64, إطار: i64) -> Vec<u64> {
-    let (sin, dur) = (f(s, source_in), f(s, إطار));
+fn place(s: &mut Session, item: u64, track: &str, at: i64, source_in: i64, frames: i64) -> Vec<u64> {
+    let (sin, dur) = (f(s, source_in), f(s, frames));
     let at = f(s, at);
     let audio = track.replace('V', "A");
     let r =
@@ -47,7 +47,7 @@ fn commands_are_registered_in_premiere_menu_order() {
     assert!(after("markers.goToOut", "markers.goToSplitVideoIn"));
     assert!(after("markers.add", "markers.addRange"));
     let gap = find_command("sequence.goToPrevGap").unwrap();
-    assert_eq!(gap.menu, &["التسلسل", "Go to Gap"]);
+    assert_eq!(gap.menu, &["تسلسل", "Go to Gap"]);
     assert_eq!(gap.label, "Previous in Sequence");
     assert_eq!(find_command("markers.clearAll").unwrap().label, "Clear Markers");
     assert_eq!(s.shortcuts.primary("sequence.reverseMatchFrame").as_deref(), Some("Shift+R"));
@@ -194,7 +194,7 @@ fn make_subsequence_from_in_out_and_from_selection() {
     q.check().unwrap();
     assert_eq!(q.duration(), f(&s, 48));
     assert_eq!(q.video_tracks.len(), orig.video_tracks.len());
-    // same إطار at the same relative times
+    // same frames at the same relative times
     for (nt, ot) in q.all_tracks().zip(orig.all_tracks()) {
         for it in &nt.items {
             let t = it.start + Tick(1);
@@ -240,14 +240,14 @@ fn add_tracks_places_and_types_them() {
     // without a place: after the last track (and one video track when nothing is said, as before)
     let r = s.execute("sequence.addTracks", json!({})).unwrap();
     assert_eq!((r["video"].as_array().unwrap().len(), r["audio"].as_array().unwrap().len(), r["submix"].as_array().unwrap().len()), (1, 0, 0));
-    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4"]);
+    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "Video 4"]);
     assert_eq!(s.active_sequence().unwrap().video_tracks[3].id.0, r["video"][0].as_u64().unwrap());
     s.execute("edit.undo", json!({})).unwrap();
 
     // after Video 1: two new empty tracks there, the tracks above move up and are numbered again
     s.execute("sequence.addTracks", json!({"video": 2, "videoAfter": "V1"})).unwrap();
     let q = s.active_sequence().unwrap();
-    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4", "فيديو 5"]);
+    assert_eq!(names(&s, TrackKind::Video), ["فيديو 1", "فيديو 2", "فيديو 3", "Video 4", "Video 5"]);
     assert!(q.video_tracks[1].items.is_empty() && q.video_tracks[2].items.is_empty());
     assert_eq!(q.video_tracks[3].id, before.video_tracks[1].id);
     assert_eq!(q.video_tracks[3].items[0].id, on_v2, "what was on Video 2 is on Video 4");
@@ -263,7 +263,7 @@ fn add_tracks_places_and_types_them() {
     })
     .unwrap();
     s.execute("sequence.addTracks", json!({"video": 0, "audio": 1, "audioAfter": "first", "audioType": "mono"})).unwrap();
-    assert_eq!(names(&s, TrackKind::Audio), ["صوت 1", "صوت 2", "Music", "صوت 4"]);
+    assert_eq!(names(&s, TrackKind::Audio), ["صوت 1", "صوت 2", "Music", "Audio 4"]);
     let q = s.active_sequence().unwrap();
     assert_eq!(q.audio_tracks[0].channels, AudioChannels::Mono);
     assert_eq!(q.audio_tracks[1].id, before.audio_tracks[0].id);
@@ -428,7 +428,7 @@ fn source_split_points_make_l_and_j_cuts() {
     s.execute("source.open", json!({"item": bars})).unwrap();
     let r = s.sequence_rate();
     s.execute("project.setMarks", json!({"item": bars, "in": r.tick_of(48).0, "out": r.tick_of(95).0})).unwrap();
-    // J-cut: audio starts 12 إطار before the picture
+    // J-cut: audio starts 12 frames before the picture
     s.execute("markers.markSplitAudioIn", json!({"target": "source", "time": r.tick_of(36).0})).unwrap();
     assert_eq!(s.project.item(ItemId(bars)).unwrap().split.audio_in, Some(r.tick_of(36)));
     s.execute("markers.goToSplitAudioIn", json!({"target": "source"})).unwrap();

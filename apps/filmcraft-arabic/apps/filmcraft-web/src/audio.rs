@@ -2,7 +2,7 @@
 //!
 //! The mixer runs on the UI thread (wasm has no audio thread of its own here): every frame
 //! [`Handle::pump`] mixes until ~250 ms are queued and posts the blocks to the worklet
-//! (`web/audio-worklet.js`). The worklet counts the إطار it actually played and reports them
+//! (`web/audio-worklet.js`). The worklet counts the frames it actually played and reports them
 //! with its `currentTime`; [`AudioOut::played_frames`] extrapolates from the last report on the
 //! context's clock and never runs past what was queued. So, as on the desktop, playback follows
 //! the audio clock: if the worklet starves, the playhead waits for it.
@@ -27,7 +27,7 @@ struct State {
     generation: u32,
     /// Frames posted since `start`.
     queued: u64,
-    /// Last report from the worklet: إطار played and its `currentTime`.
+    /// Last report from the worklet: frames played and its `currentTime`.
     played: u64,
     played_at: f64,
     reported: bool,

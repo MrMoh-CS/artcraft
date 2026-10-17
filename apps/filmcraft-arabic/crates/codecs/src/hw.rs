@@ -44,11 +44,11 @@ pub fn hw_backend() -> Option<&'static str> {
 }
 
 /// Process-wide hardware decoding counters (they only grow; subtract two snapshots to measure an
-/// interval). Frames decoded in software are `GopStats::frames - إطار`.
+/// interval). Frames decoded in software are `GopStats::frames - frames`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct HwStats {
     /// Pictures output by hardware decoders.
-    pub إطار: u64,
+    pub frames: u64,
     /// Hardware decoders created (one per decoder instance; a seek reuses it).
     pub sessions: u64,
     /// Streams a hardware factory handed to the software decoder (unsupported profile, size,
@@ -66,7 +66,7 @@ static FALLBACKS: AtomicU64 = AtomicU64::new(0);
 /// The counters so far.
 pub fn hw_stats() -> HwStats {
     HwStats {
-        إطار: FRAMES.load(Ordering::Relaxed),
+        frames: FRAMES.load(Ordering::Relaxed),
         sessions: SESSIONS.load(Ordering::Relaxed),
         declined: DECLINED.load(Ordering::Relaxed),
         fallbacks: FALLBACKS.load(Ordering::Relaxed),

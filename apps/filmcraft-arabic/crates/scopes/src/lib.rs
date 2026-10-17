@@ -3,7 +3,7 @@
 //! summaries for agents ([`summary`]) and the density-to-pixels mapping the UI draws ([`paint`]).
 //!
 //! The input is a [`Signal`]: the frame's R'G'B' code values (display-encoded, 0..1 nominal;
-//! values outside it are super-whites / sub-blacks of float or HDR إطار), decimated to at most
+//! values outside it are super-whites / sub-blacks of float or HDR frames), decimated to at most
 //! [`MAX_W`] × [`MAX_H`] samples by nearest-sample picking (no averaging, so flat colours and
 //! test patterns land on exact cells). Y'CbCr comes from the scope's colour space matrix
 //! (BT.601, BT.709 or BT.2020 NCL; `filmcraft_color::rgb_to_ycbcr`).

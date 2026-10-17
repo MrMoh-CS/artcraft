@@ -74,13 +74,13 @@ pub struct PlaybackPrefs {
     pub preroll_seconds: f64,
     /// "Postroll: N seconds".
     pub postroll_seconds: f64,
-    /// "Step forward/back many: N إطار" (Shift+Right / Shift+Left).
+    /// "Step forward/back many: N frames" (Shift+Right / Shift+Left).
     pub step_many_frames: u32,
     pub pause_encoder_queue: bool,
     pub enable_transmit: bool,
     pub disable_video_in_background: bool,
     /// Draft decoding while playing at 1/2 resolution or lower: H.264 non-reference pictures
-    /// skip deblocking (faster; those إطار are approximate). Never used for exports, renders or
+    /// skip deblocking (faster; those frames are approximate). Never used for exports, renders or
     /// a paused frame. Off by default.
     pub draft_decode: bool,
     /// "Hardware decoding": `auto` (default: the system's hardware decoder for streams it
@@ -109,7 +109,7 @@ impl Default for PlaybackPrefs {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]
 pub struct TrimPrefs {
-    /// "Large Trim Offset: N إطار" (Trim Forward/Backward Many, the Trim Monitor's ±N buttons).
+    /// "Large Trim Offset: N frames" (Trim Forward/Backward Many, the Trim Monitor's ±N buttons).
     pub large_trim_offset: u32,
     /// The audio Large Trim Offset (audio time units).
     pub large_trim_offset_audio: u32,

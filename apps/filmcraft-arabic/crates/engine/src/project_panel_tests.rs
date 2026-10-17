@@ -61,7 +61,7 @@ fn metadata_display_chooses_and_orders_columns() {
     s.execute("metadata.set", json!({"item": ids[0].0, "field": "Mood", "value": "calm"})).unwrap();
     let l = s.execute("project.columns.list", json!({})).unwrap();
     let avail: Vec<&str> = l["available"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap()).collect();
-    for c in ["الاسم", "Label", "Media Duration", "Video Usage", "Mood"] {
+    for c in ["الاسم", "لون التسمية", "Media Duration", "Video Usage", "Mood"] {
         assert!(avail.contains(&c), "{c} missing from {avail:?}");
     }
     // Freeform bookkeeping keys are not offered
@@ -70,11 +70,11 @@ fn metadata_display_chooses_and_orders_columns() {
     assert!(!l["available"].as_array().unwrap().iter().any(|c| c["name"] == FREEFORM_POS));
 
     // Name stays first; unknown-case names are canonicalised; widths are kept
-    s.execute("project.columns.set", json!({"columns": ["media duration", {"name": "Mood", "width": 90}, "Label"]})).unwrap();
+    s.execute("project.columns.set", json!({"columns": ["media duration", {"name": "Mood", "width": 90}, "لون التسمية"]})).unwrap();
     let cols: Vec<String> = s.prefs.project_panel.view.columns.iter().map(|c| c.name.clone()).collect();
-    assert_eq!(cols, ["الاسم", "Media Duration", "Mood", "Label"]);
+    assert_eq!(cols, ["الاسم", "Media Duration", "Mood", "لون التسمية"]);
     assert_eq!(s.prefs.project_panel.view.columns[2].width, 90.0);
-    s.execute("project.columns.resize", json!({"column": "Label", "width": 140})).unwrap();
+    s.execute("project.columns.resize", json!({"column": "لون التسمية", "width": 140})).unwrap();
     assert_eq!(s.prefs.project_panel.view.columns[3].width, 140.0);
     assert!(s.execute("project.columns.resize", json!({"column": "معدل الإطارات", "width": 140})).is_err(), "not shown");
 
@@ -114,7 +114,7 @@ fn view_presets_save_restore_and_manage() {
     assert!(s.execute("project.viewPreset.save", json!({})).is_err(), "no current preset yet");
     assert!(s.execute("project.viewPreset.restore", json!({"slot": 1})).is_err(), "none saved");
     s.execute("project.view.set", json!({"view": "list"})).unwrap();
-    s.execute("project.columns.set", json!({"columns": ["الاسم", "Label"]})).unwrap();
+    s.execute("project.columns.set", json!({"columns": ["الاسم", "لون التسمية"]})).unwrap();
     let r = s.execute("project.viewPreset.saveAs", json!({"name": "Logging"})).unwrap();
     assert_eq!(r["current"], 1);
     assert_eq!(r["presets"][0]["name"], "Logging");

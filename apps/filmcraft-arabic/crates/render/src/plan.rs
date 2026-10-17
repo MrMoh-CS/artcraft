@@ -21,7 +21,7 @@ use std::sync::Arc;
 use filmcraft_frame::VideoFrame;
 use filmcraft_geom::Affine;
 use filmcraft_media::FrameRequest;
-use filmcraft_project::{ItemId, ItemKind, Project, تسلسل، TrackItem};
+use filmcraft_project::{ItemId, ItemKind, Project, Sequence, TrackItem};
 use filmcraft_time::Tick;
 
 use crate::gpufx::FxOp;
@@ -220,17 +220,17 @@ pub fn is_cpu_frame(project: &Project, seq_id: ItemId, t: Tick) -> bool {
     project.sequence(seq_id).is_none_or(|seq| whole_frame_on_cpu(project, seq, t))
 }
 
-/// The إطار [`plan_frame`] does not plan: an HDR / wide-gamut sequence composites and converts
+/// The frames [`plan_frame`] does not plan: an HDR / wide-gamut sequence composites and converts
 /// on the CPU, and so does a frame with an adjustment layer or a complex transition anywhere at
 /// `t` (whole-frame fallback).
-fn whole_frame_on_cpu(project: &Project, seq: &تسلسل، t: Tick) -> bool {
+fn whole_frame_on_cpu(project: &Project, seq: &Sequence, t: Tick) -> bool {
     !seq.settings.color.is_plain() || !layered_at(project, seq, t)
 }
 
 /// Whether the frame of `seq` at `t` can be planned as layers: no adjustment layer and no
 /// transition the compositor cannot mix itself is showing (a transition into or out of an
 /// adjustment layer counts, also on the side of the cut where the other clip is).
-pub(crate) fn layered_at(project: &Project, seq: &تسلسل، t: Tick) -> bool {
+pub(crate) fn layered_at(project: &Project, seq: &Sequence, t: Tick) -> bool {
     let adjustment = |it: &TrackItem| project.item(it.item).is_some_and(|p| matches!(p.kind, ItemKind::AdjustmentLayer { .. }));
     for tr in &seq.video_tracks {
         if !tr.enabled {
@@ -255,14 +255,14 @@ pub(crate) fn layered_at(project: &Project, seq: &تسلسل، t: Tick) -> bool 
 
 /// Push the layers of every video track of `seq` at `t`, bottom track first (`seq` must be
 /// [`layered_at`] `t`). `nest` counts the nested sequences already followed to reach `seq`.
-fn push_tracks(project: &Project, seq: &تسلسل، t: Tick, opts: RenderOptions, sources: &dyn SourceProvider, nest: u32, layers: &mut PlanStack) {
+fn push_tracks(project: &Project, seq: &Sequence, t: Tick, opts: RenderOptions, sources: &dyn SourceProvider, nest: u32, layers: &mut PlanStack) {
     let (w, h) = output_size(seq, opts.scale);
     for tr in &seq.video_tracks {
         if !tr.enabled {
             continue;
         }
         if let Some(trn) = tr.transitions.iter().find(|x| x.range().contains(t)) {
-            // These dissolves are symmetric: Reverse (play B→A backwards) renders the same إطار.
+            // These dissolves are symmetric: Reverse (play B→A backwards) renders the same frames.
             let p = trn.progress(t) as f32;
             let a = trn.from.and_then(|id| tr.item(id)).filter(|i| i.enabled);
             let b = trn.to.and_then(|id| tr.item(id)).filter(|i| i.enabled);
@@ -317,7 +317,7 @@ fn push_tracks(project: &Project, seq: &تسلسل، t: Tick, opts: RenderOption
 /// by one over what is below gives the same picture as compositing them together first only when
 /// they all blend Normal, and the frame must be one that plans as layers in the same colour
 /// pipeline.
-fn nest_is_plain(project: &Project, seq: &تسلسل، nested: &تسلسل، ft: Tick) -> bool {
+fn nest_is_plain(project: &Project, seq: &Sequence, nested: &Sequence, ft: Tick) -> bool {
     nested.settings.color == seq.settings.color
         && (nested.settings.width, nested.settings.height) == (seq.settings.width, seq.settings.height)
         && layered_at(project, nested, ft)
@@ -418,7 +418,7 @@ fn push_item(
         let cs = crate::colorman::source_space(project, item.item, &frame);
         // HDR and wide-gamut media on a Rec. 709 sequence is converted on the GPU too (#965); log
         // media and other pipelines are converted on the CPU (below), and so are blended
-        // in-between إطار (Frame Blending / Optical Flow on speed-changed clips)
+        // in-between frames (Frame Blending / Optical Flow on speed-changed clips)
         let pipe = &seq.settings.color;
         let input = if crate::colorman::needs_management(pipe, cs, &frame) { crate::colorman::gpu_input(project, item.item, pipe, cs, &frame) } else { None };
         let plain =

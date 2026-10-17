@@ -194,7 +194,7 @@ pub fn metadata_fields(p: &Project, id: ItemId) -> Vec<Field> {
     let mut out = Vec::new();
     let mut add = |section, name: &str, value: String, editable| out.push(Field { section, name: name.to_string(), value, editable });
     add("مقطع", "الاسم", it.name.clone(), true);
-    add("مقطع", "Label", it.label.name().to_string(), true);
+    add("مقطع", "لون التسمية", it.label.name().to_string(), true);
     add("مقطع", "Media Type", it.type_label().to_string(), false);
     let col = |c: &str| filmcraft_project::find::column_text(p, it, c);
     add("مقطع", "معدل الإطارات", col("معدل الإطارات"), false);

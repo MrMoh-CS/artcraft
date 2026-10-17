@@ -6,7 +6,7 @@
 //! are full-resolution clip pixels scaled by `FxCtx::px_scale`; colour maths that artists expect
 //! in display space (keys, limiters, CDL) runs on sRGB-encoded straight colour.
 //!
-//! Effects that need more than the current frame — Posterize Time and Echo (other إطار), Track
+//! Effects that need more than the current frame — Posterize Time and Echo (other frames), Track
 //! Matte Key / Compound Blur / Gradient Wipe (another track), Auto Reframe and Warp Stabilizer
 //! (frames for analysis, sequence geometry) — read it through [`FxEnv`]; without an environment
 //! (isolated tests, adjustment layers) they leave the image unchanged.
@@ -25,7 +25,7 @@ mod text;
 mod tests;
 
 use filmcraft_geom::{Affine, Vec2};
-use filmcraft_project::{EffectInstance, ParamValue, Project, تسلسل، TrackItem};
+use filmcraft_project::{EffectInstance, ParamValue, Project, Sequence, TrackItem};
 use filmcraft_time::{Tick, TimeDisplay, format_time};
 use rayon::prelude::*;
 
@@ -84,7 +84,7 @@ fn resize(img: Image, w: usize, h: usize) -> Image {
     img.transformed(w, h, &m)
 }
 
-/// Effects that read other إطار (skipped when rendering another frame for one of them).
+/// Effects that read other frames (skipped when rendering another frame for one of them).
 pub fn is_temporal(id: &str) -> bool {
     matches!(id, "posterize_time" | "echo" | "warp_stabilizer" | "auto_reframe")
 }

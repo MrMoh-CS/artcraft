@@ -1,4 +1,4 @@
-//! OpenEXR stills (and the إطار of EXR image sequences), read from the public OpenEXR file layout:
+//! OpenEXR stills (and the frames of EXR image sequences), read from the public OpenEXR file layout:
 //! single-part scan-line files with no, RLE, ZIPS (one line per chunk), ZIP or PXR24 (16 lines)
 //! compression,
 //! half, float or uint channels. R, G, B and A become the frame's channels (missing colour channels
@@ -40,7 +40,7 @@ pub fn sniff(b: &[u8]) -> bool {
     b.starts_with(&MAGIC)
 }
 
-/// The colour of EXR إطار: scene-linear light, Rec.709 primaries.
+/// The colour of EXR frames: scene-linear light, Rec.709 primaries.
 const LINEAR_709: ColorInfo = ColorInfo { transfer: Transfer::Linear, ..ColorInfo::SRGB_FULL };
 
 /// A decoded EXR picture.

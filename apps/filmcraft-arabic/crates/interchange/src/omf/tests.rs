@@ -72,7 +72,7 @@ fn written_files_have_the_required_structure() {
             key: n.key,
             channel: None,
             start: n.start,
-            إطار: 480,
+            frames: 480,
             sample_rate: 48_000,
             bits: 16,
             channels: 2,

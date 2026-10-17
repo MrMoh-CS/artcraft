@@ -15,9 +15,9 @@ pub enum PcmContainer {
     Aiff,
 }
 
-/// Bytes of sample data for `frames` إطار, or None when that does not fit 64 bits.
+/// Bytes of sample data for `frames` frames, or None when that does not fit 64 bits.
 fn data_len(frames: u64, channels: u16, format: SampleFormat) -> Option<u64> {
-    إطار.checked_mul(u64::from(channels))?.checked_mul(format.bytes() as u64)
+    frames.checked_mul(u64::from(channels))?.checked_mul(format.bytes() as u64)
 }
 
 /// The pad byte after an odd-sized data chunk (RIFF and AIFF chunks are word-aligned).
@@ -34,11 +34,11 @@ const AIFC_VERSION_1: u32 = 0xA280_5140;
 /// The AIFF-C compression name of `fl32`, as a Pascal string of even length.
 const FL32_NAME: &[u8] = b"\x1532-bit floating point";
 
-/// Everything before the samples of a file of `frames` إطار. A WAV whose RIFF size would not
+/// Everything before the samples of a file of `frames` frames. A WAV whose RIFF size would not
 /// fit 32 bits (4 GiB: 24-bit 5.1 at 96 kHz after about 41 minutes) is written as RF64 (EBU Tech
 /// 3306), with the 64-bit sizes in a `ds64` chunk. AIFF has no 64-bit form, so a longer AIFF is
 /// an error naming WAV instead.
-pub fn header(container: PcmContainer, channels: u16, sample_rate: u32, format: SampleFormat, إطار: u64) -> Result<Vec<u8>, String> {
+pub fn header(container: PcmContainer, channels: u16, sample_rate: u32, format: SampleFormat, frames: u64) -> Result<Vec<u8>, String> {
     let too_long = || "the audio is too long to write".to_string();
     let bits = format.bits();
     let bps = bits / 8;
@@ -110,7 +110,7 @@ pub fn header(container: PcmContainer, channels: u16, sample_rate: u32, format: 
         }
         PcmContainer::Aiff => {
             let aiff_too_long = || "AIFF holds at most 4 GB of audio: export WAV, which has no such limit".to_string();
-            let إطار32 = u32::try_from(frames).map_err(|_| aiff_too_long())?;
+            let frames32 = u32::try_from(frames).map_err(|_| aiff_too_long())?;
             // SSND: offset + block size + samples
             let ssnd = u32::try_from(data.checked_add(8).ok_or_else(aiff_too_long)?).map_err(|_| aiff_too_long())?;
             // floats need AIFF-C: a version chunk, and the compression type and name in COMM
@@ -162,8 +162,8 @@ pub fn encode(container: PcmContainer, interleaved: &[f32], format: SampleFormat
 
 /// A whole file in memory (short audio; exports stream with [`header`] and [`encode`]).
 fn write_whole(container: PcmContainer, interleaved: &[f32], channels: u16, sample_rate: u32, format: SampleFormat) -> Result<Vec<u8>, String> {
-    let إطار = (interleaved.len() / usize::from(channels.max(1))) as u64;
-    let mut v = header(container, channels, sample_rate, format, إطار)?;
+    let frames = (interleaved.len() / usize::from(channels.max(1))) as u64;
+    let mut v = header(container, channels, sample_rate, format, frames)?;
     encode(container, interleaved, format, &mut v);
     v.extend_from_slice(pad(frames, channels, format));
     Ok(v)
@@ -195,7 +195,7 @@ pub fn write_aiff(interleaved: &[f32], channels: u16, sample_rate: u32, format: 
     write_whole(PcmContainer::Aiff, interleaved, channels, sample_rate, format)
 }
 
-/// File name of frame `index` of an image sequence of `count` إطار exported to `path`:
+/// File name of frame `index` of an image sequence of `count` frames exported to `path`:
 /// the file name's stem followed directly by the zero-padded frame number (at least three
 /// digits, more when the count needs them), starting at 000, like Premiere's numbered stills:
 /// `Sequence 01.png` → `Sequence 01000.png`, `Sequence 01001.png`, …
@@ -258,16 +258,16 @@ mod tests {
     /// (a panic in debug builds, a corrupt header in release).
     #[test]
     fn wav_past_4_gib_is_rf64() {
-        let إطار = 96_000u64 * 60 * 60; // an hour: 6.2 GB
-        let h = header(PcmContainer::Wav, 6, 96_000, I24, إطار).unwrap();
-        let data = إطار * 6 * 3;
+        let frames = 96_000u64 * 60 * 60; // an hour: 6.2 GB
+        let h = header(PcmContainer::Wav, 6, 96_000, I24, frames).unwrap();
+        let data = frames * 6 * 3;
         assert_eq!(&h[..4], b"RF64");
         assert_eq!(le32(&h, 4), u32::MAX);
         assert_eq!(&h[8..16], b"WAVEds64");
         assert_eq!(le32(&h, 16), 28);
         // the 64-bit RIFF size covers everything after the first 8 bytes
         assert_eq!(le64(&h, 20), h.len() as u64 - 8 + data);
-        assert_eq!((le64(&h, 28), le64(&h, 36), le32(&h, 44)), (data, إطار, 0));
+        assert_eq!((le64(&h, 28), le64(&h, 36), le32(&h, 44)), (data, frames, 0));
         assert_eq!(&h[48..52], b"fmt ");
         assert_eq!(&h[h.len() - 8..h.len() - 4], b"data");
         assert_eq!(le32(&h, h.len() - 4), u32::MAX);
@@ -408,8 +408,8 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("filmcraft-rf64-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("long.wav");
-        let إطار = 48_000u64 * 60 * 60 * 5; // 5 hours of 24-bit stereo: 5.2 GB
-        let mut f = header(PcmContainer::Wav, 2, 48_000, I24, إطار).unwrap();
+        let frames = 48_000u64 * 60 * 60 * 5; // 5 hours of 24-bit stereo: 5.2 GB
+        let mut f = header(PcmContainer::Wav, 2, 48_000, I24, frames).unwrap();
         encode(PcmContainer::Wav, &[0.0; 9_600], I24, &mut f);
         std::fs::write(&path, &f).unwrap();
         let out = std::process::Command::new("ffprobe")

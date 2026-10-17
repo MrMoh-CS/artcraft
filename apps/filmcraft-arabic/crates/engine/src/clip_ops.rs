@@ -44,7 +44,7 @@ macro_rules! label_cmd {
         CommandSpec {
             id: $id,
             label: $name,
-            menu: &["تحرير", "Label"],
+            menu: &["تحرير", "لون التسمية"],
             shortcut: None,
             params: r#"{"items":[id]?,"clips":[id]?}"#,
             enabled: can_label,
@@ -82,7 +82,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         // ---------------- Edit ----------------
         spec(
             "edit.pasteAttributes",
-            "Paste Attributes…",
+            "لصق الخصائص…",
             &["تحرير"],
             Some("Cmd+Alt+V"),
             r#"{"clips":[id]?,"motion":bool=true,"opacity":bool=true,"timeRemapping":bool=true,"volume":bool=true,"channelVolume":bool=true,"panner":bool=true,"effects":bool|[effectId]=true,"scaleTimes":bool=true}"#,
@@ -91,7 +91,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "edit.removeAttributes",
-            "Remove Attributes…",
+            "إزالة الخصائص…",
             &["تحرير"],
             None,
             r#"{"clips":[id]?,"motion":bool=true,"opacity":bool=true,"timeRemapping":bool=true,"volume":bool=true,"channelVolume":bool=true,"panner":bool=true,"effects":bool|[effectId]=true}"#,
@@ -99,7 +99,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
             remove_attributes,
         ),
         spec("edit.selectAllMatching", "Select All Matching", &["تحرير"], None, r#"{"clips":[id]?}"#, has_selection, select_all_matching),
-        spec("edit.selectLabelGroup", "Select Label Group", &["تحرير", "Label"], None, "{}", can_label, select_label_group),
+        spec("edit.selectLabelGroup", "Select Label Group", &["تحرير", "لون التسمية"], None, "{}", can_label, select_label_group),
         label_cmd!("edit.label.violet", "Violet", Label::Violet),
         label_cmd!("edit.label.iris", "Iris", Label::Iris),
         label_cmd!("edit.label.caribbean", "Caribbean", Label::Caribbean),
@@ -157,7 +157,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.frameHoldOptions",
-            "Frame Hold Options…",
+            "خيارات تجميد الإطار…",
             &["مقطع", "Video Options"],
             None,
             r#"{"clips":[id]?,"enabled":bool=true,"holdOn":"sourceTimecode|sequenceTime|in|out|playhead","time":ticks?,"timecode":str?,"holdFilters":bool=false}"#,
@@ -166,7 +166,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.insertFrameHoldSegment",
-            "Insert Frame Hold Segment",
+            "إدراج مقطع إطار مجمّد",
             &["مقطع", "Video Options"],
             None,
             r#"{"clip":id?,"time":ticks?,"seconds":f64=2}"#,
@@ -175,7 +175,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         ),
         spec(
             "clip.fieldOptions",
-            "Field Options…",
+            "خيارات الحقول…",
             &["مقطع", "Video Options"],
             None,
             r#"{"clips":[id]?,"reverseFieldDominance":bool=false,"processing":"none|alwaysDeinterlace|flickerRemoval"}"#,
@@ -221,8 +221,8 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
                 set_interpolation(s, p, m)
             },
         ),
-        spec("clip.fitToFrame", "Fit to frame", &["مقطع", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, false)),
-        spec("clip.fillFrame", "Fill frame", &["مقطع", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, true)),
+        spec("clip.fitToFrame", "ملاءمة للإطار", &["مقطع", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, false)),
+        spec("clip.fillFrame", "ملء الإطار", &["مقطع", "Video Options"], None, r#"{"clips":[id]?}"#, has_selection, |s, p| fit_fill(s, p, true)),
         spec("clip.breakoutToMono", "Breakout to Mono", &["مقطع", "Audio Options"], None, r#"{"items":[id]?}"#, has_audio_items, breakout_to_mono),
         spec("clip.extractAudio", "Extract Audio", &["مقطع", "Audio Options"], None, r#"{"items":[id]?,"dir":str?}"#, has_extractable, extract_audio),
         spec("clip.replaceFromSource", "From Source Monitor", &["مقطع", "Replace With Clip"], None, r#"{"clips":[id]?}"#, can_replace_from_source, |s, p| {
@@ -436,7 +436,7 @@ fn media_root(p: &Project, id: ItemId) -> Option<(ItemId, &MediaClip, Option<Tim
 #[derive(Clone, Debug, PartialEq)]
 pub struct SourceView {
     pub item: ItemId,
-    /// The media item whose إطار are shown (the parent of a subclip).
+    /// The media item whose frames are shown (the parent of a subclip).
     pub media: ItemId,
     pub start: Tick,
     pub end: Tick,
@@ -1041,7 +1041,7 @@ fn paste_attributes(s: &mut Session, p: &Value) -> Result<Value> {
     let src_v = s.state.clipboard.iter().find(|c| c.0 == TrackKind::Video).map(|c| c.2.clone());
     let src_a = s.state.clipboard.iter().find(|c| c.0 == TrackKind::Audio).map(|c| c.2.clone());
     let targets = with_links(s, &clips_p(s, p));
-    let n = s.edit_sequence("Paste Attributes", |q, _, _| {
+    let n = s.edit_sequence("لصق الخصائص", |q, _, _| {
         let mut n = 0;
         for c in &targets {
             let Some((tid, _)) = q.find_item(*c) else { continue };
@@ -1079,7 +1079,7 @@ fn remove_attributes(s: &mut Session, p: &Value) -> Result<Value> {
     let frame = (seq.settings.width, seq.settings.height);
     let sizes: BTreeMap<ClipId, (u32, u32)> =
         targets.iter().filter_map(|c| seq.find_item(*c).map(|(_, i)| (*c, filmcraft_render::source_size(&s.project, i.item).unwrap_or(frame)))).collect();
-    let n = s.edit_sequence("Remove Attributes", |q, _, _| {
+    let n = s.edit_sequence("إزالة الخصائص", |q, _, _| {
         let mut n = 0;
         for c in &targets {
             let Some((_, it)) = q.find_item_mut(*c) else { continue };
@@ -1133,7 +1133,7 @@ fn subclip_plan(s: &Session, p: &Value) -> Result<(ItemId, TimeRange, String, La
     })
 }
 
-/// The Make Subclip dialog's defaults: `{name, startFrame, endFrame, fps}` (media إطار).
+/// The Make Subclip dialog's defaults: `{name, startFrame, endFrame, fps}` (media frames).
 pub fn subclip_defaults(s: &Session, p: &Value) -> Option<Value> {
     let (parent, range, base, _) = subclip_plan(s, p).ok()?;
     let rate = item_rate(&s.project, parent);
@@ -1373,7 +1373,7 @@ fn frame_hold_options(s: &mut Session, p: &Value) -> Result<Value> {
             .collect()
     };
     let raw_time = p.get("time").and_then(Value::as_i64).map(Tick);
-    let held = s.edit_sequence("Frame Hold Options", |q, _, _| {
+    let held = s.edit_sequence("خيارات تجميد الإطار", |q, _, _| {
         let mut out = Vec::new();
         for c in &clips {
             let Some((_, it)) = q.find_item_mut(*c) else { continue };
@@ -1426,7 +1426,7 @@ pub(crate) fn add_frame_hold(s: &mut Session, p: &Value) -> Result<Value> {
     if clips.is_empty() {
         return Err(EngineError::Other("place the playhead over a selected video clip".into()));
     }
-    let held = s.edit_sequence("Add Frame Hold", |q, ctx, st| {
+    let held = s.edit_sequence("إضافة تجميد إطار", |q, ctx, st| {
         let mut out = Vec::new();
         for c in &clips {
             let Some((_, it)) = q.find_item(*c) else { continue };
@@ -1459,7 +1459,7 @@ fn insert_frame_hold_segment(s: &mut Session, p: &Value) -> Result<Value> {
     let secs = f64_p(p, "seconds").unwrap_or(2.0);
     let dur = rate.snap_nearest(Tick((secs * TICKS_PER_SECOND as f64).round() as i64)).max(rate.frame_duration());
     let hold = it.moving_source_time_at(t);
-    let id = s.edit_sequence("Insert Frame Hold Segment", |q, ctx, st| {
+    let id = s.edit_sequence("إدراج مقطع إطار مجمّد", |q, ctx, st| {
         let mut seg = it.clone();
         seg.id = ClipId(ctx.alloc());
         seg.start = t;
@@ -1487,7 +1487,7 @@ fn field_options(s: &mut Session, p: &Value) -> Result<Value> {
         x => return Err(bad("clip.fieldOptions", format!("unknown processing `{x}`"))),
     };
     let fo = FieldOptions { reverse_field_dominance: bool_p(p, "reverseFieldDominance").unwrap_or(false), processing };
-    s.edit_sequence("Field Options", |q, _, _| {
+    s.edit_sequence("خيارات الحقول", |q, _, _| {
         for c in &clips {
             if let Some((_, it)) = q.find_item_mut(*c) {
                 it.field_options = (fo != FieldOptions::default()).then_some(fo);
@@ -1532,7 +1532,7 @@ fn fit_fill(s: &mut Session, p: &Value, fill: bool) -> Result<Value> {
     if sizes.is_empty() {
         return Err(bad(if fill { "clip.fillFrame" } else { "clip.fitToFrame" }, "select a video clip"));
     }
-    let label = if fill { "Fill Frame" } else { "Fit to Frame" };
+    let label = if fill { "ملء الإطار" } else { "ملاءمة للإطار" };
     let out = s.edit_sequence(label, |q, _, _| {
         let mut out = Vec::new();
         for (c, (w, h), (dw, dh)) in &sizes {
@@ -1583,8 +1583,8 @@ fn breakout_to_mono(s: &mut Session, p: &Value) -> Result<Value> {
             let bin = pr.root.parent_of(*i).filter(|b| *b != pr.root.id);
             for c in 0..n {
                 let suffix = match (n, c) {
-                    (2, 0) => "Left".to_string(),
-                    (2, 1) => "Right".to_string(),
+                    (2, 0) => "يسار".to_string(),
+                    (2, 1) => "يمين".to_string(),
                     _ => format!("Ch {}", c + 1),
                 };
                 let mut mm = m.clone();
@@ -1636,8 +1636,8 @@ fn extract_audio(s: &mut Session, p: &Value) -> Result<Value> {
         let src = s.media.full_res_source(&s.project, root, &*s.services).ok_or_else(|| EngineError::Other(format!("{name}: media is offline")))?;
         let sr = a.sample_rate.max(8000);
         let start = range.start.to_units_floor(sr as i64);
-        let إطار = (range.end().to_units_floor(sr as i64) - start).max(0) as usize;
-        let buf = src.audio(start, إطار, sr).map_err(|e| EngineError::Other(format!("{name}: {e}")))?;
+        let frames = (range.end().to_units_floor(sr as i64) - start).max(0) as usize;
+        let buf = src.audio(start, frames, sr).map_err(|e| EngineError::Other(format!("{name}: {e}")))?;
         let ch = buf.channel_count().max(1);
         let mut inter = Vec::with_capacity(frames * ch);
         for i in 0..frames {
@@ -1694,7 +1694,7 @@ fn replace_with(s: &mut Session, p: &Value, how: Replace) -> Result<Value> {
     // From Bin starts at the item's In point, as Premiere does; `keepSourceIn` keeps each clip's own
     let keep_in = how == Replace::Bin && bool_p(p, "keepSourceIn").unwrap_or(false);
     // ...but a subclip that restricts trims has no media outside its range: a kept In stays on
-    // one of its إطار (first frame, last frame)
+    // one of its frames (first frame, last frame)
     let keep_within = match &pi.kind {
         ItemKind::Subclip { range, restrict_trims: true, .. } => {
             Some((range.start, (range.end() - item_rate(&s.project, new_item).frame_duration()).max(range.start)))
@@ -1753,7 +1753,7 @@ fn replace_with(s: &mut Session, p: &Value, how: Replace) -> Result<Value> {
     Ok(result)
 }
 
-/// The clips among `clips` that play past the end of their media, with how many sequence إطار
+/// The clips among `clips` that play past the end of their media, with how many sequence frames
 /// of the clip have no media (at most the clip's own length). The edit is left as it is (the
 /// renderer holds the last frame there); this is so whoever replaced the clip knows.
 fn short_clips(s: &Session, clips: &[u64]) -> Vec<Value> {
@@ -1772,8 +1772,8 @@ fn short_clips(s: &Session, clips: &[u64]) -> Vec<Value> {
             // media ticks past the end, as sequence ticks of this clip
             let length = it.duration.0.max(0);
             let ticks = ((over as f64 / it.speed.abs().max(1e-9)).round().min(length as f64) as i64).min(length);
-            let إطار = ticks.saturating_add(frame - 1) / frame;
-            (frames > 0).then(|| json!({"clip": c, "shortByFrames": إطار}))
+            let frames = ticks.saturating_add(frame - 1) / frame;
+            (frames > 0).then(|| json!({"clip": c, "shortByFrames": frames}))
         })
         .collect()
 }

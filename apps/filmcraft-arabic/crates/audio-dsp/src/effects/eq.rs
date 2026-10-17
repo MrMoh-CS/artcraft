@@ -203,7 +203,7 @@ macro_rules! eq_params {
         &[
             $(
                 ParamSpec::toggle(concat!("b", $n, ".on"), concat!("Band ", $n, " On"), $on),
-                ParamSpec::choice(concat!("b", $n, ".type"), concat!("Band ", $n, " Type"), FILTER_TYPE_NAMES, $ty),
+                ParamSpec::choice(concat!("b", $n, ".type"), concat!("Band ", $n, " النوع"), FILTER_TYPE_NAMES, $ty),
                 ParamSpec::log(concat!("b", $n, ".freq"), concat!("Band ", $n, " Frequency"), 20.0, 20000.0, $f, Unit::Hertz),
                 ParamSpec::new(concat!("b", $n, ".gain"), concat!("Band ", $n, " Gain"), -30.0, 30.0, 0.0, Unit::Decibels),
                 ParamSpec::log(concat!("b", $n, ".q"), concat!("Band ", $n, " Q"), 0.1, 30.0, $q, Unit::Q),

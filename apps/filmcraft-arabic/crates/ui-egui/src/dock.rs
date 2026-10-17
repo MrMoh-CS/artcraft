@@ -1,4 +1,4 @@
-//! Premiere-style docking: a tree of splits and tab groups. Panels are rounded إطار separated by
+//! Premiere-style docking: a tree of splits and tab groups. Panels are rounded frames separated by
 //! thin gutters; each group has a tab strip (active tab bright, with a panel menu "≡"); the focused
 //! panel gets a blue outline. Gutters drag to resize; workspaces are serialized trees.
 
@@ -177,7 +177,7 @@ fn vsplit(size: SplitSize, a: DockNode, b: DockNode) -> DockNode {
     DockNode::Split { vertical: true, size, a: Box::new(a), b: Box::new(b) }
 }
 
-pub const WORKSPACES: [&str; 9] = ["التحرير", "Assembly", "Color", "المؤثرات", "الصوت", "Captions and Graphics", "Learning", "Review", "All Panels"];
+pub const WORKSPACES: [&str; 9] = ["Editing", "Assembly", "Color", "المؤثرات", "الصوت", "Captions and Graphics", "Learning", "Review", "All Panels"];
 
 /// The user's workspaces file, beside `preferences.json` in the data directory.
 pub const WORKSPACES_FILE: &str = "workspaces.json";
@@ -932,7 +932,7 @@ mod tests {
 
     #[test]
     fn close_and_open() {
-        let mut d = workspace("التحرير");
+        let mut d = workspace("Editing");
         d.close(PanelKind::Metadata);
         assert!(!d.contains(PanelKind::Metadata));
         d.open_near(PanelKind::LumetriColor, PanelKind::Program);
@@ -945,7 +945,7 @@ mod tests {
     /// #284: with Project and Program closed (or every panel closed) a panel still opens.
     #[test]
     fn open_near_falls_back_to_the_first_group() {
-        let mut d = workspace("التحرير");
+        let mut d = workspace("Editing");
         let mut all = Vec::new();
         d.panels(&mut all);
         for p in all {

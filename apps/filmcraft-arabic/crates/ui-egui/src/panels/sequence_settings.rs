@@ -95,7 +95,7 @@ pub fn open(app: &mut FilmcraftApp) {
     app.dialog = Some(crate::Dialog::SequenceSettings);
 }
 
-/// File ▸ New ▸ Sequence…: the dialog as New تسلسل، from the default settings, named like
+/// File ▸ New ▸ Sequence…: the dialog as New Sequence, from the default settings, named like
 /// `file.newSequence` would name it, with three video and three audio tracks.
 pub fn open_new(app: &mut FilmcraftApp) {
     let st = SequenceSettings::default();
@@ -147,7 +147,7 @@ fn new_sequence_params(d: &SequenceSettingsDraft) -> (Map<String, Value>, Map<St
 
 /// The Tracks tab of New Sequence: how many video and audio tracks the sequence starts with.
 fn tracks(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, elems: &mut Elems) {
-    for (id, label, n) in [("video", "Video:", &mut d.video_tracks), ("audio", "Audio:", &mut d.audio_tracks)] {
+    for (id, label, n) in [("video", "الفيديو:", &mut d.video_tracks), ("audio", "الصوت:", &mut d.audio_tracks)] {
         ui.horizontal(|ui| {
             ui.label(t(label));
             let r = ui.add(crate::widgets::number_drag(n).range(0..=256));
@@ -188,7 +188,7 @@ fn gcd(mut a: u32, mut b: u32) -> u32 {
 }
 
 fn timebase_label(r: FrameRate) -> String {
-    tlf!("{rate} إطار/second", rate = r.label())
+    tlf!("{rate} frames/second", rate = r.label())
 }
 
 /// The Video Display Format choices for a timebase: drop-frame / non-drop-frame timecode for the
@@ -330,7 +330,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
         elems.push(("sequenceSettings.timebase".into(), resp.response.rect, shown));
     });
     section(ui, "الفيديو", |ui| {
-        row(ui, label_w, "Frame Size:", true, |ui| {
+        row(ui, label_w, "حجم الإطار:", true, |ui| {
             let w = ui.add(crate::widgets::number_drag(&mut d.width).range(1..=filmcraft_project::MAX_FRAME_SIDE).speed(1.0));
             elems.push(("sequenceSettings.width".into(), w.rect, d.width.to_string()));
             ui.label(tl!("horizontal"));
@@ -385,7 +385,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
             };
             fixed_combo(ui, elems, "channels", n, 60.0, NOT_YET);
         });
-        row(ui, label_w, "Sample Rate:", true, |ui| {
+        row(ui, label_w, "معدل العينة:", true, |ui| {
             let mut rates = SAMPLE_RATES.to_vec();
             if !rates.contains(&d.sample_rate) {
                 rates.insert(0, d.sample_rate);
@@ -408,7 +408,7 @@ fn general(ui: &mut egui::Ui, d: &mut SequenceSettingsDraft, cur: &SequenceSetti
             fixed_combo(ui, elems, "previewFormat", "QuickTime", list_w, NOT_YET);
             ui.add_enabled(false, egui::Button::new(tl!("Configure…"))).on_disabled_hover_text(t(NOT_YET));
         });
-        row(ui, label_w, "Codec:", false, |ui| fixed_combo(ui, elems, "previewCodec", &cur.preview_codec, list_w, NOT_YET));
+        row(ui, label_w, "الترميز:", false, |ui| fixed_combo(ui, elems, "previewCodec", &cur.preview_codec, list_w, NOT_YET));
         row(ui, label_w, "Width:", false, |ui| fixed_value(ui, elems, "previewWidth", &d.width.to_string()));
         row(ui, label_w, "Height:", false, |ui| {
             fixed_value(ui, elems, "previewHeight", &d.height.to_string());

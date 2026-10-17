@@ -132,8 +132,8 @@ impl InputMap {
     pub fn label(self) -> &'static str {
         match self {
             InputMap::Stereo => "ستيريو",
-            InputMap::Left => "Left",
-            InputMap::Right => "Right",
+            InputMap::Left => "يسار",
+            InputMap::Right => "يمين",
             InputMap::Swap => "Swap",
             InputMap::Mono => "أحادي",
         }

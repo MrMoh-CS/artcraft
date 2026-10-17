@@ -143,7 +143,7 @@ fn rate_of(o: &Obj, p: u16) -> Option<(i64, i64)> {
 
 impl R<'_> {
     fn composition(&mut self, c: &Obj) -> Composition {
-        let name = c.string(pid::MOB_NAME).unwrap_or_else(|| "التسلسل".into());
+        let name = c.string(pid::MOB_NAME).unwrap_or_else(|| "تسلسل".into());
         let slots = c.objs(pid::SLOTS);
         let pic_rate = slots
             .iter()

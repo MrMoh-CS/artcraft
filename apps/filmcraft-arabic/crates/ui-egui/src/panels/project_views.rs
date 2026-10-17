@@ -1,6 +1,6 @@
 //! The Project panel's three views: List (columns from Metadata Display, sortable and resizable
 //! headers, inline rename, label column, optional thumbnails), Icon (thumbnail cards with hover
-//! scrub, In/Out bar, poster إطار, Sort Icons) and Freeform (clip cards placed freely, stacks,
+//! scrub, In/Out bar, poster frames, Sort Icons) and Freeform (clip cards placed freely, stacks,
 //! grid).
 
 use egui::{Align2, Color32, Rect, Sense, Stroke, StrokeKind, pos2, vec2};
@@ -279,7 +279,7 @@ fn item_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, id: ItemId, kind: &ItemK
             ui.close();
         }
     }
-    let r = ui.menu_button(tl!("Label"), |ui| {
+    let r = ui.menu_button(tl!("لون التسمية"), |ui| {
         // the user's label names and colours, as in Edit ▸ Label (#786)
         let labels = app.session.prefs.labels.clone();
         for l in filmcraft_project::Label::ALL {
@@ -290,7 +290,7 @@ fn item_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, id: ItemId, kind: &ItemK
             }
         }
     });
-    app.auto.add("project.itemMenu.label", r.response.rect, tl!("Label"));
+    app.auto.add("project.itemMenu.label", r.response.rect, tl!("لون التسمية"));
     let can_reveal = app.session.project.resolve_media(id).is_some_and(|(_, m, _)| matches!(m.media, filmcraft_project::MediaRef::File { .. }));
     let b = ui.add_enabled(can_reveal, egui::Button::new(tl!("Reveal in Finder")));
     app.auto.add("project.itemMenu.file.reveal", b.rect, "Reveal in Finder");
@@ -323,7 +323,7 @@ fn item_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, id: ItemId, kind: &ItemK
         });
     }
     ui.separator();
-    if ui.button(tl!("Clear")).clicked() {
+    if ui.button(tl!("مسح")).clicked() {
         actions.push(("project.delete".into(), json!({"items": [id.0]})));
         ui.close();
     }
@@ -351,7 +351,7 @@ fn bin_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, v: &View, bin: u64, actio
         ui.close();
     }
     ui.separator();
-    if ui.button(tl!("Clear")).clicked() {
+    if ui.button(tl!("مسح")).clicked() {
         actions.push(("project.delete".into(), json!({"items": [bin]})));
         ui.close();
     }
@@ -661,7 +661,7 @@ fn background_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, v: &View, bin: Opt
         (tl!("New Search Bin"), "file.newSearchBin"),
         (tl!("Find…"), "edit.find"),
         (tl!("Automate to Sequence…"), "clip.automateToSequence"),
-        (tl!("Import…"), "file.import"),
+        (tl!("استيراد…"), "file.import"),
     ] {
         if ui.button(label).clicked() {
             let p = if cmd == "file.newBin" { json!({"parent": bin, "panel": v.prefix}) } else { json!({}) };
@@ -770,7 +770,7 @@ fn list_bin(app: &mut FilmcraftApp, ui: &mut egui::Ui, bin: &Bin, depth: usize, 
         for c in lc.cols.iter().skip(1) {
             let cr = Rect::from_min_size(pos2(x, r.min.y), vec2(c.width, r.height()));
             let p = ui.painter().with_clip_rect(cr.shrink2(vec2(2.0, 0.0)).intersect(ui.clip_rect()));
-            if c.name == "Label" {
+            if c.name == "لون التسمية" {
                 p.rect_filled(Rect::from_center_size(pos2(cr.min.x + 12.0, cr.center().y), vec2(10.0, 10.0)), 2.0, label_color(app, it.label));
                 p.text(pos2(cr.min.x + 22.0, cr.center().y), Align2::LEFT_CENTER, crate::i18n::t(it.label.name()), Tokens::ui(lc.font - 0.5), t.text_dim);
             } else {
@@ -847,7 +847,7 @@ fn card(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, id: ItemId, pre: &st
         let b = fx(marks.1.map(|o| o + it.frame_rate().frame_duration()).unwrap_or(dur));
         let bar = Rect::from_min_max(pos2(a, th.max.y - 4.0), pos2(b.max(a + 2.0), th.max.y));
         ui.painter().rect_filled(bar, 0.0, Color32::from_rgb(0x5a, 0x9b, 0xf0));
-        app.auto.add(&format!("{pre}.item.{}.inOut", id.0), bar, "البداية/النهاية");
+        app.auto.add(&format!("{pre}.item.{}.inOut", id.0), bar, "In/Out");
     }
     // hover scrub playhead
     if let Some(ht) = at

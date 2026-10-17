@@ -126,7 +126,7 @@ fn delete(app: &mut FilmcraftApp, name: &str) -> Result<Value, String> {
     }
     app.set_workspaces(next)?;
     if app.ui.workspace == name {
-        app.set_workspace(if is_builtin(name) { name } else { "التحرير" });
+        app.set_workspace(if is_builtin(name) { name } else { "Editing" });
     }
     Ok(if is_builtin(name) { json!({"restored": name}) } else { json!({"deleted": name}) })
 }
@@ -189,7 +189,7 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
         .show(ctx, |ui| match &mut d {
             WorkspaceDialog::SaveAs { name } => {
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Name:"));
+                    ui.label(tl!("الاسم:"));
                     let r = ui.text_edit_singleline(name);
                     push("workspaces.save.name", &r, "الاسم");
                 });
@@ -217,7 +217,7 @@ pub fn dialogs(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 let sel = selected.clone().filter(|s| names.contains(s));
                 let own = sel.as_deref().is_some_and(|s| !is_builtin(s));
                 ui.horizontal(|ui| {
-                    ui.label(tl!("Name:"));
+                    ui.label(tl!("الاسم:"));
                     let r = ui.add_enabled(own, egui::TextEdit::singleline(name));
                     push("workspaces.edit.name", &r, "الاسم");
                     let r = ui.add_enabled(own && sel.as_deref() != Some(name.trim()), egui::Button::new(tl!("Rename")));

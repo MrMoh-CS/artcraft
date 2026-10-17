@@ -94,9 +94,9 @@ impl<A: Accel> Front<A> {
     }
 
     fn load_parameter_sets(&mut self, sets: &[Vec<u8>]) -> Result<()> {
-        let mut إطار = Vec::new();
+        let mut frames = Vec::new();
         for nal in sets {
-            self.handle_nal(nal, 0, &mut إطار)?;
+            self.handle_nal(nal, 0, &mut frames)?;
         }
         Ok(())
     }
@@ -108,22 +108,22 @@ impl<A: Accel> Front<A> {
     /// Decode one access unit; pictures that left the DPB come back in output order.
     pub fn decode(&mut self, sample: &[u8], pts: i64) -> Result<Vec<DecodedFrame>> {
         let nals = length_prefixed_nals(sample, self.length_size).map_err(decode_err)?;
-        let mut إطار = Vec::new();
+        let mut frames = Vec::new();
         for nal in nals {
-            self.handle_nal(nal, pts, &mut إطار)?;
+            self.handle_nal(nal, pts, &mut frames)?;
         }
         // the access unit is complete
-        self.submit_pending(&mut إطار)?;
+        self.submit_pending(&mut frames)?;
         Ok(frames)
     }
 
     /// Output every picture still held for reordering (references stay for what follows).
     pub fn flush(&mut self) -> Result<Vec<DecodedFrame>> {
-        let mut إطار = Vec::new();
-        self.submit_pending(&mut إطار)?;
+        let mut frames = Vec::new();
+        self.submit_pending(&mut frames)?;
         let mut outs = Vec::new();
         self.dpb.flush(&mut outs);
-        self.read_out(outs, &mut إطار)?;
+        self.read_out(outs, &mut frames)?;
         Ok(frames)
     }
 
@@ -138,15 +138,15 @@ impl<A: Accel> Front<A> {
 
     /// Read back the pictures the DPB output, right away: a surface leaving the DPB is reused by
     /// the next picture.
-    fn read_out(&mut self, outs: Vec<Output<Surface>>, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn read_out(&mut self, outs: Vec<Output<Surface>>, frames: &mut Vec<DecodedFrame>) -> Result<()> {
         for o in outs {
             let frame = self.accel.read(o.frame.index).map_err(decode_err)?;
-            إطار.push(DecodedFrame { pts: o.meta.pts, frame, draft: false });
+            frames.push(DecodedFrame { pts: o.meta.pts, frame, draft: false });
         }
         Ok(())
     }
 
-    fn handle_nal(&mut self, nal: &[u8], pts: i64, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn handle_nal(&mut self, nal: &[u8], pts: i64, frames: &mut Vec<DecodedFrame>) -> Result<()> {
         let Some(&first) = nal.first() else { return Ok(()) };
         let rest = nal.get(1..).unwrap_or_default();
         let hdr = NalHeader::parse(first).map_err(decode_err)?;
@@ -162,7 +162,7 @@ impl<A: Accel> Front<A> {
                 let slot = self.ppss.get_mut(pps.id as usize).ok_or_else(|| decode_err("PPS id out of range"))?;
                 *slot = Some(Arc::new(pps));
             }
-            nal_type::SLICE | nal_type::IDR => self.handle_slice(nal, hdr, pts, إطار)?,
+            nal_type::SLICE | nal_type::IDR => self.handle_slice(nal, hdr, pts, frames)?,
             nal_type::SLICE_DPA | nal_type::SLICE_DPB | nal_type::SLICE_DPC => return Err(unsupported("data partitioning")),
             nal_type::END_SEQ | nal_type::END_STREAM => self.submit_pending(frames)?,
             // SEI, AUD, filler, extensions: nothing to decode
@@ -171,7 +171,7 @@ impl<A: Accel> Front<A> {
         Ok(())
     }
 
-    fn handle_slice(&mut self, nal: &[u8], hdr: NalHeader, pts: i64, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn handle_slice(&mut self, nal: &[u8], hdr: NalHeader, pts: i64, frames: &mut Vec<DecodedFrame>) -> Result<()> {
         let rbsp = unescape_rbsp(nal.get(1..).unwrap_or_default());
         let (ppss, spss) = (&self.ppss, &self.spss);
         let mut found: Option<(Arc<Pps>, Arc<Sps>)> = None;
@@ -206,7 +206,7 @@ impl<A: Accel> Front<A> {
             if sh.first_mb_in_slice != 0 && self.active_sps.is_none() {
                 return Err(decode_err("stream does not start with the first slice of a picture"));
             }
-            self.start_picture(&sh, &sps, &pps, pts, إطار)?;
+            self.start_picture(&sh, &sps, &pps, pts, frames)?;
         }
         let Some(pending) = self.pending.as_ref() else { return Err(decode_err("slice without a started picture")) };
         if !Arc::ptr_eq(&pending.pps, &pps) {
@@ -233,7 +233,7 @@ impl<A: Accel> Front<A> {
         Ok(())
     }
 
-    fn start_picture(&mut self, sh: &SliceHeader, sps: &Arc<Sps>, pps: &Arc<Pps>, pts: i64, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn start_picture(&mut self, sh: &SliceHeader, sps: &Arc<Sps>, pps: &Arc<Pps>, pts: i64, frames: &mut Vec<DecodedFrame>) -> Result<()> {
         if (sps.pic_width_in_mbs, sps.frame_height_in_mbs()) != self.mbs {
             return Err(unsupported("a picture size change"));
         }
@@ -259,7 +259,7 @@ impl<A: Accel> Front<A> {
                 self.fill_frame_num_gap(sh, sps, pts)?;
             }
         }
-        self.read_out(outs, إطار)?;
+        self.read_out(outs, frames)?;
         let poc = self.poc_state.compute(sh, sps);
         let target =
             (0..self.accel.surfaces().len()).find(|&i| !self.dpb.entries.iter().any(|e| e.frame.index == i)).ok_or_else(|| decode_err("no free surface"))?;
@@ -268,14 +268,14 @@ impl<A: Accel> Front<A> {
     }
 
     /// frame_num gap (8.2.5.2; also every start at a non-IDR picture, an open-GOP seek): "non-existing"
-    /// إطار as the software decoder makes them, copies of the latest decoded frame (mid-gray when
+    /// frames as the software decoder makes them, copies of the latest decoded frame (mid-gray when
     /// there is none), so pictures predicted from them come out the same.
     fn fill_frame_num_gap(&mut self, sh: &SliceHeader, sps: &Arc<Sps>, pts: i64) -> Result<()> {
         let max = sps.max_frame_num();
         let last = self.dpb.entries.iter().filter(|e| !e.non_existing).max_by_key(|e| e.frame.seq).map(|e| e.frame.index);
         let meta = Arc::new(output_meta(sps, pts, false));
         let poc_state = &mut self.poc_state;
-        // surfaces are given afterwards, to the إطار the sliding window keeps
+        // surfaces are given afterwards, to the frames the sliding window keeps
         let mut make = |_| (Surface { index: UNASSIGNED, top: 0, bottom: 0, seq: 0 }, 0, meta.clone());
         let mut update = |frame_num| poc_state.update_gap_frame(frame_num, sps);
         self.dpb.fill_frame_num_gap(self.prev_ref_frame_num, sh.frame_num, max, sps.max_num_ref_frames as usize, &mut make, &mut update);
@@ -296,7 +296,7 @@ impl<A: Accel> Front<A> {
     }
 
     /// Decode the collected picture, then do its reference marking and DPB insertion.
-    fn submit_pending(&mut self, إطار: &mut Vec<DecodedFrame>) -> Result<()> {
+    fn submit_pending(&mut self, frames: &mut Vec<DecodedFrame>) -> Result<()> {
         let Some(p) = self.pending.take() else { return Ok(()) };
         if p.slices.is_empty() {
             return Err(decode_err("a picture without slices"));
@@ -304,7 +304,7 @@ impl<A: Accel> Front<A> {
         let surfaces = self.accel.surfaces();
         let target_id = surfaces.get(p.target).copied().ok_or_else(|| decode_err("surface out of range"))?;
         if self.dpb.entries.iter().filter(|e| e.mark != RefMark::Unused).count() > 16 {
-            return Err(decode_err("more than 16 reference إطار"));
+            return Err(decode_err("more than 16 reference frames"));
         }
         let mut pic = picture_params(&p.sps, &p.pps, &p.first);
         pic.CurrPic = VAPictureH264 {
@@ -334,7 +334,7 @@ impl<A: Accel> Front<A> {
         let meta = Arc::new(output_meta(&p.sps, p.pts, p.first.idr));
         let mut outs = Vec::new();
         self.dpb.store_picture(&p.first, surface, fpoc, p.sps.max_frame_num(), p.sps.max_num_ref_frames as usize, meta, &mut outs);
-        self.read_out(outs, إطار)
+        self.read_out(outs, frames)
     }
 }
 

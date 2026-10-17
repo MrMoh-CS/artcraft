@@ -469,7 +469,7 @@ mod tests {
         (0..48).map(|i| c + Vec2::new((i as f64 / 48.0 * std::f64::consts::TAU).cos() * r, (i as f64 / 48.0 * std::f64::consts::TAU).sin() * r)).collect()
     }
 
-    fn run(method: TrackMethod, rot: f64, scale: f64, إطار: usize) -> f64 {
+    fn run(method: TrackMethod, rot: f64, scale: f64, frames: usize) -> f64 {
         let (w, h) = (320, 240);
         let mut region = circle(Vec2::new(150.0, 120.0), 50.0);
         let mut prev = Prepared::new(frame(w, h, &pose(0.0, rot, scale)));

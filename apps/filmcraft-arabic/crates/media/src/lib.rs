@@ -1,6 +1,6 @@
 //! Media sources for FilmCraft.
 //!
-//! A [`MediaSource`] is anything that yields video إطار and/or audio for a media time: decoded
+//! A [`MediaSource`] is anything that yields video frames and/or audio for a media time: decoded
 //! files (containers + codecs), stills, image sequences and synthetic generators (bars & tone,
 //! colour mattes, counting leader, procedural demo scenes). Sources are `Send + Sync`; decoder state
 //! lives behind interior mutability so monitors, thumbnails, playback and export can share them.
@@ -105,7 +105,7 @@ pub struct MediaInfo {
     #[serde(default, alias = "audio", deserialize_with = "deserialize_audio_streams")]
     pub audio_streams: Vec<AudioStreamInfo>,
     pub container: String,
-    /// Timecode of the first frame (in إطار at `video.frame_rate`), if the file carries one.
+    /// Timecode of the first frame (in frames at `video.frame_rate`), if the file carries one.
     pub start_timecode: Option<i64>,
     pub file_size: Option<u64>,
 }
@@ -159,13 +159,13 @@ pub trait MediaSource: Send + Sync {
     fn info(&self) -> &MediaInfo;
     /// The frame displayed at media time `req.time`.
     fn video_frame(&self, req: FrameRequest) -> Result<Arc<VideoFrame>>;
-    /// `frames` audio إطار starting at sample index `start` (at `sample_rate`, media time).
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer>;
+    /// `frames` audio frames starting at sample index `start` (at `sample_rate`, media time).
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer>;
     /// Like [`audio`](Self::audio) for audio stream `stream` (an index into
     /// [`MediaInfo::audio_streams`]). Sources with a single audio stream need not override this:
     /// stream 0 is `audio`, any other index is [`MediaError::NoStream`].
-    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer> {
-        if stream == 0 { self.audio(start, إطار, sample_rate) } else { Err(MediaError::NoStream("audio")) }
+    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer> {
+        if stream == 0 { self.audio(start, frames, sample_rate) } else { Err(MediaError::NoStream("audio")) }
     }
 }
 
@@ -240,8 +240,8 @@ impl MediaSource for OfflineSource {
         }
         Ok(Arc::new(VideoFrame::rgba8(w, h, px).with_pts(req.time)))
     }
-    fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer> {
-        Ok(AudioBuffer::silence(sample_rate, self.info.audio().map_or(2, |a| a.channels as usize), إطار))
+    fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer> {
+        Ok(AudioBuffer::silence(sample_rate, self.info.audio().map_or(2, |a| a.channels as usize), frames))
     }
 }
 

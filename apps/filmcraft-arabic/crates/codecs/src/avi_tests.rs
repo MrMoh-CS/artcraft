@@ -137,7 +137,7 @@ fn mp2_and_ac3_audio() {
     }
 }
 
-/// Dropped إطار are stored as empty chunks: their slot shows the picture before.
+/// Dropped frames are stored as empty chunks: their slot shows the picture before.
 #[test]
 fn drop_frames_hold_the_previous_picture() {
     let args = [

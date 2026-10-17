@@ -35,7 +35,7 @@ pub struct EncParams {
     pub decimate: bool,
     /// Adaptive 4x4/8x8 transform decision for inter macroblocks.
     pub adaptive_t8: bool,
-    /// Always try intra in P/B إطار (otherwise only when inter looks poor).
+    /// Always try intra in P/B frames (otherwise only when inter looks poor).
     pub always_intra: bool,
     /// Maximum CAVLC level magnitude (Baseline).
     pub cavlc_clamp: bool,

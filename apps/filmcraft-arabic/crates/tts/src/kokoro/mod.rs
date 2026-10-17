@@ -90,7 +90,7 @@ mod tests {
         let ph = "həlˈO wˈɜɹld.";
         let a = k.speak(ph, &v, 1.0, 1).unwrap();
         assert_eq!(a, k.speak(ph, &v, 1.0, 1).unwrap(), "deterministic");
-        assert_eq!(a.len() % 600, 0, "whole إطار");
+        assert_eq!(a.len() % 600, 0, "whole frames");
         let secs = a.len() as f64 / f64::from(KOKORO_RATE);
         assert!((0.5..3.0).contains(&secs), "{secs}");
         let peak = a.iter().fold(0f32, |m, x| m.max(x.abs()));

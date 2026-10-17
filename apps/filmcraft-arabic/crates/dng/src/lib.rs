@@ -58,12 +58,12 @@ pub struct Timecode {
     pub hours: u8,
     pub minutes: u8,
     pub seconds: u8,
-    pub إطار: u8,
+    pub frames: u8,
     pub drop_frame: bool,
 }
 
 impl Timecode {
-    /// The first time code of a CinemaDNG TimeCodes tag (SMPTE ST 331 / 12-1 packing: BCD إطار,
+    /// The first time code of a CinemaDNG TimeCodes tag (SMPTE ST 331 / 12-1 packing: BCD frames,
     /// seconds, minutes, hours in bytes 0–3, the drop-frame flag in bit 6 of byte 0).
     pub fn from_bytes(b: &[u8]) -> Option<Timecode> {
         let bcd = |v: u8, tens_mask: u8| {
@@ -71,7 +71,7 @@ impl Timecode {
             (u <= 9).then_some(t * 10 + u)
         };
         let [f, s, m, h, ..] = *b else { return None };
-        let tc = Timecode { إطار: bcd(f, 0x3)?, seconds: bcd(s, 0x7)?, minutes: bcd(m, 0x7)?, hours: bcd(h, 0x3)?, drop_frame: f & 0x40 != 0 };
+        let tc = Timecode { frames: bcd(f, 0x3)?, seconds: bcd(s, 0x7)?, minutes: bcd(m, 0x7)?, hours: bcd(h, 0x3)?, drop_frame: f & 0x40 != 0 };
         (tc.seconds < 60 && tc.minutes < 60 && tc.hours < 24).then_some(tc)
     }
 }

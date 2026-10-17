@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use filmcraft_color::ColorInfo;
 use filmcraft_media::{AudioStreamInfo, Generator, MediaInfo, MediaKind, VideoStreamInfo};
 use filmcraft_project::{
-    BinId, ClipId, EffectInstance, EffectKind, Interpretation, ItemId, ItemKind, Label, MediaClip, MediaRef, Param, Project, تسلسل، SequenceSettings, Track,
+    BinId, ClipId, EffectInstance, EffectKind, Interpretation, ItemId, ItemKind, Label, MediaClip, MediaRef, Param, Project, Sequence, SequenceSettings, Track,
     TrackId, TrackItem, TrackKind, effect, effect::find_effect_by_name, find_effect,
 };
 use filmcraft_time::{FrameRate, Tick};
@@ -182,7 +182,7 @@ pub(crate) fn kind_from_ext(path: &str) -> MediaKind {
 // ---------------------------------------------------------------------------------------------
 
 /// Frame count nearest to `t` at `rate`.
-pub(crate) fn إطار_round(rate: FrameRate, t: Tick) -> i64 {
+pub(crate) fn frames_round(rate: FrameRate, t: Tick) -> i64 {
     let f = rate.frame_at(t);
     if rate.tick_of(f + 1) - t < t - rate.tick_of(f) { f + 1 } else { f }
 }
@@ -408,7 +408,7 @@ impl Builder {
         Track::new(id, kind, name)
     }
 
-    pub fn ensure_tracks(&mut self, seq: &mut تسلسل، kind: TrackKind, n: usize) {
+    pub fn ensure_tracks(&mut self, seq: &mut Sequence, kind: TrackKind, n: usize) {
         while seq.tracks(kind).len() < n {
             let i = seq.tracks(kind).len();
             let t = self.track(kind, i);
@@ -463,7 +463,7 @@ impl Builder {
 
     /// Place `item` on the first track at or after `preferred` where it does not overlap anything,
     /// creating tracks as needed. Returns the track index.
-    pub fn place(&mut self, seq: &mut تسلسل، kind: TrackKind, preferred: usize, item: TrackItem) -> usize {
+    pub fn place(&mut self, seq: &mut Sequence, kind: TrackKind, preferred: usize, item: TrackItem) -> usize {
         let mut i = preferred;
         loop {
             self.ensure_tracks(seq, kind, i + 1);

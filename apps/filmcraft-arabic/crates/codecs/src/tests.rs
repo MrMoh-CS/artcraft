@@ -91,9 +91,9 @@ fn mp3_file_decodes() {
 #[test]
 fn aiff_file_decodes() {
     // 0.1 s of 48 kHz 16-bit stereo PCM: left a ramp, right silent (AIFF, big-endian samples)
-    let إطار = 4800u32;
+    let frames = 4800u32;
     let mut b = b"FORM".to_vec();
-    b.extend((4 + 26 + 16 + إطار * 4).to_be_bytes());
+    b.extend((4 + 26 + 16 + frames * 4).to_be_bytes());
     b.extend(b"AIFFCOMM");
     b.extend(18u32.to_be_bytes());
     b.extend(2u16.to_be_bytes());
@@ -101,7 +101,7 @@ fn aiff_file_decodes() {
     b.extend(16u16.to_be_bytes());
     b.extend([0x40, 0x0E, 0xBB, 0x80, 0, 0, 0, 0, 0, 0]); // 48000 as an 80-bit extended float
     b.extend(b"SSND");
-    b.extend((8 + إطار * 4).to_be_bytes());
+    b.extend((8 + frames * 4).to_be_bytes());
     b.extend([0; 8]);
     for i in 0..frames {
         b.extend(((i as i16) * 4).to_be_bytes());
@@ -186,7 +186,7 @@ fn dnxhd_and_dnxhr_movs_decode() {
     }
 }
 
-/// Solid-colour Matroska fixtures: decoded إطار must match the colour, audio must be a 1 kHz tone.
+/// Solid-colour Matroska fixtures: decoded frames must match the colour, audio must be a 1 kHz tone.
 fn check_mkv(name: &str, vcodec: &[&str], acodec: &[&str]) {
     let mut args: Vec<&str> =
         vec!["-f", "lavfi", "-i", "color=c=0x3060c0:s=320x240:r=25:d=2", "-f", "lavfi", "-i", "sine=frequency=1000:sample_rate=48000:d=2"];
@@ -256,7 +256,7 @@ fn without_default_duration(bytes: &[u8]) -> Vec<u8> {
 
 #[test]
 fn matroska_reordered_video_without_default_duration_keeps_its_rate() {
-    // blocks are in decode order, so B-frames put file neighbours 2–3 إطار apart (#923)
+    // blocks are in decode order, so B-frames put file neighbours 2–3 frames apart (#923)
     for (bf, name) in [(0, "rate25_bf0.mkv"), (1, "rate25_bf1.mkv"), (2, "rate25_bf2.mkv")] {
         let params = format!("bframes={bf}:b-adapt=0:b-pyramid=0:keyint=250:scenecut=0");
         let args =
@@ -296,18 +296,18 @@ pub(crate) fn yuv_bytes(f: &filmcraft_frame::VideoFrame) -> Vec<u8> {
     }
 }
 
-/// Random access into a VP9 file: إطار requested out of order (seeks back and forth across key
-/// إطار, then sequential playback) are sample-exact against ffmpeg's decode.
-fn check_vp9_seeks(name: &str, container: &str, pix_fmt: &str, extra: &[&str], إطار: usize) {
+/// Random access into a VP9 file: frames requested out of order (seeks back and forth across key
+/// frames, then sequential playback) are sample-exact against ffmpeg's decode.
+fn check_vp9_seeks(name: &str, container: &str, pix_fmt: &str, extra: &[&str], frames: usize) {
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/fixtures/codecs");
     let log = dir.join(format!("{name}.passlog")).to_string_lossy().into_owned();
     let mut args = vec!["-f", "lavfi", "-i", "testsrc2=s=352x288:r=25,noise=alls=8:allf=t", "-frames:v"];
-    let n = إطار.to_string();
+    let n = frames.to_string();
     args.push(&n);
     args.extend_from_slice(&["-c:v", "libvpx-vp9", "-pix_fmt", pix_fmt, "-g", "25", "-b:v", "600k"]);
     args.extend_from_slice(extra);
     if extra.contains(&"-auto-alt-ref") {
-        // libvpx only uses alternate reference إطار in two-pass mode: run the first pass.
+        // libvpx only uses alternate reference frames in two-pass mode: run the first pass.
         let Some(ff) = ffmpeg() else { return };
         if !dir.join(name).exists() {
             let _ = std::fs::create_dir_all(&dir);
@@ -329,9 +329,9 @@ fn check_vp9_seeks(name: &str, container: &str, pix_fmt: &str, extra: &[&str], �
     let v = info.video.as_ref().unwrap();
     assert!(v.codec.contains("VP9"), "{}", v.codec);
     assert_eq!((v.width, v.height), (352, 288));
-    let frame_len = reference.len() / إطار;
+    let frame_len = reference.len() / frames;
     let rate = info.frame_rate();
-    let order: Vec<usize> = [frames - 3, 3, 40, 26, 24, إطار - 1, 0, 12].into_iter().chain(30..45).filter(|&k| k < إطار).collect();
+    let order: Vec<usize> = [frames - 3, 3, 40, 26, 24, frames - 1, 0, 12].into_iter().chain(30..45).filter(|&k| k < frames).collect();
     for k in order {
         let f = src.video_frame(FrameRequest::full(rate.tick_of(k as i64))).unwrap();
         assert_eq!((f.width, f.height), (352, 288));
@@ -342,10 +342,10 @@ fn check_vp9_seeks(name: &str, container: &str, pix_fmt: &str, extra: &[&str], �
 
 /// AV1 (libsvtav1) in MP4 / WebM: random access is sample-exact against libdav1d. `keyint`
 /// "1" is all-intra; larger values give hierarchical inter GOPs (hidden ALTREFs, shown-existing
-/// إطار), so seeks decode forward from the previous key frame.
-fn check_av1_seeks(name: &str, container: &str, pix_fmt: &str, إطار: usize, keyint: &str) {
+/// frames), so seeks decode forward from the previous key frame.
+fn check_av1_seeks(name: &str, container: &str, pix_fmt: &str, frames: usize, keyint: &str) {
     let params = format!("keyint={keyint}");
-    let n = إطار.to_string();
+    let n = frames.to_string();
     let args = [
         "-f",
         "lavfi",
@@ -375,9 +375,9 @@ fn check_av1_seeks(name: &str, container: &str, pix_fmt: &str, إطار: usize, 
     let v = info.video.as_ref().unwrap();
     assert!(v.codec.contains("AV1"), "{}", v.codec);
     assert_eq!((v.width, v.height), (320, 240));
-    let frame_len = reference.len() / إطار;
+    let frame_len = reference.len() / frames;
     let rate = info.frame_rate();
-    for k in [frames - 1, 2, 7, 0, 5, 6, 3, إطار / 2 + 1, إطار - 2] {
+    for k in [frames - 1, 2, 7, 0, 5, 6, 3, frames / 2 + 1, frames - 2] {
         let f = src.video_frame(FrameRequest::full(rate.tick_of(k as i64))).unwrap();
         assert_eq!((f.width, f.height), (320, 240));
         assert!(yuv_bytes(&f) == reference[k * frame_len..(k + 1) * frame_len], "{name}: frame {k} differs from libdav1d");
@@ -411,7 +411,7 @@ fn webm_vp9_seeks_bit_exact() {
 
 #[test]
 fn webm_vp9_altref_superframes_seek_bit_exact() {
-    // Good-quality encode with alternate reference إطار: hidden إطار packed into superframes.
+    // Good-quality encode with alternate reference frames: hidden frames packed into superframes.
     check_vp9_seeks("noise_vp9_altref.webm", "WebM", "yuv420p", &["-speed", "4", "-auto-alt-ref", "1", "-lag-in-frames", "16"], 60);
 }
 
@@ -432,10 +432,10 @@ fn mkv_vp9_422_seeks_bit_exact() {
 
 /// #402: a WebM whose VP9 track carries an alpha layer (`AlphaMode` 1, a second VP9 stream in
 /// each block's `BlockAdditional`) decodes with that alpha. Frames requested out of order (seeks
-/// across key إطار, then forward) match libvpx's decode exactly, colour and alpha.
+/// across key frames, then forward) match libvpx's decode exactly, colour and alpha.
 #[test]
 fn vp9_webm_alpha_layer_matches_libvpx() {
-    let (w, h, إطار) = (176usize, 144usize, 30usize);
+    let (w, h, frames) = (176usize, 144usize, 30usize);
     // the alpha changes every frame, so a picture paired with the wrong alpha frame shows
     let Some(path) = fixture_path(
         "alpha_vp9.webm",
@@ -471,8 +471,8 @@ fn vp9_webm_alpha_layer_matches_libvpx() {
     };
     let (luma, chroma) = (w * h, (w / 2) * (h / 2));
     let frame_len = luma * 2 + chroma * 2;
-    if reference.len() != frame_len * إطار {
-        eprintln!("libvpx reference has {} bytes, not {}; skipping", reference.len(), frame_len * إطار);
+    if reference.len() != frame_len * frames {
+        eprintln!("libvpx reference has {} bytes, not {}; skipping", reference.len(), frame_len * frames);
         return;
     }
     let bytes: Arc<[u8]> = std::fs::read(&path).unwrap().into();
@@ -492,13 +492,13 @@ fn vp9_webm_alpha_layer_matches_libvpx() {
     }
 }
 
-/// #432: VP8 in WebM with hidden altref إطار (vpxenc, two-pass with ARNR: 11 of its 161
-/// إطار are not shown). Frames requested out of order (seeks back and forth, then sequential
-/// playback across the hidden إطار) are sample-exact against libvpx's decode, and the stream's
+/// #432: VP8 in WebM with hidden altref frames (vpxenc, two-pass with ARNR: 11 of its 161
+/// frames are not shown). Frames requested out of order (seeks back and forth, then sequential
+/// playback across the hidden frames) are sample-exact against libvpx's decode, and the stream's
 /// colour is BT.601 (RFC 6386 9.2). Skipped without ffmpeg or vpxenc.
 #[test]
 fn vp8_webm_random_access_matches_libvpx() {
-    let إطار = 150usize;
+    let frames = 150usize;
     let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../target/fixtures/codecs");
     let path = dir.join("vp8_hidden_altref.webm");
     if !path.exists() {
@@ -534,8 +534,8 @@ fn vp8_webm_random_access_matches_libvpx() {
     assert_eq!(v.codec, "VP8");
     assert_eq!((v.width, v.height), (352, 288));
     assert_eq!(v.color.matrix, filmcraft_color::Matrix::Bt601);
-    assert_eq!(reference.len(), إطار * 352 * 288 * 3 / 2);
-    let frame_len = reference.len() / إطار;
+    assert_eq!(reference.len(), frames * 352 * 288 * 3 / 2);
+    let frame_len = reference.len() / frames;
     let rate = info.frame_rate();
     let order: Vec<usize> = [147, 3, 90, 26, 24, 149, 0, 112, 61].into_iter().chain(40..frames).collect();
     for k in order {
@@ -548,10 +548,10 @@ fn vp8_webm_random_access_matches_libvpx() {
 
 /// #432 / #402: a VP8 WebM with an alpha layer (`AlphaMode` 1, a second VP8 stream in each
 /// block's `BlockAdditional`, as browsers and GIF converters write transparent WebM) decodes
-/// with that alpha; إطار requested out of order match libvpx exactly, colour and alpha.
+/// with that alpha; frames requested out of order match libvpx exactly, colour and alpha.
 #[test]
 fn vp8_webm_alpha_layer_matches_libvpx() {
-    let (w, h, إطار) = (176usize, 144usize, 30usize);
+    let (w, h, frames) = (176usize, 144usize, 30usize);
     let Some(path) = fixture_path(
         "alpha_vp8.webm",
         &[
@@ -583,8 +583,8 @@ fn vp8_webm_alpha_layer_matches_libvpx() {
     };
     let (luma, chroma) = (w * h, (w / 2) * (h / 2));
     let frame_len = luma * 2 + chroma * 2;
-    if reference.len() != frame_len * إطار {
-        eprintln!("libvpx reference has {} bytes, not {}; skipping", reference.len(), frame_len * إطار);
+    if reference.len() != frame_len * frames {
+        eprintln!("libvpx reference has {} bytes, not {}; skipping", reference.len(), frame_len * frames);
         return;
     }
     let bytes: Arc<[u8]> = std::fs::read(&path).unwrap().into();
@@ -703,10 +703,10 @@ fn snr_db(reference: &[f32], test: &[f32]) -> f64 {
 }
 
 /// Interleaves `frames` of `src.audio` from `start` (48 kHz).
-fn read_interleaved(src: &filmcraft_media::SharedSource, start: i64, إطار: usize) -> Vec<f32> {
-    let a = src.audio(start, إطار, 48_000).expect("audio");
+fn read_interleaved(src: &filmcraft_media::SharedSource, start: i64, frames: usize) -> Vec<f32> {
+    let a = src.audio(start, frames, 48_000).expect("audio");
     let ch = a.channels.len();
-    let mut v = vec![0f32; إطار * ch];
+    let mut v = vec![0f32; frames * ch];
     for (c, chan) in a.channels.iter().enumerate() {
         for (i, s) in chan.iter().enumerate() {
             v[i * ch + c] = *s;

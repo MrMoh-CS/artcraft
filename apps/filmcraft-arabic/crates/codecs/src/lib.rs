@@ -16,7 +16,7 @@
 //! - [`AviSource`]: AVI (OpenDML included): Motion JPEG, H.264, HEVC and uncompressed video; PCM,
 //!   MP3 / MP2 and AC-3 audio.
 //! - [`AudioFileSource`]: standalone compressed audio files (MP3, FLAC, AIFF, …).
-//! - [`Y4mSource`]: uncompressed YUV4MPEG2 (`.y4m`) video, إطار read on demand.
+//! - [`Y4mSource`]: uncompressed YUV4MPEG2 (`.y4m`) video, frames read on demand.
 //! - [`openers`]: the openers to register with the engine's media pool.
 
 #![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable))]

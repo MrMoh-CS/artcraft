@@ -5,7 +5,7 @@ use candle_core::{Result, Tensor};
 
 use super::model::Model;
 
-/// Start/end (in mel إطار from the window start, 10 ms) of every token of `text`.
+/// Start/end (in mel frames from the window start, 10 ms) of every token of `text`.
 pub fn align(m: &mut Model, xa: &Tensor, prompt: &[u32], text: &[u32], eot: u32, heads: &[(usize, usize)], seg_frames: usize) -> Result<Vec<(usize, usize)>> {
     let mut tokens = prompt.to_vec();
     tokens.extend_from_slice(text);

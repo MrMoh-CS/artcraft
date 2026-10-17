@@ -1,7 +1,7 @@
 //! Pixel aspect ratio: a clip with non-square pixels is placed at its display aspect (a 1440 x 1080
 //! picture with 4:3 pixels covers a 1920 x 1080 square-pixel frame), a sequence with non-square
 //! pixels holds clips at its own aspect, Interpret Footage overrides the file's ratio, and hostile
-//! ratios are square. Small in-memory إطار stand in for 1440 x 1080 / 1920 x 1080 at a tenth of
+//! ratios are square. Small in-memory frames stand in for 1440 x 1080 / 1920 x 1080 at a tenth of
 //! the size: 144 x 108 with 4:3 pixels shows 192 x 108.
 
 use super::*;
@@ -25,8 +25,8 @@ impl MediaSource for Halves {
     fn video_frame(&self, _req: FrameRequest) -> filmcraft_media::Result<Arc<VideoFrame>> {
         Ok(self.frame.clone())
     }
-    fn audio(&self, _start: i64, إطار: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
-        Ok(AudioBuffer::silence(sample_rate, 2, إطار))
+    fn audio(&self, _start: i64, frames: usize, sample_rate: u32) -> filmcraft_media::Result<AudioBuffer> {
+        Ok(AudioBuffer::silence(sample_rate, 2, frames))
     }
 }
 

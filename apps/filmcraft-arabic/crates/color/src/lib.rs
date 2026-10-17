@@ -3,7 +3,7 @@
 //! See the crate README for the formulas and their sources.
 //!
 //! The compositor works in **linear-light, premultiplied RGBA f32** in the sequence working space
-//! (Rec.709 primaries by default). Decoded إطار carry [`ColorInfo`] so conversions are explicit.
+//! (Rec.709 primaries by default). Decoded frames carry [`ColorInfo`] so conversions are explicit.
 
 #![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable))]
 
@@ -96,7 +96,7 @@ pub enum Range {
     Full,
 }
 
-/// Colour metadata attached to إطار.
+/// Colour metadata attached to frames.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ColorInfo {
     pub matrix: Matrix,

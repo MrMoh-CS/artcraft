@@ -132,7 +132,7 @@ impl TcMode {
         match self {
             TcMode::Current => "Current Time",
             TcMode::Media => "Media Time",
-            TcMode::Duration => "Duration",
+            TcMode::Duration => "المدة",
             TcMode::InOut => "In/Out Duration",
             TcMode::Remaining => "Remaining",
         }

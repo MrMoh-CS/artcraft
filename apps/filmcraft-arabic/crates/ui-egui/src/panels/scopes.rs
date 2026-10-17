@@ -302,12 +302,12 @@ fn params(st: &ScopesState, sf: &ScopeFrame, rows: usize) -> Params {
     Params { matrix: sf.space.matrix(), clamp: st.clamp, rows, ..Params::default() }
 }
 
-/// Levels on a cd/m² axis: HDR إطار, or the HDR scale.
+/// Levels on a cd/m² axis: HDR frames, or the HDR scale.
 fn nits_axis(st: &ScopesState, sf: &ScopeFrame) -> bool {
     sf.pq || st.scale == Scale::Hdr
 }
 
-/// The frame's signal on the axis the scale asks for (SDR إطار on the HDR scale go to PQ).
+/// The frame's signal on the axis the scale asks for (SDR frames on the HDR scale go to PQ).
 fn plotted(st: &ScopesState, sf: &ScopeFrame) -> Arc<Signal> {
     if st.scale == Scale::Hdr && !sf.pq { Arc::new(sf.signal.map(|c| c.map(sc::sdr_to_pq))) } else { sf.signal.clone() }
 }

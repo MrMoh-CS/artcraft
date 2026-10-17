@@ -16,7 +16,7 @@ fn picture(rgb: [u8; 3], left_alpha: u8) -> Vec<u8> {
     px
 }
 
-/// An APNG whose إطار are `frames` (RGBA, W×H) with delays `(numerator, denominator)` seconds.
+/// An APNG whose frames are `frames` (RGBA, W×H) with delays `(numerator, denominator)` seconds.
 fn apng(frames: &[(Vec<u8>, (u16, u16))]) -> Vec<u8> {
     let mut out = Vec::new();
     {
@@ -25,7 +25,7 @@ fn apng(frames: &[(Vec<u8>, (u16, u16))]) -> Vec<u8> {
         e.set_depth(png::BitDepth::Eight);
         e.set_animated(frames.len() as u32, 0).unwrap();
         let mut w = e.write_header().unwrap();
-        for (px, (num, den)) in إطار {
+        for (px, (num, den)) in frames {
             w.set_frame_delay(*num, *den).unwrap();
             w.set_dispose_op(png::DisposeOp::None).unwrap();
             w.set_blend_op(png::BlendOp::Source).unwrap();
@@ -36,13 +36,13 @@ fn apng(frames: &[(Vec<u8>, (u16, u16))]) -> Vec<u8> {
     out
 }
 
-/// A GIF whose إطار are `frames` (RGBA, W×H) with delays in milliseconds.
+/// A GIF whose frames are `frames` (RGBA, W×H) with delays in milliseconds.
 fn gif(frames: &[(Vec<u8>, u32)]) -> Vec<u8> {
     let mut out = Vec::new();
     {
         let mut e = image::codecs::gif::GifEncoder::new(&mut out);
         e.set_repeat(image::codecs::gif::Repeat::Infinite).unwrap();
-        let إطار = إطار.iter().map(|(px, ms)| {
+        let frames = frames.iter().map(|(px, ms)| {
             let img = image::RgbaImage::from_raw(W, H, px.clone()).unwrap();
             image::Frame::from_parts(img, 0, 0, Delay::from_numer_denom_ms(*ms, 1))
         });
@@ -126,12 +126,12 @@ fn single_frame_files_stay_stills() {
 
 #[test]
 fn damaged_files_never_panic() {
-    let إطار: Vec<_> = (0..6u8).map(|i| (picture([i * 40, 0, 255 - i * 40], i * 40), (1, 10))).collect();
+    let frames: Vec<_> = (0..6u8).map(|i| (picture([i * 40, 0, 255 - i * 40], i * 40), (1, 10))).collect();
     let png_bytes = apng(&frames);
     let gif_bytes = gif(&frames.iter().map(|(p, _)| (p.clone(), 100)).collect::<Vec<_>>());
     for whole in [png_bytes, gif_bytes] {
         for cut in (0..whole.len()).step_by(7) {
-            // truncated: opens as fewer إطار, a still or an error, never a panic
+            // truncated: opens as fewer frames, a still or an error, never a panic
             let _ = open_bytes("cut", whole[..cut].to_vec().into(), &[]);
         }
         let mut flipped = whole.clone();
@@ -146,14 +146,14 @@ fn damaged_files_never_panic() {
 
 #[test]
 fn a_damaged_later_frame_keeps_the_frames_before_it() {
-    let إطار: Vec<_> = (0..4u8).map(|i| (picture([i * 60, 1, 2], 255), (1, 10))).collect();
+    let frames: Vec<_> = (0..4u8).map(|i| (picture([i * 60, 1, 2], 255), (1, 10))).collect();
     let whole = apng(&frames);
-    // cut inside the last frame's data: the first three إطار still play
+    // cut inside the last frame's data: the first three frames still play
     let cut = whole.len() - 20;
     let s = open("cut.png", &whole[..cut]).expect("still animated").expect("opens");
     assert_eq!(s.frame_count(), 3);
     assert_eq!(s.info().duration, ms(300));
-    assert_eq!(pixels(&s, Tick::ZERO), إطار[0].0);
+    assert_eq!(pixels(&s, Tick::ZERO), frames[0].0);
 }
 
 #[test]

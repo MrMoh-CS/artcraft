@@ -1,10 +1,10 @@
-//! Effects that look at other إطار: Posterize Time, Echo, Auto Reframe and Warp Stabilizer.
+//! Effects that look at other frames: Posterize Time, Echo, Auto Reframe and Warp Stabilizer.
 //!
 //! Warp Stabilizer is a 2-D (similarity / translation) stabilizer: on first use it analyses the
 //! clip — every frame decoded small, Shi–Tomasi features tracked frame to frame with pyramidal
 //! Lucas–Kanade and a RANSAC similarity fit (the mask tracker in [`crate::track`]) — and caches
 //! the per-frame steps in memory. Rendering smooths the accumulated camera path with a Gaussian
-//! (Smoothness) or holds it fixed (No Motion), warps each frame onto the smoothed path and إطار
+//! (Smoothness) or holds it fixed (No Motion), warps each frame onto the smoothed path and frames
 //! the result (crop / auto-scale / synthesise edges). Perspective and Subspace Warp use the
 //! similarity model (no per-region warping).
 
@@ -32,7 +32,7 @@ pub fn posterize_time(img: &mut Image, e: &EffectInstance, cx: &FxCtx) {
     }
 }
 
-/// Echo: composites copies of the clip from earlier (negative Echo Time) or later إطار.
+/// Echo: composites copies of the clip from earlier (negative Echo Time) or later frames.
 pub fn echo(img: &mut Image, e: &EffectInstance, cx: &FxCtx) {
     let Some(env) = cx.env else { return };
     let dt = fv(e, "time", cx) as f64;
@@ -252,7 +252,7 @@ pub fn stabilizer_path(env: &dyn FxEnv, now: f64, method: TrackMethod, detailed:
     let src_w = env.source_size().0.max(1) as f32;
     let target_w = if detailed { 960.0 } else { 480.0 };
     let scale = (target_w / src_w).min(1.0);
-    let إطار: Vec<Option<Prepared>> = (0..n)
+    let frames: Vec<Option<Prepared>> = (0..n)
         .into_par_iter()
         .map(|k| {
             if filmcraft_media::cancel::cancelled() {
@@ -264,7 +264,7 @@ pub fn stabilizer_path(env: &dyn FxEnv, now: f64, method: TrackMethod, detailed:
     if filmcraft_media::cancel::cancelled() {
         return None;
     }
-    let (w, h) = إطار.iter().flatten().next().map(|p| (p.base().w, p.base().h))?;
+    let (w, h) = frames.iter().flatten().next().map(|p| (p.base().w, p.base().h))?;
     let m = 8.0;
     let region = [Vec2::new(m, m), Vec2::new(w as f64 - m, m), Vec2::new(w as f64 - m, h as f64 - m), Vec2::new(m, h as f64 - m)];
     let steps: Vec<Affine> = (0..n.saturating_sub(1))

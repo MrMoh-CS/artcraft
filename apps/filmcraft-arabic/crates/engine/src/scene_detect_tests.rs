@@ -15,14 +15,14 @@ use crate::Session;
 use crate::media_test_util::{session_with, tmp_dir};
 
 /// Write a 24 fps ProRes movie of demo scenes played one after the other: `shots` = (scene,
-/// إطار). The cuts are at the running sums of the frame counts.
+/// frames). The cuts are at the running sums of the frame counts.
 fn make_cut_movie(path: &Path, shots: &[(DemoScene, i64)], w: u32, h: u32) {
     let rate = FrameRate::FPS_24;
     let mut p = Project::new("fixture");
     let seq = p.new_sequence("s", SequenceSettings { width: w, height: h, frame_rate: rate, ..Default::default() }, 1, 1, None);
     let mut sources: Vec<(ItemId, filmcraft_media::SharedSource)> = Vec::new();
     let mut at = Tick::ZERO;
-    for (k, (scene, إطار)) in shots.iter().enumerate() {
+    for (k, (scene, frames)) in shots.iter().enumerate() {
         let dur = rate.tick_of(*frames);
         // each shot starts at a different point of its scene
         let src = GeneratorSource::new(Generator::Demo(*scene), w, h, rate, rate.tick_of(200));
@@ -62,7 +62,7 @@ fn select_v1(s: &mut Session) -> filmcraft_project::ClipId {
 fn detects_cuts_in_our_own_render_and_applies_cuts_markers_and_subclips() {
     let dir = tmp_dir("scene-own");
     let path = dir.join("cuts.mov");
-    // Ocean Sunset 20 إطار, City Night 16, Forest 14: cuts at إطار 20 and 36
+    // Ocean Sunset 20 frames, City Night 16, Forest 14: cuts at frames 20 and 36
     make_cut_movie(&path, &[(DemoScene::OceanSunset, 20), (DemoScene::CityNight, 16), (DemoScene::Forest, 14)], 160, 90);
     let (mut s, items, _) = session_with(&[&path]);
     let rate = s.sequence_rate();
@@ -73,7 +73,7 @@ fn detects_cuts_in_our_own_render_and_applies_cuts_markers_and_subclips() {
     let r = s.execute("clip.sceneEditDetection", json!({"wait": true, "applyCuts": true, "generateMarkers": true, "createSubclips": true})).unwrap();
     assert_eq!(r["clips"][0]["cuts"], json!([rate.tick_of(20).0, rate.tick_of(36).0]), "{r}");
     assert_eq!(s.history.undo.len(), n_undo + 1, "one undo step");
-    assert_eq!(s.history.undo.last().unwrap().0, "Scene Edit Detection");
+    assert_eq!(s.history.undo.last().unwrap().0, "اكتشاف تحرير المشهد");
     // cuts: V1 and the linked A1 are in three pieces
     let q = s.active_sequence().unwrap();
     let starts: Vec<Tick> = q.video_tracks[0].items.iter().map(|i| i.start).collect();
@@ -170,8 +170,8 @@ fn ffmpeg_fixture() -> Option<PathBuf> {
     })
 }
 
-/// ffmpeg-made H.264 + AAC: testsrc2 (24 إطار), SMPTE bars (36), Mandelbrot zoom (24). The cuts
-/// are at إطار 24 and 60; the moving test pattern and the zoom don't trigger.
+/// ffmpeg-made H.264 + AAC: testsrc2 (24 frames), SMPTE bars (36), Mandelbrot zoom (24). The cuts
+/// are at frames 24 and 60; the moving test pattern and the zoom don't trigger.
 #[test]
 fn detects_the_cuts_of_an_ffmpeg_concat_and_cuts_linked_audio() {
     let Some(src) = ffmpeg_fixture() else { return };

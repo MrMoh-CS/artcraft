@@ -468,7 +468,7 @@ fn style_strip(app: &mut FilmcraftApp, ui: &mut egui::Ui, r: Rect, track_idx: us
                 actions.push(("captions.setStyle".into(), json!({"track": tr.id.0, "align": name})));
             }
         }
-        ui.label(egui::RichText::new(tl!("Position")).size(11.0).color(app.tokens.text_dim));
+        ui.label(egui::RichText::new(tl!("الموضع")).size(11.0).color(app.tokens.text_dim));
         for (a, name, tip) in [
             (CaptionAnchor::Top, "top", tl!("Position: top")),
             (CaptionAnchor::Middle, "middle", tl!("Position: middle")),

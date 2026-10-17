@@ -21,7 +21,7 @@ pub enum Scaling {
     StretchToFill,
 }
 
-/// Field order of the encoded video. FilmCraft's encoders write progressive إطار.
+/// Field order of the encoded video. FilmCraft's encoders write progressive frames.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum FieldOrder {
@@ -35,8 +35,8 @@ impl FieldOrder {
     pub fn label(self) -> &'static str {
         match self {
             FieldOrder::Progressive => "تقدمي",
-            FieldOrder::UpperFirst => "العلوي أولاً",
-            FieldOrder::LowerFirst => "السفلي أولاً",
+            FieldOrder::UpperFirst => "Upper First",
+            FieldOrder::LowerFirst => "Lower First",
         }
     }
 }
@@ -54,8 +54,8 @@ pub enum H264Profile {
 impl H264Profile {
     pub fn label(self) -> &'static str {
         match self {
-            H264Profile::Baseline => "أساسي",
-            H264Profile::Main => "رئيسي",
+            H264Profile::Baseline => "Baseline",
+            H264Profile::Main => "Main",
             H264Profile::High => "عالي",
         }
     }
@@ -514,7 +514,7 @@ impl ExportSettings {
         }
     }
 
-    /// Whether the exported إطار keep their alpha channel instead of being flattened over black.
+    /// Whether the exported frames keep their alpha channel instead of being flattened over black.
     pub fn keeps_alpha(&self) -> bool {
         self.alpha && self.supports_alpha()
     }
@@ -686,7 +686,7 @@ impl ExportSettings {
                         BitrateMode::Crf => format!(" {}", self.crf),
                         _ => format!(", Target {}, Max {}", mbps(r.target_kbps), mbps(r.max_kbps)),
                     };
-                    v += &format!(", إطار مفتاحي كل {} إطار", r.keyint);
+                    v += &format!(", keyframe every {} frames", r.keyint);
                 }
                 Format::Hevc => {
                     // Main 10 only where a registered encoder writes HDR (NVENC); VideoToolbox is 8-bit
@@ -696,7 +696,7 @@ impl ExportSettings {
                         BitrateMode::Cbr => format!(", {}", mbps(r.target_kbps)),
                         _ => format!(", Target {}, Max {}", mbps(r.target_kbps), mbps(r.max_kbps)),
                     };
-                    v += &format!(", إطار مفتاحي كل {} إطار", r.keyint);
+                    v += &format!(", keyframe every {} frames", r.keyint);
                 }
                 Format::Av1 => {
                     v += &format!(", AV1 Main (hardware encoder), {}", self.bitrate_mode.label());
@@ -704,7 +704,7 @@ impl ExportSettings {
                         BitrateMode::Cbr => format!(", {}", mbps(r.target_kbps)),
                         _ => format!(", Target {}, Max {}", mbps(r.target_kbps), mbps(r.max_kbps)),
                     };
-                    v += &format!(", إطار مفتاحي كل {} إطار", r.keyint);
+                    v += &format!(", keyframe every {} frames", r.keyint);
                 }
                 Format::ProRes => {
                     use filmcraft_prores::Profile;

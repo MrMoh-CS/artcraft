@@ -253,7 +253,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                         save_preset = true;
                         ui.close();
                     }
-                    if !def.intrinsic && ui.button(tl!("Clear")).clicked() {
+                    if !def.intrinsic && ui.button(tl!("مسح")).clicked() {
                         actions.push(("effects.remove".into(), json!({"clip": clip.0, "index": idx})));
                         ui.close();
                     }
@@ -362,8 +362,8 @@ fn custom_setup_row(app: &mut FilmcraftApp, ui: &mut egui::Ui, body: Rect, lane:
     let resp = ui.interact(br, egui::Id::new(("fx-custom-setup", clip.0, idx)), Sense::click());
     ui.painter().rect_filled(br, 3.0, if resp.hovered() { t.hover } else { t.field_bg });
     ui.painter().rect_stroke(br, 3.0, Stroke::new(1.0, t.field_border), egui::StrokeKind::Inside);
-    ui.painter().text(br.center(), Align2::CENTER_CENTER, tl!("Edit…"), Tokens::ui(11.5), t.text);
-    app.auto.add(&format!("effectControls.effect.{effect}.edit"), br, "Edit…");
+    ui.painter().text(br.center(), Align2::CENTER_CENTER, tl!("تحرير…"), Tokens::ui(11.5), t.text);
+    app.auto.add(&format!("effectControls.effect.{effect}.edit"), br, "تحرير…");
     if resp.clicked() {
         crate::panels::audio_fx_editor::open(app, crate::panels::audio_fx_editor::FxTarget::Clip { clip: clip.0, index: idx });
     }
@@ -740,8 +740,8 @@ fn keyframe_menu(app: &mut FilmcraftApp, ui: &mut egui::Ui, target: KeyframeRef,
         }
     }
     ui.separator();
-    let response = ui.button(tl!("Clear"));
-    app.auto.add("effectControls.keyframeMenu.clear", response.rect, "Clear");
+    let response = ui.button(tl!("مسح"));
+    app.auto.add("effectControls.keyframeMenu.clear", response.rect, "مسح");
     if response.clicked() {
         actions.push(("effects.deleteKeyframe".into(), params));
         ui.close();
@@ -883,12 +883,12 @@ pub fn properties_panel(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         let eff_idx = |id: &str| it.effects.iter().position(|e| e.effect == id);
         let val = |eid: &str, p: &str| it.effect(eid).and_then(|e| e.param(p)).map(|p| p.value_at(mt));
         if kind == TrackKind::Video {
-            if section(bui, app, "Transform", eff_idx("motion").map(|i| (i, clip.0)), &mut actions) {
+            if section(bui, app, "التحويل", eff_idx("motion").map(|i| (i, clip.0)), &mut actions) {
                 for (label, p, unit, speed, range) in [
-                    (tl!("Position"), "position", "", 1.0, (-100_000.0, 100_000.0)),
-                    (tl!("Anchor point"), "anchor", "", 1.0, (-100_000.0, 100_000.0)),
-                    (tl!("Scale"), "scale", " %", 0.5, (0.0, 10000.0)),
-                    (tl!("Rotation"), "rotation", " °", 0.5, (-36000.0, 36000.0)),
+                    (tl!("الموضع"), "position", "", 1.0, (-100_000.0, 100_000.0)),
+                    (tl!("نقطة الارتكاز"), "anchor", "", 1.0, (-100_000.0, 100_000.0)),
+                    (tl!("الحجم"), "scale", " %", 0.5, (0.0, 10000.0)),
+                    (tl!("الدوران"), "rotation", " °", 0.5, (-36000.0, 36000.0)),
                 ] {
                     let r = row(bui, label);
                     let mut vui = bui.new_child(
@@ -927,7 +927,7 @@ pub fn properties_panel(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                     }
                     properties_nav(app, bui, r, clip, &it, mt, "motion", p, &mut actions);
                 }
-                let r = row(bui, tl!("Opacity"));
+                let r = row(bui, tl!("الشفافية"));
                 let mut vui = bui.new_child(
                     egui::UiBuilder::new()
                         .max_rect(Rect::from_min_max(pos2(r.min.x + 150.0, r.min.y + 4.0), pos2(r.max.x - PROPS_VALUE_R, r.max.y - 4.0)))
@@ -942,8 +942,8 @@ pub fn properties_panel(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                 properties_nav(app, bui, r, clip, &it, mt, "opacity", "opacity", &mut actions);
             }
             let crop = eff_idx("crop");
-            if section(bui, app, "Crop", crop.map(|i| (i, clip.0)), &mut actions) {
-                for (label, p) in [(tl!("Left"), "left"), (tl!("Top"), "top"), (tl!("Right"), "right"), (tl!("Bottom"), "bottom")] {
+            if section(bui, app, "القص", crop.map(|i| (i, clip.0)), &mut actions) {
+                for (label, p) in [(tl!("يسار"), "left"), (tl!("أعلى"), "top"), (tl!("يمين"), "right"), (tl!("أسفل"), "bottom")] {
                     let r = row(bui, label);
                     let mut vui = bui.new_child(
                         egui::UiBuilder::new()
@@ -1013,7 +1013,7 @@ pub(crate) fn row_fill(r: Rect) -> Rect {
 /// while the mouse button is down (a drag) share one undo step, which the first change of each
 /// press begins (#201); typed values and clicks stay separate steps. A drag value only changes once
 /// the mouse moves, after the press frame, so the press that already began a step is remembered by
-/// its start time. That memory is refreshed on every frame the button stays down — including إطار
+/// its start time. That memory is refreshed on every frame the button stays down — including frames
 /// with no value change — so a Scale scrub that pauses between percents is still one undo (#887). A
 /// change that brings its own `merge` key (a Program monitor handle changing several parameters)
 /// keeps it.

@@ -248,7 +248,7 @@ fn unspecified_or_missing_vui_keeps_the_size_defaults() {
 fn colr_wins_over_the_bitstream() {
     use filmcraft_isobmff::ColorInfo::{Nclc, Nclx};
     let sps = || hevc(hevc_sps(1920, 1080, Some(PQ_2020)));
-    // a BT.709 nclx box beats a PQ VUI, and is what the decoder's إطار are tagged with
+    // a BT.709 nclx box beats a PQ VUI, and is what the decoder's frames are tagged with
     let colr = Nclx { primaries: 1, transfer: 1, matrix: 1, full_range: false };
     assert_eq!(mp4_color(sps(), 1920, 1080, Some(colr.clone())), ColorInfo::REC709);
     // HLG in colr, PQ in the VUI: HLG

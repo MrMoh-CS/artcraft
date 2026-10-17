@@ -207,7 +207,7 @@ fn nested_adjustment_layers_stay_in_their_sequence() {
 
 #[test]
 fn transform_shutter_on_an_adjustment_layer_spans_one_sequence_frame() {
-    // A 60 fps sequence: at 360° the shutter is one 60 fps frame, so the إطار just outside
+    // A 60 fps sequence: at 360° the shutter is one 60 fps frame, so the frames just outside
     // the move stay sharp (they were blurred with a 24 fps shutter, #1088).
     use filmcraft_project::{Interpolation, Keyframe};
     let r60 = FrameRate::FPS_60;
@@ -268,12 +268,12 @@ fn a_dissolve_fades_the_adjustment_layers_effects_in_and_out() {
     fx(&mut s, adj, "invert");
     dissolve(&mut s, 1, None, Some(adj), 0);
     dissolve(&mut s, 1, Some(adj), None, 36);
-    // fade in over إطار 0..12: red → halfway → cyan
+    // fade in over frames 0..12: red → halfway → cyan
     assert!(near(at(&s, 0), [1.0, 0.0, 0.0], 1e-3), "{:?}", at(&s, 0));
     assert!(near(at(&s, 3), [0.75, 0.25, 0.25], 1e-3), "a quarter in: {:?}", at(&s, 3));
     assert!(near(at(&s, 6), [0.5, 0.5, 0.5], 1e-3), "halfway in: {:?}", at(&s, 6));
     assert!(near(at(&s, 24), [0.0, 1.0, 1.0], 1e-3), "{:?}", at(&s, 24));
-    // fade out over إطار 36..48
+    // fade out over frames 36..48
     assert!(near(at(&s, 42), [0.5, 0.5, 0.5], 1e-3), "halfway out: {:?}", at(&s, 42));
     assert!(near(at(&s, 45), [0.75, 0.25, 0.25], 1e-3), "three quarters out: {:?}", at(&s, 45));
 }

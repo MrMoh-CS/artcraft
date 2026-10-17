@@ -213,7 +213,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         let started = SystemTime::now();
-        // إطار are numbered with at least three digits (`shot000.tiff`); `shot2.tiff` is not one
+        // frames are numbered with at least three digits (`shot000.tiff`); `shot2.tiff` is not one
         let ours = ["shot.tiff", "shot000.tiff", "shot1234.tiff"];
         let theirs = ["shot2.tiff", "shot12.tiff"];
         for f in ours.iter().chain(theirs.iter()) {

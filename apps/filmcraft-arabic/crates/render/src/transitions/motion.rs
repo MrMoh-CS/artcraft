@@ -222,7 +222,7 @@ pub(super) fn apply(id: &str, t: &Tx) -> Option<Image> {
                     if inside(bx, by) {
                         return t.sbc(bx, by);
                     }
-                    // the gap between the إطار, with sprocket holes along both edges
+                    // the gap between the frames, with sprocket holes along both edges
                     let across = if horiz { y } else { x };
                     let across_len = if horiz { h } else { w };
                     let along = if horiz { ax } else { ay };

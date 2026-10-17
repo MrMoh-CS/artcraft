@@ -5,7 +5,7 @@
 //! slot with an empty chunk (a "drop frame") repeats the picture before it. MPEG-4 Part 2
 //! (DivX / Xvid) and DV have no decoder yet: their streams are listed and report the codec.
 //!
-//! Audio: PCM (integer and float) straight from the chunks; MPEG audio (MP3, MP2) and AC-3 إطار,
+//! Audio: PCM (integer and float) straight from the chunks; MPEG audio (MP3, MP2) and AC-3 frames,
 //! which AVI chunks need not follow, are found again across chunk boundaries
 //! ([`filmcraft_mpegts::frame_bytes`]) and decoded as packets.
 
@@ -75,7 +75,7 @@ struct VFrame {
 #[derive(Clone, Debug)]
 enum ACodec {
     Pcm(PcmConfig),
-    /// MPEG audio (layer 1-3) or AC-3 إطار, found again across chunks.
+    /// MPEG audio (layer 1-3) or AC-3 frames, found again across chunks.
     Framed {
         ts: filmcraft_mpegts::Codec,
         layer: u8,
@@ -118,7 +118,7 @@ struct AviAudio {
     /// The pieces of packet `k` are `pieces[first[k]..first[k + 1]]`.
     pieces: Vec<Piece>,
     first: Vec<usize>,
-    /// Packet start positions in sample إطار.
+    /// Packet start positions in sample frames.
     starts: Vec<i64>,
     state: Mutex<AudioState>,
 }
@@ -222,7 +222,7 @@ impl AviSource {
         Self::open_reader(name, Arc::new(filmcraft_media::reader::MemReader(bytes)))
     }
 
-    /// Open from a random-access reader: the index now, إطار and audio on demand.
+    /// Open from a random-access reader: the index now, frames and audio on demand.
     pub fn open_reader(name: &str, reader: filmcraft_media::SharedReader) -> crate::Result<Self> {
         let bytes = crate::Src(reader);
         let file = filmcraft_avi::open(&bytes).map_err(|e| CodecError::Container(e.to_string()))?;
@@ -238,7 +238,7 @@ impl AviSource {
         if vstream.is_none() && astreams.is_empty() {
             return Err(CodecError::Unsupported("no playable streams".into()));
         }
-        // video: frame slots, pictures and key إطار
+        // video: frame slots, pictures and key frames
         let (mut vcodec, mut vframes, mut vslots, mut rate, mut bottom_up, mut video) =
             (VCodec::Unsupported(String::new()), Vec::new(), 0i64, FrameRate::new(25, 1), false, None);
         if let Some(vs) = vstream.and_then(|i| file.streams.get(i)) {
@@ -518,11 +518,11 @@ impl MediaSource for AviSource {
         Ok(self.video.frame_late(&AviVideo { src: self, stream: s }, slot(t), late)?)
     }
 
-    fn audio(&self, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
-        self.audio_stream(0, start, إطار, sample_rate)
+    fn audio(&self, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+        self.audio_stream(0, start, frames, sample_rate)
     }
 
-    fn audio_stream(&self, stream: usize, start: i64, إطار: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
+    fn audio_stream(&self, stream: usize, start: i64, frames: usize, sample_rate: u32) -> Result<AudioBuffer, MediaError> {
         let a = self.audios.get(stream).ok_or(MediaError::NoStream("audio"))?;
         let ainfo = self.info.audio_streams.get(stream).ok_or(MediaError::NoStream("audio"))?;
         if let ACodec::Unsupported(name) = &a.codec {
@@ -553,7 +553,7 @@ impl MediaSource for AviSource {
         }
         drop(st);
         let frac = s0 as f64 - start as f64 * ratio;
-        let mut out = AudioBuffer::silence(sample_rate, ch, إطار);
+        let mut out = AudioBuffer::silence(sample_rate, ch, frames);
         for (c, o) in out.channels.iter_mut().enumerate() {
             let Some(s) = src.get(c) else { continue };
             for (k, d) in o.iter_mut().enumerate() {

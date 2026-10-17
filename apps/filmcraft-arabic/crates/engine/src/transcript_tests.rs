@@ -87,7 +87,7 @@ fn select_extract_and_lift_by_words() {
     assert_eq!(rate.snap(a), a, "frame aligned");
     assert_eq!(s.playhead(), a);
 
-    // Extract "um": the sequence gets shorter by the word's إطار and the word is gone
+    // Extract "um": the sequence gets shorter by the word's frames and the word is gone
     let r = s.execute("transcript.extract", json!({"from": 1})).unwrap();
     let cut = Tick(r["end"].as_i64().unwrap()) - Tick(r["start"].as_i64().unwrap());
     assert!(cut > Tick::ZERO);

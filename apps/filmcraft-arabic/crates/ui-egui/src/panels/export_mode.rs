@@ -150,7 +150,7 @@ pub fn export_params(app: &FilmcraftApp) -> Value {
 fn sync_sequence(app: &mut FilmcraftApp) {
     let Some(seq) = app.session.state.active_sequence else { return };
     if app.ui.export.for_sequence != Some(seq.0) || app.ui.export.file_name.is_empty() {
-        app.ui.export.file_name = app.session.project.item(seq).map(|i| i.name.clone()).unwrap_or_else(|| "التسلسل".into());
+        app.ui.export.file_name = app.session.project.item(seq).map(|i| i.name.clone()).unwrap_or_else(|| "تسلسل".into());
         app.ui.export.for_sequence = Some(seq.0);
     }
     if app.ui.export.location.is_empty() {
@@ -504,7 +504,7 @@ fn settings_column(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                         }
                     }
                     ui.separator();
-                    if ui.button(tl!("More presets…")).clicked() {
+                    if ui.button(tl!("المزيد من الإعدادات المسبقة…")).clicked() {
                         open_manager = true;
                     }
                 });
@@ -512,8 +512,8 @@ fn settings_column(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         });
         ui.horizontal(|ui| {
             ui.add_space(LABEL_W + 8.0);
-            let r = ui.link(tl!("More presets…"));
-            reg.add("export.preset.more", r.rect, "More presets…");
+            let r = ui.link(tl!("المزيد من الإعدادات المسبقة…"));
+            reg.add("export.preset.more", r.rect, "المزيد من الإعدادات المسبقة…");
             if r.clicked() {
                 open_manager = true;
             }
@@ -743,7 +743,7 @@ fn video_section(ui: &mut egui::Ui, reg: &mut Reg, s: &mut ExportSettings, t: &T
                 });
             } else if let Some(bpp) = s.adaptive_bitrate {
                 row(ui, t, tl!("معدل البت المستهدف"), |ui| {
-                    ui.label(egui::RichText::new(tlf!("متكيف ({bpp} بت لكل بكسل)", bpp)).size(12.0));
+                    ui.label(egui::RichText::new(tlf!("Adaptive ({bpp} bits per pixel)", bpp)).size(12.0));
                     let r = ui.small_button(tl!("تعيين"));
                     reg.add("export.video.fixedBitrate", r.rect, "Set a fixed bitrate");
                     if r.clicked() {
@@ -773,7 +773,7 @@ fn video_section(ui: &mut egui::Ui, reg: &mut Reg, s: &mut ExportSettings, t: &T
                 }
                 if let Some(k) = s.keyframe_distance.as_mut() {
                     let mut v = *k as f64;
-                    drag(ui, reg, "export.video.keyframe", &mut v, 1.0..=600.0, 1.0, " إطار", 0);
+                    drag(ui, reg, "export.video.keyframe", &mut v, 1.0..=600.0, 1.0, " frames", 0);
                     *k = v as u32;
                 }
             });
@@ -953,7 +953,7 @@ fn placement_combo(ui: &mut egui::Ui, reg: &mut Reg, id: &str, p: &mut Placement
 
 fn text_overlay(ui: &mut egui::Ui, reg: &mut Reg, key: &str, o: &mut TextOverlay, t: &Tokens, text_label: &str) {
     row(ui, t, text_label, |ui| text(ui, reg, &format!("export.effects.{key}.text"), &mut o.text, ""));
-    row(ui, t, tl!("Position"), |ui| placement_combo(ui, reg, &format!("export.effects.{key}.position"), &mut o.placement));
+    row(ui, t, tl!("الموضع"), |ui| placement_combo(ui, reg, &format!("export.effects.{key}.position"), &mut o.placement));
     row(ui, t, tl!("Size / Opacity"), |ui| {
         let (mut sz, mut op) = (o.size_percent as f64, o.opacity as f64);
         drag(ui, reg, &format!("export.effects.{key}.size"), &mut sz, 1.0..=50.0, 0.2, " %", 1);
@@ -978,7 +978,7 @@ fn effects_section(ui: &mut egui::Ui, reg: &mut Reg, s: &mut ExportSettings, t: 
                 browse = r.clicked();
                 text(ui, reg, "export.effects.imageOverlay.path", &mut o.path, tl!("PNG or JPEG file"));
             });
-            row(ui, t, tl!("Position"), |ui| placement_combo(ui, reg, "export.effects.imageOverlay.position", &mut o.placement));
+            row(ui, t, tl!("الموضع"), |ui| placement_combo(ui, reg, "export.effects.imageOverlay.position", &mut o.placement));
             row(ui, t, tl!("Size / Opacity"), |ui| {
                 let (mut sz, mut op) = (o.size_percent as f64, o.opacity as f64);
                 drag(ui, reg, "export.effects.imageOverlay.size", &mut sz, 1.0..=100.0, 0.5, " %", 1);
@@ -1022,7 +1022,7 @@ fn effects_section(ui: &mut egui::Ui, reg: &mut Reg, s: &mut ExportSettings, t: 
 // right: preview, range, summary, buttons
 // ---------------------------------------------------------------------------------------------
 
-pub(crate) const RANGES: [(&str, &str); 4] = [("entire", "المصدر بالكامل"), ("inOut", "من البداية للنهاية"), ("workArea", "منطقة العمل"), ("custom", "Custom")];
+pub(crate) const RANGES: [(&str, &str); 4] = [("entire", "المصدر بالكامل"), ("inOut", "Source In/Out"), ("workArea", "Work Area"), ("custom", "Custom")];
 
 fn preview_column(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, seq_id: filmcraft_engine::project::ItemId) {
     let t = app.tokens;
@@ -1080,7 +1080,7 @@ fn preview_column(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, seq_id:
         child.horizontal(|ui| {
             ui.label(egui::RichText::new(tl!("تحجيم الشاشة")).color(t.text_dim));
             let o =
-                [(Scaling::ScaleToFit, tl!("تحجيم للملاءمة")), (Scaling::ScaleToFill, tl!("تحجيم للملء")), (Scaling::StretchToFill, tl!("تمديد للملء"))];
+                [(Scaling::ScaleToFit, tl!("تحجيم للملاءمة")), (Scaling::ScaleToFill, tl!("Scale To Fill")), (Scaling::StretchToFill, tl!("Stretch To Fill"))];
             let cur = o.iter().find(|(x, _)| *x == ex.settings.scaling).map_or(o[0].1, |x| x.1);
             let labels: Vec<(String, bool)> = o.iter().map(|(_, l)| (l.to_string(), true)).collect();
             if let Some(i) = combo(ui, &mut reg, "export.scaling", cur, &labels, 140.0) {
@@ -1113,7 +1113,7 @@ fn preview_column(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, seq_id:
                     ui,
                     "المصدر",
                     &tlf!(
-                        "تسلسل، {w}x{h}, {fps} fps, {rate} Hz",
+                        "Sequence, {w}x{h}, {fps} fps, {rate} Hz",
                         w = q.settings.width,
                         h = q.settings.height,
                         fps = rate.label(),
@@ -1269,13 +1269,13 @@ fn preset_manager(app: &mut FilmcraftApp, ctx: &egui::Context) {
                 }
             });
             ui.horizontal(|ui| {
-                let r = ui.button(tl!("Import…"));
-                reg.add("presetManager.import", r.rect, "Import…");
+                let r = ui.button(tl!("استيراد…"));
+                reg.add("presetManager.import", r.rect, "استيراد…");
                 if r.clicked() {
                     pick = Some("import");
                 }
-                let r = ui.add_enabled(sel.is_some(), egui::Button::new(tl!("Export…")));
-                reg.add("presetManager.export", r.rect, "Export…");
+                let r = ui.add_enabled(sel.is_some(), egui::Button::new(tl!("تصدير…")));
+                reg.add("presetManager.export", r.rect, "تصدير…");
                 if r.clicked() {
                     pick = Some("export");
                 }
@@ -1409,7 +1409,7 @@ pub fn quick_export(app: &mut FilmcraftApp, ctx: &egui::Context, anchor: egui::P
     let preset = app.session.export_presets.find(&app.ui.export.quick_preset);
     let ext = preset.as_ref().map(|p| p.settings.extension()).unwrap_or("mp4");
     let format = preset.as_ref().map(|p| p.settings.format.label()).unwrap_or("MP4");
-    let seq_name = app.session.project.item(seq).map(|i| i.name.clone()).unwrap_or_else(|| "التسلسل".into());
+    let seq_name = app.session.project.item(seq).map(|i| i.name.clone()).unwrap_or_else(|| "تسلسل".into());
     if let Some(p) = quick_file(app, &app.ui.export.quick_path, &seq_name, ext) {
         app.ui.export.quick_path = p;
     }

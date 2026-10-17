@@ -203,7 +203,7 @@ fn explicit_folder_remaps_normalize_both_prefixes_and_respect_boundaries() {
 }
 
 /// #1054: an export (or a rendered frame) that draws the offline slate names the offline items it
-/// used, with their status, so a headless caller can tell placeholder إطار from real ones. Media
+/// used, with their status, so a headless caller can tell placeholder frames from real ones. Media
 /// outside the exported range is not reported.
 #[test]
 fn export_names_the_offline_media_it_rendered() {

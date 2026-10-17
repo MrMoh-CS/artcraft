@@ -51,7 +51,7 @@ impl KeyframeMode {
     }
     pub fn label(self) -> &'static str {
         match self {
-            KeyframeMode::Scale => "Scale",
+            KeyframeMode::Scale => "الحجم",
             KeyframeMode::AnchorToIn => "Anchor to In Point",
             KeyframeMode::AnchorToOut => "Anchor to Out Point",
         }

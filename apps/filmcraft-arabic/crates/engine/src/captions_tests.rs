@@ -27,7 +27,7 @@ fn captions_import_edit_export_and_burn_in() {
     let rate = q.settings.frame_rate;
     let tr = q.caption_tracks[0].clone();
     assert_eq!(tr.name, "talk");
-    assert_eq!(tr.captions[0].start, rate.snap_nearest(Tick(TICKS_PER_SECOND / 2)), "snapped to إطار");
+    assert_eq!(tr.captions[0].start, rate.snap_nearest(Tick(TICKS_PER_SECOND / 2)), "snapped to frames");
     let first = tr.captions[0].id;
     let second = tr.captions[1].id;
 

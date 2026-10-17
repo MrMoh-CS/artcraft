@@ -33,7 +33,7 @@
 
 use std::collections::BTreeMap;
 
-use filmcraft_time::{FrameRate, fields_to_frames, إطار_to_fields};
+use filmcraft_time::{FrameRate, fields_to_frames, frames_to_fields};
 
 use crate::cea608::with_parity;
 use crate::{Cue, Document, Error, Result, scc};
@@ -289,7 +289,7 @@ fn pairs_of(packet: &[u8]) -> Vec<(bool, u8, u8)> {
 
 /// Frames → DTVCC pairs, with per-frame capacity.
 struct Dtv {
-    إطار: BTreeMap<i64, Vec<(bool, u8, u8)>>,
+    frames: BTreeMap<i64, Vec<(bool, u8, u8)>>,
 }
 
 impl Dtv {
@@ -309,7 +309,7 @@ impl Dtv {
 
 /// Schedule CEA-708 service 1 pop-on captions (see the module docs).
 fn schedule_708(doc: &Document) -> BTreeMap<i64, Vec<(bool, u8, u8)>> {
-    let mut d = Dtv { إطار: BTreeMap::new() };
+    let mut d = Dtv { frames: BTreeMap::new() };
     let mut seq = 0u8;
     let mut cursor = 0i64;
     let mut cues: Vec<&Cue> = doc.cues.iter().filter(|c| c.end > c.start).collect();
@@ -551,7 +551,7 @@ pub fn write_with(doc: &Document, drop_frame: bool, cea608: bool, cea708: bool) 
     if let (Some(a), Some(b)) = (first, last) {
         for (seq, f) in (a..=b + 1).enumerate() {
             let data = FrameData { f1: f1.get(&f).copied(), dtvcc: dtv.get(&f).cloned().unwrap_or_default() };
-            let (_, hh, mm, ss, ff) = إطار_to_fields(f, RATE, drop_frame);
+            let (_, hh, mm, ss, ff) = frames_to_fields(f, RATE, drop_frame);
             let sep = if drop_frame { ';' } else { ':' };
             out.push_str(&format!("{hh:02}:{mm:02}:{ss:02}{sep}{ff:02}\t{}\n", compress(&build_cdp(seq as u16, &data))));
         }

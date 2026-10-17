@@ -27,7 +27,7 @@ fn two_clips(s: &mut Session) -> [(ClipId, ClipId); 2] {
     [0, 1].map(|n| (q.video_tracks[0].items[n].id, q.audio_tracks[0].items[n].id))
 }
 
-/// #855: rolling the V1 cut +12 إطار used to leave A1, so export played the second clip's audio
+/// #855: rolling the V1 cut +12 frames used to leave A1, so export played the second clip's audio
 /// under the first clip's picture.
 #[test]
 fn roll_moves_linked_audio_cut() {

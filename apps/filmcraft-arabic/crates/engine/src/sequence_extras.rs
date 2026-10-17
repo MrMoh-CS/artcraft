@@ -16,7 +16,7 @@
 //! caption tracks), keep only video or only audio.
 
 use filmcraft_edit as edit;
-use filmcraft_project::{ClipId, ItemKind, Label, Marker, MarkerId, MarkerKind, تسلسل، TrackId, TrackKind};
+use filmcraft_project::{ClipId, ItemKind, Label, Marker, MarkerId, MarkerKind, Sequence, TrackId, TrackKind};
 use filmcraft_time::{Tick, TimeRange};
 use serde_json::{Value, json};
 
@@ -43,18 +43,18 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "sequence.applyDefaultTransitionsToSelection",
             "Apply Default Transitions to Selection",
-            &["التسلسل"],
+            &["تسلسل"],
             // ⇧D comes from the Premiere shortcut audit (`shortcut_presets::PREMIERE`)
             None,
             r#"{"clips":[id]?}"#,
             has_clips_or_edit_points,
             apply_default_transitions,
         ),
-        spec("sequence.normalizeMixTrack", "Normalize Mix Track…", &["التسلسل"], None, r#"{"db":f64=0}"#, has_audio_clips, normalize_mix),
+        spec("sequence.normalizeMixTrack", "Normalize Mix Track…", &["تسلسل"], None, r#"{"db":f64=0}"#, has_audio_clips, normalize_mix),
         spec(
             "sequence.transcribe",
             "Transcribe Sequence…",
-            &["التسلسل"],
+            &["تسلسل"],
             None,
             r#"{"track":"mix"|"A1"|id?,"language":"en|auto"?,"diarize":bool?,"maxSpeakers":n?,"model":str?}"#,
             can_transcribe_sequence,
@@ -63,7 +63,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "sequence.simplify",
             "Simplify Sequence…",
-            &["التسلسل"],
+            &["تسلسل"],
             None,
             r#"{"name":str?,"removeDisabled":bool=true,"removeEmptyTracks":bool=true,"closeGaps":bool=false,"moveClipsDown":bool=false,"removeVideoEffects":bool=false,"removeAudioEffects":bool=false,"removeText":bool=false,"keep":"both|video|audio"}"#,
             has_seq,
@@ -72,7 +72,7 @@ pub(crate) fn commands() -> Vec<CommandSpec> {
         spec(
             "captions.showActiveOnly",
             "Show Active Caption Tracks Only",
-            &["التسلسل", "الترجمة النصية"],
+            &["تسلسل", "الترجمة النصية"],
             None,
             r#"{"track":id|"C1"?}"#,
             has_caption_track,
@@ -164,7 +164,7 @@ pub(crate) fn apply_to_selection(s: &mut Session, p: &Value, kind: TrackKind) ->
 }
 
 /// The In and Out edges of `clips`, one per cut; edges that already have a transition keep it.
-fn clip_edges(q: &تسلسل، clips: &[ClipId]) -> Vec<(TrackKind, ClipId, &'static str)> {
+fn clip_edges(q: &Sequence, clips: &[ClipId]) -> Vec<(TrackKind, ClipId, &'static str)> {
     // (track, clip, edge) per distinct cut
     let mut edges: Vec<(TrackKind, ClipId, &'static str, Tick, TrackId)> = Vec::new();
     for c in clips {
@@ -335,7 +335,7 @@ fn is_text(p: &filmcraft_project::Project, it: &filmcraft_project::TrackItem) ->
 }
 
 /// Apply Simplify Sequence to `q` (a copy). Returns what changed.
-pub fn simplify_sequence(proj: &filmcraft_project::Project, q: &mut تسلسل، o: &SimplifyOptions) -> Value {
+pub fn simplify_sequence(proj: &filmcraft_project::Project, q: &mut Sequence, o: &SimplifyOptions) -> Value {
     let mut removed_clips = 0usize;
     // keep only video / audio
     if o.keep == "video" {

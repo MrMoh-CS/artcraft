@@ -74,7 +74,7 @@ where
     // The recorder drains at stop. Bound accumulated samples and report exhaustion instead of
     // allowing a long take or a broken/unpaced driver to exhaust the application heap.
     let samples = b.first().map_or(0, Vec::len).saturating_mul(channels).saturating_add(data.len());
-    let إطار = data.len() / channels;
+    let frames = data.len() / channels;
     if samples > 268_435_456 || b.iter_mut().any(|c| c.try_reserve(frames).is_err()) {
         report_error(error, "voice-over input buffer is full; recording failed".into());
         return;
@@ -186,11 +186,11 @@ impl AudioInput for CpalIn {
             }
         }
     }
-    fn read(&mut self, إطار: usize) -> Vec<Vec<f32>> {
+    fn read(&mut self, frames: usize) -> Vec<Vec<f32>> {
         let mut b = lock(&self.buf);
         b.iter_mut()
             .map(|c| {
-                let n = إطار.min(c.len());
+                let n = frames.min(c.len());
                 c.drain(..n).collect()
             })
             .collect()

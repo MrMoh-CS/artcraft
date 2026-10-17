@@ -6,9 +6,9 @@
 //! playback has moved past its frame. The flag travels through a thread-local, so the
 //! [`MediaSource`](crate::MediaSource) API is unchanged.
 //!
-//! The same way, [`with_catch_up`] tells sources which إطار before the requested one are late
+//! The same way, [`with_catch_up`] tells sources which frames before the requested one are late
 //! (playback has passed them): a decoder that has to decode forward to the frame may skip
-//! pictures that only produce late إطار and that nothing else references.
+//! pictures that only produce late frames and that nothing else references.
 //!
 //! [`with_draft`] marks reduced-resolution playback (opt-in): decoders may take spec-safe
 //! shortcuts that only change pictures nothing references (H.264: no deblocking of non-reference
@@ -67,7 +67,7 @@ pub fn draft() -> bool {
     DRAFT.with(Cell::get)
 }
 
-/// Run `f` with the catch-up hint `margin` (restoring the previous one after): إطار shown more
+/// Run `f` with the catch-up hint `margin` (restoring the previous one after): frames shown more
 /// than `margin` before the requested time are late (`Some(Tick::ZERO)`: everything before it).
 /// The margin is measured in media time at normal speed; a wrong guess (a sped-up or reversed
 /// clip) only costs a later re-seek, never a wrong frame.

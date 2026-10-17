@@ -8,7 +8,7 @@
 //!   compensation, the second field predicted from the first), alternate scan, both intra VLC
 //!   tables, linear and non-linear quantiser scale, quantiser matrices (sequence header and quant
 //!   matrix extension), intra DC precision 8-11 bits, concealment motion vectors.
-//! - Output in display order as planar 8-bit إطار (two fields woven into one frame), with
+//! - Output in display order as planar 8-bit frames (two fields woven into one frame), with
 //!   field order, repeat-first-field, picture type and colour description.
 //!
 //! ```no_run
@@ -131,7 +131,7 @@ impl Picture {
             _ => self.height,
         }
     }
-    /// Interlaced content and which field comes first: `None` for progressive إطار.
+    /// Interlaced content and which field comes first: `None` for progressive frames.
     pub fn field_order(&self) -> Option<FieldOrder> {
         if self.progressive_frame {
             None
@@ -405,7 +405,7 @@ pub struct Decoder {
     seq_pending: Option<(SequenceHeader, Option<SequenceExtension>, Option<DisplayExtension>)>,
     matrices: [[u8; 64]; 4],
     closed_gop: bool,
-    /// Older and newer anchor (reference) إطار.
+    /// Older and newer anchor (reference) frames.
     fwd: Option<Anchor>,
     bwd: Option<Anchor>,
     building: Option<Building>,
@@ -551,7 +551,7 @@ impl Decoder {
         }
     }
 
-    /// Output the إطار held back for reordering (end of stream).
+    /// Output the frames held back for reordering (end of stream).
     pub fn flush(&mut self) -> Vec<Picture> {
         if let Some(b) = self.building.take() {
             self.complete(b.frame, b.meta);

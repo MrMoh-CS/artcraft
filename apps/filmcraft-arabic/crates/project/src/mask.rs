@@ -358,7 +358,7 @@ impl TrackMethod {
     pub const ALL: [TrackMethod; 3] = [TrackMethod::Position, TrackMethod::PositionRotation, TrackMethod::PositionScaleRotation];
     pub fn label(self) -> &'static str {
         match self {
-            TrackMethod::Position => "Position",
+            TrackMethod::Position => "الموضع",
             TrackMethod::PositionRotation => "Position & Rotation",
             TrackMethod::PositionScaleRotation => "Position, Scale & Rotation",
         }

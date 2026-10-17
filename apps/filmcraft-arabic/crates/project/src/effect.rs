@@ -246,7 +246,7 @@ const KEYING: &[&str] = &["Video Effects", "Keying"];
 const NOISE: &[&str] = &["Video Effects", "Noise & Grain"];
 const PERSPECTIVE: &[&str] = &["Video Effects", "Perspective"];
 const STYLIZE: &[&str] = &["Video Effects", "Stylize"];
-const TRANSFORM: &[&str] = &["Video Effects", "Transform"];
+const TRANSFORM: &[&str] = &["Video Effects", "التحويل"];
 const VIDEO: &[&str] = &["Video Effects", "الفيديو"];
 const A_AMP: &[&str] = &["Audio Effects", "Amplitude and Compression"];
 const A_DELAY: &[&str] = &["Audio Effects", "Delay and Echo"];
@@ -267,12 +267,12 @@ fn build_effects() -> Vec<EffectDef> {
             kind: EffectKind::Video,
             category: &[],
             params: vec![
-                pt("position", "Position", f64::NAN, f64::NAN),
-                fs("scale", "Scale", 100.0, (0.0, 10000.0), (0.0, 100.0), "", 1),
+                pt("position", "الموضع", f64::NAN, f64::NAN),
+                fs("scale", "الحجم", 100.0, (0.0, 10000.0), (0.0, 100.0), "", 1),
                 fs("scale_width", "Scale Width", 100.0, (0.0, 10000.0), (0.0, 100.0), "", 1),
                 b("uniform_scale", "Uniform Scale", true),
-                ang("rotation", "Rotation", 0.0),
-                pt("anchor", "Anchor Point", f64::NAN, f64::NAN),
+                ang("rotation", "الدوران", 0.0),
+                pt("anchor", "نقطة الارتكاز", f64::NAN, f64::NAN),
                 fs("anti_flicker", "Anti-flicker Filter", 0.0, (0.0, 1.0), (0.0, 1.0), "", 2),
             ],
             intrinsic: true,
@@ -282,10 +282,10 @@ fn build_effects() -> Vec<EffectDef> {
         },
         EffectDef {
             id: "opacity",
-            name: "Opacity",
+            name: "الشفافية",
             kind: EffectKind::Video,
             category: &[],
-            params: vec![fs("opacity", "Opacity", 100.0, (0.0, 100.0), (0.0, 100.0), "%", 1), ch("blend", "Blend Mode", BLEND_MODES, 0)],
+            params: vec![fs("opacity", "الشفافية", 100.0, (0.0, 100.0), (0.0, 100.0), "%", 1), ch("blend", "Blend Mode", BLEND_MODES, 0)],
             intrinsic: true,
             accelerated: true,
             float32: true,
@@ -320,8 +320,8 @@ fn build_effects() -> Vec<EffectDef> {
             category: &[],
             params: vec![
                 b("bypass", "Bypass", false),
-                fs("left", "Left", 0.0, (-287.5, 6.0), (-60.0, 6.0), "dB", 1),
-                fs("right", "Right", 0.0, (-287.5, 6.0), (-60.0, 6.0), "dB", 1),
+                fs("left", "يسار", 0.0, (-287.5, 6.0), (-60.0, 6.0), "dB", 1),
+                fs("right", "يمين", 0.0, (-287.5, 6.0), (-60.0, 6.0), "dB", 1),
             ],
             intrinsic: true,
             accelerated: false,
@@ -591,13 +591,13 @@ fn build_effects() -> Vec<EffectDef> {
         video("median", "Median", vfx::OBSOLETE, vec![fs("radius", "Radius", 0.0, (0.0, 100.0), (0.0, 20.0), "", 0)]),
         video(
             "crop",
-            "Crop",
+            "القص",
             vfx::LEGACY,
             vec![
-                f("left", "Left", 0.0, 0.0, 100.0, "%"),
-                f("top", "Top", 0.0, 0.0, 100.0, "%"),
-                f("right", "Right", 0.0, 0.0, 100.0, "%"),
-                f("bottom", "Bottom", 0.0, 0.0, 100.0, "%"),
+                f("left", "يسار", 0.0, 0.0, 100.0, "%"),
+                f("top", "أعلى", 0.0, 0.0, 100.0, "%"),
+                f("right", "يمين", 0.0, 0.0, 100.0, "%"),
+                f("bottom", "أسفل", 0.0, 0.0, 100.0, "%"),
                 b("zoom", "Zoom", false),
                 fs("feather", "Edge Feather", 0.0, (0.0, 1000.0), (0.0, 100.0), "", 0),
             ],
@@ -607,18 +607,18 @@ fn build_effects() -> Vec<EffectDef> {
         video("edge_feather", "Edge Feather", vfx::LEGACY, vec![fs("amount", "Amount", 0.0, (0.0, 100.0), (0.0, 100.0), "", 0)]),
         video(
             "transform",
-            "Transform",
+            "التحويل",
             TRANSFORM,
             vec![
-                pt("anchor", "Anchor Point", f64::NAN, f64::NAN),
-                pt("position", "Position", f64::NAN, f64::NAN),
+                pt("anchor", "نقطة الارتكاز", f64::NAN, f64::NAN),
+                pt("position", "الموضع", f64::NAN, f64::NAN),
                 b("uniform_scale", "Uniform Scale", true),
                 fs("scale_height", "Scale Height", 100.0, (0.0, 10000.0), (0.0, 600.0), "", 1),
                 fs("scale_width", "Scale Width", 100.0, (0.0, 10000.0), (0.0, 600.0), "", 1),
                 f("skew", "Skew", 0.0, -70.0, 70.0, ""),
                 ang("skew_axis", "Skew Axis", 0.0),
-                ang("rotation", "Rotation", 0.0),
-                f("opacity", "Opacity", 100.0, 0.0, 100.0, ""),
+                ang("rotation", "الدوران", 0.0),
+                f("opacity", "الشفافية", 100.0, 0.0, 100.0, ""),
                 b("shutter_override", "Use Effect Shutter Angle", false),
                 f("shutter_angle", "Shutter Angle", 180.0, 0.0, 360.0, ""),
             ],
@@ -668,7 +668,7 @@ fn build_effects() -> Vec<EffectDef> {
             PERSPECTIVE,
             vec![
                 col("color", "Shadow Color", [0.0, 0.0, 0.0, 1.0]),
-                f("opacity", "Opacity", 50.0, 0.0, 100.0, "%"),
+                f("opacity", "الشفافية", 50.0, 0.0, 100.0, "%"),
                 ang("direction", "Direction", 135.0),
                 fs("distance", "Distance", 5.0, (0.0, 4000.0), (0.0, 120.0), "", 1),
                 fs("softness", "Softness", 0.0, (0.0, 1000.0), (0.0, 250.0), "", 1),
@@ -709,7 +709,7 @@ fn build_effects() -> Vec<EffectDef> {
             "Track Matte Key",
             KEYING,
             vec![
-                ch("matte", "Matte", &["None", "فيديو 1", "فيديو 2", "فيديو 3", "فيديو 4"], 0),
+                ch("matte", "Matte", &["None", "فيديو 1", "فيديو 2", "فيديو 3", "Video 4"], 0),
                 ch("composite", "Composite Using", &["Matte Alpha", "Matte Luma"], 0),
                 b("reverse", "Reverse", false),
             ],
@@ -736,7 +736,7 @@ fn build_effects() -> Vec<EffectDef> {
                 col("c3", "Color 3", [1.0, 0.0, 1.0, 1.0]),
                 col("c4", "Color 4", [0.0, 0.0, 1.0, 1.0]),
                 f("blend", "Blend", 100.0, 1.0, 1000.0, ""),
-                f("opacity", "Opacity", 100.0, 0.0, 100.0, "%"),
+                f("opacity", "الشفافية", 100.0, 0.0, 100.0, "%"),
             ],
         ),
         video(
@@ -760,7 +760,7 @@ fn build_effects() -> Vec<EffectDef> {
                 pt("center", "Center", f64::NAN, f64::NAN),
                 fs("radius", "Radius", 75.0, (0.0, 4000.0), (0.0, 400.0), "", 1),
                 col("color", "Color", [1.0, 1.0, 1.0, 1.0]),
-                f("opacity", "Opacity", 100.0, 0.0, 100.0, "%"),
+                f("opacity", "الشفافية", 100.0, 0.0, 100.0, "%"),
             ],
         ),
         video(
@@ -771,7 +771,7 @@ fn build_effects() -> Vec<EffectDef> {
                 fs("size", "Width", 60.0, (1.0, 4000.0), (1.0, 400.0), "", 0),
                 fs("border", "Border", 2.0, (0.0, 100.0), (0.0, 20.0), "", 1),
                 col("color", "Color", [1.0, 1.0, 1.0, 1.0]),
-                f("opacity", "Opacity", 100.0, 0.0, 100.0, "%"),
+                f("opacity", "الشفافية", 100.0, 0.0, 100.0, "%"),
             ],
         ),
         video(
@@ -789,16 +789,16 @@ fn build_effects() -> Vec<EffectDef> {
             "Timecode",
             vfx::OBSOLETE,
             vec![
-                pt("position", "Position", f64::NAN, f64::NAN),
+                pt("position", "الموضع", f64::NAN, f64::NAN),
                 fs("size", "Size", 15.0, (1.0, 100.0), (1.0, 50.0), "%", 1),
-                f("opacity", "Opacity", 100.0, 0.0, 100.0, "%"),
+                f("opacity", "الشفافية", 100.0, 0.0, 100.0, "%"),
             ],
         ),
         video(
             "clip_name",
             "Clip Name",
             vfx::OBSOLETE,
-            vec![pt("position", "Position", f64::NAN, f64::NAN), fs("size", "Size", 15.0, (1.0, 100.0), (1.0, 50.0), "%", 1)],
+            vec![pt("position", "الموضع", f64::NAN, f64::NAN), fs("size", "Size", 15.0, (1.0, 100.0), (1.0, 50.0), "%", 1)],
         ),
         video("simple_text", "Simple Text", vfx::UTILITY, vec![]),
         // ---- audio effects ----

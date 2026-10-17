@@ -9,7 +9,7 @@
 
 use filmcraft_geom::Vec2;
 use filmcraft_project::graphic::{self, LayerContent, SHAPE_OPTS, eval_layer, layer_display_name, layer_indices, new_shape_layer, new_text_layer};
-use filmcraft_project::{ClipId, EffectInstance, ItemId, ItemKind, Label, Param, ParamValue, تسلسل، TrackKind};
+use filmcraft_project::{ClipId, EffectInstance, ItemId, ItemKind, Label, Param, ParamValue, Sequence, TrackKind};
 use filmcraft_render::graphic_clip::{item_layer_specs, layer_local_bounds, layer_quad, text_layout};
 use filmcraft_time::{Tick, TimeRange};
 use serde_json::{Value, json};
@@ -36,7 +36,7 @@ fn query(id: &'static str, label: &'static str, params: &'static str, run: Run) 
 }
 
 /// Whether a track item is a graphic clip.
-pub fn is_graphic(s: &Session, seq: &تسلسل، c: ClipId) -> bool {
+pub fn is_graphic(s: &Session, seq: &Sequence, c: ClipId) -> bool {
     seq.find_item(c).and_then(|(_, it)| s.project.item(it.item)).is_some_and(|p| matches!(p.kind, ItemKind::Graphic { .. }))
 }
 
@@ -155,7 +155,7 @@ pub(crate) fn place_video_clip(
                     Some(i) => i,
                     None => {
                         let n = q.video_tracks.len() + 1;
-                        q.video_tracks.push(filmcraft_project::Track::new(track_id, TrackKind::Video, format!("Video {n}")));
+                        q.video_tracks.push(filmcraft_project::Track::new(track_id, TrackKind::Video, format!("فيديو {n}")));
                         q.video_tracks.len() - 1
                     }
                 }
@@ -858,24 +858,24 @@ fn menu_commands() -> Vec<CommandSpec> {
                 Ok(json!({"clip": clip.0, "item": item.0}))
             },
         ),
-        align_cmd!("graphics.alignFrame.left", "Left", F, "left", AlignTo::Frame, has_graphic_or_clip),
+        align_cmd!("graphics.alignFrame.left", "يسار", F, "left", AlignTo::Frame, has_graphic_or_clip),
         align_cmd!("graphics.alignFrame.hcenter", "Center Horizontally", F, "hcenter", AlignTo::Frame, has_graphic_or_clip),
-        align_cmd!("graphics.alignFrame.right", "Right", F, "right", AlignTo::Frame, has_graphic_or_clip),
-        align_cmd!("graphics.alignFrame.top", "Top", F, "top", AlignTo::Frame, has_graphic_or_clip),
+        align_cmd!("graphics.alignFrame.right", "يمين", F, "right", AlignTo::Frame, has_graphic_or_clip),
+        align_cmd!("graphics.alignFrame.top", "أعلى", F, "top", AlignTo::Frame, has_graphic_or_clip),
         align_cmd!("graphics.alignFrame.vcenter", "Center Vertically", F, "vcenter", AlignTo::Frame, has_graphic_or_clip),
-        align_cmd!("graphics.alignFrame.bottom", "Bottom", F, "bottom", AlignTo::Frame, has_graphic_or_clip),
-        align_cmd!("graphics.alignGroup.left", "Left", G, "left", AlignTo::FrameGroup, has_two_layers),
+        align_cmd!("graphics.alignFrame.bottom", "أسفل", F, "bottom", AlignTo::Frame, has_graphic_or_clip),
+        align_cmd!("graphics.alignGroup.left", "يسار", G, "left", AlignTo::FrameGroup, has_two_layers),
         align_cmd!("graphics.alignGroup.hcenter", "Center Horizontally", G, "hcenter", AlignTo::FrameGroup, has_two_layers),
-        align_cmd!("graphics.alignGroup.right", "Right", G, "right", AlignTo::FrameGroup, has_two_layers),
-        align_cmd!("graphics.alignGroup.top", "Top", G, "top", AlignTo::FrameGroup, has_two_layers),
+        align_cmd!("graphics.alignGroup.right", "يمين", G, "right", AlignTo::FrameGroup, has_two_layers),
+        align_cmd!("graphics.alignGroup.top", "أعلى", G, "top", AlignTo::FrameGroup, has_two_layers),
         align_cmd!("graphics.alignGroup.vcenter", "Center Vertically", G, "vcenter", AlignTo::FrameGroup, has_two_layers),
-        align_cmd!("graphics.alignGroup.bottom", "Bottom", G, "bottom", AlignTo::FrameGroup, has_two_layers),
-        align_cmd!("graphics.alignSelection.left", "Left", S, "left", AlignTo::Selection, has_two_layers),
+        align_cmd!("graphics.alignGroup.bottom", "أسفل", G, "bottom", AlignTo::FrameGroup, has_two_layers),
+        align_cmd!("graphics.alignSelection.left", "يسار", S, "left", AlignTo::Selection, has_two_layers),
         align_cmd!("graphics.alignSelection.hcenter", "Center Horizontally", S, "hcenter", AlignTo::Selection, has_two_layers),
-        align_cmd!("graphics.alignSelection.right", "Right", S, "right", AlignTo::Selection, has_two_layers),
-        align_cmd!("graphics.alignSelection.top", "Top", S, "top", AlignTo::Selection, has_two_layers),
+        align_cmd!("graphics.alignSelection.right", "يمين", S, "right", AlignTo::Selection, has_two_layers),
+        align_cmd!("graphics.alignSelection.top", "أعلى", S, "top", AlignTo::Selection, has_two_layers),
         align_cmd!("graphics.alignSelection.vcenter", "Center Vertically", S, "vcenter", AlignTo::Selection, has_two_layers),
-        align_cmd!("graphics.alignSelection.bottom", "Bottom", S, "bottom", AlignTo::Selection, has_two_layers),
+        align_cmd!("graphics.alignSelection.bottom", "أسفل", S, "bottom", AlignTo::Selection, has_two_layers),
         spec("graphics.distributeVertically", "Distribute Vertically", D, None, ALIGN_PARAMS, has_three_layers, |s, p| distribute_layers(s, p, true, false)),
         spec("graphics.distributeSpaceVertically", "Distribute Space Vertically", D, None, ALIGN_PARAMS, has_three_layers, |s, p| {
             distribute_layers(s, p, true, true)

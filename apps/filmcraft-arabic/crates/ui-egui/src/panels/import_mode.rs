@@ -20,7 +20,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
     );
     let ctx = ui.ctx().clone();
     let cards = [
-        (tl!("Browse files…"), "file.import", tl!("أفلام وصوتيات وصور ثابتة من القرص")),
+        (tl!("استعراض الملفات…"), "file.import", tl!("أفلام وصوتيات وصور ثابتة من القرص")),
         (tl!("مقاطع تجريبية"), "file.importDemoFootage", tl!("ستة مقاطع 1080p جاهزة مع صوت")),
         (tl!("مشروع تجريبي"), "file.openDemoProject", tl!("تسلسل ممنتج مع انتقالات ومؤثرات وموسيقى")),
         (tl!("أشرطة الألوان والنغمة"), "file.newBarsAndTone", tl!("أشرطة ألوان قياسية مع نغمة مرجعية 1 كيلوهرتز")),
@@ -36,7 +36,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
         crate::icons::paint(
             ui.painter(),
             Rect::from_min_size(r.min + vec2(16.0, 18.0), vec2(56.0, 56.0)),
-            [crate::icons::Icon::Folder, crate::icons::Icon::Film, crate::icons::Icon::تسلسل، crate::icons::Icon::Grid][i],
+            [crate::icons::Icon::Folder, crate::icons::Icon::Film, crate::icons::Icon::Sequence, crate::icons::Icon::Grid][i],
             Color32::from_rgb(140, 150, 255),
         );
         if resp.clicked() {
@@ -98,7 +98,7 @@ fn recent(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect, y: f32) -> f32 
             ui.painter().rect_filled(row, 4.0, t.hover);
         }
         let p = ui.painter().with_clip_rect(row);
-        crate::icons::paint(&p, Rect::from_center_size(pos2(row.min.x + 16.0, row.center().y), vec2(14.0, 14.0)), crate::icons::Icon::تسلسل، t.text_dim);
+        crate::icons::paint(&p, Rect::from_center_size(pos2(row.min.x + 16.0, row.center().y), vec2(14.0, 14.0)), crate::icons::Icon::Sequence, t.text_dim);
         let name_r = p.text(pos2(row.min.x + 32.0, row.center().y), Align2::LEFT_CENTER, &name, Tokens::ui(13.0), t.text);
         if let Some(folder) = std::path::Path::new(path).parent() {
             p.text(pos2(name_r.max.x + 12.0, row.center().y), Align2::LEFT_CENTER, folder.to_string_lossy(), Tokens::ui(11.5), t.text_dim);

@@ -63,7 +63,7 @@ pub fn parse_wav(b: &[u8]) -> Option<(Vec<u8>, u16, u32, u16)> {
 /// A complete AIFF file (big-endian PCM) from little-endian PCM.
 pub fn aiff_file(pcm: &[u8], channels: u16, sample_rate: u32, bits: u16) -> Vec<u8> {
     let bps = bits.div_ceil(8) as usize;
-    let إطار = pcm.len() / (bps * channels.max(1) as usize).max(1);
+    let frames = pcm.len() / (bps * channels.max(1) as usize).max(1);
     let mut v = aiff_header(frames as u32, channels, sample_rate, bits);
     for s in pcm.chunks_exact(bps.max(1)) {
         if bps == 1 {
@@ -80,7 +80,7 @@ pub fn aiff_file(pcm: &[u8], channels: u16, sample_rate: u32, bits: u16) -> Vec<
 
 /// The AIFF header up to the sound data (`FORM`, `COMM`, `SSND` with offset and block size).
 pub fn aiff_header(frames: u32, channels: u16, sample_rate: u32, bits: u16) -> Vec<u8> {
-    let data_len = إطار as usize * channels.max(1) as usize * bits.div_ceil(8) as usize;
+    let data_len = frames as usize * channels.max(1) as usize * bits.div_ceil(8) as usize;
     let mut v = Vec::with_capacity(54);
     v.extend_from_slice(b"FORM");
     v.extend_from_slice(&((4 + 26 + 16 + data_len + (data_len & 1)) as u32).to_be_bytes());
@@ -172,7 +172,7 @@ mod tests {
 
     #[test]
     fn wav_and_aiff_round_trip() {
-        let pcm: Vec<u8> = (0..48u8).collect(); // 8 stereo 24-bit إطار
+        let pcm: Vec<u8> = (0..48u8).collect(); // 8 stereo 24-bit frames
         let w = wav_file(&pcm, 2, 48_000, 24);
         assert_eq!(parse_wav(&w), Some((pcm.clone(), 2, 48_000, 24)));
         let a = aiff_file(&pcm, 2, 44_100, 24);

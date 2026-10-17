@@ -2,7 +2,7 @@
 //!
 //! Seeking: find the sample whose presentation interval covers the requested time, decode forward
 //! from the preceding sync sample, and cache every decoded frame (keyed by pts). Playback requests
-//! for the next إطار therefore hit the cache or continue the running decoder without re-seeking.
+//! for the next frames therefore hit the cache or continue the running decoder without re-seeking.
 
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
@@ -28,7 +28,7 @@ pub struct GopStats {
     pub seeks: u64,
     /// Samples fed to decoders.
     pub decoded: u64,
-    /// Decoded إطار evicted from the cache.
+    /// Decoded frames evicted from the cache.
     pub evicted: u64,
     /// Wall time spent inside decoders (`decode` / `flush`), nanoseconds.
     pub decode_ns: u64,
@@ -38,7 +38,7 @@ pub struct GopStats {
     pub draft: u64,
     /// Pictures decoders output (hardware and software; [`crate::hw::hw_stats`] counts the
     /// hardware ones).
-    pub إطار: u64,
+    pub frames: u64,
 }
 
 impl GopStats {
@@ -88,7 +88,7 @@ pub fn gop_stats() -> GopStats {
         decode_ns: DECODE_NS.load(Ordering::Relaxed),
         skipped: SKIPPED.load(Ordering::Relaxed),
         draft: DRAFT.load(Ordering::Relaxed),
-        إطار: FRAMES.load(Ordering::Relaxed),
+        frames: FRAMES.load(Ordering::Relaxed),
     }
 }
 
@@ -104,7 +104,7 @@ impl std::ops::Sub for GopStats {
             decode_ns: self.decode_ns - o.decode_ns,
             skipped: self.skipped - o.skipped,
             draft: self.draft - o.draft,
-            إطار: self.frames - o.frames,
+            frames: self.frames - o.frames,
         }
     }
 }
@@ -137,7 +137,7 @@ fn decode_start(s: &dyn VideoSamples, i: usize) -> usize {
 
 struct State {
     decoder: Option<Box<dyn VideoDecoder>>,
-    /// The decoder only produces intra pictures: إطار decode independently and in parallel.
+    /// The decoder only produces intra pictures: frames decode independently and in parallel.
     intra: bool,
     /// Idle decoders for parallel intra decoding.
     spare: Vec<Box<dyn VideoDecoder>>,
@@ -146,9 +146,9 @@ struct State {
     start: usize,
     /// Highest pts the running decoder has output since it started (pictures leave in pts order).
     out_max: i64,
-    /// Decoded إطار by presentation pts (bounded).
-    إطار: BTreeMap<i64, Arc<VideoFrame>>,
-    /// The cached إطار that were decoded in draft mode: served to draft requests only.
+    /// Decoded frames by presentation pts (bounded).
+    frames: BTreeMap<i64, Arc<VideoFrame>>,
+    /// The cached frames that were decoded in draft mode: served to draft requests only.
     drafts: std::collections::BTreeSet<i64>,
     bytes: usize,
     /// When a frame was last asked of this cache.
@@ -176,7 +176,7 @@ impl State {
         out
     }
 
-    /// Evict إطار, earliest first, while `more` says so.
+    /// Evict frames, earliest first, while `more` says so.
     fn release_frames(&mut self, pool: &Pool, more: impl Fn() -> bool) {
         while more() {
             let Some((pts, f)) = self.frames.pop_first() else { break };
@@ -235,27 +235,27 @@ const MAX_LIVE_DECODERS: usize = 4;
 
 /// A cache asked for a frame this recently may be needed again soon (the next clip being
 /// prefetched, a clip the user scrubs back to): it keeps its decoder up to [`HARD_DECODERS`], and
-/// beyond [`MAX_LIVE_DECODERS`] only until it has been idle this long. Its إطار are only kept
+/// beyond [`MAX_LIVE_DECODERS`] only until it has been idle this long. Its frames are only kept
 /// within [`FRAME_BUDGET`] once it has been idle for [`RECENT`]: going back to a clip left (or
 /// paused) more than that long ago may cost a re-decode from its keyframe when other clips have
-/// filled the budget meanwhile. Frames go least recently used cache first, earliest إطار first.
+/// filled the budget meanwhile. Frames go least recently used cache first, earliest frames first.
 const IDLE: Duration = Duration::from_secs(3);
 
 /// A cache asked for a frame this recently is in use (a layer of the frame being composited): it
-/// keeps its decoder and إطار whatever the count. Caches idle for less than [`IDLE`] but longer
+/// keeps its decoder and frames whatever the count. Caches idle for less than [`IDLE`] but longer
 /// than this are a burst of navigation (thumbnails of every clip, the playhead jumping from clip
 /// to clip) that the playhead has already left: they give up decoders beyond [`HARD_DECODERS`]
-/// and إطار beyond [`FRAME_BUDGET`]. Without this, everything touched within [`IDLE`] counted
+/// and frames beyond [`FRAME_BUDGET`]. Without this, everything touched within [`IDLE`] counted
 /// as in use, so a burst held every clip's decoder (42 live hardware sessions, 6.5 GB of VRAM)
-/// and hundreds of MB of إطار per clip.
+/// and hundreds of MB of frames per clip.
 const RECENT: Duration = Duration::from_millis(500);
 
 /// Most decoders caches idle for [`RECENT`] to [`IDLE`] keep together (a composite of a few
 /// layers plus the clips just left behind).
 const HARD_DECODERS: usize = 8;
 
-/// Decoded إطار all caches may hold together before idle ones give theirs up. Each cache also
-/// has its own budget, which alone let every clip on a timeline keep hundreds of MB of إطار
+/// Decoded frames all caches may hold together before idle ones give theirs up. Each cache also
+/// has its own budget, which alone let every clip on a timeline keep hundreds of MB of frames
 /// nobody was looking at.
 pub const FRAME_BUDGET: usize = 1 << 30;
 
@@ -270,7 +270,7 @@ struct Pool {
     recent: Duration,
     /// Decoders the caches idle for [`Self::recent`] but not [`Self::idle`] may keep.
     hard_decoders: usize,
-    /// Bytes of the إطار the caches hold.
+    /// Bytes of the frames the caches hold.
     bytes: AtomicUsize,
     budget: usize,
 }
@@ -349,7 +349,7 @@ impl Pool {
 
     /// Take the decoders of idle caches, least recently used first, down to the cap. The caller
     /// drops them with no cache lock held: dropping a decoder can block (a hardware session waits
-    /// for its إطار in flight).
+    /// for its frames in flight).
     #[must_use = "drop the released decoders with no cache lock held"]
     fn trim_decoders(&self, me: &Shared) -> Vec<Box<dyn VideoDecoder>> {
         let mut released = Vec::new();
@@ -374,7 +374,7 @@ impl Pool {
     /// (see [`State::background`]) and that are not decoding now. A burst of thumbnails (an import
     /// of many clips) touches every clip within moments, so the recency rules treat them all as
     /// in use; each software 4K decoder holds ~0.5 GB. The cache `me` just served keeps its
-    /// decoder (hovering a clip asks for more of its إطار). Drop the result with no cache lock
+    /// decoder (hovering a clip asks for more of its frames). Drop the result with no cache lock
     /// held.
     #[must_use = "drop the released decoders with no cache lock held"]
     fn release_background(&self, me: &Shared) -> Vec<Box<dyn VideoDecoder>> {
@@ -391,7 +391,7 @@ impl Pool {
         released
     }
 
-    /// Evict the إطار of caches idle for [`RECENT`], least recently used first, down to the
+    /// Evict the frames of caches idle for [`RECENT`], least recently used first, down to the
     /// budget. Caches in use keep theirs (each within its own budget): a frame evicted before it is shown costs a
     /// re-decode from the keyframe.
     fn trim_frames(&self, me: &Shared) {
@@ -415,7 +415,7 @@ pub fn live_decoders() -> usize {
     Pool::global().decoders.load(Ordering::Relaxed)
 }
 
-/// Bytes of decoded إطار the caches hold right now, process-wide (`perf.stats`).
+/// Bytes of decoded frames the caches hold right now, process-wide (`perf.stats`).
 pub fn cached_bytes() -> usize {
     Pool::global().bytes.load(Ordering::Relaxed)
 }
@@ -432,9 +432,9 @@ pub struct GopCache {
     budget: usize,
 }
 
-/// The cache always has room for this many إطار, whatever their size: a frame-threaded decoder
+/// The cache always has room for this many frames, whatever their size: a frame-threaded decoder
 /// runs up to ~2x its thread count ahead of the frame it returns, and playback prefetches ahead
-/// of the playhead, so a byte budget alone would evict 4K إطار before they are shown and force
+/// of the playhead, so a byte budget alone would evict 4K frames before they are shown and force
 /// a re-decode from the keyframe.
 const MIN_FRAMES: usize = 64;
 
@@ -456,11 +456,11 @@ fn decode_pool() -> Option<&'static rayon::ThreadPool> {
 /// Run a cache's decoding, its lock held by the caller, on [`decode_pool`], the caller waiting
 /// without doing other rayon work meanwhile (#480).
 ///
-/// That decoding starts rayon work (a decoder's slices, cropping and rotating the إطار). On the
-/// pool of the render jobs that ask the cache for إطار, a worker that took part of it could,
+/// That decoding starts rayon work (a decoder's slices, cropping and rotating the frames). On the
+/// pool of the render jobs that ask the cache for frames, a worker that took part of it could,
 /// waiting inside it, pick up another of those jobs and block on the lock: the lock holder then
 /// waits for its work on the blocked worker's stack, and that worker for the lock, for good (an
-/// export of rotated iPhone clips stopped making إطار). On the decode pool that work only ever
+/// export of rotated iPhone clips stopped making frames). On the decode pool that work only ever
 /// runs beside other caches' decoding, which never waits for a cache's lock. A caller that is a
 /// rayon worker would also run other jobs of its pool while it waits for the decode pool, some
 /// of them asking for a cache's lock while it holds this one: it waits on a plain thread instead.
@@ -509,7 +509,7 @@ impl GopCache {
                 next: usize::MAX,
                 start: 0,
                 out_max: i64::MIN,
-                إطار: BTreeMap::new(),
+                frames: BTreeMap::new(),
                 drafts: Default::default(),
                 bytes: 0,
                 last_used: Instant::now(),
@@ -536,7 +536,7 @@ impl GopCache {
         self
     }
 
-    /// Colour signalled by the container wins over the bitstream's (YUV إطار only); the
+    /// Colour signalled by the container wins over the bitstream's (YUV frames only); the
     /// container's clean aperture and then its display rotation are applied.
     fn finish(&self, mut f: VideoFrame) -> VideoFrame {
         if let Some(c) = self.explicit_color
@@ -570,7 +570,7 @@ impl GopCache {
             st.bytes -= old.byte_size();
             filmcraft_frame::pool::recycle(old);
         }
-        // Evict إطار far from the request (pin), not the newest decode. A frame-threaded
+        // Evict frames far from the request (pin), not the newest decode. A frame-threaded
         // decoder can emit a burst past the playhead; pivoting on those pts used to drop the
         // wanted picture and walk the GOP again.
         let pivot = if st.pin != i64::MIN { st.pin } else { pts };
@@ -619,13 +619,13 @@ impl GopCache {
         self.frame_late(s, target, None)
     }
 
-    /// [`Self::frame`] while catching up: إطار shown before `late_before` (track units) are
-    /// late. Non-reference samples of late إطار are left out on the way to the wanted frame
+    /// [`Self::frame`] while catching up: frames shown before `late_before` (track units) are
+    /// late. Non-reference samples of late frames are left out on the way to the wanted frame
     /// (no other picture depends on them, so the wanted frame decodes exactly as it would
     /// otherwise; a later request for a skipped frame re-seeks).
     ///
     /// Inside [`filmcraft_media::cancel::with_draft`]`(true, …)` the decoder runs in draft mode
-    /// ([`VideoDecoder::set_draft`]); its draft إطار are cached for draft requests only, and an
+    /// ([`VideoDecoder::set_draft`]); its draft frames are cached for draft requests only, and an
     /// exact request for one re-decodes it.
     pub fn frame_late(&self, s: &dyn VideoSamples, target: i64, late_before: Option<i64>) -> crate::Result<Arc<VideoFrame>> {
         let r = self.frame_late_locked(s, target, late_before);
@@ -648,7 +648,7 @@ impl GopCache {
         let draft = filmcraft_media::cancel::draft();
         // Idle caches' decoders released below. Declared before the lock guard, so it is dropped
         // after the guard on every return path: dropping a decoder can block (a hardware session
-        // waits for its إطار in flight) and must not hold this cache's lock.
+        // waits for its frames in flight) and must not hold this cache's lock.
         let mut released: Vec<Box<dyn VideoDecoder>> = Vec::new();
         let mut st = self.shared.state.lock().unwrap_or_else(|e| e.into_inner());
         let _decoding = DecodingGuard::enter(me);
@@ -711,7 +711,7 @@ impl GopCache {
         // `key` (at the random-access picture of a wanted leading picture) left the picture out.
         let running = st.next != usize::MAX && st.next <= n && st.start <= key;
         // Decoding on through a short stretch into the next GOP is cheaper than a restart, and
-        // playback wants those إطار anyway.
+        // playback wants those frames anyway.
         let near = st.next <= key && key - st.next <= CONTINUE_THROUGH;
         let continuing = running && (st.next > key || near) && (i >= st.next || (st.start <= i && want_pts > st.out_max));
         if !continuing {
@@ -835,7 +835,7 @@ impl GopCache {
     }
 
     /// Intra-only streams: decode the one sample outside the lock, so several frame workers
-    /// decode different إطار of the same source at once.
+    /// decode different frames of the same source at once.
     fn intra_frame(&self, st: std::sync::MutexGuard<'_, State>, s: &dyn VideoSamples, i: usize, want_pts: i64) -> crate::Result<Arc<VideoFrame>> {
         let mut st = st;
         let spare = st.spare.pop();
@@ -977,7 +977,7 @@ mod tests {
     }
 
     #[test]
-    fn إطار_held_by_a_threaded_decoder_do_not_restart_it() {
+    fn frames_held_by_a_threaded_decoder_do_not_restart_it() {
         // 24 pictures in flight (more than any fixed look-ahead margin), one long GOP.
         let s = samples(300, 250, 24, false);
         let c = GopCache::new(None);
@@ -1038,10 +1038,10 @@ mod tests {
         }
     }
 
-    /// #480: render jobs on rayon asking one source for إطار while its decoding (a decoder's
-    /// slices, rotating the إطار) runs on rayon too. A worker that took part of that work and,
+    /// #480: render jobs on rayon asking one source for frames while its decoding (a decoder's
+    /// slices, rotating the frames) runs on rayon too. A worker that took part of that work and,
     /// waiting inside it, picked up another frame request blocked on the cache's lock for good:
-    /// an export of rotated iPhone clips stopped making إطار.
+    /// an export of rotated iPhone clips stopped making frames.
     #[test]
     fn rayon_frame_requests_while_decoding_on_rayon_never_deadlock() {
         use rayon::prelude::*;
@@ -1049,7 +1049,7 @@ mod tests {
         let (tx, rx) = std::sync::mpsc::channel();
         std::thread::spawn(move || {
             for round in 0..40usize {
-                // export-like: many frame workers, إطار of several GOPs of a fresh source at once
+                // export-like: many frame workers, frames of several GOPs of a fresh source at once
                 let c = GopCache::new(None).with_rotation(1);
                 (0..96usize).into_par_iter().with_max_len(1).for_each(|k| {
                     let i = (k * 37 + round * 53) % 240;
@@ -1080,9 +1080,9 @@ mod tests {
     fn intra_frames_decode_in_parallel_once_each() {
         let s = Arc::new(samples(64, 1, 0, true));
         let c = Arc::new(GopCache::new(None));
-        // First decode 64 distinct cold إطار: each of the four workers owns
+        // First decode 64 distinct cold frames: each of the four workers owns
         // 16 indices. Multiplication by seven permutes them without overlap.
-        // Then let every worker request all 64 cached إطار in overlapping order.
+        // Then let every worker request all 64 cached frames in overlapping order.
         // Concurrent misses for the same cold frame may legitimately decode twice,
         // so they cannot support a scheduler-independent duplicate allowance.
         for requests_per_worker in [16usize, 64] {
@@ -1099,7 +1099,7 @@ mod tests {
                     });
                 }
             });
-            assert_eq!(s.decodes.load(Ordering::Relaxed), 64, "cold إطار decode once; warm requests hit the cache");
+            assert_eq!(s.decodes.load(Ordering::Relaxed), 64, "cold frames decode once; warm requests hit the cache");
         }
         assert_eq!(s.resets.load(Ordering::Relaxed), 0);
     }
@@ -1116,7 +1116,7 @@ mod tests {
         let fed = s.decodes.load(Ordering::Relaxed) - before;
         // samples 7..41 minus the odd ones before 41, plus the decoder's output delay
         assert!(fed <= 18 + 4 + 1, "fed {fed}");
-        // the decoder continues from there: the next إطار are decoded, not skipped
+        // the decoder continues from there: the next frames are decoded, not skipped
         for i in 42..48usize {
             assert_eq!(index_of(&c.frame(&s, i as i64 * 1000).expect("frame")), i);
         }
@@ -1126,7 +1126,7 @@ mod tests {
         let c2 = GopCache::new(None);
         assert_eq!(index_of(&c2.frame(&s2, 41_000).expect("frame")), 41);
         assert!(s2.decodes.load(Ordering::Relaxed) >= 42);
-        // a prefetch job for frame 41 while frame 30 is due: only إطار before 30 are late
+        // a prefetch job for frame 41 while frame 30 is due: only frames before 30 are late
         let s3 = samples(300, 250, 0, false);
         let c3 = GopCache::new(None);
         assert_eq!(index_of(&c3.frame_late(&s3, 41_000, Some(30_000)).expect("frame")), 41);
@@ -1160,7 +1160,7 @@ mod tests {
         // paused / export (no draft hint): an even frame is exact and cached
         let f = c.frame(&s, 4_000).expect("frame");
         assert!(!is_draft(&f) && index_of(&f) == 4);
-        assert_eq!(s.resets.load(Ordering::Relaxed), 1, "exact إطار are served from the cache");
+        assert_eq!(s.resets.load(Ordering::Relaxed), 1, "exact frames are served from the cache");
         // a draft frame is decoded again, exactly
         let f = c.frame(&s, 5_000).expect("frame");
         assert!(!is_draft(&f) && index_of(&f) == 5);
@@ -1183,7 +1183,7 @@ mod tests {
         let r = filmcraft_media::cancel::with_cancel(&flag, || c.frame(&s, 200_000));
         assert!(matches!(r, Err(CodecError::Cancelled)));
         assert_eq!(s.decodes.load(Ordering::Relaxed), 6);
-        // cached إطار are still served, and the decoder carries on from where it was
+        // cached frames are still served, and the decoder carries on from where it was
         let r = filmcraft_media::cancel::with_cancel(&flag, || c.frame(&s, 3_000));
         assert_eq!(index_of(&r.expect("cached")), 3);
         assert_eq!(index_of(&c.frame(&s, 7_000).expect("frame")), 7);
@@ -1235,7 +1235,7 @@ mod tests {
 
     /// A burst of navigation (every clip of a timeline asked once within moments, as when
     /// thumbnails are made or the playhead jumps clip to clip) must not keep every clip's decoder
-    /// and إطار: only the caches of the frame being composited are in use.
+    /// and frames: only the caches of the frame being composited are in use.
     #[test]
     fn a_burst_of_single_requests_does_not_keep_every_decoder_and_frame() {
         // the real decoder caps and idle time; RECENT scaled down from 500 ms to the test's pace
@@ -1305,7 +1305,7 @@ mod tests {
         assert_eq!(index_of(&c.frame(&s, 100_000).expect("frame")), 100);
         assert!(!c.shared.state.lock().unwrap().decoder.as_ref().is_some_and(|d| d.thread_limited()));
         assert_eq!(pool.decoders.load(Ordering::Relaxed), 1);
-        // and keeps it for the next إطار
+        // and keeps it for the next frames
         let resets = s.resets.load(Ordering::Relaxed);
         assert_eq!(index_of(&c.frame(&s, 101_000).expect("frame")), 101);
         assert_eq!(s.resets.load(Ordering::Relaxed), resets);
@@ -1350,7 +1350,7 @@ mod tests {
         // the only cache keeps what its own budget allows
         assert_eq!(index_of(&ca.frame(&a, 10_000).expect("frame")), 10);
         assert_eq!(held(), 44);
-        // a second clip takes the room from the idle first one, earliest إطار first
+        // a second clip takes the room from the idle first one, earliest frames first
         assert_eq!(index_of(&cb.frame(&b, 5_000).expect("frame")), 5);
         assert_eq!(held(), 40);
         let decodes = b.decodes.load(Ordering::Relaxed);

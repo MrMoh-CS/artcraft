@@ -7,9 +7,9 @@
 //! - **Program Stream** (`.mpg`, `.vob`, `.mod`, `.tod`): MPEG-2 and ISO/IEC 11172-1 (MPEG-1)
 //!   packs, system headers, program stream maps, DVD private stream 1 sub-streams (AC-3, DTS,
 //!   LPCM).
-//! - **Elementary streams** are split into access units on open — coded إطار for MPEG-1/2
+//! - **Elementary streams** are split into access units on open — coded frames for MPEG-1/2
 //!   video (picture start codes, field pairs), H.264 and HEVC (access unit delimiters / first
-//!   slice of a picture), audio إطار for MPEG audio, ADTS / LATM AAC, AC-3 and E-AC-3, PES
+//!   slice of a picture), audio frames for MPEG audio, ADTS / LATM AAC, AC-3 and E-AC-3, PES
 //!   packets for LPCM — each with its PTS/DTS (a PES timestamp belongs to the first access unit
 //!   that starts in the packet), random-access flag and, for MPEG video, picture type, temporal
 //!   reference and field structure. That index is the seeking table.
@@ -139,9 +139,9 @@ pub enum Codec {
     Hevc,
     /// MPEG-1/2 audio (layers I-III; the layer is in each frame header).
     MpegAudio,
-    /// AAC in ADTS إطار.
+    /// AAC in ADTS frames.
     AacAdts,
-    /// AAC in LATM/LOAS إطار.
+    /// AAC in LATM/LOAS frames.
     AacLatm,
     Ac3,
     Eac3,

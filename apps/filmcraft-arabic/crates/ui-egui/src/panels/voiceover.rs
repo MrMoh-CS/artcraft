@@ -242,11 +242,11 @@ fn settings_dialog(app: &mut FilmcraftApp, ctx: &egui::Context) {
     let id = egui::Id::new("voiceover-settings");
     egui::Window::new(tl!("Voice-Over Record Settings")).id(id).collapsible(false).resizable(false).centered(ctx).show(ctx, |ui| {
         egui::Grid::new("voiceover-grid").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
-            ui.label(tl!("Name:"));
+            ui.label(tl!("الاسم:"));
             let r = ui.add(egui::TextEdit::singleline(&mut d.prefs.name).desired_width(220.0));
             elems.push(("voiceover.name".into(), r.rect, d.prefs.name.clone()));
             ui.end_row();
-            ui.label(tl!("Source:"));
+            ui.label(tl!("المصدر:"));
             let shown = if d.prefs.source.is_empty() { tl!("Default Input").to_string() } else { d.prefs.source.clone() };
             let previous_source = d.prefs.source.clone();
             let cb = egui::ComboBox::from_id_salt("voiceover-source").selected_text(&shown).width(220.0).show_ui(ui, |ui| {

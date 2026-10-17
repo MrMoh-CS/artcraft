@@ -89,7 +89,7 @@ impl Section {
             Section::Clarity => "Clarity",
             Section::Creative => "Creative",
             Section::Ducking => "Ducking",
-            Section::Duration => "Duration",
+            Section::Duration => "المدة",
             Section::Pan => "Pan",
         }
     }

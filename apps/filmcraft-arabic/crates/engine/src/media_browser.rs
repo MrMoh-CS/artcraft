@@ -11,7 +11,7 @@
 //! | `mediaBrowser.select` | the selected files (File ▸ Import from Media Browser uses them) |
 //! | `mediaBrowser.favorite` | Add to / Remove from Favorites |
 //! | `mediaBrowser.clearRecent` | Clear Recent Directories |
-//! | `mediaBrowser.settings` | file types, view (list / thumbnails), columns (Edit Columns…), Import as Image تسلسل، Hover Scrub, thumbnail size |
+//! | `mediaBrowser.settings` | file types, view (list / thumbnails), columns (Edit Columns…), Import as Image Sequence, Hover Scrub, thumbnail size |
 //! | `mediaBrowser.import` | Import (the selection or `paths`; a folder becomes a bin, its sub-folders bins inside it; Project ▸ Ingest settings apply) |
 //! | `mediaBrowser.openInSource` | Open In Source Monitor (Shift+O) |
 //! | `mediaBrowser.probe` | a file's media properties (frame rate, duration, video / audio info), cached |
@@ -516,7 +516,7 @@ fn import(s: &mut Session, p: &Value) -> Result<Value> {
         if !is_dir {
             files.push(path);
         } else if seq {
-            // an image sequence: the folder's إطار
+            // an image sequence: the folder's frames
             match list(&*s.services, &path, "all") {
                 Ok(entries) => files.extend(entries.into_iter().filter(|e| !e.is_dir).map(|e| e.path)),
                 Err(_) => files.push(path),

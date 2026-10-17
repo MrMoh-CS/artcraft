@@ -192,7 +192,7 @@ impl SoundInfo {
     }
 }
 
-/// Number of sample إطار in a ST 331 AES3 element (from its header; 0 if too short).
+/// Number of sample frames in a ST 331 AES3 element (from its header; 0 if too short).
 pub fn aes3_element_samples(v: &[u8]) -> usize {
     if v.len() < 4 {
         return 0;
@@ -215,7 +215,7 @@ pub fn decode_pcm(v: &[u8], format: SoundFormat, channels: usize, bits: u32, fra
         SoundFormat::Pcm => {
             let bps = (bits as usize).div_ceil(8);
             if bps == 0 || bps > 4 || frame_bytes < bps * ch {
-                return Err(crate::Error::Unsupported(format!("{bits}-bit PCM with {frame_bytes}-byte إطار")));
+                return Err(crate::Error::Unsupported(format!("{bits}-bit PCM with {frame_bytes}-byte frames")));
             }
             // `frame_bytes >= bps * ch`, so the output is bounded by the bytes actually supplied.
             let n = v.len() / frame_bytes;

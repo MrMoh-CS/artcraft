@@ -92,7 +92,7 @@ pub struct SearchBin {
 pub const COLUMNS: [&str; 15] = [
     "All",
     "الاسم",
-    "Label",
+    "لون التسمية",
     "Media Type",
     "معدل الإطارات",
     "Media Duration",
@@ -223,7 +223,7 @@ mod tests {
         assert!(FindQuery::simple("الاسم", FindOp::Matches, "b-roll").find(&p).is_empty());
         assert_eq!(FindQuery::simple("الاسم", FindOp::DoesNotContain, "beach").find(&p), vec![a]);
         assert_eq!(FindQuery::simple("Scene", FindOp::Matches, "12").find(&p), vec![a]);
-        assert_eq!(FindQuery::simple("Label", FindOp::Matches, "mango").find(&p), vec![b]);
+        assert_eq!(FindQuery::simple("لون التسمية", FindOp::Matches, "mango").find(&p), vec![b]);
         assert_eq!(FindQuery::simple("All", FindOp::Contains, "waves").find(&p), vec![b]);
         assert_eq!(FindQuery::simple("Media Type", FindOp::Matches, "sequence").find(&p), vec![a, b]);
         // case sensitivity

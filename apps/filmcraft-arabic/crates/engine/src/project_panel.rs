@@ -220,7 +220,7 @@ pub const DEFAULT_COLUMNS: [&str; 12] = [
 /// Every built-in column (Metadata Display ▸ Project Metadata), in display order.
 pub const BUILTIN_COLUMNS: [&str; 36] = [
     "الاسم",
-    "Label",
+    "لون التسمية",
     "Media Type",
     "معدل الإطارات",
     "Media Start",
@@ -272,7 +272,7 @@ pub fn is_internal_key(k: &str) -> bool {
 pub fn default_width(c: &str) -> f32 {
     match c {
         "الاسم" => 220.0,
-        "Label" | "معدل الإطارات" | "Status" | "Good" | "Proxy" => 80.0,
+        "لون التسمية" | "معدل الإطارات" | "Status" | "Good" | "Proxy" => 80.0,
         "Video Info" | "Audio Info" | "File Path" | "Description" | "Log Note" | "Comment" => 170.0,
         _ => 110.0,
     }
@@ -358,7 +358,7 @@ pub fn cell(p: &Project, it: &ProjectItem, column: &str) -> (String, SortKey) {
     };
     match column {
         "الاسم" => text(it.name.clone()),
-        "Label" => text(it.label.name().to_string()),
+        "لون التسمية" => text(it.label.name().to_string()),
         "Media Type" => text(it.type_label().to_string()),
         "معدل الإطارات" if has_v => (format!("{} fps", rate.label()), SortKey::Num(rate.num as f64 / rate.den.max(1) as f64)),
         "معدل الإطارات" => (String::new(), SortKey::Num(0.0)),

@@ -35,7 +35,7 @@ use serde_json::{Value, json};
 use filmcraft_project::mixer::{
     self as pm, FADER_MAX_DB, FADER_MIN_DB, LANE_MUTE, LANE_PAN, LANE_VOLUME, MASTER_STRIP, lane_info, parse_fx_lane, parse_send_lane, thin_points, write_lane,
 };
-use filmcraft_project::{AudioChannels, AutomationMode, InputMap, ItemId, Param, ParamValue, تسلسل، Track, TrackId, TrackKind, TrackSend, find_effect};
+use filmcraft_project::{AudioChannels, AutomationMode, InputMap, ItemId, Param, ParamValue, Sequence, Track, TrackId, TrackKind, TrackSend, find_effect};
 use filmcraft_time::{TICKS_PER_SECOND, Tick};
 
 use crate::commands::{CommandSpec, always, bad, bool_p, f64_p, has_seq, str_p, time_p, u64_p};
@@ -114,7 +114,7 @@ impl Recorder {
 }
 
 /// Lanes a Write pass records on a strip (the 5.1 puck instead of pan when it feeds a 5.1 bus).
-fn write_lanes(seq: &تسلسل، strip: TrackId) -> &'static [&'static str] {
+fn write_lanes(seq: &Sequence, strip: TrackId) -> &'static [&'static str] {
     if strip == MASTER_STRIP {
         &[LANE_VOLUME]
     } else if seq.pans_51(strip) {
@@ -453,7 +453,7 @@ fn active_seq(s: &Session) -> Result<&Sequence> {
 }
 
 /// Parse a strip reference: id, "A1", "S1", "المزج", or a strip name.
-pub fn strip_ref(seq: &تسلسل، v: &Value) -> Option<TrackId> {
+pub fn strip_ref(seq: &Sequence, v: &Value) -> Option<TrackId> {
     if let Some(id) = v.as_u64() {
         let id = TrackId(id);
         return seq.strip(id).map(|_| id);
@@ -475,7 +475,7 @@ pub fn strip_ref(seq: &تسلسل، v: &Value) -> Option<TrackId> {
 }
 
 /// Display reference of a strip ("A1", "S2", "المزج").
-pub fn strip_label(seq: &تسلسل، id: TrackId) -> String {
+pub fn strip_label(seq: &Sequence, id: TrackId) -> String {
     if id == MASTER_STRIP {
         return "المزج".into();
     }
@@ -571,7 +571,7 @@ pub(crate) fn channels_from(s: &str) -> Option<AudioChannels> {
 }
 
 /// JSON view of one strip at time `t`.
-pub fn strip_json(s: &Session, seq: &تسلسل، id: TrackId, t: Tick) -> Value {
+pub fn strip_json(s: &Session, seq: &Sequence, id: TrackId, t: Tick) -> Value {
     let Some(tr) = seq.strip(id) else { return Value::Null };
     let live = &s.previews.live;
     let shown = |lane: &str| live.get(id, lane).map(|o| o.value).unwrap_or_else(|| underlying(&tr, lane, t));
@@ -1336,7 +1336,7 @@ pub fn commands() -> Vec<CommandSpec> {
             set_default_transition,
             true,
         ),
-        spec("mixer.addSubmix", "Add Audio Submix Track", &["التسلسل"], None, r#"{"name":str?,"channels":"Mono|Stereo|5.1"?}"#, has_seq, add_submix, true),
+        spec("mixer.addSubmix", "Add Audio Submix Track", &["تسلسل"], None, r#"{"name":str?,"channels":"Mono|Stereo|5.1"?}"#, has_seq, add_submix, true),
         spec("mixer.deleteSubmix", "Delete Submix Track", &[], None, r#"{"strip":"S1"|id}"#, has_seq, delete_submix, true),
         spec(
             "mixer.addInsert",

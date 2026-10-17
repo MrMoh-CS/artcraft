@@ -114,7 +114,7 @@ impl OperationalPattern {
     }
 }
 
-/// A timecode component (ST 377-1 §B.?: StartTimecode in إطار at RoundedTimecodeBase).
+/// A timecode component (ST 377-1 §B.?: StartTimecode in frames at RoundedTimecodeBase).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Timecode {
     /// Frame count of the first frame.
@@ -124,7 +124,7 @@ pub struct Timecode {
 }
 
 impl Timecode {
-    /// `HH:MM:SS:FF` (`;` before the إطار when drop-frame).
+    /// `HH:MM:SS:FF` (`;` before the frames when drop-frame).
     pub fn format(&self) -> String {
         let base = self.rounded_base.max(1) as i64;
         let mut f = self.start.max(0);
@@ -171,7 +171,7 @@ pub struct Sample {
     pub b_picture: bool,
 }
 
-/// A run of sound sample إطار stored contiguously.
+/// A run of sound sample frames stored contiguously.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Chunk {
     pub offset: u64,
@@ -225,11 +225,11 @@ impl EssenceTrack {
     pub fn first_edit_unit(&self) -> i64 {
         self.origin.saturating_add(self.start_position).max(0)
     }
-    /// Total sound sample إطار stored.
+    /// Total sound sample frames stored.
     pub fn stored_sample_frames(&self) -> u64 {
         self.chunks.last().map_or(0, |c| c.first_sample.saturating_add(c.samples))
     }
-    /// Sound sample إطار per edit unit (rational), e.g. 48000/25.
+    /// Sound sample frames per edit unit (rational), e.g. 48000/25.
     pub fn samples_per_edit_unit(&self) -> (i64, i64) {
         let sr = self.sound.as_ref().map(|s| s.sample_rate).unwrap_or_default();
         let er = self.edit_rate;
@@ -901,7 +901,7 @@ fn build_pictures(
         }
     }
     let n = samples.len();
-    // Key إطار and B pictures from the index.
+    // Key frames and B pictures from the index.
     let flagged = entries.values().any(|e| e.random_access());
     if !t.codec.intra_only() {
         if flagged {
@@ -914,7 +914,7 @@ fn build_pictures(
         } else {
             // No index flags: find the random-access pictures in the bitstream.
             if !samples.is_empty() {
-                warnings.push("no index table with random-access flags: key إطار found by scanning the essence".into());
+                warnings.push("no index table with random-access flags: key frames found by scanning the essence".into());
             }
             for (i, s) in samples.iter_mut().enumerate() {
                 let head = read_upto(src, s.offset, (s.size as usize).min(1024))?;
@@ -1000,9 +1000,9 @@ impl MxfFile {
         Ok(v)
     }
 
-    /// `frames` sound sample إطار from stored sample `start` of track `track`, planar f32
+    /// `frames` sound sample frames from stored sample `start` of track `track`, planar f32
     /// (zero past the end of the essence).
-    pub fn read_pcm(&self, src: &(impl ByteSource + ?Sized), track: usize, start: u64, إطار: usize) -> Result<Vec<Vec<f32>>> {
+    pub fn read_pcm(&self, src: &(impl ByteSource + ?Sized), track: usize, start: u64, frames: usize) -> Result<Vec<Vec<f32>>> {
         let t = self.tracks.get(track).ok_or_else(|| Error::Invalid(format!("no track {track}")))?;
         let si = t.sound.as_ref().ok_or_else(|| Error::Invalid("not a sound track".into()))?;
         let ch = si.channels.max(1) as usize;
@@ -1014,7 +1014,7 @@ impl MxfFile {
         // sizes cannot force a giant allocation, while any legitimately long read still works.
         let backed = t.stored_sample_frames().saturating_sub(start).min(src.len() / ch as u64);
         let allowed = usize::try_from(backed).unwrap_or(usize::MAX).saturating_add(PCM_PAD_FRAMES_LIMIT / ch);
-        if إطار > allowed {
+        if frames > allowed {
             return Err(Error::Invalid("sound request extends far past the stored essence".into()));
         }
         if t.sound_format == SoundFormat::Pcm && (si.bits == 0 || si.bits > 32) {
@@ -1024,7 +1024,7 @@ impl MxfFile {
         if t.sound_format == SoundFormat::Pcm && (fb == 0 || fb > 4096) {
             return Err(Error::Unsupported("invalid PCM block alignment".into()));
         }
-        let mut out = vec![vec![0f32; إطار]; ch];
+        let mut out = vec![vec![0f32; frames]; ch];
         let end = start.saturating_add(frames as u64);
         let mut ci = t.chunks.partition_point(|c| c.first_sample.saturating_add(c.samples) <= start);
         while let Some(c) = t.chunks.get(ci) {

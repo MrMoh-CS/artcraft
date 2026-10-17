@@ -166,12 +166,12 @@ pub struct HardwareEncoder {
     y: Vec<u8>,
     u: Vec<u8>,
     v: Vec<u8>,
-    /// Compressed إطار returned so far.
+    /// Compressed frames returned so far.
     decoded: i64,
 }
 
 impl HardwareEncoder {
-    /// MP4 samples from compressed إطار. Without frame reordering every frame is presented at
+    /// MP4 samples from compressed frames. Without frame reordering every frame is presented at
     /// its decode time, so composition offsets are 0; a frame whose time is not `n × duration`
     /// after the first (a dropped or reordered frame) is an error, never a file with wrong times.
     fn samples(&mut self, packets: Vec<VtPacket>) -> filmcraft_export::Result<Vec<EncodedPacket>> {

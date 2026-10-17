@@ -303,7 +303,7 @@ fn still_image_default_duration_and_indeterminate_timebase() {
     let clip = filmcraft_project::ClipId(r["clips"][0].as_u64().unwrap());
     let dur = s.active_sequence().unwrap().find_item(clip).unwrap().1.duration;
     assert_eq!(dur, rate.snap_nearest(Tick::from_seconds_f64(3.0)));
-    // in إطار
+    // in frames
     s.execute("prefs.set", json!({"values": {"timeline.stillImageUnit": "frames", "timeline.stillImageDuration": 10}})).unwrap();
     let end = s.active_sequence().unwrap().duration();
     let r = s.execute("timeline.place", json!({"item": still.0, "track": "V1", "time": end.0})).unwrap();
@@ -333,11 +333,11 @@ fn default_transition_durations() {
     s.execute("playhead.set", json!({"time": cut.0})).unwrap();
     let r = s.execute("sequence.applyVideoTransition", json!({})).unwrap();
     assert_eq!(transition_duration(&s, &r), rate.tick_of(10));
-    // audio: 0.5 seconds, snapped to إطار
+    // audio: 0.5 seconds, snapped to frames
     s.execute("prefs.set", json!({"values": {"timeline.audioTransitionDuration": 0.5, "timeline.audioTransitionUnit": "seconds"}})).unwrap();
     let r = s.execute("sequence.applyAudioTransition", json!({"clip": aclip})).unwrap();
     assert_eq!(transition_duration(&s, &r), rate.snap_nearest(Tick::from_seconds_f64(0.5)));
-    // explicit إطار still win
+    // explicit frames still win
     let cut2 = s.active_sequence().unwrap().video_tracks[0].items[3].start;
     s.execute("playhead.set", json!({"time": cut2.0})).unwrap();
     let r = s.execute("sequence.applyVideoTransition", json!({"frames": 4})).unwrap();
@@ -841,7 +841,7 @@ fn builtin_label_presets_are_complete_and_distinct() {
         (d.movie, "Footage"),
         (d.audio, "Dialogue"),
         (d.still, "Graphics"),
-        (d.sequence, "التسلسل"),
+        (d.sequence, "تسلسل"),
         (d.dynamic_link, "Visual Effects"),
         (d.bin, "Bin"),
         (d.captions, "Bin"),

@@ -273,7 +273,7 @@ fn ingest_copy_does_not_create_a_destination_when_the_source_is_missing() {
     let _ = std::fs::remove_dir_all(root);
 }
 
-/// Measure: Program-monitor playback cost of 4K H.264 with and without proxies (sequential إطار
+/// Measure: Program-monitor playback cost of 4K H.264 with and without proxies (sequential frames
 /// at ½ resolution). Run with `RAYON_NUM_THREADS=1` so wall time ≈ CPU time:
 /// `cargo test --release -p filmcraft-engine proxy_playback_perf_4k -- --ignored --nocapture`.
 #[test]

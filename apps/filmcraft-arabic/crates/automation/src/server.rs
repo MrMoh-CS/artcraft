@@ -393,7 +393,7 @@ impl FilmcraftMcp {
 
     #[tool(
         title = "Inspect the active sequence",
-        description = "The active sequence as JSON: settings, tracks, clips (ids, start/duration in ticks and إطار, effects), transitions, markers, in/out, playhead, selection. 254016000000 ticks = 1 second.",
+        description = "The active sequence as JSON: settings, tracks, clips (ids, start/duration in ticks and frames, effects), transitions, markers, in/out, playhead, selection. 254016000000 ticks = 1 second.",
         annotations(read_only_hint = true, destructive_hint = false, idempotent_hint = true, open_world_hint = false)
     )]
     async fn sequence_inspect(&self) -> Result<CallToolResult, McpError> {

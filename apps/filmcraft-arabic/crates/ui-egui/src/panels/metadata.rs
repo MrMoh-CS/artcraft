@@ -75,7 +75,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
             }
             ui.horizontal(|ui| {
                 ui.add_sized(vec2(label_w, 20.0), egui::Label::new(RichText::new(format!("{}:", crate::i18n::t(&f.name))).color(t.text_dim)).truncate());
-                if f.name == "Label" {
+                if f.name == "لون التسمية" {
                     let cur = Label::from_name(&f.value).unwrap_or(Label::Violet);
                     let mut sel = cur;
                     let r = egui::ComboBox::from_id_salt(("md-label", item.0))
@@ -94,7 +94,7 @@ pub fn show(app: &mut FilmcraftApp, ui: &mut egui::Ui, rect: Rect) {
                         });
                     elems.push(("metadata.label".into(), r.response.rect, cur.name().to_string()));
                     if sel != cur {
-                        commit = Some(("Label".into(), sel.name().to_string()));
+                        commit = Some(("لون التسمية".into(), sel.name().to_string()));
                     }
                 } else if f.editable {
                     if let Some(c) = text_field(ui, item, f, &mut elems) {
